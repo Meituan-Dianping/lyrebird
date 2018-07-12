@@ -1,0 +1,7 @@
+<ul class="nav nav-pills nav-stacked">
+    <li class="header">Groups</li>
+    [% for group in groups %]
+        <li><a href="#" onclick="update_group_info('[[ group ]]')"><i class="fa fa-folder-o"/>[[ group ]][% if group == current_group %]<small class="badge pull-right bg-red">active</small>[% endif %]</a></li>
+    [% endfor %]
+    <li><a href="#" onclick="showDataGroupEditor(null)"><i class="fa fa-plus"></i>New Data Group</a></li>
+</ul>

@@ -1,0 +1,12 @@
+flask
+mitmproxy==4.0.3
+genson==0.2.1
+requests==2.13.0
+fire==0.1.0
+flask-socketio
+flask-restful
+beautifulsoup4
+pytest
+pycryptodome==3.4.11
+portpicker
+colorama

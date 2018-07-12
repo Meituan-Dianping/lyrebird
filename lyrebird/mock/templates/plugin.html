@@ -1,0 +1,20 @@
+[% extends "base.html" %]
+[% set name = current_plugin.name %]
+
+[% block link %]
+    [% for css in plugin_css %]
+        [[ css|safe ]]
+    [% endfor %]
+[% endblock%]
+
+[% block content %]
+    <div id="plugin_content">
+        [[ plugin_content|safe ]]
+    </div>
+[% endblock %]
+
+[% block scripts %]
+    [% for script in plugin_javascript %]
+        [[ script|safe ]]
+    [% endfor %]
+[% endblock %]

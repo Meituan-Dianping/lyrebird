@@ -1,0 +1,195 @@
+[% extends "base.html" %]
+[% set name = 'Settings' %]
+[% block content %]
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="box box-solid">
+                <div class="box-body with-border">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li id="lyrebird" class="list_item active" onclick="show_editor('lyrebird')">
+                            <a><i class="fa fa-fw fa-desktop"></i>
+                                <span>Lyrebird [[ li_active ]]</span>
+                            </a>
+                        </li>
+                        [% for plugin in web_plugins %]
+                        <li id="[[ plugin.name ]]" class="list_item" onclick="show_editor('[[ plugin.name ]]')">
+                            <a><i class="[[ plugin.icon ]]">
+                                </i><span>[[ plugin.name ]]</span>
+                            </a>
+                        </li>
+                        [% endfor %]
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="box box-solid">
+                <div class="box-body">
+                    <div class="span10 col-md-15 columns twelve large-15">
+                        <div id="jsoneditor" style="height: 500px"></div>
+                        <br>
+                            <button class="btn btn-primary" id="setschema">Save</button>&nbsp&nbsp
+                            <button class="btn btn-primary hidden" id="resetschema">Reset</button>&nbsp&nbsp
+                            <label id="msg"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+[% endblock %]
+
+[% block scripts %]
+<script>
+    // Error/Warning label
+    var error_label = document.getElementById("msg");
+    // Editor container
+    var container = document.getElementById('jsoneditor');
+
+    // Editor options
+    var options = {
+        mode: 'tree',
+        modes: ['code', 'tree'], // allowed modes
+        onError: function (err) {
+            error_label.style.color = "red";
+            error_label.innerText=err;
+        },
+        onChange: function (newChange, oldChange) {
+            error_label.style.color = "blue";
+            error_label.innerText = "Please confirm the changes and save.";
+        }
+    };
+
+    // Save Buttons
+    var $set_schema_button = document.getElementById('setschema');
+
+    // Reset Buttons
+    var $reset_schema_button = document.getElementById('resetschema');
+
+    // 获取 list_item 列表
+    var arr = document.getElementsByClassName("list_item");
+
+    var editor = new JSONEditor(container, options);
+    editor.set(load_conf('lyrebird'));
+    editor.expandAll();
+
+    // Update the schema when the button is clicked
+    $set_schema_button.addEventListener('click',function() {
+        try {
+            for ( i = 0; i < arr.length; i++ ) {
+                if ( arr[i].className === "list_item active") {
+                    $.ajax({
+                        type: "PUT",
+                        url: "/api/conf/" + arr[i].id,
+                        data: editor.getText(),
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        success: function (data) {
+                            if ( data['code'] === 1000 ) {
+                                error_label.style.color = "green";
+                                error_label.innerText = data['message'];
+                            } else {
+                                error_label.style.color = "red";
+                                error_label.innerText = data['message'];
+                            }
+                        },
+                        error: function (e) {
+                            error_label.style.color = "red";
+                            error_label.innerText = e['message'];
+                        }
+                    });
+                }
+            }
+        }
+        catch(e) {
+            error_label.innerText = e.message;
+            return;
+        }
+    });
+
+    // Reset the schema when the button is clicked
+    $reset_schema_button.addEventListener('click', function () {
+        try {
+            for ( i = 0; i < arr.length; i++ ) {
+                if ( arr[i].className === "list_item active" ) {
+                    var plugin_name = arr[i].id
+                    $.ajax({
+                        type: "PUT",
+                        url: "/api/conf/" + plugin_name + '/reset',
+                        async: false,
+                        dataType: "json",
+                        success: function (res) {
+                            if ( data['code'] === 1000 ) {
+                                error_label.style.color = "green";
+                                error_label.innerText = data['message'];
+                            } else {
+                                error_label.style.color = "red";
+                                error_label.innerText = data['message'];
+                            }
+                        },
+                        error: function (e) {
+                            error_label.style.color = "red";
+                            error_label.innerText = e['message'];
+                        }
+                    })
+                }
+            }
+        }
+        catch (e) {
+            error_label.innerText = e.message;
+            return;
+        }
+        reload(plugin_name)
+    });
+
+    function show_editor(name) {
+        var e = document.getElementById(name);
+        var reset_button = document.getElementById("resetschema");
+
+        if ( name === "lyrebird" ) {
+            reset_button.classList.add("hidden");
+        } else {
+            reset_button.classList.remove("hidden")
+        }
+
+        for ( i = 0; i < arr.length; i++) {
+            if (arr[i] === e) {
+                arr[i].classList.add("active");
+            } else {
+                arr[i].classList.remove("active");
+            }
+        }
+
+        editor.set(load_conf(name));
+        editor.expandAll();
+        error_label.innerText = "";
+    }
+
+    function load_conf(name) {
+        var json;
+        $.ajax({
+            type: "GET",
+            url: "/api/conf/" + name,
+            async: false,
+            dataType: 'json',
+            success: function (res) {
+                error_label.innerText = "";
+                json = JSON.stringify(res);
+            },
+            error: function (e) {
+                error_label.style.color = "red";
+                error_label.innerText = e['message'];
+            }
+        });
+
+        return JSON.parse(json);
+    }
+
+    function reload(name) {
+        editor.set(load_conf(name));
+        editor.expandAll();
+    }
+
+</script>
+[% endblock %]

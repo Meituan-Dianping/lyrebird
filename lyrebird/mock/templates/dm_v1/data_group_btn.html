@@ -1,0 +1,13 @@
+<div class="box-header box box-solid" style="margin-top: 5px">
+    <i class="fa fa-folder"></i>
+    <h3 class="box-title">[[ group ]]</h3>
+</div>
+<!-- group edit btn -->
+<a class="btn btn-block btn-default" onclick="showDataEditor(null)">Add Data</a>
+[% if current_group==group %]
+<a class="btn btn-block btn-default" onclick="deactivateDataGroup('[[ group ]]')">Deactivate</a>
+[% else %]
+<a class="btn btn-block btn-default" onclick="activateDataGroup('[[ group ]]')">Activate</a>
+[% endif %]
+<a class="btn btn-block btn-default" onclick="showDataGroupEditor('[[ group ]]')">Filters</a>
+<a class="btn btn-block btn-default" onclick="deleteDataGroup('[[ group ]]')">Delete</a>

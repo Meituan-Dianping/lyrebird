@@ -1,0 +1,2 @@
+graft lyrebird_demo
+recursive-exclude * *.pyc *.pyo *.swo *.swp *.map *.DS_Store

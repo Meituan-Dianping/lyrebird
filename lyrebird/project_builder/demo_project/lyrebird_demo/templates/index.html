@@ -1,0 +1,58 @@
+ <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-solid">
+                <div class="box-body">
+                    <div>
+                        <form id="test-form" method="post" enctype="multipart/form-data" action="/api/import_statistics_excel">
+                            <label>Demo Post</label><br>
+                            <input id="some_value" type="text" name="name"><br>
+                            <br>
+                            <a class="btn btn-primary" onclick="demoPost()">Submit</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="box box-solid">
+                <div class="box-body">
+                    <div id="demo-post-result"></div>
+                </div>
+            </div>
+            <div class="box box-solid">
+                <div class="box-body">
+                    <div>
+                        <label>Demo Get</label><br>
+                        <input id="demo-get-name" type="text"><br>
+                        <br>
+                        <a class="btn btn-primary" onclick="demoGet()">Submit</a>
+                    </div>
+                </div>
+            </div>
+            <div class="box box-solid">
+                <div class="box-body">
+                    <div id="demo-get-result"></div>
+                </div>
+            </div>
+            <div class="box box-solid">
+                <div class="box-body">
+                    <div>
+                        <label>Demo Static JS</label><br>
+                        <br>
+                        <a class="btn btn-primary" onclick="test('Demo test')">Show alert</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function demoPost() {
+            $.post('/ui/plugin/demo/api/post', $('#test-form').serialize(), function (data) {
+                $('#demo-post-result').html(data)
+            })
+        }
+        function demoGet() {
+            $.get('/ui/plugin/demo/api/get/'+$('#demo-get-name').val(), function (data) {
+                $('#demo-get-result').html(data)
+            })
+        }
+    </script>
+    <script src="/ui/plugin/demo/static/hello.js" type="text/javascript"></script>

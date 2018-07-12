@@ -1,0 +1,33 @@
+<!-- DATA GROUP EDITOR MODAL -->
+<div class="modal fade" id="data-group-editor-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" style="width: 1000px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i> Data Group Conf</h4>
+            </div>
+            <form id="data-group-form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon">Group:</span>
+                            <input name="name" id="group-modal-name" type="text" class="form-control" placeholder="Group Name">
+                            <input name="origin_name" id="group-modal-origin-name" type="hidden">
+                            <input type="text" style="display: none;">
+                        </div>
+                    </div>
+                    <div class="form-group row pre-scrollable">
+                        <div id="group-modal-data" class="form-control" placeholder="Conf json" style="height: 450px;border:0px"></div>
+                        <input name="data" id="data-val" type="hidden"/>
+                    </div>
+                </div>
+                <div class="modal-footer clearfix">
+
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</button>
+
+                    <button type="button" class="btn btn-primary pull-left" onclick="addDataGroup()"><i class="fa fa-save"></i> Save</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

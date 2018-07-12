@@ -1,0 +1,266 @@
+[% extends "base.html" %]
+[% set name = 'DataManager' %]
+[% block content %]
+    <!-- DATA MANAGER BEGIN -->
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-solid">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-4">
+                            <div id="group-btn"></div>
+                            <!-- Navigation - folders-->
+                            <div id="group-list" style="margin-top: 15px;">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li class="header">Groups</li>
+                                </ul>
+                            </div>
+                        </div><!-- /.col (LEFT) -->
+                        <div class="col-md-9 col-sm-8">
+
+                            <div class="table-responsive">
+                                <!-- THE MESSAGES -->
+                                <table id="data-list" class="table table-bordered table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>Data Name</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                </table>
+                            </div><!-- /.table-responsive -->
+                        </div><!-- /.col (RIGHT) -->
+                    </div><!-- /.row -->
+                </div><!-- /.box-body -->
+                <div class="box-footer clearfix">
+                    <div class="pull-right">
+                    </div>
+                </div><!-- box-footer -->
+            </div><!-- /.box -->
+        </div><!-- /.col (MAIN) -->
+    </div>
+    <!-- DATA MANAGER END -->
+[% endblock %]
+[% block modal %]
+    [% include 'dm_v1/data_group_editor_modal.html' %]
+    [% include 'dm_v1/data_editor_modal.html' %]
+[% endblock %]
+[% block scripts %]
+    <script type="text/javascript">
+        $(document).ready(function () {
+            getGroups()
+        });
+    </script>
+    <script type="text/javascript">
+        var options = {
+            mode: 'tree',
+            modes: ['code', 'form', 'text', 'tree', 'view'], // allowed modes
+            onError: function (err) {
+                alert(err.toString());
+            }
+        };
+
+        var reqContainer = document.getElementById('data-modal-req');
+        var reqEditor = new JSONEditor(reqContainer, options);
+
+        var reqDataContainer = document.getElementById('data-modal-req-data');
+        var reqDataEditor = new JSONEditor(reqDataContainer, options);
+
+        var respContainer = document.getElementById('data-modal-resp');
+        var respEditor = new JSONEditor(respContainer, options);
+
+        var respDataContainer = document.getElementById('data-modal-resp-data');
+        var respDataEditor = new JSONEditor(respDataContainer, options);
+
+        var groupDataContainer = document.getElementById('group-modal-data');
+        var groupDataEditor = new JSONEditor(groupDataContainer, options);
+
+
+        var shown_group_name = null;
+        var table = $('#data-list').DataTable(
+            {
+                searching: false,
+                paging: false,
+                columns: [
+                    {"data": "0"},
+                    {
+                        "data": "0",
+                        "render": function (data) {
+                            console.debug(data)
+                            return "<a class=\"btn btn-default\" onclick=\"showDataEditor('" + data + "')\">Edit</a>"
+                                + "<a class=\"btn btn-default\" onclick=\"deleteData('" + data + "')\">Delete</a>"
+                        }
+                    }
+                ]
+            }
+        );
+
+        function update_group_info(group_name) {
+            getGroupBtn(group_name);
+            getDataList(group_name);
+        }
+
+        function getGroups() {
+            $.get('/ui/group_list', function (data) {
+                $('#group-list').html(data)
+            });
+        }
+
+        function getGroupBtn(group_name) {
+            $.get('/ui/group_btn/' + group_name, function (data) {
+                $('#group-btn').html(data)
+            })
+        }
+
+        function getDataList(group_name) {
+            shown_group_name = group_name;
+            table.ajax.url('/api/mock/' + group_name);
+            table.ajax.reload();
+            table.draw();
+        }
+
+        function activateDataGroup(name) {
+            $.ajax({
+                url: "/api/mock/" + name + "/activate",
+                type: "PUT",
+                success: function (result) {
+                    if (result.code !== 1000) {
+                        alert('Set current data group fail!')
+                    } else {
+                        getGroupBtn(name);
+                        getGroups();
+                    }
+                }
+            });
+        }
+
+        function deactivateDataGroup(name) {
+            $.ajax({
+                url: "/api/mock/" + name + "/deactivate",
+                type: "PUT",
+                success: function (result) {
+                    if (result.code !== 1000) {
+                        alert('Set current data group fail!')
+                    } else {
+                        getGroupBtn(name);
+                        getGroups();
+                    }
+                }
+            });
+        }
+
+        function addDataGroup() {
+            $('#data-val').val(JSON.stringify(groupDataEditor.get()));
+            $.post('/api/mock', $('#data-group-form').serialize(), function (data) {
+                console.debug(data);
+                $('#data-group-editor-modal').modal('hide');
+                getGroups();
+            })
+        }
+
+        function deleteDataGroup(name) {
+            $.ajax({
+                url: '/api/mock/' + name,
+                type: 'DELETE',
+                success: function (data) {
+                    console.debug(data);
+                    $('#group-btn').html('');
+                    getGroups();
+                    table.clear()
+                }
+            })
+        }
+
+        function addData() {
+            // set json editor data to form
+            $('#req-val').val(JSON.stringify(reqEditor.get()));
+            $('#req-data-val').val(JSON.stringify(reqDataEditor.get()));
+            $('#resp-val').val(JSON.stringify(respEditor.get()));
+            $('#resp-data-val').val(JSON.stringify(respDataEditor.get()));
+            // get rest args
+            var groupName = $('#data-modal-group').val();
+            var dataName = $('#data-modal-name').val();
+            // create new data
+            $.post('/api/mock/' + groupName + '/data/' + dataName, $('#data-form').serialize(), function (data) {
+                $('#data-editor-modal').modal('hide');
+                getDataList(shown_group_name);
+            })
+        }
+
+        function showDataGroupEditor(group_name) {
+            if (group_name === null) {
+                var conf_template = {parent: null, filters: [{contents: [], response: ''}]};
+                $('#group-modal-name').val('');
+                $('#group-modal-origin-name').val('');
+                groupDataEditor.set(conf_template);
+                $('#data-group-editor-modal').modal();
+            } else {
+                $.get('/api/mock/' + group_name, function (data) {
+                    $('#group-modal-name').val(group_name);
+                    $('#group-modal-origin-name').val(group_name);
+                    groupDataEditor.set(data.conf);
+                    $('#data-group-editor-modal').modal();
+                })
+            }
+        }
+
+        function showDataEditor(data_name) {
+            if (shown_group_name === null) {
+                console.error('Not select any group. ');
+                return
+            }
+            var group_name = shown_group_name;
+            if (data_name === null) {
+                var data_template = {
+                    request: {url: 'http://', method: 'GET', headers: {}},
+                    response: {code: 200, headers: {}}
+                };
+                $('#data-modal-group').val(group_name);
+                $('#data-modal-name').val('');
+                $('#data-modal-origin-name').val('');
+                reqEditor.set(data_template.request);
+                reqDataEditor.set('');
+                respEditor.set(data_template.response);
+                respDataEditor.set('');
+                $('#data-editor-modal').modal();
+            } else {
+                $.get('/api/mock/' + group_name + '/data/' + data_name, function (data) {
+                    var req = {
+                        url: data.request.url,
+                        method: data.request.method,
+                        headers: data.request.headers
+                    };
+                    var resp = {
+                        code: data.response.code,
+                        headers: data.response.headers
+                    };
+                    $('#data-modal-group').val(group_name);
+                    $('#data-modal-name').val(data_name);
+                    $('#data-modal-origin-name').val(data_name);
+                    $('#data-modal-data').val(JSON.stringify(data, null, 4));
+                    reqEditor.set(req);
+                    reqDataEditor.set(data.request.data);
+                    respEditor.set(resp);
+                    respDataEditor.set(data.response.data);
+                    $('#data-editor-modal').modal();
+                });
+            }
+        }
+
+        function deleteData(data_name) {
+            if (shown_group_name === null) {
+                console.error('Not select any group. ');
+                return
+            }
+            var group_name = shown_group_name;
+            $.ajax({
+                url: '/api/mock/' + group_name + '/data/' + data_name,
+                type: 'DELETE',
+                success: function (data) {
+                    console.debug(data);
+                    getDataList(group_name)
+                }
+            })
+        }
+    </script>
+[% endblock %]

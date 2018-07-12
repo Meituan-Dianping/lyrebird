@@ -1,0 +1,77 @@
+from .manager import run, debug
+from .mock.logger_helper import get_logger
+from .manager import Server
+from .mock import context
+from .mock.plugin_manager import PluginView, caller_info
+from .mock.handlers.handler_context import HandlerContext
+from .mock.reporter.report_handler import report
+from .mock import plugin_manager
+from blinker import Signal
+import os
+from .mock.event_bus import CustomEventReceiver
+
+
+APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
+
+
+def start_background_task(target, *args, **kwargs):
+    """
+    Start a background task in a new thread
+
+    :param target: task function
+    :param args: args will be pass to the task function
+    :param kwargs: kwargs will be pass to the task function
+    :return: null
+    """
+    context.application.socket_io.start_background_task(target, *args, **kwargs)
+
+
+def emit(event, *args, **kwargs):
+    """
+    Send socketio event
+
+    """
+    context.application.socket_io.emit(event, *args, **kwargs)
+
+
+def get_plugin_storage():
+    """
+    Get plugins storage dir path
+
+    :return: ~/.lyrebird/plugins/<plugin_name>
+    """
+    info = caller_info(index=2)
+    storage_name = info.top_module_name
+    plugin_storage_dir = os.path.abspath(os.path.join(APPLICATION_CONF_DIR, 'plugins/%s' % storage_name))
+    if not os.path.exists(plugin_storage_dir):
+        os.makedirs(plugin_storage_dir)
+    return plugin_storage_dir
+
+
+def subscribe(channel, func, *args, **kwargs):
+    """
+    订阅信号
+
+    :param signal: 信号，包含lyrebird, overbridge, android, tracking, perf, hunter
+    :param func: 响应事件的回调函数
+    :param sender: 信号发送者标识
+    """
+    context.application.event_bus.subscribe(channel, func)
+
+
+def publish(channel, event, *args, **kwargs):
+    """
+    发送信号
+
+    :param signal: 信号，包含lyrebird, overbridge, android, tracking, perf, hunter
+    :param sender: 信号发送者标识
+    :param kwargs: 事件数据
+    :return:
+    """
+    context.application.event_bus.publish(channel, event)
+
+
+def get_plugin_conf():
+    info = caller_info(index=2)
+    plugin_name = info.top_module_name
+    return plugin_manager.get_conf(plugin_name)

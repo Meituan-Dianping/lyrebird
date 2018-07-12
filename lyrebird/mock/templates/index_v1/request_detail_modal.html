@@ -1,0 +1,50 @@
+<!-- REQUEST DETAIL MODAL -->
+<div class="modal fade" id="data-detail-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" style="width: 1000px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i> Data Detail</h4>
+            </div>
+            <form id="data-form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label id="data-detail-source"></label>
+                    </div>
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#tab_req" data-toggle="tab">Request</a></li>
+                            <li><a href="#tab_req_data" data-toggle="tab">RequestData</a></li>
+                            <li><a href="#tab_resp" data-toggle="tab">Response</a></li>
+                            <li><a href="#tab_resp_data" data-toggle="tab">ResponseData</a></li>
+                            <li class="pull-right"><a href="#" class="text-muted"><i class="fa fa-gear"></i></a></li>
+                        </ul>
+                        <div class="tab-content">
+                             <div class="tab-pane active pre-scrollable" id="tab_req">
+                                <div name="req" id="data-modal-req" class="form-control" placeholder=""
+                                    style="height: 400px; border:0px"></div>
+                             </div><!-- /.tab-pane -->
+                             <div class="tab-pane pre-scrollable" id="tab_req_data">
+                                <div name="req_data" id="data-modal-req-data" class="form-control" placeholder=""
+                                    style="height: 400px; border:0px"></div>
+                             </div><!-- /.tab-pane -->
+                             <div class="tab-pane pre-scrollable" id="tab_resp">
+                                <div name="resp" id="data-modal-resp" class="form-control" placeholder=""
+                                     style="height: 400px; border:0px"></div>
+                             </div><!-- /.tab-pane -->
+                             <div class="tab-pane pre-scrollable" id="tab_resp_data">
+                                <div name="resp_data" id="data-modal-resp-data" class="form-control" placeholder=""
+                                     style="height: 400px; border:0px"></div>
+                             </div><!-- /.tab-pane -->
+                        </div><!-- /.tab-content -->
+                    </div><!-- nav-tabs-custom -->
+                </div>
+                <div class="modal-footer clearfix">
+
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
