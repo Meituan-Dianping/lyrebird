@@ -15,11 +15,18 @@ setup(
     name='lyrebird',
     version=VERSION,
     packages=['lyrebird'],
-    url='',
+    url='https://github.com/meituan/lyrebird',
     author='HBQA',
     long_description=long_description,
+    long_description_content_type="text/markdown",
     include_package_data=True,
     zip_safe=False,
+    classifiers=(
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.6",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: MacOS",
+    ),
     entry_points={
         'console_scripts': [
             'lyrebird = lyrebird.manager:run',
@@ -38,5 +45,6 @@ setup(
         'beautifulsoup4',
         'pycryptodome==3.4.11', 
         'portpicker', 
-        'colorama'
+        'colorama',
+        'packaging'
     ])

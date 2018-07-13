@@ -10,3 +10,4 @@ pytest
 pycryptodome==3.4.11
 portpicker
 colorama
+packaging

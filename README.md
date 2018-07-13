@@ -33,12 +33,22 @@
 * Python3.6及以上
 
 ## 安装
-        
-        pip3 install lyrebird
-        
+
+```bash
+# 安装python3
+brew install python3
+```
+
+```bash
+# 安装lyrebird
+pip3 install lyrebird
+```
+
 ## 启动
 
-        lyrebird
+```bash
+lyrebird
+```
 
 ## 连接移动设备
 
@@ -142,7 +152,7 @@ server.stop()
 
 ```bash
 # clone 代码
-git clone https://github.com/Meituan-Dianping/lyrebird.git
+git clone https://github.com/meituan/lyrebird.git
 
 # 进入工程目录
 cd lyrebird
