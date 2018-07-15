@@ -1,7 +1,8 @@
 module.exports = {
+    base: 'lyrebird',
+    dest: 'docs/.vuepress/pages',
     locales: {
         '/': {
-            base: 'lyrebird',
             lang: 'zh-CN',
             title: 'Lyrebird',
             description: '客户端测试工作台'
