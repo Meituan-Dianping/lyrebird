@@ -1,6 +1,7 @@
 module.exports = {
     locales: {
         '/': {
+            base: 'lyrebird',
             lang: 'zh-CN',
             title: 'Lyrebird',
             description: '客户端测试工作台'
@@ -28,7 +29,6 @@ module.exports = {
             '/guide/': [
                 'quickstart',
                 '',
-                'plugins',
                 'faq'
             ],
             '/develop/': [
