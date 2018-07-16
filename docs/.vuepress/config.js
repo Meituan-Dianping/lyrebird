@@ -1,5 +1,5 @@
 module.exports = {
-    base: 'lyrebird',
+    base: '/lyrebird/',
     dest: 'docs/.vuepress/pages',
     locales: {
         '/': {
