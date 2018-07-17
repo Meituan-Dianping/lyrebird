@@ -3,6 +3,21 @@
 
 ----
 
+# 目录
+
+- [简介](#简介)
+- [快速开始](#快速开始)
+  - [环境要求](#环境要求)
+  - [安装](#安装)
+  - [启动](#启动)
+  - [连接移动设备](#连接移动设备)
+  - [查看及录制数据](#查看及录制数据)
+- [基本命令](#基本命令)
+- [在代码中使用Lyrebird](#在代码中使用lyrebird)
+- [开发者指南](#开发者指南)
+  - [配置Lyrebird工程](#配置lyrebird工程)
+- [感谢](#感谢)
+
 # 简介
 
 **Lyrebird** 是一个基于拦截以及模拟HTTP/HTTPS网络请求的面向移动应用的插件化测试平台。
@@ -13,10 +28,6 @@
 
 
 > Lyrebird (琴鸟) 不但美丽壮观，且能歌善舞。它不但能模仿各种鸟类的鸣叫声，还能学人间的各种声音。如汽车喇叭声、火车喷气声、斧头伐木声、修路碎石机声及领号人的喊叫声等。歌声婉转动听，舞姿轻盈合拍，是澳洲鸟类中最受人喜爱的珍禽之一。
-
-
-## 注意
-> 使用Lyrebird后客户端完全和后端API服务器分离。API服务器相关的缺陷将不会被测到。可使用接口测试工具继续完成API接口服务的测试工作，以保障客户端质量。
 
 <img src="./image/Inspector.png" style="width: 800px">
 
@@ -32,12 +43,12 @@
 
 * Python >= 3.6
 
-## 安装
-
 ```bash
-# 安装python3
+# 推荐使用Homebrew(https://brew.sh/#install)安装Python3
 brew install python3
 ```
+
+## 安装
 
 ```bash
 # 安装lyrebird
@@ -52,19 +63,19 @@ lyrebird
 
 ## 连接移动设备
 
-* 启动Lyrebird后，移动设备需要通过代理的方式将请求数据接入。                
+* 启动Lyrebird后，移动设备需要通过代理的方式将请求数据接入。
 
 * 将移动设备的代理地址设为当前电脑地址，默认端口为4272（IP地址可查看Lyrebird启动时输出的日志）
 
 * 被测设备上用浏览器打开 http://mitm.it, 选择对应操作系统安装证书
 
-> 现在，可以开始操作移动设备了。Lyrebird将显示捕获到的http请求。
+> 现在，可以开始操作移动设备了。Lyrebird将显示捕获到的HTTP/HTTPS请求。
 
 ## 查看及录制数据
 
 <img src="./image/Inspector-with-tag.png" style="width: 800px">
 
-* 如上图，准备工作完成后，操作手机即可以看到HTTP请求的数据。
+* 如上图，准备工作完成后，操作手机即可以看到HTTP/HTTPS请求的数据。
 
 * 上图中按钮栏的按钮依次是：
 
@@ -84,7 +95,7 @@ lyrebird
 ----
 
 # 基本命令
-    
+
 * **lyrebird**
 
     以缺省参数启动lyrebird
@@ -99,21 +110,21 @@ lyrebird
     以输出详细日志模式启动lyrebird
 
 * **lyrebird no-browser start**
-    
+
     启动lyrebird不默认打开浏览器
 
 * **lyrebird start --mock 9090 --proxy 4272 --data . --name foo**
-    
+
     指定参数启动lyrebird
-    
+
     参数：
-    
+
         --mock 默认9090 ， mock服务及前端端口
-    
+
         --proxy 默认4272， 代理服务端口
-    
+
         --data 默认./data, mock数据根目录
-    
+
         --name 默认lyrebird，服务别名（用于通过别名停止指定的lyrebird服务）
 
 * **lyrebird stop**
@@ -121,12 +132,12 @@ lyrebird
     停止lyrebird
 
 * **lyrebird stop --name foo**
-    
+
     停止别名为foo的lyrebird
 
 ----
 
-# 在代码中使用lyrebird
+# 在代码中使用Lyrebird
 
 ```python
 import lyrebird
@@ -139,7 +150,7 @@ server.data_root_dir('./data')
 
 # 启动服务
 server.start()
-        
+
 # 停止服务
 server.stop()
 ```
@@ -169,5 +180,4 @@ sh dev.sh
 
 # 感谢
 
-本工具中代理功能使用[mitmproxy](https://github.com/mitmproxy/mitmproxy)实现
-
+本工具中的代理功能使用[mitmproxy](https://github.com/mitmproxy/mitmproxy)实现。
