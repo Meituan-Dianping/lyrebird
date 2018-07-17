@@ -30,7 +30,7 @@
 
 * macOS
 
-* Python3.6及以上
+* Python >= 3.6
 
 ## 安装
 
