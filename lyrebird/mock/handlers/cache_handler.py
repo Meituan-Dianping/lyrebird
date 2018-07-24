@@ -69,8 +69,7 @@ class CacheHandler:
             content_type = handler_context.request.headers.get('Content-Type')
             user_agent = handler_context.request.headers.get("User-Agent")
             if 'Content-Encoding' in handler_context.request.headers \
-                    and handler_context.request.headers['Content-Encoding'] == 'gzip' \
-                    and "MApi" not in user_agent:  # 特殊处理Mapi，因为不按照常理出牌
+                    and handler_context.request.headers['Content-Encoding'] == 'gzip':
                 data = gzip.decompress(handler_context.request.data)
             elif handler_context.request.data[:3] == b'\x1f\x8b\x08':
                 data = gzip.decompress(handler_context.request.data)
@@ -108,6 +107,9 @@ class CacheHandler:
             elif 'form' in content_type:
                 return data.decode()
             else:
-                return data.hex()
+                try:
+                    return json.loads(data.decode())
+                except Exception:
+                    return data.decode()
         except Exception:
             return 'Unknown byte data'
