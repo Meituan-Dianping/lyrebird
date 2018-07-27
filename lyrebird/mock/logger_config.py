@@ -1,4 +1,4 @@
-import os, codecs, shutil
+import codecs
 import configparser
 from pathlib import Path
 
@@ -23,9 +23,9 @@ class LoggingConfig:
     LOGGING_CONFIG = 'logging_config.ini'
     USER_LOGGING_CONFIG = USER_ROOT / LOGGING_CONFIG
 
-    def __init__(self):
+    def __init__(self, verbose):
         self.init_log_dir()
-        self.init_logger_config()
+        self.verbose = verbose
 
     def init_log_dir(self):
         """
@@ -35,6 +35,9 @@ class LoggingConfig:
         :return:
         """
         self.LOGFILE_PATH.mkdir(parents=True, exist_ok=True)
+
+    def get_level(self):
+        return "DEBUG" if self.verbose else "INFO"
 
     def init_logger_config(self):
         if self.USER_LOGGING_CONFIG.exists():
@@ -55,6 +58,7 @@ class LoggingConfig:
                     logger_options=option,
                     logger_value=user_conf.get(section, option)
                 )
+        set_logger_config(default_conf, logger_section='handler_stream', logger_options='level', logger_value=self.get_level())
         with codecs.open(self.USER_LOGGING_CONFIG, 'w', 'utf-8') as f:
             default_conf.write(f)
 
@@ -67,11 +71,14 @@ class LoggingConfig:
             logger_options='args',
             logger_value='("%s", "midnight", 1, 5, "utf-8")' % (self.USER_ROOT / 'log' / 'lyrebird.log')
         )
+        set_logger_config(conf, logger_section='handler_stream', logger_options='level', logger_value=self.get_level())
         with codecs.open(self.USER_LOGGING_CONFIG, 'w', 'utf-8') as f:
             conf.write(f)
 
     def get_user_logging_config(self):
+        self.init_logger_config()
         return self.USER_ROOT / self.LOGGING_CONFIG
 
-
-loggingConfig = LoggingConfig()
+    def use_default_logging_config(self):
+        self.create_logger_config()
+        return self.USER_ROOT / self.LOGGING_CONFIG
