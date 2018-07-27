@@ -37,6 +37,12 @@ class LoggingConfig:
         self.LOGFILE_PATH.mkdir(parents=True, exist_ok=True)
 
     def get_level(self):
+        """
+        启动参数带 v， 则 level 为 DEBUG
+        启动参数不带 v，则 level 为 INFO
+
+        :return: "DEBUG" or "INFO"
+        """
         return "DEBUG" if self.verbose else "INFO"
 
     def init_logger_config(self):
@@ -58,6 +64,7 @@ class LoggingConfig:
                     logger_options=option,
                     logger_value=user_conf.get(section, option)
                 )
+        # Update handler_stream - Level from start params <v>
         set_logger_config(default_conf, logger_section='handler_stream', logger_options='level', logger_value=self.get_level())
         with codecs.open(self.USER_LOGGING_CONFIG, 'w', 'utf-8') as f:
             default_conf.write(f)
@@ -71,6 +78,7 @@ class LoggingConfig:
             logger_options='args',
             logger_value='("%s", "midnight", 1, 5, "utf-8")' % (self.USER_ROOT / 'log' / 'lyrebird.log')
         )
+        # Update handler_stream - Level from start params <v>
         set_logger_config(conf, logger_section='handler_stream', logger_options='level', logger_value=self.get_level())
         with codecs.open(self.USER_LOGGING_CONFIG, 'w', 'utf-8') as f:
             conf.write(f)
