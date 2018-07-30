@@ -45,7 +45,6 @@ class Server:
         self.proxy_server = None
         self._conf_manager = None
         self.pid_file_name = None
-        init_logger_settings()
 
     def v(self):
         """
@@ -113,6 +112,7 @@ class Server:
 
         :return: 
         """
+        init_logger_settings(verbose=self.verbose)
         self.init_conf()
         self.mock_server = mock_server.LyrebirdMockServer(self._conf, self.verbose)
         self.mock_server.start()

@@ -2,7 +2,7 @@ import logging
 import colorama
 import copy
 from logging.config import fileConfig
-from .logger_config import loggingConfig
+from .logger_config import LoggingConfig
 
 def _print_error(msg):
     print('\n!!!!!!!!!!!!!!!!!!!!!!!!\n!!!    %s\n!!!!!!!!!!!!!!!!!!!!!!!!\n' % msg)
@@ -37,9 +37,20 @@ LOG_COLORS = {
 }
 
 
-def init_logger_settings():
-    logging.config.fileConfig(loggingConfig.get_user_logging_config(),
-                              disable_existing_loggers=False)
+def init_logger_settings(*, verbose=False):
+    logging_config = LoggingConfig(verbose)
+    try:
+        logging.config.fileConfig(
+            logging_config.get_user_logging_config(),
+            disable_existing_loggers=False)
+    except SyntaxError:
+        '''
+        若获取用户 Logging 配置文件，更新的过程中出现无法解析异常
+        则 使用默认的配置加载
+        '''
+        logging.config.fileConfig(
+            logging_config.use_default_logging_config(),
+            disable_existing_loggers=False)
 
     socketio = logging.getLogger('socketio')
     socketio.setLevel(logging.ERROR)
