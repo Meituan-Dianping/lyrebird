@@ -1,5 +1,5 @@
 flask
-mitmproxy==4.0.3
+mitmproxy==4.0.4
 genson==0.2.1
 requests==2.13.0
 fire==0.1.0
