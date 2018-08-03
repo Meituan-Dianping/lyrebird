@@ -39,26 +39,6 @@ class Flow(Resource):
         return abort(400, 'Request not found')
 
 
-class SaveFlow(Resource):
-
-    def post(self, group=None):
-        _group_name = group
-        _ids = request.form.getlist('id')
-        _items = []
-        for _id in _ids:
-            for item in context.application.cache.items():
-                if item['id'] == _id:
-                    _items.append(item)
-                    break
-        _target_group = context.application.data_manager.data_groups.get(_group_name)
-        if not _target_group:
-            return context.make_fail_response('Record fail. Target group not found')
-        for item in _items:
-            resp_name = urlparse(item['request']['url']).path.replace('/', '.')[1:] + '_' + item['id']
-            _target_group.add_data(resp_name, item)
-        return context.make_ok_response()
-
-
 class FlowList(Resource):
     """
     当前请求列表
@@ -81,22 +61,26 @@ class FlowList(Resource):
         return jsonify(req_list)
 
     def delete(self):
-        context.application.cache.clear()
+        _ids = request.form.getlist('ids')
+        if _ids:
+            context.application.cache.delete_by_ids(_ids)
+        else:
+            context.application.cache.clear()
         context.application.socket_io.emit('action', 'delete flow log')
         return context.make_ok_response()
 
     def post(self):
-        _ids = request.form.getlist('id')
+        _ids = request.json.get('ids')
         record_items = []
         for _id in _ids:
             for item in context.application.cache.items():
                 if _id == item['id']:
                     record_items.append(item)
                     break
-        conf_builder = DataGroupConfBuilder()
+        current_group = context.application.data_manager.current_data_group
         for item in record_items:
-            conf_builder.add_filter_by_req_ctx(item)
-        return jsonify(conf_builder.build())
+            current_group.add_data_and_filter(item)
+        return context.make_ok_response()
 
 
 class MockGroup(Resource):
@@ -266,7 +250,6 @@ class WorkMode(Resource):
 api_source.add_resource(Status, '/status')
 api_source.add_resource(Flow, '/flow/<string:id>')
 api_source.add_resource(FlowList, '/flow')
-api_source.add_resource(SaveFlow, '/flow/save/as/<string:group>')
 api_source.add_resource(MockGroup, '/mock', '/mock/<string:group>')
 api_source.add_resource(MockData, '/mock/<string:group>/data', '/mock/<string:group>/data/<string:data>')
 api_source.add_resource(ActivatedMockGroup, '/mock/activated', '/mock/<string:group>/<string:action>')

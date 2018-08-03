@@ -11,6 +11,8 @@ import traceback
 from flask import Response
 from .logger_helper import get_logger
 from . import context
+import sys
+
 
 _logger = get_logger()
 
@@ -49,6 +51,7 @@ class FileManager:
             try:
                 data_root.mkdir(parents=True)
             except Exception:
+                _logger.error(f'Data root path not found. And make new dir failed. {path}')
                 raise FileSystemError(f'Data root path not found. And make new dir failed. {path}')
         if not os.path.isdir(path):
             raise FileSystemError(f'Set data root path fail. {path} is not a dir')
@@ -169,7 +172,12 @@ class DataGroup:
         shutil.rmtree(self.dir_path)
 
     def read_conf(self):
-        self.conf = json.loads(codecs.open(self.conf_path, 'r', 'utf-8').read())
+        try:
+            self.conf = json.loads(codecs.open(self.conf_path, 'r', 'utf-8').read())
+        except Exception as e:
+            exc_info = sys.exc_info()
+            _logger.error(f'Read conf error. \nFile:{self.conf_path}. \nClass:{exc_info[0]} \nMessage:{exc_info[1]}')
+            raise FileSystemError(f'Read conf error. File={self.conf_path}') from e
 
     def write_conf(self):
         f = codecs.open(self.conf_path, 'w', 'utf-8')
