@@ -1,10 +1,15 @@
 <template>
     <tr>
         <td>
-            <strong><span :class="[responseSrcClass]">{{responseSrc}}</span></strong>
+            <input type="checkbox" :id="flow.id" v-model="selected">
         </td>
         <td>
-            <strong><span :class="[codeClass]" >{{flow.response.code}}</span></strong>
+            <span class="label" :class="[responseSrcClass]">{{responseSrc}}</span>
+        </td>
+        <td>
+            <strong>
+                <span :class="[codeClass]">{{flow.response.code}}</span>
+            </strong>
         </td>
         <td>
             {{flowContent.hostname}}
@@ -16,48 +21,62 @@
 </template>
 
 <script>
-module.exports = {
-    props: ['flow'],
-    computed: {
-        flowContent: function(){
-            let urlParser = document.createElement('a');
-            urlParser.href = this.flow.request.url;
-            return urlParser;
-        },
-        codeClass: function(){
-            let code = this.flow.response.code;
-            if(code===200 || (code>=300 && code<=399)){
-                return 'text-success';
-            }else{
-                return 'text-danger';
+    module.exports = {
+        props: ['flow', 'selectedIds'],
+        data: function () {
+            return {
+                selected: false
             }
         },
-        responseSrc: function(){
-            let respSrc = this.flow.response.mock;
-            if(respSrc.includes('mock')){
-                return 'mock'
-            }else if(respSrc.includes('proxy')){
-                return 'proxy'
-            }else{
-                return 'unknown'
+        watch: {
+            selectedIds: function () {
+                this.selected = this.selectedIds.indexOf(this.flow.id) >= 0
+            },
+            selected: function () {
+                this.$emit('item-checkbox-change', {
+                    id: this.flow.id,
+                    selected: this.selected
+                })
             }
         },
-        responseSrcClass: function(){
-            let respSrc = this.flow.response.mock;
-            if(respSrc.includes('mock')){
-                return 'text-success'
-            }else if(respSrc.includes('proxy')){
-                return 'text-warning'
-            }else{
-                return 'text-danger'
+        computed: {
+            flowContent: function () {
+                let urlParser = document.createElement('a');
+                urlParser.href = this.flow.request.url;
+                return urlParser;
+            },
+            codeClass: function () {
+                let code = this.flow.response.code;
+                if (code === 200 || (code >= 300 && code <= 399)) {
+                    return 'text-success';
+                } else {
+                    return 'text-danger';
+                }
+            },
+            responseSrc: function () {
+                let respSrc = this.flow.response.mock;
+                if (respSrc.includes('mock')) {
+                    return 'mock'
+                } else if (respSrc.includes('proxy')) {
+                    return 'proxy'
+                } else {
+                    return 'unknown'
+                }
+            },
+            responseSrcClass: function () {
+                let respSrc = this.flow.response.mock;
+                if (respSrc.includes('mock')) {
+                    return 'label-success'
+                } else if (respSrc.includes('proxy')) {
+                    return 'label-default'
+                } else {
+                    return 'label-danger'
+                }
             }
-        }
-    },
-    methods: {
+        },
+        methods: {}
     }
-}
 </script>
 
 <style>
-
 </style>
