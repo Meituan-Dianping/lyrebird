@@ -1,5 +1,6 @@
 from flask import Request, Response
 from .. import context
+from lyrebird import application
 import uuid
 import time
 
@@ -58,7 +59,7 @@ class HandlerContext:
                                               id=self.id))
 
     def get_origin_url(self):
-        proxy_headers = context.application.conf['mock.proxy_headers']
+        proxy_headers = application.config['mock.proxy_headers']
         scheme = self.request.headers.get(proxy_headers['scheme'], default='http')
         host = self.request.headers.get(proxy_headers['host'])
         port = self.request.headers.get(proxy_headers['port'], default='80')

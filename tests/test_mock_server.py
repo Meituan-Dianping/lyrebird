@@ -1,4 +1,6 @@
 from lyrebird.mock.mock_server import LyrebirdMockServer
+from lyrebird.event import EventServer
+from lyrebird import application
 import pytest
 
 
@@ -18,10 +20,12 @@ conf = {
 
 @pytest.fixture
 def client():
-    server = LyrebirdMockServer(conf=conf)
+    application.config = conf
+    application.server['event'] = EventServer()
+    server = LyrebirdMockServer()
     client = server.app.test_client()
     yield client
-    
+
 
 def test_mock_api(client):
     resp = client.get('/mock/http://www.meituan.com')

@@ -1,5 +1,5 @@
 from mitmproxy import http
-from lyrebird.mock.context import application
+from lyrebird import application
 from lyrebird.mock.logger_helper import get_logger
 
 """
@@ -8,11 +8,11 @@ Script for mitmdump
 Redirect request from proxy server to mock server
 """
 
-conf = application.conf
 _log = get_logger()
 
 
 def to_mock_server(flow: http.HTTPFlow):
+    conf = application.config
     # mock path 为/mock开头加上原始url
     flow.request.path = '/mock/' + flow.request.url
     # mock scheme 统一为http
@@ -27,6 +27,7 @@ def to_mock_server(flow: http.HTTPFlow):
 
 
 def request(flow: http.HTTPFlow):
+    conf = application.config
     _log.info(flow.request.url[:100])
     filters = conf.get('proxy.filters')
     if not filters:

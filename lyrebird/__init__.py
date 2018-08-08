@@ -8,7 +8,7 @@ from .mock.reporter.report_handler import report
 from .mock import plugin_manager
 from blinker import Signal
 import os
-from .mock.event_bus import CustomEventReceiver
+from .event import CustomEventReceiver
 
 
 APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
