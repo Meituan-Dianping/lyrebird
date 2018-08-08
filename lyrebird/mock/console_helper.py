@@ -16,20 +16,14 @@ def tag_yello(msg):
 
 
 def warning_msg(*msg, check_verbose=False):
-    if check_verbose and not context.application.verbose:
-        return
     print(f'{Fore.YELLOW}lyrebird', *msg, Style.RESET_ALL)
 
 
 def mock_msg(*msg, check_verbose=False):
-    if check_verbose and not context.application.verbose:
-        return
     print(f'{Fore.GREEN}lyrebird{Style.RESET_ALL}', *msg)
 
 
 def err_msg(*msg, check_verbose=False):
-    if check_verbose and not context.application.verbose:
-        return
     print(f'{Fore.RED}lyrebird Error{Style.RESET_ALL}', *msg)
 
 
@@ -38,6 +32,4 @@ def url_color(line):
 
 
 def statistic_msg(*msg, check_verbose=False):
-    if check_verbose and not context.application.verbose:
-        return
     print(f'{Fore.RED}[STATISTIC_MSG]{Style.RESET_ALL}', *msg)

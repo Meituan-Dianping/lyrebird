@@ -4,6 +4,8 @@ from colorama import Fore, Style
 from .proxy_run import run
 from mitmproxy.tools.dump import DumpMaster
 from mitmproxy.tools.cmdline import mitmdump
+from lyrebird.base_server import ThreadServer
+from lyrebird import application
 
 """
 HTTP proxy server
@@ -15,9 +17,12 @@ CURRENT_PATH = Path(__file__).parent
 FLOW_PATH = CURRENT_PATH/'proxy_flow.py'
 
 
-class LyrebirdProxyServer:
+class LyrebirdProxyServer(ThreadServer):
 
-    def __init__(self, conf=None):
+    def __init__(self):
+        super().__init__()
+        
+        conf = application.config
         self.proxy_port = str(conf.get('proxy.port', '4272')) if conf else '4272'
         '''
         --ignore_hosts:
@@ -36,10 +41,8 @@ class LyrebirdProxyServer:
         
         self._master = None
 
-    def start(self, callback):
+    def run(self):
         info_msg(f'start on {get_ip()}:{self.proxy_port}', f'{Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
-        # Open browser callback.
-        callback()
         mitm_arguments = [
             '-s', str(FLOW_PATH),
             '-p', self.proxy_port,
