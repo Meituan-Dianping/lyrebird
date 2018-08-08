@@ -68,7 +68,13 @@ def run(
         extra: Extra argument processing callable which returns a dict of
         options.
     """
-    debug.register_info_dumpers()
+    
+    # Remove debuger
+    # debug.register_info_dumpers()
+    
+    # Add looper in server thread
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
     opts = options.Options()
     master = master_cls(opts)

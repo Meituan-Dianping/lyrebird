@@ -17,6 +17,9 @@ from flask_socketio import SocketIO
 from .reporter import report_handler
 from ..version import VERSION
 import datetime
+from lyrebird.base_server import ThreadServer
+from lyrebird import application
+
 
 """
 Mock server
@@ -35,14 +38,19 @@ current_dir = os.path.dirname(__file__)
 _logger = get_logger()
 
 
-class LyrebirdMockServer:
+class LyrebirdMockServer(ThreadServer):
     """
     模拟接口服务
     使用flask在默认的9090端口启动，模拟线上接口，同时支持通过api动态修改接口数据。
 
     """
-    def __init__(self, conf=None, verbose=False, block=False):
-        self.block = block
+    def __init__(self):
+        super().__init__()
+        
+        self.conf = application.config
+        # TODO rm conf rom mock context
+        context.application.conf = application.config
+
         self.debug = False
         self.port = 9090
         self._working_thread = None
@@ -59,13 +67,10 @@ class LyrebirdMockServer:
         self.socket_io = SocketIO(self.app, async_mode='threading', log_output=False)
         # 存储socket-io
         context.application.socket_io = self.socket_io
-        # 加载verbose设置
-        context.application.verbose = verbose
         # 生成过滤器实例
-        if conf:
-            context.application.conf = conf
-            self.port = conf.get('mock.port')
-            warning_msg(f'Load config : {json.dumps(conf, ensure_ascii=False, indent=4)}')
+        if self.conf:
+            self.port = self.conf.get('mock.port')
+            warning_msg(f'Load config : {json.dumps(self.conf, ensure_ascii=False, indent=4)}')
         else:
             err_msg('Can not start mock server without config file')
             raise SyntaxError('Can not start mock server without config file.'
@@ -98,8 +103,14 @@ class LyrebirdMockServer:
             _logger.info(f'{response.status_code} {lyrebird_info} {request.method} {request.url[:100]}')
             return response
 
+    def run(self):
+        server_ip = application.config.get('ip')    
+        warning_msg(f'start on {server_ip}:{self.port}')
+        report_handler.start()
+        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
 
-    def start(self):
+    # TODO delete
+    def _start(self):
         server_ip = context.application.conf.get('ip')
         warning_msg(f'start on {server_ip}:{self.port}')
         import threading
@@ -110,15 +121,14 @@ class LyrebirdMockServer:
             name='MOCK_SERVER',
             daemon=True)
         self._working_thread.start()
-
         report_handler.start()
-
 
     def stop(self):
         """
         停止服务
 
         """
+        super().stop()
         try:
             self.socket_io.stop()
         except Exception:

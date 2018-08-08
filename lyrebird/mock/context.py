@@ -2,11 +2,11 @@ from flask import jsonify
 from . import cache
 from .filesystem import FileManager
 from flask_socketio import SocketIO
-from .event_bus import EventBus
 import codecs, json, os
+from lyrebird import application as app
 
 """
-Lyrebird context
+Mock server context
 
 """
 
@@ -25,7 +25,6 @@ class Application:
 
     def __init__(self):
         self._conf = None
-        self.verbose = False
         # todo 使用内存中的List存储请求，应可支持切换redis
         self.cache = cache.get_cache()
         self.work_mode = Mode.NORMAL
@@ -33,10 +32,12 @@ class Application:
         self.data_manager = FileManager()
         # SocketIO
         self.socket_io: SocketIO = None
-        # 消息总线
-        self.event_bus = EventBus()
         self.conf_manager = None
         self.current_conf_name = None
+
+    @property
+    def event_bus(self):
+        return app.server.get('event')
 
     @property
     def conf(self):
@@ -45,7 +46,7 @@ class Application:
     @conf.setter
     def conf(self, _conf):
         self._conf = _conf
-        # 更新conf触发更新data_manager根目录
+        # TODO 更新conf触发更新data_manager根目录
         if _conf.get('mock.data'):
             self.data_manager.set_root(_conf.get('mock.data'))
 

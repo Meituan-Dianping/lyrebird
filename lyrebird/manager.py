@@ -6,11 +6,15 @@ import socket
 import fire
 from lyrebird import config
 from .mock.logger_helper import init_logger_settings
-from .mock import mock_server
-from .proxy import proxy_server
 import webbrowser
 import threading
 from lyrebird.project_builder.builder import PluginProjectBuilder
+from lyrebird.mock.mock_server import LyrebirdMockServer
+from lyrebird.proxy.proxy_server import LyrebirdProxyServer
+from lyrebird.event import EventServer
+from lyrebird.background import BackgroundTaskServer
+from lyrebird import application
+
 
 """
 Lyrebird main entry
@@ -100,24 +104,24 @@ class Server:
         self._conf = self._conf_manager.load_tmp(self.custom_conf_name, **custom_args)
         self._conf['ip'] = get_ip()
 
-    def start(self, callback):
+        application.config = self._conf
+
+    def start(self):
         """
         启动proxy&mock
 
-        
-        self.mock_server = mock_server.LyrebirdMockServer(conf, self.verbose)
-        self.mock_server.start()
-        self.proxy_server = proxy_server.LyrebirdProxyServer(conf, self.verbose)
-        self.proxy_server.start()
-
-        :return: 
         """
         init_logger_settings(verbose=self.verbose)
         self.init_conf()
-        self.mock_server = mock_server.LyrebirdMockServer(self._conf, self.verbose)
-        self.mock_server.start()
-        self.proxy_server = proxy_server.LyrebirdProxyServer(self._conf)
-        self.proxy_server.start(callback)
+        
+        application.server['event'] = EventServer()
+        application.server['background'] = BackgroundTaskServer()
+        application.server['proxy'] = LyrebirdProxyServer()   
+        application.server['mock'] = LyrebirdMockServer()
+
+        application.start_server()
+
+
 
     def stop(self):
         if self.mock_server:
@@ -192,7 +196,8 @@ class CommandLine:
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
 
-        self.server.start(callback=open_browser)
+        self.server.start()
+        open_browser()
 
     def stop(self, name='lyrebird'):
         try:
