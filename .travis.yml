@@ -10,3 +10,8 @@ jobs:
         - pip install .
       # command to run tests
       script: pytest
+    - stage: deploy
+      language: python
+      python:
+        - "3.6"
+      script: python -m site
