@@ -2,6 +2,7 @@ jobs:
   include:
     - stage: test
       language: python
+      catch: pip
       python:
         - "3.6"
       # command to install dependencies
@@ -11,4 +12,8 @@ jobs:
       # command to run tests
       script: pytest
     - stage: deploy
-      script: echo $JOB_INFO
+      language: python
+      python: "3.6"
+      script:
+        - echo $JOB_INFO
+        - echo $TRAVIS_REPO_SLUG
