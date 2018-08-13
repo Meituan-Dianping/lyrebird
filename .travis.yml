@@ -16,15 +16,13 @@ jobs:
       node_js:
         - "10"
       cache:
+        yarn: true
         directories:
-          - "node_modules"
       install:
-        - npm install -g vuepress
-        - npm run docs:build
-
+        - yarn global add vuepress
+        - yarn build docs
       script:
         - echo "Skipping tests"
-
       deploy:
         provider: pages
         skip-cleanup: true
