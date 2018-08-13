@@ -20,7 +20,7 @@ jobs:
         directories:
       install:
         - yarn global add vuepress
-        - yarn build docs
+        - vuepress build docs
       script:
         - echo "Skipping tests"
       deploy:
