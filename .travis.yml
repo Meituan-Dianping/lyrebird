@@ -1,6 +1,6 @@
 jobs:
   include:
-    - stage: test
+    - stage: unit test
       language: python
       catch: pip
       python:
@@ -11,9 +11,23 @@ jobs:
         - pip install .
       # command to run tests
       script: pytest
-    - stage: deploy
-      language: python
-      python: "3.6"
+    - stage: deploy doc
+      language: node_js
+      node_js:
+        - "10"
+      cache:
+        directories:
+          - "node_modules"
+      install:
+        - npm install -g vuepress
+        - npm run docs:build
+
       script:
-        - echo $JOB_INFO
-        - echo $TRAVIS_REPO_SLUG
+        - echo "Skipping tests"
+
+      deploy:
+        provider: pages
+        skip-cleanup: true
+        github-token: $GITHUB_ACCESS_TOKEN  # Set in travis-ci.org dashboard, marked secure https://docs.travis-ci.com/user/deployment/pages/#Setting-the-GitHub-token
+        target-branch: gh-pages
+        local-dir: docs/.vuepress/dist
