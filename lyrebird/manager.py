@@ -12,7 +12,7 @@ from lyrebird.project_builder.builder import PluginProjectBuilder
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
-from lyrebird.background import BackgroundTaskServer
+from lyrebird.task import BackgroundTaskServer
 from lyrebird import application
 
 
@@ -115,12 +115,11 @@ class Server:
         self.init_conf()
         
         application.server['event'] = EventServer()
-        application.server['background'] = BackgroundTaskServer()
+        application.server['task'] = BackgroundTaskServer()
         application.server['proxy'] = LyrebirdProxyServer()   
         application.server['mock'] = LyrebirdMockServer()
 
         application.start_server()
-
 
 
     def stop(self):

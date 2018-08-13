@@ -11,7 +11,7 @@ jobs:
         - pip install .
       # command to run tests
       script: pytest
-    - stage: deploy doc
+    - stage: deploy docs
       language: node_js
       node_js:
         - "10"
@@ -30,4 +30,4 @@ jobs:
         target-branch: gh-pages
         local-dir: docs/.vuepress/dist
         on:
-          branch: feature/import-custom-config-from-uri
+          branch: master
