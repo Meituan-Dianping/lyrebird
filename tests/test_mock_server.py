@@ -28,7 +28,7 @@ def client():
 
 
 def test_mock_api(client):
-    resp = client.get('/mock/http://www.meituan.com')
+    resp = client.get('/mock/http://www.google.com')
     assert resp.status_code == 200
 
 
