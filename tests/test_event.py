@@ -46,3 +46,13 @@ def test_state(event_server):
     event_server.publish('Test', 'NewActivity', state=True)
 
     assert event_server.state.get('Test') == 'NewActivity'
+
+
+def test_state_getter(event_server):
+    import lyrebird
+    lyrebird.application.server['event'] = event_server
+    test_state = lyrebird.state.get('Test')
+    assert test_state == None
+    event_server.publish('Test', 'TestMessage', state=True)
+    test_state = lyrebird.state.get('Test')
+    assert test_state == 'TestMessage'

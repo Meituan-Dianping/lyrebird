@@ -9,6 +9,7 @@ from .mock import plugin_manager
 from blinker import Signal
 import os
 from .event import CustomEventReceiver
+from lyrebird import application
 
 
 APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
@@ -56,7 +57,8 @@ def subscribe(channel, func, *args, **kwargs):
     :param func: 响应事件的回调函数
     :param sender: 信号发送者标识
     """
-    context.application.event_bus.subscribe(channel, func)
+    # context.application.event_bus.subscribe(channel, func)
+    application.server['event'].subscribe(channel, func)
 
 
 def publish(channel, event, *args, **kwargs):
@@ -68,10 +70,33 @@ def publish(channel, event, *args, **kwargs):
     :param kwargs: 事件数据
     :return:
     """
-    context.application.event_bus.publish(channel, event)
+    # context.application.event_bus.publish(channel, event)
+    application.server['event'].publish(channel, event)
+
+
+def add_background_task(name, func):
+    """
+    添加后台任务
+
+    """
+    application.server['task'].add_task(name, func)
 
 
 def get_plugin_conf():
     info = caller_info(index=2)
     plugin_name = info.top_module_name
     return plugin_manager.get_conf(plugin_name)
+
+
+"""
+获取 Event server state
+"""
+class StateProxy:
+
+    def get(self, index):
+        return application.server['event'].state.get(index)
+
+    def __getitem__(self, index):
+        return application.server['event'].state[index]
+
+state = StateProxy()
