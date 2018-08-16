@@ -25,7 +25,7 @@ const store = new Vuex.Store({
       state.selectedIds = val
     },
     deleteSelectedId: function(state, val){
-      index = state.indextOf(val)
+      index = state.selectedIds.indexOf(val)
       if(index<0){
         return
       }
