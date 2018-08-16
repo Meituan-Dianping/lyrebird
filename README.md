@@ -1,4 +1,8 @@
 # Lyrebird
+
+[![Build Status](https://travis-ci.org/meituan/lyrebird.svg?branch=master)](https://travis-ci.org/meituan/lyrebird)
+
+
 ![lyrebird](./image/lyrebird.png)
 
 ----

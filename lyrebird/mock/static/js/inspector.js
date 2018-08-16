@@ -25,7 +25,11 @@ const store = new Vuex.Store({
       state.selectedIds = val
     },
     deleteSelectedId: function(state, val){
-      state.selectedIds.pop(val)
+      index = state.indextOf(val)
+      if(index<0){
+        return
+      }
+      state.selectedIds.splice(index, 1)
     }
   },
   getters: {

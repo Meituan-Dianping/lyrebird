@@ -11,7 +11,23 @@ jobs:
         - pip install .
       # command to run tests
       script: pytest
+
+    - stage: release to pypi
+      if: branch = master
+      language: python
+      catch: pip
+      python:
+        - "3.6"
+      deploy:
+        provider: pypi
+        user: $PYPI_USER
+        password:
+          secure: $PYPI_SECURE
+        on:
+          tags: true
+
     - stage: deploy docs
+      if: branch = master
       language: node_js
       node_js:
         - "10"
