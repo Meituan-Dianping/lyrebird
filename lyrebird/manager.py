@@ -113,7 +113,7 @@ class Server:
         """
         init_logger_settings(verbose=self.verbose)
         self.init_conf()
-        
+
         application.server['event'] = EventServer()
         application.server['task'] = BackgroundTaskServer()
         application.server['proxy'] = LyrebirdProxyServer()   

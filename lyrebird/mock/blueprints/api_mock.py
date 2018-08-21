@@ -8,8 +8,12 @@ from flask import Blueprint, request, abort
 
 from ..handlers.handler_context import HandlerContext
 from .. import plugin_manager
-from ..console_helper import err_msg
 from .. import context
+from lyrebird import log
+
+
+logger = log.get_logger()
+
 
 api_mock = Blueprint('mock', __name__, url_prefix='/mock')
 
@@ -34,7 +38,7 @@ def index(path=''):
             if req_context.response:
                 resp = req_context.response
         except Exception:
-            err_msg(traceback.format_exc())
+            logger.error(traceback.format_exc())
 
     for plugin_name in plugin_manager.data_handler_plugins:
         try:
@@ -46,9 +50,9 @@ def index(path=''):
                 elif isinstance(plugin.change_response, FunctionType) and plugin.change_response():
                     resp = req_context.response
                 else:
-                    err_msg(f'Plugin {plugin_name} has attr change_response, but its not bool or function')
+                    logger.error(f'Plugin {plugin_name} has attr change_response, but its not bool or function')
         except Exception:
-            err_msg(f'plugin error {plugin_name}\n{traceback.format_exc()}')
+            logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
 
     if not resp:
         resp = abort(404, 'Not handle this request')

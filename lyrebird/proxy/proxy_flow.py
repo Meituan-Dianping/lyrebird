@@ -1,6 +1,6 @@
 from mitmproxy import http
 from lyrebird import application
-from lyrebird.mock.logger_helper import get_logger
+from lyrebird import log
 
 """
 Script for mitmdump
@@ -8,7 +8,7 @@ Script for mitmdump
 Redirect request from proxy server to mock server
 """
 
-_log = get_logger()
+_logger = log.get_logger()
 
 
 def to_mock_server(flow: http.HTTPFlow):
@@ -23,12 +23,12 @@ def to_mock_server(flow: http.HTTPFlow):
     flow.request.host = conf.get('mock.host', 'localhost')
     # device real ip
     flow.request.headers['lyrebird.device.ip'] = flow.client_conn.address[0]
-    _log.info('Redirect-> %s' % flow.request.url[:100])
+    _logger.info('Redirect-> %s' % flow.request.url[:100])
 
 
 def request(flow: http.HTTPFlow):
     conf = application.config
-    _log.info(flow.request.url[:100])
+    _logger.info(flow.request.url[:100])
     filters = conf.get('proxy.filters')
     if not filters:
         to_mock_server(flow)

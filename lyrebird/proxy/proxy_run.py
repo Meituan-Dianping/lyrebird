@@ -119,20 +119,6 @@ def run(
         if extra:
             opts.update(**extra(args))
 
-        '''
-        Comments:
-        此处注释原因是，mitmproxy signal handler 和 Lyrebird 的信号冲突
-        '''
-        # loop = asyncio.get_event_loop()
-        # for signame in ('SIGINT', 'SIGTERM'):
-        #     try:
-        #         loop.add_signal_handler(getattr(signal, signame), master.shutdown)
-        #     except NotImplementedError:
-        #         # Not supported on Windows
-        #         pass
-
-        # Make sure that we catch KeyboardInterrupts on Windows.
-        # https://stackoverflow.com/a/36925722/934719
         if os.name == "nt":
             async def wakeup():
                 while True:

@@ -29,7 +29,7 @@ setup(
     ),
     entry_points={
         'console_scripts': [
-            'lyrebird = lyrebird.manager:run',
+            'lyrebird = lyrebird.nmanager:run',
             'lyrebird-plugin = lyrebird.manager:plugin'
         ]
     },

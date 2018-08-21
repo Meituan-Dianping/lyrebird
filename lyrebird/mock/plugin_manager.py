@@ -1,7 +1,6 @@
 import pkg_resources
 from . import handlers
 from collections import OrderedDict, namedtuple
-from .console_helper import err_msg
 import traceback
 from jinja2 import Environment, PackageLoader
 from flask import send_from_directory
@@ -13,10 +12,14 @@ import json
 from types import FunctionType
 from pathlib import Path
 from . import context
+from lyrebird import log
 
 """
 Plugin manager
 """
+
+logger = log.get_logger()
+
 
 ROOT_DIR = Path('~/.lyrebird').expanduser()
 PLUGINS_DIR = ROOT_DIR/'plugins'
@@ -177,15 +180,15 @@ def _load_data_handler_plugin():
         try:
             handler_class = ep.load()
             if not isinstance(handler_class, type):
-                err_msg(f'Load plugin {ep} error. Entry point is not a class')
+                logger.error(f'Load plugin {ep} error. Entry point is not a class')
                 continue
             if not hasattr(handler_class, 'handle'):
-                err_msg(f'Load plugin {ep} error. Not found function - "handle"')
+                logger.error(f'Load plugin {ep} error. Not found function - "handle"')
                 continue
             handler = handler_class()
             data_handler_plugins[ep.name] = handler
         except Exception:
-            err_msg(f'Load plugin {ep} error')
+            logger.error(f'Load plugin {ep} error')
             traceback.print_exc()
 
 
@@ -203,7 +206,7 @@ def get_change_response_plugins():
 def _check_data_handlers_response_conflict():
     need_change_resp_handlers = get_change_response_plugins()
     if len(need_change_resp_handlers) > 1:
-        err_msg(f'More than one plugin will modify response. Please check those plugins {need_change_resp_handlers}')
+        logger.error(f'More than one plugin will modify response. Please check those plugins {need_change_resp_handlers}')
 
 
 def _load_web_plugin():
@@ -212,27 +215,27 @@ def _load_web_plugin():
         try:
             web_class = ep.load()
         except Exception:
-            err_msg(f'Load plugin fail. {ep}')
+            logger.error(f'Load plugin fail. {ep}')
             traceback.print_exc()
             continue
         if not isinstance(web_class, type):
-            err_msg(f'Load plugin {ep} error. Entry point is not a class')
+            logger.error(f'Load plugin {ep} error. Entry point is not a class')
             continue
         web_plugin = web_class()
         if ep.name in web_plugins:
-            err_msg(f'Plugin {ep} duplicate name with {web_plugins[ep.name]}')
+            logger.error(f'Plugin {ep} duplicate name with {web_plugins[ep.name]}')
             continue
         if not hasattr(web_class, 'on_create'):
-            err_msg(f'Load plugin {ep} error. Not found function - "on_create"')
+            logger.error(f'Load plugin {ep} error. Not found function - "on_create"')
             continue
         if not hasattr(web_class, 'index'):
-            err_msg(f'Load plugin {ep} error. Not found function - "index"')
+            logger.error(f'Load plugin {ep} error. Not found function - "index"')
             continue
         try:
             web_plugin.on_create()
             web_plugin.after_on_create()
         except Exception:
-            err_msg(f'Plugin {ep} on create', traceback.format_exc())
+            logger.error(f'Plugin {ep} on create', traceback.format_exc())
             continue
         web_plugins[ep.name] = web_plugin
 
@@ -269,7 +272,7 @@ def add_view_to_blueprint(blueprint):
                     **rule.options
                 )
         except Exception:
-            err_msg(f'Can not add rule {rule}')
+            logger.error(f'Can not add rule {rule}')
             traceback.print_exc()
 
 
@@ -282,7 +285,7 @@ def add_event_rules(socket_io):
             for event_rule in plugin.event_rules:
                 socket_io.on_event(event_rule.event, event_rule.handler, event_rule.namespace)
         except Exception:
-            err_msg(f'Can not add event rule {event_rule}')
+            logger.error(f'Can not add event rule {event_rule}')
             traceback.print_exc()
 
 

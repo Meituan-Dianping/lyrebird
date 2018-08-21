@@ -1,6 +1,4 @@
-from .manager import run, debug
-from .mock.logger_helper import get_logger
-from .manager import Server
+from .nmanager import run, debug
 from .mock import context
 from .mock.plugin_manager import PluginView, caller_info
 from .mock.handlers.handler_context import HandlerContext
@@ -16,8 +14,7 @@ APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
 
 
 def start_background_task(target, *args, **kwargs):
-    """
-    Start a background task in a new thread
+    """Start a background task in a new thread
 
     :param target: task function
     :param args: args will be pass to the task function
