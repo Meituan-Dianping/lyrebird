@@ -65,7 +65,7 @@ class ConfigManager():
 
 resource_template = {
     'uri': None,
-    'lastUpdate': None
+    'config': None
 }
 
 class Rescource:
@@ -73,28 +73,19 @@ class Rescource:
     download_dirname = 'downloads'
 
     def __init__(self, conf_root_path='~/.lyrebird'):
-        self._uri = None
         self.cache_file = Path(conf_root_path).expanduser() / self.cache_filename
         self.download_dir = Path(conf_root_path).expanduser() / self.download_dirname
-
-    @property
-    def uri(self):
-        return self._uri.geturl()
-
-    @uri.setter
-    def uri(self, value):
-        self._uri = urlparse(value)
+        self.cache = None
 
     def load(self):
         if self.cache_file.exists():
             with codecs.open(self.cache_file, 'r', 'utf-8') as f:
-                cache = json.load(f)
-                self.uri = cache.get('uri')
+                self.cache = json.load(f)
+        else:
+            self.cache = resource_template
 
     def save(self):
         with codecs.open(self.cache_file, 'w', 'utf-8') as f:
-            resource_template['uri'] = self.uri
-            resource_template['lastUpdate'] = time.time()
             f.write(json.dumps(resource_template, ensure_ascii=False, indent=4))
             f.close()
 

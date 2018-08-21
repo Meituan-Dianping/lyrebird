@@ -92,10 +92,10 @@ def run():
 
     # stop event handler
     def signal_handler(signum, frame):
-            print('\n!!!Ctrl-C pressed. Lyrebird stop!!!')
-            application.stop_server()
-            threading.Event().set()
-            os._exit(1)
+        application.stop_server()
+        threading.Event().set()
+        logger.warning('!!!Ctrl-C pressed. Lyrebird stop!!!')
+        os._exit(1)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
