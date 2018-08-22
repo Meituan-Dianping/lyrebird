@@ -23,7 +23,10 @@ def make_fail_response(msg):
     )
 
 
-config = {}
+_cm = None
+_src = None
+
+
 server = {}
 plugins = {}
 
@@ -31,3 +34,30 @@ plugins = {}
 def start_server():
     for name in server:
         server[name].start()
+
+
+def stop_server():
+    for name in server:
+        server[name].stop()
+
+
+class ConfigProxy:
+
+    def get(self, k, default=None):
+        return _cm.config.get(k, default)
+    
+    def __setitem__(self, k, v):
+        _cm.config[k] = v
+
+    def __getitem__(self, k):
+        return _cm.config[k]
+    
+    def raw(self):
+        return _cm.config
+
+
+config = ConfigProxy()
+
+
+def root_dir():
+    return _cm.root

@@ -5,20 +5,19 @@ import socket
 import errno
 import socket
 import subprocess
-from .logger_helper import get_logger, _print_error
 from . import plugin_manager
 from flask import Flask, request, redirect, url_for, Response
 from . import context
 from .blueprints.api import api
 from .blueprints.ui import ui
 from .blueprints.api_mock import api_mock
-from .console_helper import warning_msg, mock_msg, err_msg, url_color, tag_green
 from flask_socketio import SocketIO
 from .reporter import report_handler
 from ..version import VERSION
 import datetime
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
+from lyrebird import log
 
 
 """
@@ -35,7 +34,7 @@ Default port : 9090
 """
 
 current_dir = os.path.dirname(__file__)
-_logger = get_logger()
+_logger = log.get_logger()
 
 
 class LyrebirdMockServer(ThreadServer):
@@ -70,9 +69,8 @@ class LyrebirdMockServer(ThreadServer):
         # 生成过滤器实例
         if self.conf:
             self.port = self.conf.get('mock.port')
-            warning_msg(f'Load config : {json.dumps(self.conf, ensure_ascii=False, indent=4)}')
         else:
-            err_msg('Can not start mock server without config file')
+            _logger.error('Can not start mock server without config file')
             raise SyntaxError('Can not start mock server without config file.'
                               ' Default config file path = api-mock/conf.json')
 
@@ -105,23 +103,10 @@ class LyrebirdMockServer(ThreadServer):
 
     def run(self):
         server_ip = application.config.get('ip')    
-        warning_msg(f'start on {server_ip}:{self.port}')
+        _logger.warning(f'start on http://{server_ip}:{self.port}')
         report_handler.start()
         self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
 
-    # TODO delete
-    def _start(self):
-        server_ip = context.application.conf.get('ip')
-        warning_msg(f'start on {server_ip}:{self.port}')
-        import threading
-        self._working_thread = threading.Thread(
-            target=self.socket_io.run,
-            args=(self.app,),
-            kwargs=dict(host='0.0.0.0', port=self.port, debug=True, use_reloader=False),
-            name='MOCK_SERVER',
-            daemon=True)
-        self._working_thread.start()
-        report_handler.start()
 
     def stop(self):
         """
@@ -134,4 +119,4 @@ class LyrebirdMockServer(ThreadServer):
         except Exception:
             pass
         report_handler.stop()
-        warning_msg('MockServer shutdown')
+        _logger.warning('MockServer shutdown')

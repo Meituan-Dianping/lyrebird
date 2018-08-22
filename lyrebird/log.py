@@ -1,0 +1,89 @@
+import logging
+from colorama import Fore, Style, Back
+from collections import namedtuple
+from lyrebird import application
+
+
+_stream_logger_inited = False
+
+
+def get_logger()->logging.Logger:
+    global _stream_logger_inited
+    if not _stream_logger_inited:
+        _init_stream_logger()
+        _stream_logger_inited = True
+    return logging.getLogger('lyrebird')
+
+
+Color = namedtuple('Color', ['fore', 'style', 'back'])
+
+COLORS = dict(
+    CRITICAL=Color(fore=Fore.WHITE, style=Style.BRIGHT, back=Back.RED),
+    ERROR=Color(fore=Fore.RED, style=Style.NORMAL, back=Back.RESET),
+    WARNING=Color(fore=Fore.YELLOW, style=Style.NORMAL, back=Back.RESET),
+    INFO=Color(fore=Fore.WHITE, style=Style.NORMAL, back=Back.RESET),
+    DEBUG=Color(fore=Fore.GREEN, style=Style.NORMAL, back=Back.RESET)
+)
+
+def colorit(message, levelname):
+    color = COLORS.get(levelname)
+    if color:
+        return f'{color.fore}{color.style}{color.back}{message}{Style.RESET_ALL}'
+    else:
+        return message
+
+
+class ColorFormater(logging.Formatter):
+
+    def format(self, record:logging.LogRecord):
+        record.module = f'{colorit(record.module, record.levelname)}'
+        record.msg = f'{colorit(record.msg, record.levelname)}'
+        record.levelname = f'{colorit(record.levelname, record.levelname)}'
+        return super().format(record)
+
+
+def _init_stream_logger():
+    logger:logging.Logger = logging.getLogger('lyrebird')
+    
+    color_formater = ColorFormater(fmt='%(levelname)s [%(module)s] %(message)s')
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(color_formater)
+    logger.addHandler(stream_handler)
+
+
+def _init_file_logger():
+    file_formater = logging.Formatter(
+        fmt='%(asctime)s %(levelname)s [%(module)s] - %(threadName)s [PID] %(process)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    log_file = application.root_dir()/'lyrebird.log'
+    file_handler = logging.handlers.TimedRotatingFileHandler(log_file, backupCount=1, encoding='utf-8', when='midnight')
+    file_handler.setFormatter(file_formater)
+
+    logger:logging.Logger = logging.getLogger('lyrebird')
+    logger.addHandler(file_handler)
+
+
+def _setup_3rd_loggers():
+    socketio = logging.getLogger('socketio')
+    socketio.setLevel(logging.WARNING)
+
+    engineio = logging.getLogger('engineio')
+    engineio.setLevel(logging.WARNING)
+
+    mock = logging.getLogger('mock')
+    mock.setLevel(logging.WARNING)
+    mock.addHandler(logging.StreamHandler())
+
+    werkzeug = logging.getLogger('werkzeug')
+    werkzeug.setLevel(logging.WARNING)
+
+def init():    
+    _init_file_logger()
+    _setup_3rd_loggers()
+
+    logger:logging.Logger = logging.getLogger('lyrebird')
+    if application.config.get('verbose', False):
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.WARNING)

@@ -1,4 +1,5 @@
 from lyrebird.mock import context
+from lyrebird import application
 from lyrebird.mock.filesystem import DataGroupConfBuilder
 from flask import Blueprint, request, jsonify, abort
 from flask_restful import Resource, Api
@@ -203,7 +204,7 @@ class Conf(Resource):
 
     def get(self, plugin_name):
         if plugin_name == 'lyrebird':
-            return jsonify(context.application.conf)
+            return jsonify(application.config.raw())
         else:
             return jsonify(plugin_manager.get_conf(plugin_name))
 

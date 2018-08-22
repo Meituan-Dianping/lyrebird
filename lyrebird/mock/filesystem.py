@@ -9,12 +9,12 @@ from typing import Dict
 from pathlib import Path
 import traceback
 from flask import Response
-from .logger_helper import get_logger
+from lyrebird import log
 from . import context
 import sys
 
 
-_logger = get_logger()
+_logger = log.get_logger()
 
 """
 文件管理系统

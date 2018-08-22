@@ -1,239 +1,155 @@
-import os
-import sys
-from signal import SIGTERM
-import signal
-import socket
-import fire
-from lyrebird import config
-from .mock.logger_helper import init_logger_settings
+import argparse
 import webbrowser
+import json
+import traceback
+import socket
 import threading
-from lyrebird.project_builder.builder import PluginProjectBuilder
+import signal
+import os
+from lyrebird import log
+from lyrebird import application
+from lyrebird.config import Rescource, ConfigManager
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
-from lyrebird import application
 
 
-"""
-Lyrebird main entry
-
-"""
-
-class ManagerError(Exception):
-    pass
+logger = log.get_logger()
 
 
-class Server:
+def main():
     """
-    Lyrebird server class
+    Command line main entry
 
-    useage:
-        import lyrebird
-        
-        server = lyrebird.Server()
-        server.start()
+    Start lyrebird
+
+    * start in default config
+    ```
+    lyrebird
+    ```
+    * start with verbose mode
+    ```
+    lyrebird -v
+    ```
+    * start without open a web browser
+    ```
+    lyrebird -b
+    ```
+    * start with a specified config file
+    ```
+    lyrebird -c /path/to/your/config/file
+    ```
+    * start with multipart args
+    ```
+    lyrebird -v --mock 8080 -c /path/to/your/config/file
+    ```
     """
+    parser = argparse.ArgumentParser(prog='lyrebird')
 
-    def __init__(self):
-        self.verbose = False
-        self.record = False
-        self.custom_conf_name = None
-        self._conf = None
-        self._pid = None
-        self._mock_port = None
-        self._proxy_port = None
-        self._data_root_dir = None
-        self.mock_server = None
-        self.proxy_server = None
-        self._conf_manager = None
-        self.pid_file_name = None
+    parser.add_argument('-v', dest='verbose', action='store_true', help='Show verbose log')
+    parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 4272')
+    parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 9090')
+    parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
+    parser.add_argument('-b', '--no_browser', dest='no_browser', action='store_true', help='Start without open a browser')
+    parser.add_argument('-c', '--config', dest='config', help='Start with a config file. Default is "~/.lyrebird/conf.json"')
 
-    def v(self):
-        """
-        是否显示详细日志
+    subparser = parser.add_subparsers(dest='sub_command')
+    src_parser = subparser.add_parser('src')
+    src_parser.add_argument('uri')
+    subparser.add_parser('plugin')
 
-        """
-        self.verbose = True
+    args = parser.parse_args()
 
-    def mock_port(self, port):
-        self._mock_port = port
-        return self
+    if args.config:
+        application._cm = ConfigManager(conf_root_path=args.config)
+        application._src = Rescource(conf_root_path=args.config)
+    else:
+        application._cm = ConfigManager()
+        application._src = Rescource()
 
-    def proxy_port(self, port):
-        self._proxy_port = port
-        return self
+    # set current ip to config
+    application._cm.config['ip'] = _get_ip()
 
-    def data_root_dir(self, path):
-        self._data_root_dir = path
-        return self
+    if args.verbose:
+        application._cm.config['verbose'] = True
 
-    def set_cache_uri(self, uri):
-        self._conf_manager = config.Config(name=self.pid_file_name)
-        self._conf_manager.init()
-        cache = self._conf_manager.load_cache()
-        cache['user_data_uri'] = uri
-        self._conf_manager.save_cache(cache)
-
-    def init_conf(self):
-        self._conf_manager = config.Config(name=self.pid_file_name)
-        self._conf_manager.init()
-        self._conf_manager.save_pid()
-
-        custom_args = {}
-
-        if self._mock_port:
-            custom_args['mock.port'] = self._mock_port
-        if self._proxy_port:
-            custom_args['proxy.port'] = self._proxy_port
-        if self._data_root_dir:
-            custom_args['mock.data'] = self._data_root_dir
-
-        cache = self._conf_manager.load_cache()
-
-        if self.custom_conf_name == None:
-            self.custom_conf_name = cache.get('custom_conf')
-        else:
-            cache['custom_conf'] = self.custom_conf_name
-            self._conf_manager.save_cache(cache)
-
-        if cache.get('user_data_uri'):
-            self._conf_manager.download(cache.get('user_data_uri'))
-
-        self._conf = self._conf_manager.load_tmp(self.custom_conf_name, **custom_args)
-        self._conf['ip'] = get_ip()
-
-        application.config = self._conf
-
-    def start(self):
-        """
-        启动proxy&mock
-
-        """
-        init_logger_settings(verbose=self.verbose)
-        self.init_conf()
-        
-        application.server['event'] = EventServer()
-        application.server['task'] = BackgroundTaskServer()
-        application.server['proxy'] = LyrebirdProxyServer()   
-        application.server['mock'] = LyrebirdMockServer()
-
-        application.start_server()
-
-
-    def stop(self):
-        if self.mock_server:
-            self.mock_server.stop()
-
-
-class CommandLine:
-    """
-    命令行入口
+    # init file logger after config init
+    log.init()
     
-    * lyrebird
-    以缺省参数启动lyrebird
+    if args.mock:
+        application._cm.config['mock.port'] = args.mock
+    if args.proxy:
+        application._cm.config['proxy.port'] = args.proxy
+    if args.data:
+        application._cm.config['mock.data'] = args.data
 
-    * lyrebird start
-    以缺省参数启动lyrebird
+    logger.debug(f'Read args: {args}')
 
-    * lyrebird v start
-    以输出详细日志模式启动lyrebird
+    if args.sub_command == 'src':
+        logger.debug('EXEC SUBCMD:SRC')
+        src(args)
+    elif args.sub_command == 'plugin':
+        logger.debug('EXEC SUBCMD:PLUGIN')
+        plugin(args)
+    else:
+        logger.debug('EXEC LYREBIRD START')
+        run(args)
 
-    * lyrebird no-browser start
-    启动lyrebird不默认打开浏览器
 
-    * lyrebird start --mock 9090 --proxy 4272 --data .
-    指定参数启动lyrebird
-    参数：
-        --mock 默认9090 ， mock服务及前端端口
-        --proxy 默认4272， 代理服务端口
-        --data 默认./data, mock数据根目录
-        --name 默认lyrebird，服务别名（用于通过别名停止指定的lyrebird服务）
+def run(args:argparse.Namespace):
+    # show current config contents
+    config_str = json.dumps(application._cm.config, ensure_ascii=False, indent=4)
+    logger.warning(f'Lyrebird start with config:\n{config_str}')
+        
+    application.server['event'] = EventServer()
+    application.server['task'] = BackgroundTaskServer()
+    application.server['proxy'] = LyrebirdProxyServer()   
+    application.server['mock'] = LyrebirdMockServer()
 
-    * lyrebird stop
-    停止lyrebird
+    application.start_server()
 
-    * lyrebird stop --name foo
-    停止别名为foo的lyrebird
-    """
-    def __init__(self):
-        self._open_browser = True
-        self.server = Server()
+    # auto open web browser
+    if not args.no_browser:
+        webbrowser.open(f'http://localhost:{application.config["mock.port"]}')
 
-    def v(self):
-        self.server.v()
-        return self
+    # stop event handler
+    def signal_handler(signum, frame):
+        application.stop_server()
+        threading.Event().set()
+        logger.warning('!!!Ctrl-C pressed. Lyrebird stop!!!')
+        os._exit(1)
 
-    def no_browser(self):
-        self._open_browser = False
-        return self
-
-    def start(self, mock=None, proxy=None, data=None, name='lyrebird', config=None):
-        if mock:
-            self.server.mock_port(mock)
-        if proxy:
-            self.server.proxy_port(proxy)
-        if data:
-            self.server.data_root_dir(data)
-        if name:
-            self.server.pid_file_name = name
-        if config:
-            self.server.custom_conf_name = config
-
-        # open browser
-        def open_browser():
-            if self._open_browser:
-                webbrowser.open('http://localhost:' + str(self.server._conf.get('mock.port')))
-
-        def signal_handler(signum, frame):
-            print('\n!!!Ctrl-C pressed. Lyrebird stop!!!')
-            self.server.stop()
-            threading.Event().set()
-            os._exit(1)
-
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGTERM, signal_handler)
-
-        self.server.start()
-        open_browser()
-
-    def stop(self, name='lyrebird'):
-        try:
-            os.kill(config.Config(name=name).read_pid(), SIGTERM)
-        except Exception:
-            # 未找到进程时不处理
-            pass
-        config.Config(name=name).remove_pid()
-
-    def resource(self, uri=None, branch='master'):
-        if uri:
-            uri = '%s --branch %s' % (uri, branch)
-            self.server.set_cache_uri(uri)
-        else:
-            print('\nResource uri is not set!')
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
 
 def debug():
-    CommandLine().v().start()
+    # use lyrebird.debug to start plugin in debug mode
+    # can pass args by sys.args
+    main()
+    # main thread loop
+    import asyncio
+    loop = asyncio.get_event_loop()
+    loop.run_forever()
 
 
-def run():
-    if len(sys.argv) == 1:
-        fire.Fire(CommandLine, 'v start')
-    else:
-        fire.Fire(CommandLine)
+def plugin(args:argparse.Namespace):
+    pass
 
 
-def plugin():
-    fire.Fire(PluginProjectBuilder)
+def src(args:argparse.Namespace):
+    from threading import Thread
+    def worker():
+        application._src.download(args.uri)
+    Thread(target=worker).start()
 
 
-def get_ip():
+def _get_ip():
     """
-    获取当前设备在网络中的ip地址
+    Get local ip from socket connection
 
-    :return: IP地址字符串
+    :return: IP Addr string
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('meituan.com', 80))

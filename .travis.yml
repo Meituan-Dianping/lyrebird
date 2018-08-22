@@ -11,7 +11,25 @@ jobs:
         - pip install .
       # command to run tests
       script: pytest
+
+    - stage: release to pypi
+      if: branch = master AND type = push
+      language: python
+      catch: pip
+      python:
+        - "3.6"
+      script:
+        - echo "Skipping tests"
+      deploy:
+        provider: pypi
+        user: $PYPI_USER
+        password:
+          secure: $PYPI_SECURE
+        on:
+          tags: true
+
     - stage: deploy docs
+      if: branch = master AND type = push
       language: node_js
       node_js:
         - "10"

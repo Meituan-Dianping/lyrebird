@@ -1,146 +1,132 @@
+from pathlib import Path
 import codecs
 import json
-import os
-from pathlib import Path
-import shutil
 from packaging import version
-
-from lyrebird.mock.logger_helper import get_logger
-from .version import IVERSION
-from typing import List
-from flask import Response, abort
-from lyrebird.mock.console_helper import warning_msg, err_msg
+from urllib.parse import urlparse
+import requests
 import subprocess
-
-"""
-Config manager
-
-Config file path: ~/.lyrebird/conf.json
-Lyrebird will copy config template to ~/.lyrebird/conf.json, when lyrebird server start. 
-"""
-
-CURRENT_DIR = Path(__file__).parent
-
-CONFIG_TEMPLATE_FILE = CURRENT_DIR/'templates'/'conf.json'
-CACHE_TEMPLATE_FILE = CURRENT_DIR/'templates'/'cache.json'
+import time
+import shutil
+from lyrebird import log as nlog
 
 
-class Config:
+logger = nlog.get_logger()
 
-    def __init__(self, root_dir='~', name='lyrebird'):
-        self.root = Path(root_dir, '.lyrebird').expanduser()
-        self.default_conf_path = Path(self.root, 'conf.json').expanduser()
-        self.custom_conf_dir = Path(self.root, 'conf').expanduser()
-        self.cache_path = Path(self.root, 'cache.json').expanduser()
-        self.pid_path = Path(self.root, f'{name}.pid').expanduser()
-        self.tmp_dir = Path(self.root, 'tmp').expanduser()
-        self.plugin_root = Path(self.root, 'plugins')
 
-    def init(self):
-        if not self.root.exists():
-            self.root.mkdir()
-        if not self.default_conf_path.exists():
-            shutil.copyfile(CONFIG_TEMPLATE_FILE, self.default_conf_path)
+config_template = {
+  "version": "0.10.5",
+  "proxy.filters": [],
+  "proxy.port": 4272,
+  "mock.port": 9090,
+  "mock.data": "data",
+  "mock.proxy_headers": {
+    "scheme": "MKScheme",
+    "host": "MKOriginHost",
+    "port": "MKOriginPort"
+  }
+}
+
+
+class ConfigManager():
+    default_conf_filename = 'conf.json'
+
+    def __init__(self, conf_root_path='~/.lyrebird'):
+        self.root = None
+        self.config = None
+        self.conf_file = None
+        self.update_conf(conf_root_path)
+
+    def update_conf(self, path):
+        input_path:Path = Path(path).expanduser().absolute()
+        if input_path.is_dir():
+            self.root = input_path
+            self.conf_file = input_path / self.default_conf_filename
         else:
-            current_conf_version = self.load_default().get('version', '0.0.0')
-            template_conf_version = self.load_template().get('version', '0.0.0')
-            if version.parse(current_conf_version) < version.parse(template_conf_version):
-                shutil.copyfile(CONFIG_TEMPLATE_FILE, self.default_conf_path)
-        if not self.cache_path.exists():
-            shutil.copyfile(CACHE_TEMPLATE_FILE, self.cache_path)
-        if not self.custom_conf_dir.exists():
-            self.custom_conf_dir.mkdir(parents=True)
-        if not self.tmp_dir.exists():
-            self.tmp_dir.mkdir(parents=True)
+            self.root = input_path.parent
+            self.conf_file = input_path
 
-    def load(self, name):
-        conf = self.load_default()
-        if name:
-            conf.update(self.load_custom(name))
+        # load config or use default config
+        if self.conf_file.exists():
+            self.read()
+            # check if need upgrade config
+            if version.parse(config_template.get('version', '0.0.0')) > version.parse(self.config.get('version', '0.0.0')):
+                self.config = config_template
+                self.save()
         else:
-            self.load_cache().get('custom_conf')
-        return conf
+            self.root.mkdir(parents=True, exist_ok=True)
+            self.config = config_template
+            self.save()
 
-    def load_template(self):
-        return json.loads(codecs.open(CONFIG_TEMPLATE_FILE).read())
+    def read(self):
+        with codecs.open(self.conf_file, 'r', 'utf-8') as f:
+            self.config = json.load(f)
 
-    def load_default(self):
-        return json.loads(codecs.open(self.default_conf_path).read())
+    def save(self):
+        with codecs.open(self.conf_file, 'w', 'utf-8') as f:
+            f.write(json.dumps(self.config, ensure_ascii=False, indent=4))
 
-    def load_custom(self, name):
-        if not name.endswith('.json'):
-            name = name + '.json'
-        custom_conf_path = self.custom_conf_dir / name
-        if custom_conf_path.exists():
-            return json.loads(codecs.open(self.custom_conf_dir/name).read())
+
+resource_template = {
+    'uri': None,
+    'config': None
+}
+
+
+class Rescource:
+    cache_filename = 'resource.json'
+    download_dirname = 'downloads'
+
+    def __init__(self, conf_root_path='~/.lyrebird'):
+        self.root = Path(conf_root_path).expanduser().absolute()
+        self.cache_file = self.root / self.cache_filename
+        self.download_dir = self.root / self.download_dirname
+        self.cache = None
+        # load cache
+        self.load()
+
+    def load(self):
+        if self.cache_file.exists():
+            with codecs.open(self.cache_file, 'r', 'utf-8') as f:
+                try:
+                    self.cache = json.load(f)
+                except Exception:
+                    self.cache = resource_template
         else:
-            return json.loads(codecs.open(self.custom_conf_dir/'tmp.json').read())
+            self.cache = resource_template
 
-    def save_pid(self):
-        with codecs.open(self.pid_path, 'w', 'utf-8') as f:
-            f.write(str(os.getpid()))
-
-    def read_pid(self):
-        with codecs.open(self.pid_path, 'r', 'utf-8') as f:
-            return int(f.read())
-
-    def remove_pid(self):
-        if self.pid_path.exists():
-            os.remove(self.pid_path)
-
-    def load_tmp(self, name, **kwargs):
-        tmp_conf_path = self.custom_conf_dir/'tmp.json'
-        with codecs.open(tmp_conf_path, 'w', 'utf-8') as f:
-            f.write(json.dumps(kwargs, indent=4, ensure_ascii=False))
-        conf = self.load(name)
-        conf.update(kwargs)
-        return conf
-
-    def load_cache(self):
-        if self.cache_path.exists():
-            with codecs.open(self.cache_path, 'r', 'utf-8') as f:
-                return json.loads(f.read())
-        else:
-            raise ConfCacheNotFound
-
-    def save_cache(self, cache):
-        with codecs.open(self.cache_path, 'w', 'utf-8') as f:
-            f.write(json.dumps(cache, indent=4, ensure_ascii=False))
+    def save(self):
+        with codecs.open(self.cache_file, 'w', 'utf-8') as f:
+            f.write(json.dumps(self.cache, ensure_ascii=False, indent=4))
+            f.close()
 
     def download(self, uri):
-        repo = self.tmp_dir/'repo'
-        if repo.exists():
-            shutil.rmtree(repo)
-        p = subprocess.run(f"git clone {uri} {repo}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if p.returncode == 0:
-            print(p.stdout.decode())
+        self.cache['uri'] = uri
+        self.save()
+
+        if self.download_dir.exists():
+            shutil.rmtree(self.download_dir.absolute())
+        self.download_dir.mkdir(exist_ok=True)
+
+        uri = urlparse(self.cache.get('uri'))
+        if uri.scheme == 'http' or uri.scheme == 'https':
+            self._http()
+        elif uri.scheme.startswith('git+'):
+            self._git()
         else:
-            # raise GitCloneFailed(p.stderr.decode())
-            get_logger().critical(
-                msg=f'下载配置文件错误,但不影响Overbridge使用,可以手动import相应插件base \n download conf data by git failed:{p.stderr.decode()}')
-            return
-        for subfile in repo.iterdir():
-            if not subfile.is_dir():
-                continue
-            if subfile.name.startswith('.'):
-                continue
-            if subfile.name == 'conf':
-                for conf_file in subfile.iterdir():
-                    shutil.copy(conf_file, self.custom_conf_dir/conf_file.name)
-            else:
-                try:
-                    dst = os.path.join(self.plugin_root, subfile.name)
-                    command = f'cp -f -R {subfile}/* {dst}'
-                    if not os.path.exists(dst):
-                        os.makedirs(dst)
-                    subprocess.run(command, shell=True)
-                except Exception as e:
-                    print(e)
+            raise RescourceException(f'Unknown scheme {self.cache}')
+        
+    def _git(self):
+        git_url = self.cache.get('uri')[4:]
+        p = subprocess.run(f'git clone {git_url} {self.download_dir.absolute()}', shell=True)
+        p.check_returncode()
+        logger.warning(f'Source downloaded to {str(self.download_dir.absolute())}')
+    
+    def _http(self):
+        resp = requests.get(self.cache.get('uri'), allow_redirects=True)
+        # TODO support http download 
+        # 1. download gzip file and unzip it
+        # 2. download from git repo
 
 
-class ConfCacheNotFound(Exception):
-    pass
-
-
-class GitCloneFailed(Exception):
+class RescourceException(Exception):
     pass

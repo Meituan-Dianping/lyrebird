@@ -10,11 +10,15 @@ import sys
 import getpass
 import os
 from .. import plugin_manager
-from .. console_helper import err_msg
+from lyrebird import log
+
 
 lyrebird_start_time = None
 last_page = None
 last_page_in_time = None
+
+
+logger = log.get_logger()
 
 
 class ReportHandler:
@@ -51,7 +55,7 @@ class ReportHandler:
         while True:
             try:
                 self.event_executor.submit(self.report_worker, self.cache_queue.get_nowait())
-            except Exception as e:
+            except Exception:
                 break
 
 
@@ -62,7 +66,7 @@ def report(data):
     try:
         report_handler.start_report(data)
     except Exception as e:
-        err_msg('Report failed', data, e)
+        logger.error('Report failed', data, e)
 
 
 def _env_info():
