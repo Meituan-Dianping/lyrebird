@@ -8,7 +8,7 @@ import signal
 import os
 from lyrebird import log
 from lyrebird import application
-from lyrebird.nconfig import Rescource, ConfigManager
+from lyrebird.config import Rescource, ConfigManager
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
@@ -18,9 +18,11 @@ from lyrebird.task import BackgroundTaskServer
 logger = log.get_logger()
 
 
-def run():
+def main():
     """
     Command line main entry
+
+    Start lyrebird
 
     * start in default config
     ```
@@ -52,12 +54,19 @@ def run():
     parser.add_argument('-b', '--no_browser', dest='no_browser', action='store_true', help='Start without open a browser')
     parser.add_argument('-c', '--config', dest='config', help='Start with a config file. Default is "~/.lyrebird/conf.json"')
 
+    subparser = parser.add_subparsers(dest='sub_command')
+    src_parser = subparser.add_parser('src')
+    src_parser.add_argument('uri')
+    subparser.add_parser('plugin')
+
     args = parser.parse_args()
 
     if args.config:
         application._cm = ConfigManager(conf_root_path=args.config)
+        application._src = Rescource(conf_root_path=args.config)
     else:
         application._cm = ConfigManager()
+        application._src = Rescource()
 
     # set current ip to config
     application._cm.config['ip'] = _get_ip()
@@ -74,7 +83,21 @@ def run():
         application._cm.config['proxy.port'] = args.proxy
     if args.data:
         application._cm.config['mock.data'] = args.data
- 
+
+    logger.debug(f'Read args: {args}')
+
+    if args.sub_command == 'src':
+        logger.debug('EXEC SUBCMD:SRC')
+        src(args)
+    elif args.sub_command == 'plugin':
+        logger.debug('EXEC SUBCMD:PLUGIN')
+        plugin(args)
+    else:
+        logger.debug('EXEC LYREBIRD START')
+        run(args)
+
+
+def run(args:argparse.Namespace):
     # show current config contents
     config_str = json.dumps(application._cm.config, ensure_ascii=False, indent=4)
     logger.warning(f'Lyrebird start with config:\n{config_str}')
@@ -100,34 +123,25 @@ def run():
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
+
 def debug():
     # use lyrebird.debug to start plugin in debug mode
     # can pass args by sys.args
-    run()
+    main()
     # main thread loop
     import asyncio
     loop = asyncio.get_event_loop()
     loop.run_forever()
 
 
-def gen_plugin_project():
+def plugin(args:argparse.Namespace):
     pass
 
-def config():
-    parser = argparse.ArgumentParser(prog='lyrebird: load config')
 
-    parser.add_argument('-c', '--config', dest='config', default='~/.lyrebird')    
-
-    parser.add_argument('uri')
-
-    args = parser.parse_args()
-    print(args)
-
+def src(args:argparse.Namespace):
     from threading import Thread
     def worker():
-        r = Rescource(conf_root_path=args.config)
-        r.uri = args.uri
-        r.download()
+        application._src.download(args.uri)
     Thread(target=worker).start()
 
 
@@ -140,7 +154,3 @@ def _get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('meituan.com', 80))
     return s.getsockname()[0]
-
-
-if __name__ == '__main__':
-    config()

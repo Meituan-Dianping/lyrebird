@@ -1,5 +1,4 @@
 from flask import jsonify
-from lyrebird.nconfig import ConfigManager
 
 """
 Lyrebird context
@@ -24,7 +23,9 @@ def make_fail_response(msg):
     )
 
 
-_cm: ConfigManager = None
+_cm = None
+_src = None
+
 
 server = {}
 plugins = {}
@@ -50,6 +51,9 @@ class ConfigProxy:
 
     def __getitem__(self, k):
         return _cm.config[k]
+    
+    def raw(self):
+        return _cm.config
 
 
 config = ConfigProxy()

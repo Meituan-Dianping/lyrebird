@@ -29,8 +29,7 @@ setup(
     ),
     entry_points={
         'console_scripts': [
-            'lyrebird = lyrebird.nmanager:run',
-            'lyrebird-plugin = lyrebird.manager:plugin'
+            'lyrebird = lyrebird.manager:main'
         ]
     },
     install_requires=[

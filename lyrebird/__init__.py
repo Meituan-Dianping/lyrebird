@@ -1,4 +1,4 @@
-from .nmanager import run, debug
+from .manager import main, run, debug
 from .mock import context
 from .mock.plugin_manager import PluginView, caller_info
 from .mock.handlers.handler_context import HandlerContext
