@@ -68,7 +68,7 @@ def publish(channel, event, *args, **kwargs):
     :return:
     """
     # context.application.event_bus.publish(channel, event)
-    application.server['event'].publish(channel, event)
+    application.server['event'].publish(channel, event, *args, **kwargs)
 
 
 def add_background_task(name, func):
