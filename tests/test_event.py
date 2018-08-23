@@ -53,6 +53,6 @@ def test_state_getter(event_server):
     lyrebird.application.server['event'] = event_server
     test_state = lyrebird.state.get('Test')
     assert test_state == None
-    event_server.publish('Test', 'TestMessage', state=True)
+    lyrebird.publish('Test', 'TestMessage', state=True)
     test_state = lyrebird.state.get('Test')
     assert test_state == 'TestMessage'
