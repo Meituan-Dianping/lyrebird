@@ -13,7 +13,7 @@ jobs:
       script: pytest
 
     - stage: release to pypi
-      if: branch = master AND type = push
+      if: type = push
       language: python
       catch: pip
       python:
