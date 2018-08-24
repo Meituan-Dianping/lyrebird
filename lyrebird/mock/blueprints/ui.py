@@ -38,7 +38,7 @@ def index():
 @ui.route('/data_manager')
 def data_manager():
     report_handler.page_in('data_manager')
-    return render_with_plugin('data_manager.html')
+    return render_with_plugin('data_manager_v2.html')
 
 
 @ui.route('/plugin/base/<string:name>')

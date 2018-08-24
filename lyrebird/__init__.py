@@ -8,6 +8,7 @@ from blinker import Signal
 import os
 from .event import CustomEventReceiver
 from lyrebird import application
+from lyrebird.log import get_logger
 
 
 APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
