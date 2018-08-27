@@ -36,10 +36,10 @@ def colorit(message, levelname):
 class ColorFormater(logging.Formatter):
 
     def format(self, record:logging.LogRecord):
-        record.module = f'{colorit(record.module, record.levelname)}'
-        record.msg = f'{colorit(record.msg, record.levelname)}'
-        record.levelname = f'{colorit(record.levelname, record.levelname)}'
-        return super().format(record)
+        module = f'{colorit(record.module, record.levelname)}'
+        msg = f'{colorit(record.msg, record.levelname)}'
+        levelname = f'{colorit(record.levelname, record.levelname)}'
+        return f'{levelname} [{module}] {msg}'
 
 
 def _init_stream_logger():
@@ -51,15 +51,19 @@ def _init_stream_logger():
     logger.addHandler(stream_handler)
 
 
-def _init_file_logger():
+def _init_file_logger(custom_log_path=None):
     file_formater = logging.Formatter(
         fmt='%(asctime)s %(levelname)s [%(module)s] - %(threadName)s [PID] %(process)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    log_file = application.root_dir()/'lyrebird.log'
+    if custom_log_path:
+        log_file = custom_log_path
+    else:
+        log_file = application.root_dir()/'lyrebird.log'
+
     file_handler = logging.handlers.TimedRotatingFileHandler(log_file, backupCount=1, encoding='utf-8', when='midnight')
     file_handler.setFormatter(file_formater)
-
+    
     logger:logging.Logger = logging.getLogger('lyrebird')
     logger.addHandler(file_handler)
 
@@ -78,8 +82,8 @@ def _setup_3rd_loggers():
     werkzeug = logging.getLogger('werkzeug')
     werkzeug.setLevel(logging.WARNING)
 
-def init():    
-    _init_file_logger()
+def init(custom_log_path=None):    
+    _init_file_logger(custom_log_path=custom_log_path)
     _setup_3rd_loggers()
 
     logger:logging.Logger = logging.getLogger('lyrebird')
