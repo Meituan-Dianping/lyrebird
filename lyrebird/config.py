@@ -122,10 +122,11 @@ class Rescource:
         logger.warning(f'Source downloaded to {str(self.download_dir.absolute())}')
     
     def _http(self):
-        resp = requests.get(self.cache.get('uri'), allow_redirects=True)
+        # resp = requests.get(self.cache.get('uri'), allow_redirects=True)
         # TODO support http download 
         # 1. download gzip file and unzip it
         # 2. download from git repo
+        pass
 
 
 class RescourceException(Exception):
