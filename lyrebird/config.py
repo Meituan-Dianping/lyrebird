@@ -7,6 +7,7 @@ import requests
 import subprocess
 import time
 import shutil
+import jinja2
 from lyrebird import log as nlog
 
 
@@ -58,8 +59,9 @@ class ConfigManager():
             self.save()
 
     def read(self):
-        with codecs.open(self.conf_file, 'r', 'utf-8') as f:
-            self.config = json.load(f)
+        template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.root)))
+        template = template_env.get_template(self.conf_file.name)
+        self.config = json.loads(template.render(root=str(self.root)))
 
     def save(self):
         with codecs.open(self.conf_file, 'w', 'utf-8') as f:
