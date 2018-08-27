@@ -53,6 +53,7 @@ def main():
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
     parser.add_argument('-b', '--no_browser', dest='no_browser', action='store_true', help='Start without open a browser')
     parser.add_argument('-c', '--config', dest='config', help='Start with a config file. Default is "~/.lyrebird/conf.json"')
+    parser.add_argument('--log', dest='log', help='Set output log file path')
 
     subparser = parser.add_subparsers(dest='sub_command')
     src_parser = subparser.add_parser('src')
@@ -75,7 +76,7 @@ def main():
         application._cm.config['verbose'] = True
 
     # init file logger after config init
-    log.init()
+    log.init(args.log)
     
     if args.mock:
         application._cm.config['mock.port'] = args.mock
