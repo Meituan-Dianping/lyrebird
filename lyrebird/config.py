@@ -7,6 +7,9 @@ import requests
 import subprocess
 import time
 import shutil
+import jinja2
+import json
+import os
 from lyrebird import log as nlog
 
 
@@ -28,42 +31,64 @@ config_template = {
 
 
 class ConfigManager():
-    default_conf_filename = 'conf.json'
+    ROOT = Path('~/.lyrebird').expanduser()
+    DEFAULT_FILENAME = 'conf.json'
+    BASE_CONFIG = ROOT/DEFAULT_FILENAME
 
-    def __init__(self, conf_root_path='~/.lyrebird'):
+    def __init__(self, conf_path=None):
+        self.update_base_config()
         self.root = None
         self.config = None
         self.conf_file = None
-        self.update_conf(conf_root_path)
+        self.config = self.read_base_config()
+        if conf_path:
+            self.update_conf(conf_path)
 
     def update_conf(self, path):
         input_path:Path = Path(path).expanduser().absolute()
         if input_path.is_dir():
             self.root = input_path
-            self.conf_file = input_path / self.default_conf_filename
+            self.conf_file = input_path / self.DEFAULT_FILENAME
         else:
             self.root = input_path.parent
             self.conf_file = input_path
 
         # load config or use default config
-        if self.conf_file.exists():
-            self.read()
-            # check if need upgrade config
-            if version.parse(config_template.get('version', '0.0.0')) > version.parse(self.config.get('version', '0.0.0')):
-                self.config = config_template
-                self.save()
-        else:
-            self.root.mkdir(parents=True, exist_ok=True)
-            self.config = config_template
-            self.save()
+        if not self.conf_file.exists():
+            raise ConfigException(f'{self.conf_file} not found')
+        self.read()
 
     def read(self):
-        with codecs.open(self.conf_file, 'r', 'utf-8') as f:
-            self.config = json.load(f)
+        template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.root)))
+        template = template_env.get_template(self.conf_file.name)
+        custom_config = json.loads(template.render(current_dir=str(self.root)))
+        self.config.update(custom_config)
 
     def save(self):
         with codecs.open(self.conf_file, 'w', 'utf-8') as f:
             f.write(json.dumps(self.config, ensure_ascii=False, indent=4))
+    
+    def update_base_config(self):
+        if self.BASE_CONFIG.exists() and self.BASE_CONFIG.is_file():
+            with codecs.open(self.BASE_CONFIG, 'r', 'utf-8') as f:
+                base_conf = json.load(f)
+                if version.parse(base_conf.get('version', '0.0.0')) < version.parse(config_template.get('version', '0.0.0')):
+                    self.write_base_config()
+        else:
+            self.write_base_config()
+
+    def write_base_config(self):
+        self.ROOT.mkdir(parents=True, exist_ok=True)
+        with codecs.open(self.BASE_CONFIG, 'w', 'utf-8') as f:
+            f.write(json.dumps(config_template, indent=4, ensure_ascii=False))
+
+    def read_base_config(self):
+        with codecs.open(self.BASE_CONFIG, 'r', 'utf-8') as f:
+            return json.load(f)
+
+
+class ConfigException(Exception):
+    pass
 
 
 resource_template = {
