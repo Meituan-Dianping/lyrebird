@@ -9,6 +9,7 @@ import time
 import shutil
 import jinja2
 import json
+import os
 from lyrebird import log as nlog
 
 
@@ -68,7 +69,7 @@ class ConfigManager():
             f.write(json.dumps(self.config, ensure_ascii=False, indent=4))
     
     def update_base_config(self):
-        if self.BASE_CONFIG.exists():
+        if self.BASE_CONFIG.exists() and self.BASE_CONFIG.is_file():
             with codecs.open(self.BASE_CONFIG, 'r', 'utf-8') as f:
                 base_conf = json.load(f)
                 if version.parse(base_conf.get('version', '0.0.0')) < version.parse(config_template.get('version', '0.0.0')):
