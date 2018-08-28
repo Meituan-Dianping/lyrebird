@@ -63,7 +63,7 @@ def main():
     args = parser.parse_args()
 
     if args.config:
-        application._cm = ConfigManager(conf_root_path=args.config)
+        application._cm = ConfigManager(conf_path=args.config)
         application._src = Rescource(conf_root_path=args.config)
     else:
         application._cm = ConfigManager()
