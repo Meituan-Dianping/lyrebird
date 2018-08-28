@@ -77,7 +77,7 @@ class ConfigManager():
             self.write_base_config()
 
     def write_base_config(self):
-        self.BASE_CONFIG.mkdir(parents=True, exist_ok=True)
+        self.ROOT.mkdir(parents=True, exist_ok=True)
         with codecs.open(self.BASE_CONFIG, 'w', 'utf-8') as f:
             f.write(json.dumps(config_template, indent=4, ensure_ascii=False))
 
