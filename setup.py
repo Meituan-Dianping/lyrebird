@@ -42,7 +42,6 @@ setup(
         'flask-socketio', 
         'flask-restful', 
         'beautifulsoup4',
-        'pycryptodome==3.4.11', 
         'portpicker', 
         'colorama',
         'packaging'
