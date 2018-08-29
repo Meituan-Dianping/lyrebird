@@ -151,6 +151,10 @@ def _get_ip():
 
     :return: IP Addr string
     """
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('meituan.com', 80))
-    return s.getsockname()[0]
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('meituan.com', 80))
+        return s.getsockname()[0]
+    except socket.gaierror as e:
+        logger.error('Failed to get local IP address, error occurs on %s' % e)
+        return 'localhost'
