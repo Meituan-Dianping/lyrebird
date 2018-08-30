@@ -12,7 +12,6 @@ import sys
 
 from lyrebird.base_server import ThreadServer
 from lyrebird.mock import context
-import inspect
 
 
 class Event:
