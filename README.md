@@ -6,7 +6,7 @@
 ![GitHub](https://img.shields.io/github/license/meituan/lyrebird.svg)
 
 
-<img src="./image/lyrebird.png" style="width: 350px">
+![](./image/lyrebird.png|width=350)
 
 ----
 
