@@ -63,11 +63,10 @@ def main():
     args = parser.parse_args()
 
     if args.config:
-        application._cm = ConfigManager(conf_root_path=args.config)
-        application._src = Rescource(conf_root_path=args.config)
+        application._cm = ConfigManager(conf_path=args.config)
     else:
         application._cm = ConfigManager()
-        application._src = Rescource()
+    application._src = Rescource()
 
     # set current ip to config
     application._cm.config['ip'] = _get_ip()

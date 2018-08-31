@@ -7,7 +7,6 @@ flask-socketio
 flask-restful
 beautifulsoup4
 pytest
-pycryptodome==3.4.11
 portpicker
 colorama
 packaging
