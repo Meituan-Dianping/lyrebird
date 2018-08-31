@@ -5,7 +5,8 @@
 ![PyPI](https://img.shields.io/pypi/pyversions/lyrebird.svg)
 ![GitHub](https://img.shields.io/github/license/meituan/lyrebird.svg)
 
-![lyrebird](./image/lyrebird.png)
+
+<img src="./image/lyrebird.png" style="width: 350px">
 
 ----
 
@@ -79,7 +80,8 @@ lyrebird
 
 ## 查看及录制数据
 
-<img src="./image/inspector.png" style="width: 800px">
+<img src="./image/Inspector.png" style="width: 800px">
+
 
 * 如上图，准备工作完成后，操作手机即可以看到HTTP/HTTPS请求的数据。
 
