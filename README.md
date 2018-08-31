@@ -1,7 +1,9 @@
 # Lyrebird
 
 [![Build Status](https://travis-ci.org/meituan/lyrebird.svg?branch=master)](https://travis-ci.org/meituan/lyrebird)
-
+[![PyPI](https://img.shields.io/pypi/v/lyrebird.svg)](https://pypi.python.org/pypi/lyrebird)
+![PyPI](https://img.shields.io/pypi/pyversions/lyrebird.svg)
+![GitHub](https://img.shields.io/github/license/meituan/lyrebird.svg)
 
 ![lyrebird](./image/lyrebird.png)
 
@@ -77,7 +79,7 @@ lyrebird
 
 ## 查看及录制数据
 
-<img src="./image/Inspector-with-tag.png" style="width: 800px">
+<img src="./image/inspector.png" style="width: 800px">
 
 * 如上图，准备工作完成后，操作手机即可以看到HTTP/HTTPS请求的数据。
 
@@ -93,7 +95,7 @@ lyrebird
 
     > 录制数据要求新建或选中一组mock数据。即操作按钮3或4。
 
-* 按钮4 - 激活mock数据选择器，选择mock数据后。经过Lyrebird的请求会被mock，如果mock数据中没有匹配的数据，则会代理该请求。
+* 激活mock数据选择器，选择mock数据后。经过Lyrebird的请求会被mock，如果mock数据中没有匹配的数据，则会代理该请求。
 
     > mock数据可由左边导航栏切换到DataManager界面进行编辑管理
 ----
@@ -104,20 +106,15 @@ lyrebird
 
     以缺省参数启动lyrebird
 
-
-* **lyrebird start**
-
-    以缺省参数启动lyrebird
-
-* **lyrebird v start**
+* **lyrebird -v**
 
     以输出详细日志模式启动lyrebird
 
-* **lyrebird no-browser start**
+* **lyrebird -b**
 
     启动lyrebird不默认打开浏览器
 
-* **lyrebird start --mock 9090 --proxy 4272 --data . --name foo**
+* **lyrebird --mock 9090 --proxy 4272 --data . --config your/config/file**
 
     指定参数启动lyrebird
 
@@ -128,16 +125,8 @@ lyrebird
         --proxy 默认4272， 代理服务端口
 
         --data 默认./data, mock数据根目录
-
-        --name 默认lyrebird，服务别名（用于通过别名停止指定的lyrebird服务）
-
-* **lyrebird stop**
-
-    停止lyrebird
-
-* **lyrebird stop --name foo**
-
-    停止别名为foo的lyrebird
+        
+        --config 默认~/.lyrebird/conf.json, lyrebird启动配置
 
 ----
 
