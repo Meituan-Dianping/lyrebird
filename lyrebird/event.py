@@ -114,7 +114,7 @@ class CustomEventReceiver:
     def __call__(self, channel, object=False, *args, **kw):
         def func(origin_func):
             self.listeners.append(dict(channel=channel, func=origin_func, object=object))
-            self.caller_file = sys.argv[0]
+            self.caller_file = origin_func.__code__.co_filename
             self.caller_method = origin_func.__name__
             return origin_func
         return func
