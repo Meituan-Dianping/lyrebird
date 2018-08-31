@@ -2,12 +2,12 @@ from lyrebird import event
 from threading import Thread
 import time
 import pytest
+import lyrebird
 
 from lyrebird import CustomEventReceiver
 from lyrebird.mock import context
 from lyrebird.mock.context import Application
 
-eventWrapper = CustomEventReceiver()
 
 class CallbackTester:
     
@@ -55,7 +55,6 @@ def test_state(event_server):
 
 
 def test_state_getter(event_server):
-    import lyrebird
     lyrebird.application.server['event'] = event_server
     test_state = lyrebird.state.get('Test')
     assert test_state == None
@@ -65,35 +64,23 @@ def test_state_getter(event_server):
 
 
 def test_customer_event_alert(event_server):
-    import lyrebird
+    custom_event = CustomEventReceiver()
     lyrebird.application.server['event'] = event_server
-    eventWrapper.alert('alert',
+    custom_event.alert('alert',
                 {
                     'message': 'test',
                     'issue': True,
                     'plugin': 'perf.cpu'
                 })
 
-    assert eventWrapper.caller_method == 'test_customer_event_alert'
-    assert eventWrapper.caller_file[eventWrapper.caller_file.rfind('/') + 1:] == 'test_event.py'
+    assert custom_event.report_method == 'test_customer_event_alert'
+    assert custom_event.report_file[custom_event.report_file.rfind('/') + 1:] == 'test_event.py'
 
-def test_customer_event_alert_dup_method(event_server):
-    import lyrebird
-    lyrebird.application.server['event'] = event_server
-    eventWrapper.alert('alert',
-                {
-                    'message': 'test',
-                    'issue': True,
-                    'plugin': 'perf.cpu'
-                })
-
-    assert eventWrapper.caller_method == 'test_customer_event_alert_dup_method'
-    assert eventWrapper.caller_file[eventWrapper.caller_file.rfind('/') + 1:] == 'test_event.py'
 
 def test_customer_event_alert_not_dict(event_server):
-    import lyrebird
+    custom_event = CustomEventReceiver()
     lyrebird.application.server['event'] = event_server
-    eventWrapper.alert('alert', 'a_string')
+    custom_event.alert('alert', 'a_string')
 
-    assert eventWrapper.caller_method == 'test_customer_event_alert_not_dict'
-    assert eventWrapper.caller_file[eventWrapper.caller_file.rfind('/') + 1:] == 'test_event.py'
+    assert custom_event.report_method == 'test_customer_event_alert_not_dict'
+    assert custom_event.report_file[custom_event.report_file.rfind('/') + 1:] == 'test_event.py'

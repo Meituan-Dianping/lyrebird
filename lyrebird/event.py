@@ -7,12 +7,9 @@ Run events handler and background task worker
 from queue import Queue
 from concurrent.futures import ThreadPoolExecutor
 import traceback
-
-import sys
-
+import inspect
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
-from lyrebird.mock import context
 
 
 class Event:
@@ -109,8 +106,8 @@ class CustomEventReceiver:
     """
     def __init__(self):
         self.listeners = []
-        self.caller_file = ''
-        self.caller_method = ''
+        self.report_file = ''
+        self.report_method = ''
 
     def __call__(self, channel, object=False, *args, **kw):
         def func(origin_func):
@@ -130,12 +127,11 @@ class CustomEventReceiver:
         application.server['event'].publish(channel, message, *args, **kwargs)
 
     def alert(self, channel, message, *args, **kwargs):
-        import inspect
         stack = inspect.stack()
         caller_file = stack[1].filename
-        self.caller_file = caller_file[caller_file.rfind('/') + 1:]
-        self.caller_method = stack[1].function
+        self.report_file = caller_file[caller_file.rfind('/') + 1:]
+        self.report_method = stack[1].function
         if isinstance(message, dict):
-            message['caller_file'] = self.caller_file
-            message['caller_method'] = self.caller_method
+            message['caller_file'] = self.report_file
+            message['caller_method'] = self.report_method
         application.server['event'].publish(channel, message, *args, **kwargs)
