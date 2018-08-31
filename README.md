@@ -6,7 +6,7 @@
 ![GitHub](https://img.shields.io/github/license/meituan/lyrebird.svg)
 
 
-![](./image/lyrebird.png|width=350)
+<img src="./image/lyrebird.png" width="350">
 
 ----
 
@@ -36,7 +36,7 @@
 
 > Lyrebird (琴鸟) 不但美丽壮观，且能歌善舞。它不但能模仿各种鸟类的鸣叫声，还能学人间的各种声音。如汽车喇叭声、火车喷气声、斧头伐木声、修路碎石机声及领号人的喊叫声等。歌声婉转动听，舞姿轻盈合拍，是澳洲鸟类中最受人喜爱的珍禽之一。
 
-<img src="./image/Inspector.png" style="width: 800px">
+<img src="./image/Inspector.png" width="800">
 
 ----
 
@@ -80,7 +80,7 @@ lyrebird
 
 ## 查看及录制数据
 
-<img src="./image/Inspector.png" style="width: 800px">
+<img src="./image/Inspector.png" width="800">
 
 
 * 如上图，准备工作完成后，操作手机即可以看到HTTP/HTTPS请求的数据。
