@@ -3,6 +3,12 @@ from threading import Thread
 import time
 import pytest
 
+from lyrebird import CustomEventReceiver
+from lyrebird.mock import context
+from lyrebird.mock.context import Application
+
+eventWrapper = CustomEventReceiver()
+
 class CallbackTester:
     
     def __init__(self):
@@ -56,3 +62,38 @@ def test_state_getter(event_server):
     lyrebird.publish('Test', 'TestMessage', state=True)
     test_state = lyrebird.state.get('Test')
     assert test_state == 'TestMessage'
+
+
+def test_customer_event_alert(event_server):
+    import lyrebird
+    lyrebird.application.server['event'] = event_server
+    eventWrapper.alert('alert',
+                {
+                    'message': 'test',
+                    'issue': True,
+                    'plugin': 'perf.cpu'
+                })
+
+    assert eventWrapper.caller_method == 'test_customer_event_alert'
+    assert eventWrapper.caller_file[eventWrapper.caller_file.rfind('/') + 1:] == 'test_event.py'
+
+def test_customer_event_alert_dup_method(event_server):
+    import lyrebird
+    lyrebird.application.server['event'] = event_server
+    eventWrapper.alert('alert',
+                {
+                    'message': 'test',
+                    'issue': True,
+                    'plugin': 'perf.cpu'
+                })
+
+    assert eventWrapper.caller_method == 'test_customer_event_alert_dup_method'
+    assert eventWrapper.caller_file[eventWrapper.caller_file.rfind('/') + 1:] == 'test_event.py'
+
+def test_customer_event_alert_not_dict(event_server):
+    import lyrebird
+    lyrebird.application.server['event'] = event_server
+    eventWrapper.alert('alert', 'a_string')
+
+    assert eventWrapper.caller_method == 'test_customer_event_alert_not_dict'
+    assert eventWrapper.caller_file[eventWrapper.caller_file.rfind('/') + 1:] == 'test_event.py'
