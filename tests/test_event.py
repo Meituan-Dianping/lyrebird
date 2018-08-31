@@ -1,12 +1,8 @@
 from lyrebird import event
-from threading import Thread
 import time
 import pytest
 import lyrebird
-
 from lyrebird import CustomEventReceiver
-from lyrebird.mock import context
-from lyrebird.mock.context import Application
 
 
 class CallbackTester:
