@@ -1,4 +1,7 @@
-# Lyrebird
+
+<p align="center"><img src="./image/lyrebird.png" width="220"></p>
+<h1 align="center">Lyrebird</h1>
+
 
 [![Build Status](https://travis-ci.org/meituan/lyrebird.svg?branch=master)](https://travis-ci.org/meituan/lyrebird)
 [![PyPI](https://img.shields.io/pypi/v/lyrebird.svg)](https://pypi.python.org/pypi/lyrebird)
@@ -6,7 +9,6 @@
 ![GitHub](https://img.shields.io/github/license/meituan/lyrebird.svg)
 
 
-<img src="./image/lyrebird.png" width="350">
 
 ----
 
