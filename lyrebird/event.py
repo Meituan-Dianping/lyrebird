@@ -132,6 +132,6 @@ class CustomEventReceiver:
         self.report_file = caller_file[caller_file.rfind('/') + 1:]
         self.report_method = stack[1].function
         if isinstance(message, dict):
-            message['caller_file'] = self.report_file
-            message['caller_method'] = self.report_method
+            message['report_file'] = self.report_file
+            message['report_method'] = self.report_method
         application.server['event'].publish(channel, message, *args, **kwargs)
