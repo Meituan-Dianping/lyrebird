@@ -7,8 +7,9 @@ Run events handler and background task worker
 from queue import Queue
 from concurrent.futures import ThreadPoolExecutor
 import traceback
+import inspect
 from lyrebird.base_server import ThreadServer
-from lyrebird.mock import context
+from lyrebird import application
 
 
 class Event:
@@ -121,5 +122,14 @@ class CustomEventReceiver:
             event_bus.unsubscribe(listener['channel'], listener['func'])
 
     def publish(self, channel, message, *args, **kwargs):
-        context.application.event_bus.publish(channel, message, *args, **kwargs)
-    
+        application.server['event'].publish(channel, message, *args, **kwargs)
+
+    def alert(self, channel, message, *args, **kwargs):
+        stack = inspect.stack()
+        script_name = stack[1].filename
+        script_name = script_name[script_name.rfind('/') + 1:]
+        function_name = stack[1].function
+        if isinstance(message, dict):
+            message['script_name'] = script_name
+            message['function_name'] = function_name
+        application.server['event'].publish(channel, message, *args, **kwargs)
