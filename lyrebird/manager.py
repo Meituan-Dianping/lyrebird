@@ -69,7 +69,10 @@ def main():
     application._src = Rescource()
 
     # set current ip to config
-    application._cm.config['ip'] = _get_ip()
+    try:
+        application._cm.config['ip'] = _get_ip()
+    except socket.gaierror as e:
+        logger.error('Failed to get local IP address, error occurs on %s' % e)
 
     if args.verbose:
         application._cm.config['verbose'] = True
