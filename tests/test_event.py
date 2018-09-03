@@ -1,7 +1,9 @@
 from lyrebird import event
-from threading import Thread
 import time
 import pytest
+import lyrebird
+from lyrebird import CustomEventReceiver
+
 
 class CallbackTester:
     
@@ -19,6 +21,7 @@ def callback_tester():
 def event_server():
     server = event.EventServer()
     server.start()
+    lyrebird.application.server['event'] = server
     yield server
     server.stop()
 
@@ -49,10 +52,34 @@ def test_state(event_server):
 
 
 def test_state_getter(event_server):
-    import lyrebird
-    lyrebird.application.server['event'] = event_server
     test_state = lyrebird.state.get('Test')
     assert test_state == None
     lyrebird.publish('Test', 'TestMessage', state=True)
     test_state = lyrebird.state.get('Test')
     assert test_state == 'TestMessage'
+
+
+def test_customer_event_alert(event_server):
+    custom_event = CustomEventReceiver()
+    custom_event.alert('alert',
+                {
+                    'message': 'test',
+                    'issue': True,
+                    'plugin': 'perf.cpu'
+                })
+
+    def msg_receiver(msg):
+        assert msg.get('script_name') == 'test_event.py'
+        assert msg.get('function_name') == 'test_customer_event_alert'
+
+    lyrebird.subscribe('alert', msg_receiver)
+
+
+def test_customer_event_alert_not_dict(event_server):
+    custom_event = CustomEventReceiver()
+    custom_event.alert('alert', 'a_string')
+
+    def msg_receiver(msg):
+        assert msg == 'a_string'
+
+    lyrebird.subscribe('alert', msg_receiver)
