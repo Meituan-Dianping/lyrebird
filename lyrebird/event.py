@@ -19,6 +19,8 @@ class Event:
     def __init__(self, channel, message):
         self.channel = channel 
         self.message = message
+        if isinstance(message, dict):
+            message['channel'] = channel
 
 
 class EventServer(ThreadServer):
