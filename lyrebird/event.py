@@ -106,8 +106,6 @@ class CustomEventReceiver:
     """
     def __init__(self):
         self.listeners = []
-        self.report_file = ''
-        self.report_method = ''
 
     def __call__(self, channel, object=False, *args, **kw):
         def func(origin_func):
@@ -128,10 +126,10 @@ class CustomEventReceiver:
 
     def alert(self, channel, message, *args, **kwargs):
         stack = inspect.stack()
-        caller_file = stack[1].filename
-        self.report_file = caller_file[caller_file.rfind('/') + 1:]
-        self.report_method = stack[1].function
+        script_name = stack[1].filename
+        script_name = script_name[script_name.rfind('/') + 1:]
+        function_name = stack[1].function
         if isinstance(message, dict):
-            message['report_file'] = self.report_file
-            message['report_method'] = self.report_method
+            message['script_name'] = script_name
+            message['function_name'] = function_name
         application.server['event'].publish(channel, message, *args, **kwargs)

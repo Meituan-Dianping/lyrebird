@@ -21,6 +21,7 @@ def callback_tester():
 def event_server():
     server = event.EventServer()
     server.start()
+    lyrebird.application.server['event'] = server
     yield server
     server.stop()
 
@@ -51,7 +52,6 @@ def test_state(event_server):
 
 
 def test_state_getter(event_server):
-    lyrebird.application.server['event'] = event_server
     test_state = lyrebird.state.get('Test')
     assert test_state == None
     lyrebird.publish('Test', 'TestMessage', state=True)
@@ -61,7 +61,6 @@ def test_state_getter(event_server):
 
 def test_customer_event_alert(event_server):
     custom_event = CustomEventReceiver()
-    lyrebird.application.server['event'] = event_server
     custom_event.alert('alert',
                 {
                     'message': 'test',
@@ -69,14 +68,18 @@ def test_customer_event_alert(event_server):
                     'plugin': 'perf.cpu'
                 })
 
-    assert custom_event.report_method == 'test_customer_event_alert'
-    assert custom_event.report_file[custom_event.report_file.rfind('/') + 1:] == 'test_event.py'
+    def msg_receiver(msg):
+        assert msg.get('script_name') == 'test_event.py'
+        assert msg.get('function_name') == 'test_customer_event_alert'
+
+    lyrebird.subscribe('alert', msg_receiver)
 
 
 def test_customer_event_alert_not_dict(event_server):
     custom_event = CustomEventReceiver()
-    lyrebird.application.server['event'] = event_server
     custom_event.alert('alert', 'a_string')
 
-    assert custom_event.report_method == 'test_customer_event_alert_not_dict'
-    assert custom_event.report_file[custom_event.report_file.rfind('/') + 1:] == 'test_event.py'
+    def msg_receiver(msg):
+        assert msg == 'a_string'
+
+    lyrebird.subscribe('alert', msg_receiver)
