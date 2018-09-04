@@ -220,8 +220,8 @@ class DataGroup:
                     value = item[1]
                 else:
                     continue
-                if name.lower() in ('content-length',
-                                    'connection',
+                # rm 'content-length' from ignore list
+                if name.lower() in ('connection',
                                     'content-encoding',
                                     'transfer-encoding'):
                     continue

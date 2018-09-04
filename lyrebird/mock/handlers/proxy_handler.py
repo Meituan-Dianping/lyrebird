@@ -39,8 +39,8 @@ class ProxyHandler:
         # 增加数据源标记，此数据经代理得到
         resp_headers = [('lyrebird', 'proxy')]
         for name, value in r.headers.items():
-            if name.lower() in ('content-length',
-                                'connection',
+            # rm 'content-length' from ignore list
+            if name.lower() in ('connection',
                                 'content-encoding',
                                 'transfer-encoding'):
                 continue
