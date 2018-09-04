@@ -1,6 +1,8 @@
 <template>
 <card :padding="5">
-    <tooltip content="Clear & reload flow list" :delay="500">
+    <i-button @click="test">Test</i-button>
+
+    <!-- <tooltip content="Clear & reload flow list" :delay="500">
       <i-button @click="showClearModal=true" icon="md-trush"></i-button>
     </tooltip>
 
@@ -22,7 +24,7 @@
 
     <div class="inline pull-right">
       <i-input search clearable class="search-box" v-model="searchStr"></i-input>
-    </div>
+    </div> -->
 
     <modal v-model="showCreateGroupModal" title="Dialog" @on-ok="creatGroupModalOk">
       <label>Please select a data group or create a new data group first</label>
@@ -37,6 +39,11 @@
 
 <script>
     module.exports={
-        
+        methods: {
+          test: function(){
+            this.$api.getStatus()
+            .then(resp=>console.log('RESPONSE', resp.data))
+          }
+        }
     }
 </script>

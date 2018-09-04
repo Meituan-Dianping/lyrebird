@@ -1,4 +1,5 @@
 Vue.config.devtools = true;
+Vue.prototype.$api = new LyrebirdAPI()
 
 iview.lang('en-US');
 

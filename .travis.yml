@@ -38,9 +38,8 @@ jobs:
         directories: node_modules
       install:
         - yarn global add vuepress
-        - vuepress build docs
       script:
-        - echo "Skipping tests"
+        - vuepress build docs
       deploy:
         provider: pages
         skip-cleanup: true
