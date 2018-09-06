@@ -2,29 +2,13 @@
 <card :padding="5">
     <i-button @click="test">Test</i-button>
 
-    <!-- <tooltip content="Clear & reload flow list" :delay="500">
-      <i-button @click="showClearModal=true" icon="md-trush"></i-button>
-    </tooltip>
-
     <div class="inline">
-      <div class="inline">
-        <divider type="vertical"></divider>
-      </div>
-
-      <tooltip content="Delete selected flow" :delay="500">
-        <i-button icon="md-trash"></i-button>
-      </tooltip>
+      <i-select v-model="selectedDataGroup" filterable clearable class="data-group" @on-change="onGroupSelected">
+        <option-group label="DataGroup">
+          <i-option v-for="item in groupList" :key="item" :value="item">{{item}}</i-option>
+        </option-group>
+      </i-select>
     </div>
-
-    <div class="inline">
-      <divider type="vertical"></divider>
-    </div>
-
-    <label>DataGroup:</label>
-
-    <div class="inline pull-right">
-      <i-input search clearable class="search-box" v-model="searchStr"></i-input>
-    </div> -->
 
     <modal v-model="showCreateGroupModal" title="Dialog" @on-ok="creatGroupModalOk">
       <label>Please select a data group or create a new data group first</label>
@@ -40,10 +24,37 @@
 <script>
     module.exports={
         methods: {
-          test: function(){
-            this.$api.getStatus()
-            .then(resp=>console.log('RESPONSE', resp.data))
+          test(){
+            this.$store.dispatch('loadDataList', 'TTT')
+          },
+          onGroupSelected(){
+            console.log('hh');
+          }
+        },
+        computed: {
+          selectedDataGroup: {
+            get(){
+              return this.$store.state.dataManager.currentDataGroup
+            },
+            set(value){
+              this.$store.commit('setCurrentDataGroup', value)
+            }
+          },
+          groupList(){
+            return this.$store.state.dataManager.groupList
           }
         }
     }
 </script>
+
+<style>
+  .inline {
+    display: inline;
+  }
+  .data-group {
+    width: 15vw;
+  }
+  .search-box {
+    width: 30vw;
+  }
+</style>

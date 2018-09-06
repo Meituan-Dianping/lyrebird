@@ -1,13 +1,9 @@
 Vue.config.devtools = true;
-Vue.prototype.$api = new LyrebirdAPI()
+
+Vue.prototype.$api = api
 
 iview.lang('en-US');
 
-const store = new Vuex.Store({
-  state:{
-
-  }
-})
 
 const app = new Vue({
     el: '#app',

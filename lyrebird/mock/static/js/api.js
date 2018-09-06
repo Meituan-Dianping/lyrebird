@@ -193,3 +193,6 @@ class LyrebirdAPI {
         })
     }
 }
+
+
+const api = new LyrebirdAPI()

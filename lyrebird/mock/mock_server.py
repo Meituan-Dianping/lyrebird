@@ -15,6 +15,7 @@ from flask_socketio import SocketIO
 from .reporter import report_handler
 from ..version import VERSION
 import datetime
+import time
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird import log
@@ -61,6 +62,11 @@ class LyrebirdMockServer(ThreadServer):
         self.app.jinja_env.variable_end_string = ']]'
         self.app.jinja_env.comment_start_string = '[#'
         self.app.jinja_env.comment_end_string = '#]'
+
+        # Add global function for templates
+        self.app.jinja_env.globals['time'] = time.time
+        self.app.jinja_env.globals['datetime'] = datetime.datetime
+        self.app.jinja_env.globals['version'] = VERSION
 
         # async_mode = threading / eventlet / gevent / gevent_uwsgi
         self.socket_io = SocketIO(self.app, async_mode='threading', log_output=False)

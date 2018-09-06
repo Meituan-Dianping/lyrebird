@@ -52,10 +52,10 @@
     },
     computed: {
       searchStr: function(){
-        return this.$store.state.searchStr
+        return this.$store.state.inspector.searchStr
       },
       selectedIds: function(){
-        return this.$store.state.selectedIds
+        return this.$store.state.inspector.selectedIds
       }
     },
     watch: {
@@ -107,7 +107,7 @@
       refreshFlowList: function(){
         this.flowList = []
         for (const flow of this.originFlowList) {
-          if(flow.request.url.indexOf(this.$store.state.searchStr)>=0){
+          if(flow.request.url.indexOf(this.$store.state.inspector.searchStr)>=0){
             this.flowList.push(flow)
           }
         }

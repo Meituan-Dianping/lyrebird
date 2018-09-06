@@ -93,7 +93,7 @@
     },
     computed: {
       showDataButtons: function () {
-        return this.$store.state.showDataButtons;
+        return this.$store.state.inspector.showDataButtons;
       }
     },
     watch: {
@@ -220,7 +220,7 @@
         }
         this.$http.post('/api/flow',
           {
-            ids:this.$store.state.selectedIds,
+            ids:this.$store.state.inspector.selectedIds,
             group:this.selectedDataGroup
           }
         )
@@ -241,13 +241,13 @@
                 }
               )
           }
-          console.log('POST flow', this.$store.state.selectedIds, resp);
+          console.log('POST flow', this.$store.state.inspector.selectedIds, resp);
         })
       },
       deleteSelectedFlow: function () {
-        this.$http.delete('/api/flow', {body:{ids:this.$store.state.selectedIds}})
+        this.$http.delete('/api/flow', {body:{ids:this.$store.state.inspector.selectedIds}})
         .then(resp=>{
-          console.log('DEL flow', this.$store.state.selectedIds, resp);
+          console.log('DEL flow', this.$store.state.inspector.selectedIds, resp);
           this.$store.commit('clearSelectedId')
         })
       }
