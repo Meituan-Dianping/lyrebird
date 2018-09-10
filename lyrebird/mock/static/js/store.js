@@ -63,7 +63,7 @@ const dataManager = {
         loadDataList({commit}, groupName){
             api.getDataList(groupName)
             .then(response=>{
-                commit('setDataList', response.data)
+                commit('setDataList', response.data.data)
             })
             .catch(error=>console.log(error))
         },
