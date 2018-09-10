@@ -1,21 +1,35 @@
 <template>
-    <tr>
+    <tr @click="onClick">
         <td>
-            <input type="checkbox" :id="flow.id" v-model="selected">
-        </td>
-        <td>
-            <span class="label" :class="[responseSrcClass]">{{responseSrc}}</span>
+            <input type="checkbox" v-model="selected">
         </td>
         <td>
             <strong>
-                <span :class="[codeClass]">{{flow.response.code}}</span>
+                {{item[0]}}
             </strong>
         </td>
         <td>
-            {{flowContent.hostname}}
-        </td>
-        <td>
-            {{flowContent.pathname}}
+            -
         </td>
     </tr>
 </template>
+
+<script>
+    module.exports = {
+        props: ['item'],
+        computed: {
+            selected: function(){
+                return false
+            }
+        },
+        methods: {
+            onClick(){
+                this.$store.dispatch({
+                    type: 'loadDataDetail',
+                    groupName: this.$store.state.dataManager.currentDataGroup, 
+                    dataName: this.item[0]
+                    })
+            }
+        }
+    }
+</script>

@@ -12,8 +12,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr is="data-list-item" v-for="(item, index) in dataItems" :key="index">
-                        item
+                    <tr is="data-list-item" 
+                    v-for="(item, index) in dataItems" :key="index"
+                    :item=item
+                    >
                     </tr>
                 </tbody>
             </table>
@@ -23,13 +25,15 @@
 
 <script>
     module.exports = {
-        comments: {
+        components: {
             'data-list-item': httpVueLoader('/static/vue/datamanager/data-list-item.vue')
         },
         computed: {
-            dataItems: function(){
+            dataItems(){
                 return this.$store.state.dataManager.dataList
             }
+        },
+        methods: {
         }
     }
 </script>

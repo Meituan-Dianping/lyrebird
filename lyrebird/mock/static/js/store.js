@@ -67,8 +67,8 @@ const dataManager = {
             })
             .catch(error=>console.log(error))
         },
-        loadDataDetail({commit}, groupName, dataName){
-            api.getDataDetail(groupName, dataName)
+        loadDataDetail({commit}, payload){
+            api.getDataDetail(payload.groupName, payload.dataName)
             .then(response=>{
                 commit('setDataDetail', response.data)
             })
