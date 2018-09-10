@@ -28,45 +28,36 @@ class ReportHandler:
     """
 
     def __init__(self):
-        self.cache_queue = Queue()
         self.report_url = None
         self.report_headers = None
         self.event_executor = ThreadPoolExecutor(max_workers=5)
-
-    def check_report_data(self, data):
-        try:
-            json.dumps(data)
-        except Exception as e:
-            print("Report data's type is not dict!" + str(repr(e)))
 
     def report_worker(self, data):
         # 如果配置文件无reporter的配置
         conf = context.application.conf
         if not conf.get('reporter.url') or not conf.get('reporter.headers'):
             return
+        
         self.report_url = conf['reporter.url']
         self.report_headers = conf['reporter.headers']
-        requests.request("POST", self.report_url, data=json.dumps(data), headers=self.report_headers)
+        
+        if isinstance(data, dict):
+            data.update(base_data)
+        
+        try:
+            requests.request("POST", self.report_url, json=data, headers=self.report_headers)
+        except Exception as e:
+            logger.error(f'Send report failed. {e}')
 
-    def start_report(self, data):
-        self.check_report_data(data)
-        self.cache_queue.put(data)
-        # 上报队列中所有的cache数据
-        while True:
-            try:
-                self.event_executor.submit(self.report_worker, self.cache_queue.get_nowait())
-            except Exception:
-                break
+    def send_report(self, data):
+        self.event_executor.submit(self.report_worker, data)
 
 
 report_handler = ReportHandler()
 
 
 def report(data):
-    try:
-        report_handler.start_report(data)
-    except Exception as e:
-        logger.error('Report failed', data, e)
+    report_handler.send_report(data)
 
 
 def _env_info():
