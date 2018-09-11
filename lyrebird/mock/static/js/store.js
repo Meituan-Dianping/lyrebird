@@ -35,7 +35,7 @@ const dataManager = {
         groupList:[],
         currentDataGroup: null,
         dataList:[],
-        foucsMockData: null,
+        foucsData: null,
         dataDetail: null
     },
     mutations:{
@@ -50,6 +50,9 @@ const dataManager = {
         },
         setDataDetail(state, dataDetail){
             state.dataDetail = dataDetail
+        },
+        setFoucsData(state, dataName){
+            state.foucsData = dataName
         }
     },
     actions:{

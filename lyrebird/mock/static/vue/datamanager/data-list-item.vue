@@ -1,5 +1,5 @@
 <template>
-    <tr @click="onClick">
+    <tr @click="onClick" :class="foucs">
         <td>
             <input type="checkbox" v-model="selected">
         </td>
@@ -20,10 +20,14 @@
         computed: {
             selected: function(){
                 return false
+            },
+            foucs: function(){
+                return { foucs: this.$store.state.dataManager.foucsData === this.item[0]}
             }
         },
         methods: {
             onClick(){
+                this.$store.commit('setFoucsData', this.item[0])
                 this.$store.dispatch({
                     type: 'loadDataDetail',
                     groupName: this.$store.state.dataManager.currentDataGroup, 
@@ -33,3 +37,9 @@
         }
     }
 </script>
+
+<style>
+.foucs{
+  background-color: rgb(217, 239, 252)
+}
+</style>
