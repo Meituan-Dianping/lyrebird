@@ -10,7 +10,6 @@ from urllib.parse import urlparse, unquote
 from lyrebird.mock.filesystem import DataHelper
 from .. import plugin_manager
 
-
 """
 实现控制API
 """
@@ -92,13 +91,31 @@ class MockGroup(Resource):
         if not group:
             return jsonify([group_name for group_name in context.application.data_manager.data_groups])
 
+        # 返回数据组中数据列表
         _group = context.application.data_manager.data_groups.get(group)
-        if _group:
-            resp_obj = dict()
-            resp_obj['data'] = [[k, _group.data_dict[k].path] for k in _group.data_dict]
-            resp_obj['conf'] = _group.conf
-            return jsonify(resp_obj)
-        return context.make_fail_response('Not found group')
+        if not _group:
+            return context.make_fail_response('Not found group')
+
+        data_list = []
+        for k in _group.data_dict:
+            data = _group.data_dict[k]
+
+            _filter = None
+            for req_filter in _group.conf['filters']:
+                if req_filter['response'] == data.name:
+                    _filter = req_filter['contents']
+                    break
+
+            data.read_file()
+            data_list.append({
+                'name': data.name,
+                'url': data.json_data['request']['url'],
+                'rule': {
+                    'contains': _filter
+                }
+            })
+        
+        return jsonify(data_list)
 
     def post(self):
         name = request.form.get('name')
@@ -138,7 +155,13 @@ class MockData(Resource):
         if _group and data in _group.data_dict:
             _data = _group.data_dict[data]
             _data.read_file()
-            return jsonify(_data.json_data)
+            base_data = _data.json_data
+            contains = []
+            for req_filter in _group.conf['filters']:
+                if req_filter['response'] == data:
+                    contains = req_filter['contents']
+            base_data['rule'] = {'contains': contains}
+            return jsonify(base_data)
         return context.make_fail_response('Data not found')
 
     def put(self, group=None, data=None):

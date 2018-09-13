@@ -5,10 +5,10 @@
                 <thead>
                     <tr>
                         <th>
-                            <input type="checkbox">
+                            <input type="checkbox" v-model="selectAll">
                         </th>
-                        <th>Host</th>
                         <th>Path</th>
+                        <th>Host</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,6 +31,18 @@
         computed: {
             dataItems(){
                 return this.$store.state.dataManager.dataList
+            },
+            selectAll: {
+                get(){
+                    return (this.$store.state.dataManager.dataList.length > 0) && (this.$store.state.dataManager.selectedData.length === this.$store.state.dataManager.dataList.length)
+                },
+                set(value){
+                    if(value){
+                        this.$store.commit('selectAllData')
+                    }else{
+                        this.$store.commit('clearSelectedData')
+                    }
+                }
             }
         },
         methods: {

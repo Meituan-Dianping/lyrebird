@@ -8,6 +8,9 @@
             <tab-pane label="ResponseBody" name="resp-body"></tab-pane>
         </tabs>
         <code-editor v-if="dataDetail" :language="code.type" :content="code.content" style="height: 500px"></code-editor>
+        <div v-if="dataDetail" class="button-bar">
+            <i-button type="primary" ghost>Save</i-button>
+        </div>
     </card>
 </template>
 
@@ -32,7 +35,8 @@
                 }
 
                 if(this.currentTab === 'rule'){
-                    
+                    codeObj.content = JSON.stringify(this.dataDetail.rule, null, 4)
+                    codeObj.type = 'json'
                 }
                 else if(this.currentTab === 'req'){
                     codeObj.content = JSON.stringify(this.dataDetail.request, null, 4)
@@ -81,3 +85,9 @@
         }
     }
 </script>
+
+<style>
+.button-bar{
+    margin-top: 5px
+}
+</style>

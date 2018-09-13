@@ -1,7 +1,6 @@
 <template>
   <card :padding="5">
-    <i-button @click="test">Test</i-button>
-
+    <label>DataGroup:</label>
     <div class="inline">
       <i-select v-model="selectedDataGroup" filterable clearable class="data-group" @on-change="onGroupSelected">
         <option-group label="DataGroup">
@@ -10,6 +9,10 @@
       </i-select>
     </div>
 
+    <i-button>NewGroup</i-button>
+    <i-button>DeleteGroup</i-button>
+    <i-button>NewData</i-button>
+    <i-button>DeleteData</i-button>
   </card>
 </template>
 
@@ -19,11 +22,11 @@
       this.$store.dispatch('loadGroupList')
     },
     methods: {
-      test() {
-        this.$store.dispatch('loadDataList', 'TTT')
-      },
       onGroupSelected() {
         this.$store.dispatch('loadDataList', this.selectedDataGroup)
+      },
+      activteCurrentGroup() {
+        this.$store.dispatch('activateCurrentGroup')
       }
     },
     computed: {

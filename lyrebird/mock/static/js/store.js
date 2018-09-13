@@ -32,11 +32,13 @@ const inspector = {
 
 const dataManager = {
     state:{
+        activatedGroup: null,
         groupList:[],
         currentDataGroup: null,
         dataList:[],
         foucsData: null,
-        dataDetail: null
+        dataDetail: null,
+        selectedData: []
     },
     mutations:{
         setGroupList(state, groupList){
@@ -53,6 +55,28 @@ const dataManager = {
         },
         setFoucsData(state, dataName){
             state.foucsData = dataName
+        },
+        setActivitedGroup(state, groupName){
+            state.activatedGroup = groupName
+        },
+        deleteSelectedData(state, dataName){
+            index = state.selectedData.indexOf(dataName)
+            if (index < 0) {
+                return
+            }
+            state.selectedData.splice(index, 1)
+        },
+        addSelectedData(state, dataName){
+            state.selectedData.push(dataName)
+        },
+        clearSelectedData(state){
+            state.selectedData = []
+        },
+        selectAllData(state){
+            state.selectedData = []
+            for (const dataItem of state.dataList) {
+                state.selectedData.push(dataItem.name)
+            }
         }
     },
     actions:{
@@ -66,7 +90,8 @@ const dataManager = {
         loadDataList({commit}, groupName){
             api.getDataList(groupName)
             .then(response=>{
-                commit('setDataList', response.data.data)
+                commit('setDataList', response.data)
+                commit('clearSelectedData')
             })
             .catch(error=>console.log(error))
         },
@@ -77,8 +102,19 @@ const dataManager = {
             })
             .catch(error=>console.log(error))
         },
-        selectGroupChange({commit}, groupName){
-            
+        getActivatedGroup({commit}){
+            api.getActivatedGroup()
+            .then(response=>{
+                commit('setActivitedGroup', response.data.name)
+            })
+            .catch(error=>console.log(error))
+        },
+        activateCurrentGroup({dispatch, state}){
+            api.activateGroup(state.currentDataGroup)
+            .then(response=>{
+                dispatch('getActivatedGroup')
+            })
+            .catch(error=>console.log(error))
         }
     }
 }
