@@ -174,6 +174,14 @@ class LyrebirdAPI {
         })
     }
 
+    updateDataDetail(groupName, dataName, dataDetail){
+        return axios({
+            url: '/api/mock/'+groupName+'/data/'+dataName,
+            method: 'PUT',
+            data: JSON.stringify(dataDetail)
+        })
+    }
+
     /**
     Get activated data group name
     */

@@ -115,6 +115,15 @@ const dataManager = {
                 dispatch('getActivatedGroup')
             })
             .catch(error=>console.log(error))
+        },
+        saveDataDetail({state, dispatch}, dataDetail){
+            groupName = state.currentDataGroup
+            dataName = state.foucsData
+            api.updateDataDetail(groupName, dataName, dataDetail)
+            .then(response=>{
+                dispatch('loadDataDetail', {groupName:groupName, dataName:dataName})
+            })
+            .catch(error=>console.log(error))
         }
     }
 }

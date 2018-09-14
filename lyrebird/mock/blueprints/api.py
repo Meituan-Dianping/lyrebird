@@ -165,6 +165,7 @@ class MockData(Resource):
         return context.make_fail_response('Data not found')
 
     def put(self, group=None, data=None):
+        
         return 'MockData UPDATE'
 
     def post(self, group=None, data=None):

@@ -9,7 +9,7 @@
         </tabs>
         <code-editor v-if="dataDetail" :language="code.type" :content="code.content" style="height: 500px"></code-editor>
         <div v-if="dataDetail" class="button-bar">
-            <i-button type="primary" ghost>Save</i-button>
+            <i-button type="primary" ghost @click="save">Save</i-button>
         </div>
     </card>
 </template>
@@ -81,6 +81,13 @@
                     parsedBody.content = body
                 }
                 return parsedBody
+            },
+            save(){
+                
+                if(currentTab==='rule'){
+                    
+                }
+                this.$store.dispatch('saveDataDetail', {})
             }
         }
     }
