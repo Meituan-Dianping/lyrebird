@@ -37,12 +37,14 @@ class ConfigManager():
 
     def __init__(self, conf_path=None):
         self.update_base_config()
-        self.root = None
+        self.root = self.ROOT
         self.config = None
         self.conf_file = None
-        self.config = self.read_base_config()
         if conf_path:
             self.update_conf(conf_path)
+        self.config = self.read_base_config()
+        if conf_path:
+            self.read()        
 
     def update_conf(self, path):
         input_path:Path = Path(path).expanduser().absolute()
@@ -56,12 +58,11 @@ class ConfigManager():
         # load config or use default config
         if not self.conf_file.exists():
             raise ConfigException(f'{self.conf_file} not found')
-        self.read()
 
     def read(self):
         template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.root)))
         template = template_env.get_template(self.conf_file.name)
-        custom_config = json.loads(template.render(current_dir=str(self.root)))
+        custom_config = json.loads(template.render(current_dir=str(self.root), download_dir=str(self.ROOT/'downloads')))
         self.config.update(custom_config)
 
     def save(self):
@@ -83,8 +84,10 @@ class ConfigManager():
             f.write(json.dumps(config_template, indent=4, ensure_ascii=False))
 
     def read_base_config(self):
-        with codecs.open(self.BASE_CONFIG, 'r', 'utf-8') as f:
-            return json.load(f)
+        template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.ROOT)))
+        template = template_env.get_template('conf.json')
+        base_config = json.loads(template.render(current_dir=str(self.root), download_dir=str(self.ROOT/'downloads')))
+        return base_config
 
 
 class ConfigException(Exception):
