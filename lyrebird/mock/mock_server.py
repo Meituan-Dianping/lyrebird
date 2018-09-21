@@ -111,7 +111,7 @@ class LyrebirdMockServer(ThreadServer):
         server_ip = application.config.get('ip')    
         _logger.warning(f'start on http://{server_ip}:{self.port}')
         report_handler.start()
-        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
+        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=False, use_reloader=False)
 
 
     def stop(self):

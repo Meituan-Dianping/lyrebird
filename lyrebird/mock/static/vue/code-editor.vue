@@ -6,6 +6,10 @@
 
 <script>
 module.exports = {
+    model: {
+        prop: 'content',
+        event: 'change'
+    },
     props: {
         'content': null, 
         'language':{
@@ -21,16 +25,16 @@ module.exports = {
         }
     },
     watch:{
-        content: function(){
+        content: function(newValue){
             console.log("Code editor: content change");
-            window.monaco.editor.setModelLanguage(this.editor.getModel(), this.language);
-            this.editor.setValue(this.content);            
-            // let action = this.editor.getAction('editor.action.formatDocument')
-            // if(action){
-            //     action.run();
-            //     console.log('Run action', action);            
-            // }
-            this.editor.trigger(this.editor.getValue(), 'editor.action.formatDocument')
+            if (this.editor) {
+                if (newValue !== this.editor.getValue()) {
+                    window.monaco.editor.setModelLanguage(this.editor.getModel(), this.language);
+                    this.editor.setValue(newValue);
+                    this.editor.trigger(this.editor.getValue(), 'editor.action.formatDocument')
+                }
+            }
+            
         }
     },
     mounted: function(){
@@ -43,6 +47,12 @@ module.exports = {
                 readOnly: this.readOnly
             }
         );
+        this.editor.onDidChangeModelContent(event => {
+        const value = this.editor.getValue()
+        if (this.value !== value) {
+          this.$emit('change', value, event)
+        }
+      })
     }
 };
 </script>

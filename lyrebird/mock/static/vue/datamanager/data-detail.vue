@@ -7,7 +7,7 @@
             <tab-pane label="Response" name="resp"></tab-pane>
             <tab-pane label="ResponseBody" name="resp-body"></tab-pane>
         </tabs>
-        <code-editor v-if="dataDetail" :language="code.type" :content="code.content" style="height: 500px"></code-editor>
+        <code-editor v-if="dataDetail" :language="code.type" v-model="content" style="height: 500px"></code-editor>
         <div v-if="dataDetail" class="button-bar">
             <i-button type="primary" ghost @click="save">Save</i-button>
         </div>
@@ -57,6 +57,20 @@
                     }
                 }
                 return codeObj
+            },
+            content: {
+                get(){
+                    return this.code.content
+                },
+                set(value){
+                    console.log('Set content', value);
+                    const dataDetail = this.$store.state.dataManager.dataDetail
+                    if(this.currentTab==='rule'){
+                        dataDetail.rule = JSON.parse(value)
+                        console.log(dataDetail);
+                    }
+                    this.$store.commit('setDataDetail', dataDetail)
+                }
             }
         },
         methods: {
@@ -83,11 +97,7 @@
                 return parsedBody
             },
             save(){
-                
-                if(currentTab==='rule'){
-                    
-                }
-                this.$store.dispatch('saveDataDetail', {})
+                this.$store.dispatch('saveDataDetail', dataDetail)
             }
         }
     }
