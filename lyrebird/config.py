@@ -62,7 +62,7 @@ class ConfigManager():
     def read(self):
         template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.root)))
         template = template_env.get_template(self.conf_file.name)
-        custom_config = json.loads(template.render(current_dir=str(self.root)))
+        custom_config = json.loads(template.render(current_dir=str(self.root), download_dir=str(self.ROOT/'downloads')))
         self.config.update(custom_config)
 
     def save(self):
@@ -86,7 +86,7 @@ class ConfigManager():
     def read_base_config(self):
         template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.ROOT)))
         template = template_env.get_template('conf.json')
-        base_config = json.loads(template.render(current_dir=str(self.root)))
+        base_config = json.loads(template.render(current_dir=str(self.root), download_dir=str(self.ROOT/'downloads')))
         return base_config
 
 
