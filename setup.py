@@ -33,8 +33,8 @@ setup(
         ]
     },
     install_requires=[
-        'flask',
         'mitmproxy==4.0.4',
+        'flask',
         'requests',
         'fire',
         'colorama',
