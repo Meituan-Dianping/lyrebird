@@ -40,12 +40,14 @@ class ProxyHandler:
         resp_headers = [('lyrebird', 'proxy')]
         for name, value in r.headers.items():
             # rm 'content-length' from ignore list
-            if name.lower() in ('connection',
-                                'content-encoding',
+            if name.lower() in ('content-encoding',
                                 'transfer-encoding'):
                 continue
+            if name.lower() == 'content-length' and 'content-encoding' in r.headers and r.headers['content-encoding']=='gzip':
+                # 如果是gzip请求，由于requests自动解压gzip，所以此处抹去content-length,以匹配解压后的数据长度
+                continue
             resp_headers.append((name, value))
-
+        
         handler_context.request.url = origin_url
         # After huangyuanzhen test, we use 2048byte buffer :D
         handler_context.response = Response(
