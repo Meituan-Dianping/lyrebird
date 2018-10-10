@@ -63,11 +63,9 @@
                     return this.code.content
                 },
                 set(value){
-                    console.log('Set content', value);
                     const dataDetail = this.$store.state.dataManager.dataDetail
                     if(this.currentTab==='rule'){
                         dataDetail.rule = JSON.parse(value)
-                        console.log(dataDetail);
                     }
                     this.$store.commit('setDataDetail', dataDetail)
                 }
@@ -91,8 +89,13 @@
                     parsedBody.type = 'xml'
                     parsedBody.content = body
                 }else{
-                    parsedBody.type = 'text'
-                    parsedBody.content = body
+                    try {
+                        parsedBody.content = JSON.stringify(body, null, 4)
+                        parsedBody.type = 'json'
+                    } catch (error) {
+                        parsedBody.type = 'text'
+                        parsedBody.content = 'Unreadable'
+                    }
                 }
                 return parsedBody
             },
