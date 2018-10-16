@@ -38,7 +38,14 @@ const dataManager = {
         dataList:[],
         foucsData: null,
         dataDetail: null,
-        selectedData: []
+        selectedData: [],
+        editorCache: {
+            rule: '',
+            req: '',
+            reqBody: '',
+            resp: '',
+            respBody: ''
+        }
     },
     mutations:{
         setGroupList(state, groupList){
@@ -77,6 +84,21 @@ const dataManager = {
             for (const dataItem of state.dataList) {
                 state.selectedData.push(dataItem.name)
             }
+        },
+        setRule(state, rule){
+            state.editorCache.rule = rule
+        },
+        setReq(state, req){
+            state.editorCache.req = req
+        },
+        setReqBody(state, reqBody){
+            state.editorCache.reqBody = reqBody
+        },
+        setResp(state, resp){
+            state.editorCache.resp = resp
+        },
+        setRespBody(state, respBody){
+            state.editorCache.respBody = respBody
         }
     },
     actions:{
