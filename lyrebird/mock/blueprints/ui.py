@@ -76,38 +76,3 @@ def plugin_base(name):
 def settings():
     report_handler.page_in('settings')
     return render_with_plugin('settings.html')
-
-
-@ui.route('/group_list')
-def group_list():
-    groups = context.application.data_manager.data_groups
-    current_group = context.application.data_manager.current_data_group
-    current_group_name = None
-    if current_group:
-        current_group_name = os.path.basename(current_group.dir_path)
-    return render_template(
-
-        'dm_v1/data_group_list.html',
-        groups=groups.keys(),
-        current_group=current_group_name
-    )
-
-
-@ui.route('/group_btn/')
-@ui.route('/group_btn/<string:name>')
-def group_btn(name=None):
-    current_group = context.application.data_manager.current_data_group
-    current_group_name = None
-    if current_group:
-        current_group_name = current_group.name
-    if not name or name == '':
-        return render_template(
-            'dm_v1/data_group_btn.html',
-            group=None,
-            current_group=current_group_name)
-    if context.application.data_manager.data_groups.get(name):
-        return render_template(
-            'dm_v1/data_group_btn.html',
-            group=name,
-            current_group=current_group_name)
-    return context.make_fail_response('Group not found')

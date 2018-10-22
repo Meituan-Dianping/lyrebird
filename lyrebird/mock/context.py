@@ -1,6 +1,7 @@
 from flask import jsonify
 from . import cache
 from .filesystem import FileManager
+from .data_manager import DataManager
 from flask_socketio import SocketIO
 import codecs, json, os
 from lyrebird import application as app
@@ -29,7 +30,8 @@ class Application:
         self.cache = cache.get_cache()
         self.work_mode = Mode.NORMAL
         # todo 使用文件系统存储mock数据，应可支持切换redis，mysql
-        self.data_manager = FileManager()
+        # self.data_manager = FileManager()
+        self.data_manager = DataManager()
         # SocketIO
         self.socket_io: SocketIO = None
         self.conf_manager = None
