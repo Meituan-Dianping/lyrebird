@@ -2,13 +2,34 @@ class DataManagerError(Exception):
     pass
 
 
-class GroupNotFoundError(DataManagerError):
+class DataRootDirNotExistsError(DataManagerError):
     pass
 
 
-class GroupAlreadyExisit(DataManagerError):
+class DataGroupNotExistsError(DataManagerError):
     pass
 
 
-class SerializeTargetNotExisit(DataManagerError):
+class DataGroupInfoNotFoundError(DataManagerError):
     pass
+
+
+class DataGroupIsNotDirError(DataManagerError):
+    pass
+
+
+class DataNotExistsError(DataManagerError):
+    pass
+
+
+class DataIsNotDirError(DataManagerError):
+    pass
+
+
+class DataInfoNotFoundError(DataManagerError):
+    pass
+
+
+class ActivateFailed(DataManagerError):
+    pass
+
