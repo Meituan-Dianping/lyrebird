@@ -50,7 +50,7 @@ class Application:
         self._conf = _conf
         # TODO 更新conf触发更新data_manager根目录
         if _conf.get('mock.data'):
-            self.data_manager.set_root(_conf.get('mock.data'))
+            self.data_manager.root = _conf.get('mock.data')
 
     def save(self):
         DEFAULT_CONF = os.path.join(
@@ -72,10 +72,10 @@ def make_ok_response(**kwargs):
     return jsonify(ok_resp)
 
 
-def make_fail_response(msg):
-    return jsonify(
-        {
-            "code": 3000,
+def make_fail_response(msg, code=3000, **kwargs):
+    fail_resp = {
+            "code": code,
             "message": msg
         }
-    )
+    fail_resp.update(kwargs)
+    return jsonify(fail_resp)

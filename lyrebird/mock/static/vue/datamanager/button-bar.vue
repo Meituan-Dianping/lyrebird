@@ -4,7 +4,7 @@
     <div class="inline">
       <i-select v-model="selectedDataGroup" filterable clearable class="data-group" @on-change="onGroupSelected">
         <option-group label="DataGroup">
-          <i-option v-for="item in groupList" :key="item" :value="item">{{item}}</i-option>
+          <i-option v-for="item in groupList" :key="item.id" :value="item.id">{{item.name}}</i-option>
         </option-group>
       </i-select>
     </div>

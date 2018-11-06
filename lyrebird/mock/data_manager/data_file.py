@@ -7,37 +7,47 @@ from xml.dom import minidom
 
 class DataFile:
     
-    def __init__(self, data_obj, name, filetype='json'):
+    def __init__(self, data_obj, name, filetype='bin'):
         self.name = name
         self.path = Path(data_obj.path)/name
         self.filetype = filetype
-        self._content = None
 
     def load(self):
+        _content = None
         if self.filetype in ['json', 'text', 'html', 'xml']:
             with codecs.open(self.path, 'r', 'utf-8') as f:
-                self._content = f.read()
+                _content = f.read()
+        return _content
     
-    def save(self):
-        if self._content and self.filetype in ['json', 'html', 'text', 'xml']:
+    def save(self, val):
+        if self.filetype in ['json', 'html', 'text', 'xml']:
             with codecs.open(self.path, 'w', 'utf-8') as f:
-                f.write(self._content)
+                f.write(val)
 
     @property
     def content(self):
-        self.load()
-        return self._content
+        try:
+            return self.load()
+        except Exception:
+            return None
 
     @content.setter
     def content(self, val):
+        _content = None
         if self.filetype == 'json':
-            self._content = json.dumps(json.loads(val), ensure_ascii=False, indent=4)
+            _content = json.dumps(json.loads(val), ensure_ascii=False, indent=4)
         elif self.filetype == 'html':
-            self._content = BeautifulSoup(val, features="html.parser").prettify()
+            _content = BeautifulSoup(val, features="html.parser").prettify()
         elif self.filetype == 'text':
-            self._content = val
+            _content = val
         elif self.filetype == 'xml':
-            self._content = minidom.parseString(val).toprettyxml()
-        else:
-            self._content = 'unknown data type'
+            _content = minidom.parseString(val).toprettyxml()
 
+        if _content:
+            self.save(_content)
+
+    def json(self):
+        return {
+            'content': self.content,
+            'filetype': self.filetype
+        }

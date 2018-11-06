@@ -1,10 +1,14 @@
 const inspector = {
     state:{
+        activatedGroupId: null,        
         showDataButtons: false,
         searchStr: '',
         selectedIds: []
     },
     mutations:{
+        setActivitedGroupId(state, groupId){
+            state.activatedGroupId = groupId
+        },
         showDataButtons: function (state, val) {
             state.showDataButtons = val
         },
@@ -27,12 +31,27 @@ const inspector = {
             }
             state.selectedIds.splice(index, 1)
         }
+    },
+    actions:{
+        loadActivatedGroup({commit}){
+            api.getActivatedGroup()
+            .then(response=>{
+                commit('setActivitedGroupId', response.data.id)
+            })
+            .catch(error=>console.log(error))
+        },
+        activateGroup({dispatch}, groupId){
+            api.activateGroup(groupId)
+            .then(response=>{
+                dispatch('loadActivatedGroup')
+            })
+            .catch(error=>console.log(error))
+        },
     }
 }
 
 const dataManager = {
     state:{
-        activatedGroup: null,
         groupList:[],
         currentDataGroup: null,
         dataList:[],
@@ -60,21 +79,18 @@ const dataManager = {
         setDataDetail(state, dataDetail){
             state.dataDetail = dataDetail
         },
-        setFoucsData(state, dataName){
-            state.foucsData = dataName
+        setFoucsData(state, dataId){
+            state.foucsData = dataId
         },
-        setActivitedGroup(state, groupName){
-            state.activatedGroup = groupName
-        },
-        deleteSelectedData(state, dataName){
-            index = state.selectedData.indexOf(dataName)
+        deleteSelectedData(state, dataId){
+            index = state.selectedData.indexOf(dataId)
             if (index < 0) {
                 return
             }
             state.selectedData.splice(index, 1)
         },
-        addSelectedData(state, dataName){
-            state.selectedData.push(dataName)
+        addSelectedData(state, dataId){
+            state.selectedData.push(dataId)
         },
         clearSelectedData(state){
             state.selectedData = []
@@ -82,7 +98,7 @@ const dataManager = {
         selectAllData(state){
             state.selectedData = []
             for (const dataItem of state.dataList) {
-                state.selectedData.push(dataItem.name)
+                state.selectedData.push(dataItem.id)
             }
         },
         setRule(state, rule){
@@ -109,32 +125,19 @@ const dataManager = {
             })
             .catch(error=>console.log(error))
         },
-        loadDataList({commit}, groupName){
-            api.getDataList(groupName)
+        loadDataList({commit}, groupId){
+            api.getDataList(groupId)
             .then(response=>{
-                commit('setDataList', response.data)
+                commit('setDataList', response.data.data_list)
                 commit('clearSelectedData')
             })
             .catch(error=>console.log(error))
         },
         loadDataDetail({commit}, payload){
-            api.getDataDetail(payload.groupName, payload.dataName)
+            api.getDataDetail(payload.groupId, payload.dataId)
             .then(response=>{
+                console.log(response.data);
                 commit('setDataDetail', response.data)
-            })
-            .catch(error=>console.log(error))
-        },
-        getActivatedGroup({commit}){
-            api.getActivatedGroup()
-            .then(response=>{
-                commit('setActivitedGroup', response.data.name)
-            })
-            .catch(error=>console.log(error))
-        },
-        activateCurrentGroup({dispatch, state}){
-            api.activateGroup(state.currentDataGroup)
-            .then(response=>{
-                dispatch('getActivatedGroup')
             })
             .catch(error=>console.log(error))
         },

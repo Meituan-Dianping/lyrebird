@@ -8,7 +8,7 @@ import subprocess
 from . import plugin_manager
 from flask import Flask, request, redirect, url_for, Response
 from . import context
-from .blueprints.api import api
+from .blueprints.apis import api
 from .blueprints.ui import ui
 from .blueprints.api_mock import api_mock
 from flask_socketio import SocketIO

@@ -140,9 +140,9 @@ class LyrebirdAPI {
         ]
     }
     */
-    getDataList(groupName){
+    getDataList(groupId){
         return axios({
-            url: '/api/mock/'+groupName
+            url: '/api/mock/'+groupId
         })
     }
 
@@ -168,9 +168,9 @@ class LyrebirdAPI {
         }
     }
     */
-    getDataDetail(groupName, dataName){
+    getDataDetail(groupId, dataId){
         return axios({
-            url: '/api/mock/'+groupName+'/data/'+dataName
+            url: '/api/mock/'+groupId+'/data/'+dataId
         })
     }
 
@@ -183,7 +183,7 @@ class LyrebirdAPI {
     }
 
     /**
-    Get activated data group name
+    Get activated data group ID
     */
     getActivatedGroup(){
         return axios({
@@ -192,11 +192,11 @@ class LyrebirdAPI {
     }
 
     /**
-    Activate data group by name
+    Activate data group by ID
     */
-    activateGroup(groupName){
+    activateGroup(groupId){
         return axios({
-            url: '/api/mock/'+groupName+'/activate',
+            url: '/api/mock/'+groupId+'/activate',
             method: 'PUT'
         })
     }

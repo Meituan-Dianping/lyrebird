@@ -39,21 +39,29 @@
                     codeObj.type = 'json'
                 }
                 else if(this.currentTab === 'req'){
-                    codeObj.content = JSON.stringify(this.dataDetail.request, null, 4)
+                    codeObj.content = this.dataDetail.request.content
+                    codeObj.type = this.dataDetail.request.filetype
                 }
                 else if(this.currentTab === 'req-body'){
-                    let request = this.dataDetail.request
-                    if(request.hasOwnProperty('data')){
-                        codeObj = this.parseBody(request.headers, request.data)
+                    if(this.dataDetail.request_data && this.dataDetail.request_data.content){
+                        codeObj.content = this.dataDetail.request_data.content
+                        codeObj.type = this.dataDetail.request_data.filetype
+                    }else{
+                        codeObj.content = ''
+                        codeObj.type = 'text'
                     }
                 }
                 else if(this.currentTab === 'resp'){
-                    codeObj.content = JSON.stringify(this.dataDetail.response, null, 4)
+                    codeObj.content = this.dataDetail.response.content
+                    codeObj.type = this.dataDetail.response.filetype
                 }
                 else if(this.currentTab === 'resp-body'){
-                    response = this.dataDetail.response
-                    if(response.hasOwnProperty('data')){
-                        codeObj = this.parseBody(response.headers, response.data)
+                    if(this.dataDetail.response_data && this.dataDetail.response_data.content){
+                        codeObj.content = this.dataDetail.response_data.content
+                        codeObj.type = this.dataDetail.response_data.filetype
+                    }else{
+                        codeObj.content = ''
+                        codeObj.type = 'text'
                     }
                 }
                 return codeObj

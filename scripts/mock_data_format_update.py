@@ -7,7 +7,7 @@ import shutil
 from urllib.parse import urlparse
 
 
-NEW_INFO_FILENAME = '.info'
+NEW_INFO_FILENAME = '.lyrebird_prop'
 OLD_INFO_FILENAME = 'conf.json'
 
 

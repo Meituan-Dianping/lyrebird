@@ -5,12 +5,7 @@
         </td>
         <td>
             <span class="path">
-                {{ location.pathname }}
-            </span>
-        </td>
-        <td>
-            <span class="host">
-                {{ location.hostname }}
+                {{ item.name }}
             </span>
         </td>
     </tr>
@@ -22,32 +17,27 @@
         computed: {
             selected: {
                 get(){
-                    return this.$store.state.dataManager.selectedData.indexOf(this.item.name)>=0
+                    return this.$store.state.dataManager.selectedData.indexOf(this.item.id)>=0
                 },
                 set(value){
                     if(value){
-                        this.$store.commit('addSelectedData', this.item.name)
+                        this.$store.commit('addSelectedData', this.item.id)
                     }else{
-                        this.$store.commit('deleteSelectedData', this.item.name)
+                        this.$store.commit('deleteSelectedData', this.item.id)
                     }
                 }
             },
             foucs(){
-                return { foucs: this.$store.state.dataManager.foucsData === this.item.name}
-            },
-            location(){
-                var l = document.createElement("a");
-                l.href = this.item.url;
-                return l;
+                return { foucs: this.$store.state.dataManager.foucsData === this.item.id}
             }
         },
         methods: {
             onClick(){
-                this.$store.commit('setFoucsData', this.item.name)
+                this.$store.commit('setFoucsData', this.item.id)
                 this.$store.dispatch({
                     type: 'loadDataDetail',
-                    groupName: this.$store.state.dataManager.currentDataGroup, 
-                    dataName: this.item.name
+                    groupId: this.$store.state.dataManager.currentDataGroup, 
+                    dataId: this.item.id
                     })
             }
         }

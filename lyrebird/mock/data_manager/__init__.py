@@ -37,15 +37,16 @@ class DataManager:
         self.groups[group.id] = group
         return group
 
-    def delete_group(self):
-        pass
+    def delete_group(self, group_id):
+        group = self.groups.pop(group_id)
+        if group:
+            group.delete()
 
     def copy_croup(self):
         pass
     
     def scan(self):
-        for sub_filename in self.root.iterdir():
-            sub_file = self.root/sub_filename
+        for sub_file in self.root.iterdir():
             if not sub_file.is_dir():
                 continue
             group = Group.createify(sub_file)

@@ -7,8 +7,7 @@
                         <th>
                             <input type="checkbox" v-model="selectAll">
                         </th>
-                        <th>Path</th>
-                        <th>Host</th>
+                        <th>Name</th>
                     </tr>
                 </thead>
                 <tbody>

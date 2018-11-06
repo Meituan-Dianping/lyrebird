@@ -2,7 +2,9 @@ import json
 import codecs
 import uuid
 from pathlib import Path
+import shutil
 from .data import Data
+from collections import OrderedDict
 from .exceptions import DataGroupNotExistsError, DataGroupIsNotDirError, DataGroupInfoNotFoundError
 
 
@@ -10,9 +12,7 @@ class Group:
     """
     DataGroup
 
-    Keep all flow data.
-
-    The .info file contains group info.
+    The info file (.lyrebird_prop) contains group info.
     {
         "id": "",
         "name": ""
@@ -20,7 +20,7 @@ class Group:
 
     """
 
-    info_filename = '.info'
+    info_filename = '.lyrebird_prop'
 
 
     def __init__(self, gid, gname, gpath, gparent_id=None):
@@ -28,7 +28,7 @@ class Group:
         self.name = gname
         self.parent_id = gparent_id
         self.path = gpath
-        self.data_list = []
+        self.all_data = OrderedDict()
 
     @classmethod
     def createify(cls, group_path):
@@ -71,17 +71,36 @@ class Group:
                 'parent': self.parent_id
             }
             json.dump(info, f, ensure_ascii=False, indent=4)
+    
+    def delete(self):
+        """
+        Delete group dir and subfile from disk
+        """
+        shutil.rmtree(self.path)
 
     def create_data(self, flow=None):
         data = Data.new_data(self.path, flow)
-        self.data_list.append(data)
+        self.all_data[data.id] = data
         return data
+    
+    def delete_data(self, data_id):
+        data = self.all_data.pop(data_id)
+        data.delete()
 
     def scan(self):
         for subfile in Path(self.path).iterdir():
-            data_dir = Path(self.path)/subfile
-            if not data_dir.is_dir():
+            if not subfile.is_dir():
                 continue
-            data = Data.createify(data_dir)
+            data = Data.createify(subfile)
             if data:
-                self.data_list.append(data)
+                self.all_data[data.id] = data
+    
+    def json(self, detail=False):
+        json_obj = {
+            'id': self.id,
+            'name': self.name,
+            'parent': self.parent_id,
+        }
+        if detail:
+            json_obj['data_list'] = [self.all_data[data_id].json() for data_id in self.all_data]
+        return json_obj
