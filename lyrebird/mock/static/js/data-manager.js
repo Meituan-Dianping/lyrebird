@@ -1,6 +1,9 @@
 Vue.config.devtools = true;
 
+Vue.prototype.$api = api
+
 iview.lang('en-US');
+
 
 const app = new Vue({
     el: '#app',
@@ -8,6 +11,6 @@ const app = new Vue({
     data: {
     },
     components: {
-      'inspector': httpVueLoader('static/vue/inspector.vue')
+      'data-manager': httpVueLoader('static/vue/datamanager/data-manager.vue')
     }
 })
