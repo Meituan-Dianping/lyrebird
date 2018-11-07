@@ -2,6 +2,7 @@ from pathlib import Path
 import json
 from .group import Group
 from .exceptions import DataRootDirNotExistsError, ActivateFailed
+from .mock_router import MockRouter
 
 
 class DataManager:
@@ -10,6 +11,7 @@ class DataManager:
         self._root_path = None
         self.activated_group_id = None
         self.groups = {}
+        self.router = MockRouter()
 
     @property
     def root(self):
@@ -26,6 +28,8 @@ class DataManager:
     def activate(self, group_id):
         if group_id in self.groups:
             self.activated_group_id = group_id
+            group = self.groups.get(group_id)
+            self.router.switch_group(group)
         else:
             raise ActivateFailed(f'Group id not found {group_id}')
 
