@@ -30,8 +30,7 @@ DATA_HANDLER_ENTRY_POINT = 'lyrebird_data_handler'
 WEB_ENTRY_POINT = 'lyrebird_web'
 
 # new EP
-DATA_HANDLER_EP = 'data_handler'
-WEB_EP = 'web'
+PLUGIN_ENTRY_POINT = 'lyrebird_plugin'
 
 inner_handler = OrderedDict()
 data_handler_plugins = OrderedDict()
@@ -42,6 +41,7 @@ Plugin
 """
 plugins = OrderedDict()
 
+# plugin blueprint list for add rule
 plugin_blueprint_list = []
 
 
@@ -87,10 +87,9 @@ class Plugin:
         self.static_path = None
         self.rules = []
         self.event_rules = []
-        self.config = None
+        self.option = None
         self.version = None
         self.name = None
-        self.attrs = ()
         self.key = None
 
     def keys(self):
@@ -98,7 +97,7 @@ class Plugin:
         当对实例化对象使用dict(obj)的时候, 会调用这个方法,这里定义了字典的键, 其对应的值将以obj['name']的形式取,
         但是对象是不可以以这种方式取值的, 为了支持这种取值, 可以为类增加一个方法
         '''
-        return ('static_uri', 'config', 'static_folder', 'version', 'name', 'key')
+        return ('static_uri', 'option', 'static_folder', 'version', 'name', 'key')
 
     def __getitem__(self, item):
         '''
@@ -293,33 +292,29 @@ def _check_data_handlers_response_conflict():
             f'More than one plugin will modify response. Please check those plugins {need_change_resp_handlers}')
 
 
-def _load_plugin():
+def _load_plugins():
     """
     NEW load plugin
     """
     plugins.clear()
-    for ep in pkg_resources.iter_entry_points(WEB_EP):
+    for ep in pkg_resources.iter_entry_points(PLUGIN_ENTRY_POINT):
         try:
             plugin_class = ep.load()
         except Exception:
             logger.error(f'Load plugin fail. {ep}')
             traceback.print_exc()
             continue
-        if not isinstance(plugin_class, type):
+        if not isinstance(plugin_class, type(Plugin)):
             logger.error(f'Load plugin {ep} error. Entry point is not a class')
             continue
         plugin = plugin_class()
         if ep.name in plugins:
             logger.error(f'Plugin {ep} duplicate name with {plugins[ep.name]}')
             continue
-        if not hasattr(plugin_class, 'on_create'):
-            logger.error(f'Load plugin {ep} error. Not found function - "on_create"')
-            continue
         try:
             plugin.on_create()
             plugin.after_on_create()
             plugin.name = ep.name
-            plugin.attrs = ep.attrs
             plugin.version = ep.dist.version
             plugin.key = ep.dist.key
             # 注册蓝图
@@ -376,7 +371,7 @@ def load():
     _check_data_handlers_response_conflict()
     _load_web_plugin()
     # new add load plugins function
-    _load_plugin()
+    _load_plugins()
 
 
 def add_plugin_to_blueprint(plugin, blueprint):
