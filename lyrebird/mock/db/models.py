@@ -16,14 +16,13 @@ class Flow(context.db.model):
         self.channel = channel
         self.content = content
 
-def start_sql():
-    lyrebird.subscribe('any', save_data, event=True)
+def active_db_listener():
+    lyrebird.subscribe('any', save_data_into_db, event=True)
     context.db.create_all()
 
-def save_data(event):
+def save_data_into_db(event):
     message, channel = event.message, event.channel
     content = json.dumps(message)
-    data = Flow(channel, str(content))
-    context.db.create_all()
+    data = Flow(channel, content)
     context.db.session.add(data)
     context.db.session.commit()

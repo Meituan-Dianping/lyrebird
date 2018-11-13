@@ -1,9 +1,9 @@
-import json
 import os
 import sys
-import socket
+import json
 import errno
 import socket
+import datetime
 import subprocess
 from . import plugin_manager
 from flask import Flask, request, redirect, url_for, Response
@@ -14,12 +14,11 @@ from .blueprints.api_mock import api_mock
 from flask_socketio import SocketIO
 from .reporter import report_handler
 from ..version import VERSION
-import datetime
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird import log
 from flask_sqlalchemy import SQLAlchemy
-from lyrebird.mock.database import DataBase
+from lyrebird.mock.db.database import DataBase
 
 
 """
@@ -112,8 +111,9 @@ class LyrebirdMockServer(ThreadServer):
         server_ip = application.config.get('ip')    
         _logger.warning(f'start on http://{server_ip}:{self.port}')
         report_handler.start()
-        from lyrebird.mock.table import start_sql
-        start_sql()
+        # cannot import at beginning, cause db hasn't init
+        from lyrebird.mock.db.models import active_db_listener
+        active_db_listener()
         self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
 
 
