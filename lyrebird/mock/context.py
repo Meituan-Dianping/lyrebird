@@ -59,7 +59,6 @@ class Application:
 
 
 application = Application()
-# db:DataBase = None
 db = None
 
 def make_ok_response(**kwargs):

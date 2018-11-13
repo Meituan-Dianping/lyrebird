@@ -34,8 +34,7 @@ class EventServer(ThreadServer):
         self.any_channel = []
         self.broadcast_executor = ThreadPoolExecutor(max_workers=10, thread_name_prefix='event-broadcast')
 
-    def broadcast_handler(self, callback_fn, event, kwargs):
-        print('worker')
+    def broadcast_handler(self, callback_fn, event, args, kwargs):
         try:
             if kwargs.get('event', False):
                 callback_fn(event)
@@ -51,10 +50,10 @@ class EventServer(ThreadServer):
                 e = self.event_queue.get()
                 callback_fn_list = self.pubsub_channels.get(e.channel)
                 if callback_fn_list:
-                    for callback_fn, kwargs in callback_fn_list:
-                        self.broadcast_executor.submit(self.broadcast_handler, callback_fn, e, kwargs)
-                for callback_fn, kwargs in self.any_channel:
-                    self.broadcast_executor.submit(self.broadcast_handler, callback_fn, e, kwargs)
+                    for callback_fn, args, kwargs in callback_fn_list:
+                        self.broadcast_executor.submit(self.broadcast_handler, callback_fn, e, args, kwargs)
+                for callback_fn, args, kwargs in self.any_channel:
+                    self.broadcast_executor.submit(self.broadcast_handler, callback_fn, e, args, kwargs)
             except Exception:
                 # empty event
                 traceback.print_exc()
@@ -80,14 +79,14 @@ class EventServer(ThreadServer):
         That function will be called when a new message was published into it's channel
 
         kwargs:
-            event=False receiver will got a message dict
-            event=True receiver will got a Event object
+            event=False receiver gets a message dict
+            event=True receiver gets an Event object
         """
         if channel == 'any':
-            self.any_channel.append((callback_fn, kwargs))
+            self.any_channel.append([callback_fn, args, kwargs])
         else:
             callback_fn_list = self.pubsub_channels.setdefault(channel, [])
-            callback_fn_list.append((callback_fn, kwargs))
+            callback_fn_list.append([callback_fn, args, kwargs])
 
 
     def unsubscribe(self, channel, target_callback_fn, *args, **kwargs):
@@ -97,12 +96,12 @@ class EventServer(ThreadServer):
         if channel == 'any':
             for any_channel_fn, *_ in self.any_channel:
                 if target_callback_fn == any_channel_fn:
-                    self.any_channel.remove((target_callback_fn, *_))
+                    self.any_channel.remove([target_callback_fn, *_])
         else:
             callback_fn_list = self.pubsub_channels.get(channel)
             for callback_fn, *_ in callback_fn_list:
                 if target_callback_fn == callback_fn:
-                    callback_fn_list.remove((target_callback_fn, *_))
+                    callback_fn_list.remove([target_callback_fn, *_])
 
 
 class CustomEventReceiver:

@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-from lyrebird.mock.table import Flow
 
 class DataBase:
     def __init__(self, app):
@@ -14,6 +13,5 @@ class DataBase:
     def session(self):
         return self._db.session
 
-    @property
     def create_all(self):
-        return self._db.create_all
+        self._db.create_all()

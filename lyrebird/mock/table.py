@@ -2,15 +2,11 @@ import json
 import datetime
 import lyrebird
 from lyrebird.mock import context
-from sqlalchemy import Column, Table
-from sqlalchemy import String, Integer, DateTime, Text
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Table, String, Integer, DateTime, Text
 
-Base = declarative_base()
 
-class Flow(Base):
+class Flow(context.db.model):
 
-    __tablename__ = 'flow'
     id = Column(Integer, primary_key=True, autoincrement=True)
     channel = Column(String(16))
     content = Column(Text)
@@ -20,15 +16,9 @@ class Flow(Base):
         self.channel = channel
         self.content = content
 
-
-class Reporter:
-    @classmethod
-    def create_table(cls):
-        Base.metadata.create_all()
-
-    @classmethod
-    def start_sql(cls):
-        lyrebird.subscribe('any', save_data, event=True)
+def start_sql():
+    lyrebird.subscribe('any', save_data, event=True)
+    context.db.create_all()
 
 def save_data(event):
     message, channel = event.message, event.channel

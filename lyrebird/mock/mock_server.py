@@ -80,8 +80,7 @@ class LyrebirdMockServer(ThreadServer):
         self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/guanyunan/.lyrebird/data/lyrebird.db'  # TODO: path
         self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         context.db = DataBase(self.app)
-        # context.db = SQLAlchemy(app)
-
+        
         # 插件初始化
         plugin_manager.load()
         # 加载插件界面
@@ -113,6 +112,8 @@ class LyrebirdMockServer(ThreadServer):
         server_ip = application.config.get('ip')    
         _logger.warning(f'start on http://{server_ip}:{self.port}')
         report_handler.start()
+        from lyrebird.mock.table import start_sql
+        start_sql()
         self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
 
 

@@ -13,7 +13,6 @@ from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
-from lyrebird.mock.table import Reporter
 
 
 logger = log.get_logger()
@@ -112,9 +111,6 @@ def run(args:argparse.Namespace):
     application.server['mock'] = LyrebirdMockServer()
 
     application.start_server()
-
-    Reporter.start_sql()
-    # Reporter.create_table()
 
     # auto open web browser
     if not args.no_browser:
