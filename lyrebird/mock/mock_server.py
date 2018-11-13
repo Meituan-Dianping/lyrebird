@@ -18,6 +18,8 @@ import datetime
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird import log
+from flask_sqlalchemy import SQLAlchemy
+from lyrebird.mock.database import DataBase
 
 
 """
@@ -73,6 +75,12 @@ class LyrebirdMockServer(ThreadServer):
             _logger.error('Can not start mock server without config file')
             raise SyntaxError('Can not start mock server without config file.'
                               ' Default config file path = api-mock/conf.json')
+
+        # sqlite初始化
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/guanyunan/.lyrebird/data/lyrebird.db'  # TODO: path
+        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        context.db = DataBase(self.app)
+        # context.db = SQLAlchemy(app)
 
         # 插件初始化
         plugin_manager.load()
