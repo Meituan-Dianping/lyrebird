@@ -13,6 +13,7 @@ from types import FunctionType
 from pathlib import Path
 from . import context
 from lyrebird import log
+from flask import Blueprint
 
 """
 Plugin manager
@@ -24,19 +25,32 @@ logger = log.get_logger()
 ROOT_DIR = Path('~/.lyrebird').expanduser()
 PLUGINS_DIR = ROOT_DIR/'plugins'
 
+
 DATA_HANDLER_ENTRY_POINT = 'lyrebird_data_handler'
 WEB_ENTRY_POINT = 'lyrebird_web'
+
+# new EP
+PLUGIN_ENTRY_POINT = 'lyrebird_plugin'
 
 inner_handler = OrderedDict()
 data_handler_plugins = OrderedDict()
 web_plugins = OrderedDict()
 
+"""
+Plugin
+"""
+plugins = OrderedDict()
+
+# plugin blueprint list for add rule
+plugin_blueprint_list = []
+
 
 class Rule:
     """
     视图路由规则
-    
+
     """
+
     def __init__(self, rule, endpotion, view_func=None, **options):
         self.rule = rule
         self.endpoint = endpotion
@@ -51,6 +65,7 @@ class EventRule:
     """
     socket-io事件规则
     """
+
     def __init__(self, event, handler, namespace):
         self.event = event
         self.handler = handler
@@ -60,11 +75,78 @@ class EventRule:
         return f'Event rule {self.event} handler={self.handler}'
 
 
+class Plugin:
+    """
+    NEW 插件基类
+
+    """
+
+    def __init__(self):
+        self.static_folder = None
+        self.static_uri = None
+        self.static_path = None
+        self.rules = []
+        self.event_rules = []
+        self.option = None
+        self.version = None
+        self.name = None
+        self.key = None
+
+    def keys(self):
+        '''
+        当对实例化对象使用dict(obj)的时候, 会调用这个方法,这里定义了字典的键, 其对应的值将以obj['name']的形式取,
+        但是对象是不可以以这种方式取值的, 为了支持这种取值, 可以为类增加一个方法
+        '''
+        return ('static_uri', 'option', 'static_folder', 'version', 'name', 'key')
+
+    def __getitem__(self, item):
+        '''
+        内置方法, 当使用obj['name']的形式的时候, 将调用这个方法, 这里返回的结果就是值
+        '''
+        return getattr(self, item)
+
+    def add_url_rule(self, rule, endpoint=None, view_func=None, **options):
+        self.rules.append(Rule(rule, endpoint, view_func, **options))
+
+    def on_event(self, event, handler, namespace):
+        self.event_rules.append(EventRule(event, handler, namespace))
+
+    def on_create(self):
+        """
+        初始生命周期
+        通过在该函数内调用'add_url_rule'添加处理请求的路由，插件的主页面要使用'/'路径
+        """
+        pass
+
+    def after_on_create(self):
+        if not self.static_folder:
+            self.set_static_root()
+
+    def set_static_root(self, package_name=None, static_path='static'):
+        self.static_path = static_path
+        if not package_name:
+            package_name = self._get_current_package_name()
+        target_module = sys.modules.get(package_name)
+        package_path = os.path.dirname(target_module.__file__)
+        self.static_folder = os.path.abspath(os.path.join(package_path, static_path))
+
+    def _get_current_package_name(self):
+        """
+        通过class判断包名
+        :return: 
+        """
+        module_name = self.__class__.__module__
+        if '.' in module_name:
+            return module_name.split('.')[0]
+        return module_name
+
+
 class PluginView:
     """
     插件视图基类
-    
+
     """
+
     def __init__(self):
         self.env = Environment()
         self.rules = []
@@ -113,7 +195,7 @@ class PluginView:
     def set_template_root(self, package_name=None, templates_path='templates'):
         """
         设置html模板根目录. 默认在 [插件包]/templates 下
-        
+
         :param package_name: 包名，不指定时默认读取当前插件包 
         :param templates_path: 模板路径， 默认为templates目录
         """
@@ -127,7 +209,7 @@ class PluginView:
     def set_static_root(self, package_name=None, static_path='static'):
         """
         设置静态文件(css、js等)目录. 默认在 [插件包]/static 下
-        
+
         :param package_name: 包名，不指定时默认读取当前插件包 
         :param static_path: 静态文件目录， 默认为static目录
         """
@@ -141,7 +223,7 @@ class PluginView:
     def render_template(self, template, *args, **kwargs):
         """
         渲染模板，支持jinja2语法
-        
+
         :param template: 模板文件名 
         :param args: 参数数组
         :param kwargs: 参数字典
@@ -153,7 +235,7 @@ class PluginView:
         """
         响应静态文件
         收到请求后，按照filename在静态文件目录下查找，并返回静态文件
-        
+
         :param filename: 
         :return: 
         """
@@ -167,7 +249,7 @@ class PluginView:
     def default_conf(self):
         """
         设置默认的 conf.json
-        
+
         :return: 返回 conf.json 内容
         """
         # todo plugin conf 应该以对象方式读取存储 并且对外只读，特定方法支持写
@@ -206,7 +288,46 @@ def get_change_response_plugins():
 def _check_data_handlers_response_conflict():
     need_change_resp_handlers = get_change_response_plugins()
     if len(need_change_resp_handlers) > 1:
-        logger.error(f'More than one plugin will modify response. Please check those plugins {need_change_resp_handlers}')
+        logger.error(
+            f'More than one plugin will modify response. Please check those plugins {need_change_resp_handlers}')
+
+
+def _load_plugins():
+    """
+    NEW load plugin
+    """
+    plugins.clear()
+    for ep in pkg_resources.iter_entry_points(PLUGIN_ENTRY_POINT):
+        try:
+            plugin_class = ep.load()
+        except Exception:
+            logger.error(f'Load plugin fail. {ep}')
+            traceback.print_exc()
+            continue
+        if not isinstance(plugin_class, type(Plugin)):
+            logger.error(f'Load plugin {ep} error. Entry point is not a class')
+            continue
+        plugin = plugin_class()
+        if ep.name in plugins:
+            logger.error(f'Plugin {ep} duplicate name with {plugins[ep.name]}')
+            continue
+        try:
+            plugin.on_create()
+            plugin.after_on_create()
+            plugin.name = ep.name
+            plugin.version = ep.dist.version
+            plugin.key = ep.dist.key
+            # 注册蓝图
+            plugin_blueprint = Blueprint(str(plugin.key),
+                                         __name__, url_prefix=f'/plugin/{plugin.name}',
+                                         static_folder=plugin.static_folder)
+            plugin.static_uri = '/plugin/' + plugin.name + '/' + plugin.static_path + '/'
+            add_plugin_to_blueprint(plugin, plugin_blueprint)
+            plugin_blueprint_list.append(plugin_blueprint)
+        except Exception:
+            logger.error(f'Plugin {ep} on create', traceback.format_exc())
+            continue
+        plugins[ep.name] = plugin
 
 
 def _load_web_plugin():
@@ -249,6 +370,29 @@ def load():
     _load_data_handler_plugin()
     _check_data_handlers_response_conflict()
     _load_web_plugin()
+    # new add load plugins function
+    _load_plugins()
+
+
+def add_plugin_to_blueprint(plugin, blueprint):
+    """
+    NEW add rule to blueprint
+    """
+    if not plugin:
+        return
+    try:
+        for rule in plugin.rules:
+            # 去掉自定义路由前面的"/"
+            if rule.rule.startswith('/'):
+                rule.rule = rule.rule[1:]
+            # 为了防止重名，拼接endpoint
+            if not rule.endpoint:
+                rule.endpoint = plugin.name + '_' + rule.view_func.__name__
+            # 注册API
+            blueprint.add_url_rule(f'/{rule.rule}', rule.endpoint, view_func=rule.view_func, **rule.options)
+    except Exception:
+        logger.error(f'Can not add rule {rule}')
+        traceback.print_exc()
 
 
 def add_view_to_blueprint(blueprint):
@@ -323,7 +467,7 @@ def get_conf(name):
     conf_path = _get_plugin_conf_path(name)
     if not conf_path.exists():
         set_default_conf(name)
-    with codecs.open(conf_path, 'r' , 'utf-8') as f:
+    with codecs.open(conf_path, 'r', 'utf-8') as f:
         return json.load(f)
 
 
@@ -334,6 +478,7 @@ def set_conf(name, conf):
     with codecs.open(conf_path, 'w', 'utf-8') as f:
         f.write(json.dumps(conf, ensure_ascii=False, indent=4))
     context.application.event_bus.publish('config', dict(name=name, action='update'))
+
 
 def set_default_conf(name):
     plugin = web_plugins[name]
