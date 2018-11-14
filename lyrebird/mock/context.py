@@ -59,7 +59,7 @@ class Application:
 
 
 application = Application()
-
+db = None
 
 def make_ok_response(**kwargs):
     ok_resp = {
