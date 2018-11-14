@@ -60,4 +60,5 @@ config = ConfigProxy()
 
 
 def root_dir():
-    return _cm.ROOT
+    if _cm:
+        return _cm.ROOT
