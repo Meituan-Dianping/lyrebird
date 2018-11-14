@@ -78,11 +78,12 @@ class LyrebirdMockServer(ThreadServer):
         # sqlite初始化
         ROOT_DIR = application.root_dir()
         DB_FILE_NAME = 'lyrebird.db'
-        SQLALCHEMY_DATABASE_URI = ROOT_DIR/DB_FILE_NAME
-        # TODO: 'sqlite:///' is unfriendly to windows
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+str(SQLALCHEMY_DATABASE_URI)
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        context.db = DataBase(self.app)
+        if ROOT_DIR:
+            SQLALCHEMY_DATABASE_URI = ROOT_DIR/DB_FILE_NAME
+            # TODO: 'sqlite:///' is unfriendly to windows
+            self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+str(SQLALCHEMY_DATABASE_URI)
+            self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+            context.db = DataBase(self.app)
         
         # 插件初始化
         plugin_manager.load()
