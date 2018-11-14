@@ -28,7 +28,7 @@
 
 <script>
 import VueGridLayout from "vue-grid-layout";
-import Vue from 'vue'
+// import Vue from 'vue'
 
 var layout_config = {
   widget1: { x: 0, y: 0, w: 2, h: 2, i: "0" },
@@ -40,18 +40,19 @@ var layout = [];
 var widget_namelist = [];
 
 var widgets = {
-  widget1: "About.vue",
-  widget2: "@/components/widget2.vue",
-  widget3: "@/components/widget3.vue"
+  widget1: "1.vue",
+  widget2: "2.vue",
+  widget3: "3.vue"
 };
 for (var widget in widgets) {
-  Vue.component(widget, widgets[widget]);
+  // Vue.component(widget, widgets[widget]);
   layout.push(layout_config[widget]);
 
   widget_namelist.push(widget);
 }
 
 export default {
+  name: 'Home',
   data: function() {
     return {
       layout: layout,

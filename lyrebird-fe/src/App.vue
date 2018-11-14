@@ -1,8 +1,9 @@
 <template>
   <div id="app">
       <Layout>
-        <Sider :style="{overflow:'auto',height: 'calc(100vh - 28px)'}" ref="side1" hide-trigger collapsible :collapsed-width="78" v-model="isCollapsed">
-          <Menu active-name="home" theme="dark" width="auto"> 
+        <Sider :style="{overflow:'auto',background: '#fff', height: 'calc(100vh - 28px)'}" 
+          ref="side1" hide-trigger collapsible :collapsed-width="78" v-model="isCollapsed">
+          <Menu active-name="home" theme="light" width="auto" :class="menuitemClasses"> 
             <MenuItem 
                     v-for="comp in comps" 
                     :key="comp.name" 
@@ -14,8 +15,8 @@
           </Menu>
         </Sider>
         <Layout>
-          <Header :style="{background: '#fff'}">
-            <Icon @click.native="collapsedSider"  type="md-menu" ></Icon>
+          <Header :style="{background: '#6699CC', padding: '0 0 0 0',height:'50px'}">
+            <Icon @click.native="collapsedSider"  :class="rotateIcon" :style="{color: '#fff',margin: '0 0 10px 20px'}" type="md-menu" size="24" ></Icon>
           </Header>
           <Content :style="{overflow:'auto',height: 'calc(100vh - 28px)',}">
             <router-view/>
@@ -32,25 +33,17 @@
 export default {
   data() {
     return {
-      isCollapsed: true,
-      comps: [
-        {
-          name: "home",
-          path: "/",
-          icon: "ios-navigate"
-        },
-        {
-          name: "about",
-          path: "/about",
-          icon: "ios-search"
-        },
-        {
-          name: "hello",
-          path: "/hello",
-          icon: "ios-search"
-        }
-      ]
+      isCollapsed: false,
+      comps: this.$store.state.comps
     };
+  },
+  computed: {
+    rotateIcon() {
+      return ["menu-icon", this.isCollapsed ? "rotate-icon" : ""];
+    },
+    menuitemClasses() {
+      return ["menu-item", this.isCollapsed ? "collapsed-menu" : ""];
+    }
   },
   methods: {
     collapsedSider() {
@@ -62,7 +55,7 @@ export default {
 <style>
 body {
   overflow-x: hidden;
-  overflow-y: hidden
+  overflow-y: hidden;
 }
 </style>
 
@@ -70,9 +63,41 @@ body {
 .layout-footer-bar {
   position: fixed;
   bottom: 0px;
-  width:100%;
-  height:28px;
-  background:black;
+  width: 100%;
+  height: 28px;
+  background: #666666;
+}
+
+.menu-icon {
+  transition: all 0.3s;
+}
+.rotate-icon {
+  transform: rotate(-90deg);
+}
+.menu-item span {
+  display: inline-block;
+  overflow: hidden;
+  width: 69px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  transition: width 0.2s ease 0.2s;
+}
+.menu-item i {
+  transform: translateX(0px);
+  transition: font-size 0.2s ease, transform 0.2s ease;
+  vertical-align: middle;
+  font-size: 16px;
+}
+.collapsed-menu span {
+  width: 0px;
+  transition: width 0.2s ease;
+}
+.collapsed-menu i {
+  transform: translateX(5px);
+  transition: font-size 0.2s ease 0.2s, transform 0.2s ease 0.2s;
+  vertical-align: middle;
+  font-size: 22px;
 }
 </style>
 
