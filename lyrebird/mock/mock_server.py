@@ -17,7 +17,6 @@ from ..version import VERSION
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird import log
-from flask_sqlalchemy import SQLAlchemy
 from lyrebird.mock.db.database import DataBase
 
 
