@@ -90,6 +90,9 @@ class LyrebirdMockServer(ThreadServer):
         self.app.register_blueprint(api)
         self.app.register_blueprint(api_mock)
         self.app.register_blueprint(ui)
+        # 注册插件
+        for plugin in plugin_manager.plugin_blueprint_list:
+            self.app.register_blueprint(plugin)
 
         @self.app.route('/')
         def index():

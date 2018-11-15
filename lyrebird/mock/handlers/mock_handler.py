@@ -1,4 +1,5 @@
 from lyrebird.mock import context
+from flask import Response
 
 
 class MockHandler:
@@ -8,7 +9,12 @@ class MockHandler:
 
     """
     def handle(self, handler_context):
-        data_group = context.application.data_manager.current_data_group
-        if data_group:
-            handler_context.response = data_group.get_response(handler_context.get_origin_url(),
-                                                               handler_context.request.data)
+        group_id = context.application.data_manager.activated_group_id
+        group = context.application.data_manager.groups.get(group_id)
+        if not group:
+            return
+        data = group.router.get_mock_data(handler_context.flow)
+        handler_context.response = Response(
+            data.response_data.content, 
+            200)
+

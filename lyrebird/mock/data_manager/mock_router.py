@@ -6,8 +6,9 @@ class MockRouter:
         self.data_map = []
 
     def switch_group(self, data_group):
-        for data in data_group.all_data:
-            self.data_map.append = (MockRule(data.rule), data)
+        for data_id in data_group.all_data:
+            data = data_group.all_data[data_id]
+            self.data_map.append((MockRule(data.rule), data))
 
     def get_mock_data(self, flow):
         for rule, data in self.data_map:
