@@ -8,8 +8,7 @@ class MockHandler:
 
     """
     def handle(self, handler_context):
-        pass
-        # data_group = context.application.data_manager.current_data_group
-        # if data_group:
-        #     handler_context.response = data_group.get_response(handler_context.get_origin_url(),
-        #                                                        handler_context.request.data)
+        data_group = context.application.data_manager.current_data_group
+        if data_group:
+            handler_context.response = data_group.get_response(handler_context.get_origin_url(),
+                                                               handler_context.request.data)
