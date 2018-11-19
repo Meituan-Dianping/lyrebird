@@ -4,6 +4,7 @@ import json
 
 from lyrebird.mock import context
 
+
 class CacheHandler:
     """
     将当前request和response保存至application.cache中
@@ -35,6 +36,7 @@ class CacheHandler:
         }
     }
     """
+
     def handle(self, handler_context):
         handler_context.update_client_resp_time()
         flow = self.ctx_to_dict(handler_context)
@@ -46,7 +48,6 @@ class CacheHandler:
                 group = context.application.data_manager.current_data_group
                 if group:
                     group.add_data_and_filter(flow)
-
 
     def ctx_to_dict(self, handler_context):
         ctx = dict()
@@ -63,6 +64,10 @@ class CacheHandler:
                 req['url'] = handler_context.request.url
 
             req['headers'] = {k: v for k, v in handler_context.request.headers.items()}
+
+            # 通过启动传参的请求，需要在headers加入deviceip，用于识别设备；通过proxy代理的请求，已加过deviceip，跳过该处理步骤。
+            if not req['headers'].get('Lyrebird-Client-Address'):
+                req['headers'].update({'Lyrebird-Client-Address': handler_context.request.remote_addr})
 
             # data 处理
             # 解压gzip内容

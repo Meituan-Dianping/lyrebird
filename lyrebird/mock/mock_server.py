@@ -102,6 +102,12 @@ class LyrebirdMockServer(ThreadServer):
             """
             return redirect(url_for('ui.index'))
 
+        @self.app.before_request
+        def before_request():
+            device_ip = request.remote_addr
+            request.headers.environ['Lyrebird-Client-Address'] = device_ip
+
+
         @self.app.after_request
         def after_request(response: Response):
             """
