@@ -17,6 +17,9 @@ class DataFile:
         if self.filetype in ['json', 'text', 'html', 'xml']:
             with codecs.open(self.path, 'r', 'utf-8') as f:
                 _content = f.read()
+        else:
+            with codecs.open(self.path, 'rb', 'utf-8') as f:
+                _content = f.read()
         return _content
     
     def save(self, val):
