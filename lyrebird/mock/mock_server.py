@@ -45,7 +45,7 @@ class LyrebirdMockServer(ThreadServer):
     """
     def __init__(self):
         super().__init__()
-
+        
         self.conf = application.config
         # TODO rm conf rom mock context
         context.application.conf = application.config
@@ -54,7 +54,7 @@ class LyrebirdMockServer(ThreadServer):
         self.port = 9090
         self._working_thread = None
         self.app = Flask('MOCK', static_folder=os.path.join(current_dir, 'static'))
-
+        
         self.app.jinja_env.block_start_string = '[%'
         self.app.jinja_env.block_end_string = '%]'
         self.app.jinja_env.variable_start_string = '[['
@@ -83,7 +83,7 @@ class LyrebirdMockServer(ThreadServer):
             self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+str(SQLALCHEMY_DATABASE_URI)
             self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
             context.db = DataBase(self.app)
-            
+        
         # 插件初始化
         plugin_manager.load()
         # 加载插件界面
