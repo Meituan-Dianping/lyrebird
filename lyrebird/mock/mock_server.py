@@ -43,9 +43,10 @@ class LyrebirdMockServer(ThreadServer):
     使用flask在默认的9090端口启动，模拟线上接口，同时支持通过api动态修改接口数据。
 
     """
+
     def __init__(self):
         super().__init__()
-        
+
         self.conf = application.config
         # TODO rm conf rom mock context
         context.application.conf = application.config
@@ -54,7 +55,7 @@ class LyrebirdMockServer(ThreadServer):
         self.port = 9090
         self._working_thread = None
         self.app = Flask('MOCK', static_folder=os.path.join(current_dir, 'static'))
-        
+
         self.app.jinja_env.block_start_string = '[%'
         self.app.jinja_env.block_end_string = '%]'
         self.app.jinja_env.variable_start_string = '[['
@@ -83,7 +84,7 @@ class LyrebirdMockServer(ThreadServer):
             self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+str(SQLALCHEMY_DATABASE_URI)
             self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
             context.db = DataBase(self.app)
-        
+
         # 插件初始化
         plugin_manager.load()
         # 加载插件界面
@@ -102,12 +103,6 @@ class LyrebirdMockServer(ThreadServer):
             """
             return redirect(url_for('ui.index'))
 
-        @self.app.before_request
-        def before_request():
-            device_ip = request.remote_addr
-            request.headers.environ['Lyrebird-Client-Address'] = device_ip
-
-
         @self.app.after_request
         def after_request(response: Response):
             """
@@ -118,14 +113,13 @@ class LyrebirdMockServer(ThreadServer):
             return response
 
     def run(self):
-        server_ip = application.config.get('ip')    
+        server_ip = application.config.get('ip')
         _logger.warning(f'start on http://{server_ip}:{self.port}')
         report_handler.start()
         # cannot import at beginning, cause db hasn't init
         from lyrebird.mock.db.models import active_db_listener
         active_db_listener()
         self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
-
 
     def stop(self):
         """

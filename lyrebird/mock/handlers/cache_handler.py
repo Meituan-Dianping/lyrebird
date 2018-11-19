@@ -65,10 +65,6 @@ class CacheHandler:
 
             req['headers'] = {k: v for k, v in handler_context.request.headers.items()}
 
-            # 通过启动传参的请求，需要在headers加入deviceip，用于识别设备；通过proxy代理的请求，已加过deviceip，跳过该处理步骤。
-            if not req['headers'].get('Lyrebird-Client-Address'):
-                req['headers'].update({'Lyrebird-Client-Address': handler_context.request.remote_addr})
-
             # data 处理
             # 解压gzip内容
             content_type = handler_context.request.headers.get('Content-Type')

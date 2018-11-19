@@ -21,6 +21,19 @@ class HandlerContext:
         self.server_req_time = None
         self.server_resp_time = None
         self.flow = {'id': self.id}
+        self.client_address = None
+
+    def get_client_address(self):
+        """
+        用于识别设备ip的函数
+        启动传参的request，通过remote_addr获取deviceip
+        经由proxy的request，header已加deviceip，通过headers获取deviceip
+        """
+        if self.request.headers.get('Lyrebird-Client-Address'):
+            self.client_address = self.request.headers.get('Lyrebird-Client-Address')
+        else:
+            self.client_address = self.request.remote_addr
+    
 
     def update_client_req_time(self):
         self.client_req_time = time.time()
@@ -28,10 +41,10 @@ class HandlerContext:
         # 消息总线 客户端请求事件
         context.application.event_bus.publish('flow',
                                               dict(name='client.request',
-                                              time=self.client_req_time,
-                                              id=self.id,
-                                              flow=self.flow
-                                              ))
+                                                   time=self.client_req_time,
+                                                   id=self.id,
+                                                   flow=self.flow
+                                                   ))
 
     def update_client_resp_time(self):
         self.client_resp_time = time.time()
@@ -39,9 +52,9 @@ class HandlerContext:
         # 消息总线 客户端响应事件
         context.application.event_bus.publish('flow',
                                               dict(name='client.response',
-                                              time=self.client_resp_time,
-                                              id=self.id,
-                                              flow=self.flow))
+                                                   time=self.client_resp_time,
+                                                   id=self.id,
+                                                   flow=self.flow))
 
     def update_server_req_time(self):
         self.server_req_time = time.time()
@@ -49,9 +62,9 @@ class HandlerContext:
         # 消息总线 客户端请求事件
         context.application.event_bus.publish('flow',
                                               dict(name='server.request',
-                                              time=self.server_req_time,
-                                              id=self.id,
-                                              flow=self.flow))
+                                                   time=self.server_req_time,
+                                                   id=self.id,
+                                                   flow=self.flow))
 
     def update_server_resp_time(self):
         self.server_resp_time = time.time()
@@ -59,9 +72,9 @@ class HandlerContext:
         # 消息总线 客户端请求事件
         context.application.event_bus.publish('flow',
                                               dict(name='server.response',
-                                              time=self.server_resp_time,
-                                              id=self.id,
-                                              flow=self.flow))
+                                                   time=self.server_resp_time,
+                                                   id=self.id,
+                                                   flow=self.flow))
 
     def get_origin_url(self):
         proxy_headers = application.config['mock.proxy_headers']
