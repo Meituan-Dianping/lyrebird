@@ -21,19 +21,14 @@ class HandlerContext:
         self.server_req_time = None
         self.server_resp_time = None
         self.flow = {'id': self.id}
-        self.client_address = None
 
-    def get_client_address(self):
-        """
-        用于识别设备ip的函数
-        启动传参的request，通过remote_addr获取deviceip
-        经由proxy的request，header已加deviceip，通过headers获取deviceip
-        """
+    @property
+    def client_address(self):
         if self.request.headers.get('Lyrebird-Client-Address'):
-            self.client_address = self.request.headers.get('Lyrebird-Client-Address')
+            self._client_address = self.request.headers.get('Lyrebird-Client-Address')
         else:
-            self.client_address = self.request.remote_addr
-    
+            self._client_address = self.request.remote_addr
+        return self._client_address
 
     def update_client_req_time(self):
         self.client_req_time = time.time()
@@ -107,7 +102,7 @@ class HandlerContext:
         req = {}
         req['url'] = self.request.url
         req['method'] = self.request.method
-        req['headers'] = [{'name':header[0], 'value':header[1]} for header in self.request.headers]
+        req['headers'] = [{'name': header[0], 'value':header[1]} for header in self.request.headers]
         self.flow['request'] = req
 
     def response2dict(self):

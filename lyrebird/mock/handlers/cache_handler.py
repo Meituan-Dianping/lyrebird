@@ -4,7 +4,6 @@ import json
 
 from lyrebird.mock import context
 
-
 class CacheHandler:
     """
     将当前request和response保存至application.cache中
@@ -36,7 +35,6 @@ class CacheHandler:
         }
     }
     """
-
     def handle(self, handler_context):
         handler_context.update_client_resp_time()
         flow = self.ctx_to_dict(handler_context)
@@ -48,6 +46,7 @@ class CacheHandler:
                 group = context.application.data_manager.current_data_group
                 if group:
                     group.add_data_and_filter(flow)
+
 
     def ctx_to_dict(self, handler_context):
         ctx = dict()

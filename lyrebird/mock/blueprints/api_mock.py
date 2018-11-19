@@ -30,7 +30,6 @@ def index(path=''):
 
     req_context.request = request
     req_context.update_client_req_time()
-    req_context.get_client_address()
 
     for handler_name in plugin_manager.inner_handler:
         handler = plugin_manager.inner_handler[handler_name]
