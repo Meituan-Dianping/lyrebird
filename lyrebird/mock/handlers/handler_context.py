@@ -35,7 +35,6 @@ class HandlerContext:
             self.client_address = _request.headers.get('Lyrebird-Client-Address')
         else:
             self.client_address = _request.remote_addr
-        return self.client_address
 
 
     def update_client_req_time(self):
