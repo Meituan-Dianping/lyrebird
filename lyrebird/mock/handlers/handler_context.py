@@ -14,13 +14,28 @@ class HandlerContext:
 
     def __init__(self):
         self.id = str(uuid.uuid4())
-        self.request: Request = None
+        self._request: Request = None
         self.response: Response = None
         self.client_req_time = None
         self.client_resp_time = None
         self.server_req_time = None
         self.server_resp_time = None
         self.flow = {'id': self.id}
+        self.client_address = None
+    
+    
+    @property
+    def request(self):
+        return self._request
+    
+    @request.setter
+    def request(self, _request):
+        self._request = _request
+        if _request.headers.get('Lyrebird-Client-Address'):
+            self.client_address = _request.headers.get('Lyrebird-Client-Address')
+        else:
+            self.client_address = _request.remote_addr
+
 
     def update_client_req_time(self):
         self.client_req_time = time.time()
@@ -94,7 +109,7 @@ class HandlerContext:
         req = {}
         req['url'] = self.request.url
         req['method'] = self.request.method
-        req['headers'] = [{'name':header[0], 'value':header[1]} for header in self.request.headers]
+        req['headers'] = [{'name': header[0], 'value':header[1]} for header in self.request.headers]
         self.flow['request'] = req
 
     def response2dict(self):

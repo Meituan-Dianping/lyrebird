@@ -112,7 +112,7 @@ class LyrebirdMockServer(ThreadServer):
             return response
 
     def run(self):
-        server_ip = application.config.get('ip')    
+        server_ip = application.config.get('ip')
         _logger.warning(f'start on http://{server_ip}:{self.port}')
         report_handler.start()
         # cannot import at beginning, cause db hasn't init
