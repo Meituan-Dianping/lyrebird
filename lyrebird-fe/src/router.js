@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
-import Inspector from './views/inspector/Inspector.vue'
+import Inspector from './views/inspector/inspector.vue'
 
 Vue.use(Router)
 
