@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Main from './views/Main.vue'
 import Inspector from './views/Inspector.vue'
-import DataManager from './views/DataManager.vue'
+import DataManager from './views/datamanager/DataManager.vue'
 import PluginView from './views/PluginView.vue'
 
 
