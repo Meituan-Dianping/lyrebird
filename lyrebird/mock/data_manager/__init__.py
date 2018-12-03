@@ -3,6 +3,10 @@ import json
 from .group import Group
 from .exceptions import DataRootDirNotExistsError, ActivateFailed
 from .mock_router import MockRouter
+from lyrebird.log import get_logger
+
+
+logger = get_logger()
 
 
 class DataManager:
@@ -53,7 +57,10 @@ class DataManager:
         for sub_file in self.root.iterdir():
             if not sub_file.is_dir():
                 continue
-            group = Group.createify(sub_file)
-            if group:
-                self.groups[group.id] = group
+            try:
+                group = Group.createify(sub_file)
+                if group:
+                    self.groups[group.id] = group
+            except Exception as e:
+                logger.error(f'Load group failed. {sub_file}\n{e}')    
     
