@@ -1,4 +1,7 @@
-# lb-main-layout
+# Lyrebird 前端
+使用VUE构建Lyrebird前端
+
+
 
 ## Project setup
 ```

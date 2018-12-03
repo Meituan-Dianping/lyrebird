@@ -33,7 +33,7 @@ export default new Router({
       ]
     },
     {
-      path: '/plugin/:name',
+      path: '/plugin',
       name: 'plugin',
       component: Main,
       children:[

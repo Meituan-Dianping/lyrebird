@@ -1,6 +1,6 @@
 from .manager import main, run, debug
 from .mock import context
-from .mock.plugin_manager import PluginView, caller_info, Plugin
+from .mock.plugin_manager import PluginView, caller_info
 from .mock.handlers.handler_context import HandlerContext
 from .mock.reporter.report_handler import report
 from .mock import plugin_manager

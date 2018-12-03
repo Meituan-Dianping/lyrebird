@@ -4,11 +4,14 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://localhost:9000'
+        target: 'http://localhost:9090'
       },
       '/plugin': {
-        target: 'http://localhost:9000'
+        target: 'http://localhost:9090'
       }
     }
+  },
+  configureWebpack: {
+    devtool: 'source-map'
   }
 }
