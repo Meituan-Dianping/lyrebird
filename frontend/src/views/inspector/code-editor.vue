@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.main';
+import * as monaco from 'monaco-editor'
 
 export default {
     name: 'codeEditor',

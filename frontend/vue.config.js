@@ -2,6 +2,7 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
   configureWebpack: {
+    devtool: 'source-map',
     plugins: [
       new MonacoWebpackPlugin()
     ]
@@ -10,8 +11,5 @@ module.exports = {
   outputDir: '../lyrebird/client/static',
   devServer: {
     proxy: 'http://localhost:9090'
-  },
-  configureWebpack: {
-    devtool: 'source-map'
   }
 }
