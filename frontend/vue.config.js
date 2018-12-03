@@ -9,16 +9,9 @@ module.exports = {
   baseUrl: '/static',
   outputDir: '../lyrebird/client/static',
   devServer: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:9090'
-      },
-      '/plugin': {
-        target: 'http://localhost:9090'
-      },
-      '/socket.io': {
-        target: 'http://localhost:9090'
-      }
-    }
+    proxy: 'http://localhost:9090'
+  },
+  configureWebpack: {
+    devtool: 'source-map'
   }
 }
