@@ -31,7 +31,8 @@ class Menu(Resource):
                 'type': 'router',
                 'path': '/plugin',
                 'params': {
-                    'src': f'/ui/plugin/{plugin["project_name"]}'
+                    'src': f'/ui/plugin/{plugin["project_name"]}',
+                    'name': name
                 }
             })
         return context.make_ok_response(menu=menu)

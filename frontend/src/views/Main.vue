@@ -68,7 +68,11 @@ export default {
     },
     menuItemOnClick(menuItem){
       if(menuItem.type==='router'){
-        this.$router.push({path:menuItem.path, query:menuItem.params})
+        if(menuItem.name==='DataManager' || menuItem.name==='Inspector'){
+          this.$router.push({path:menuItem.path, query:menuItem.params})
+        }else{
+          this.$router.push({name:'plugin-view', params:menuItem.params})
+        }
       }else{
         window.open(menuItem.path, '_self');
       }

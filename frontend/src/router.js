@@ -38,7 +38,8 @@ export default new Router({
       component: Main,
       children:[
         {
-          path:'',
+          path:'/:name',
+          name: 'plugin-view',
           component: PluginView
         }
       ]

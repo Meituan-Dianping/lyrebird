@@ -8,8 +8,8 @@
     export default {
         computed:{
             src(){
-                console.log(this.$route.query.src);
-                return this.$route.query.src
+                console.log(this.$route.params.src);
+                return this.$route.params.src
             }
         }
     }
