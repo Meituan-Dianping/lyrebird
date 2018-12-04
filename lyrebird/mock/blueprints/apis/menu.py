@@ -31,16 +31,7 @@ class Menu(Resource):
                 'type': 'router',
                 'path': '/plugin',
                 'params': {
-                    'src': f'/plugin/{plugin["name"]}'
-                }
-            })
-        # append mock menu
-        menu.append({
-                'name': 'PluginX',
-                'type': 'router',
-                'path': '/plugin',
-                'params': {
-                    'src': '/plugin/demo'
+                    'src': f'/ui/plugin/{plugin["project_name"]}'
                 }
             })
         return context.make_ok_response(menu=menu)

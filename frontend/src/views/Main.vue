@@ -68,7 +68,7 @@ export default {
     },
     menuItemOnClick(menuItem){
       if(menuItem.type==='router'){
-        this.$router.push(menuItem.path)
+        this.$router.push({path:menuItem.path, query:menuItem.params})
       }else{
         window.open(menuItem.path, '_self');
       }

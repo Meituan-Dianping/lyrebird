@@ -1,11 +1,17 @@
 <template>
     <div style="height:100%">
-        <iframe src="/plugin/demo" frameborder="0" class="plugin-frame"></iframe>
+        <iframe :src="src" frameborder="0" class="plugin-frame"></iframe>
     </div>
 </template>
 
 <script>   
     export default {
+        computed:{
+            src(){
+                console.log(this.$route.query.src);
+                return this.$route.query.src
+            }
+        }
     }
 </script>
 
