@@ -7,7 +7,7 @@
             </div>
             <Divider class="sider-bar-divider"/>
             <Menu theme="dark" width="auto" :class="menuitemClasses" active-name="Inspector">
-              <MenuItem v-for="(menuItem, index) in menu" :key="index" :name="menuItem.name" @click.native="menuItemOnClick(menuItem)">
+              <MenuItem v-for="(menuItem, index) in menu" :key="index" :name="menuItem.title" @click.native="menuItemOnClick(menuItem)">
                 <b>{{menuItemTitle(menuItem)}}</b>
               </MenuItem>
             </Menu>
@@ -61,18 +61,15 @@ export default {
     },
     menuItemTitle(menuItem){
       if(this.isCollapsed){
-        return menuItem.name.substring(0,1)
+        return menuItem.title.substring(0,1)
       }else{
-        return menuItem.name
+        return menuItem.title
       }
     },
     menuItemOnClick(menuItem){
       if(menuItem.type==='router'){
-        if(menuItem.name==='DataManager' || menuItem.name==='Inspector'){
-          this.$router.push({path:menuItem.path, query:menuItem.params})
-        }else{
-          this.$router.push({name:'plugin-view', params:menuItem.params})
-        }
+        
+       this.$router.push({name:menuItem.name, params:menuItem.params}) 
       }else{
         window.open(menuItem.path, '_self');
       }

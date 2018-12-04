@@ -9,12 +9,14 @@ class Menu(Resource):
     def get(self):
         menu = [
             {
-                'name': 'Inspector',
+                'name': 'inspector-view',
+                'title': 'Inspector',
                 'type': 'router',
                 'path': '/'
             },
             {
-                'name': 'DataManager',
+                'name': 'datamanager-view',
+                'title': 'DataManager',
                 'type': 'router',
                 'path': '/datamanager'
             }]
@@ -27,7 +29,8 @@ class Menu(Resource):
             if hasattr(web, 'get_title'):
                 name = web.get_title()
             menu.append({
-                'name': name,
+                'name': 'plugin-view',
+                'title': name,
                 'type': 'router',
                 'path': '/plugin',
                 'params': {

@@ -17,6 +17,7 @@ export default new Router({
       children: [
         {
           path: '',
+          name: 'inspector-view',
           component: Inspector
         }
       ]
@@ -28,6 +29,7 @@ export default new Router({
       children: [
         {
           path:'',
+          name: 'datamanager-view',
           component: DataManager
         }
       ]
