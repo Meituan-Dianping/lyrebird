@@ -12,24 +12,24 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'inspector',
+      name: '_inspector',
       component: Main,
       children: [
         {
           path: '',
-          name: 'inspector-view',
+          name: 'inspector',
           component: Inspector
         }
       ]
     },
     {
       path: '/datamanager',
-      name: 'datamanager',
+      name: '_datamanager',
       component: Main,
       children: [
         {
           path:'',
-          name: 'datamanager-view',
+          name: 'datamanager',
           component: DataManager
         }
       ]

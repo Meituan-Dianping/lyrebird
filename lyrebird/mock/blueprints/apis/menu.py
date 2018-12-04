@@ -9,13 +9,13 @@ class Menu(Resource):
     def get(self):
         menu = [
             {
-                'name': 'inspector-view',
+                'name': 'inspector',
                 'title': 'Inspector',
                 'type': 'router',
                 'path': '/'
             },
             {
-                'name': 'datamanager-view',
+                'name': 'datamanager',
                 'title': 'DataManager',
                 'type': 'router',
                 'path': '/datamanager'
@@ -27,10 +27,12 @@ class Menu(Resource):
             web = plugin['beta_web']
             name = plugin['name']
             if hasattr(web, 'get_title'):
-                name = web.get_title()
+                title = web.get_title()
+            else:
+                title = name[0].upper() + name[1:]
             menu.append({
                 'name': 'plugin-view',
-                'title': name,
+                'title': title,
                 'type': 'router',
                 'path': '/plugin',
                 'params': {
