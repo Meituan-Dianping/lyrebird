@@ -9,12 +9,14 @@ class Menu(Resource):
     def get(self):
         menu = [
             {
-                'name': 'Inspector',
+                'name': 'inspector',
+                'title': 'Inspector',
                 'type': 'router',
                 'path': '/'
             },
             {
-                'name': 'DataManager',
+                'name': 'datamanager',
+                'title': 'DataManager',
                 'type': 'router',
                 'path': '/datamanager'
             }]
@@ -25,22 +27,17 @@ class Menu(Resource):
             web = plugin['beta_web']
             name = plugin['name']
             if hasattr(web, 'get_title'):
-                name = web.get_title()
+                title = web.get_title()
+            else:
+                title = name[0].upper() + name[1:]
             menu.append({
-                'name': name,
+                'name': 'plugin-view',
+                'title': title,
                 'type': 'router',
                 'path': '/plugin',
                 'params': {
-                    'src': f'/plugin/{plugin["name"]}'
-                }
-            })
-        # append mock menu
-        menu.append({
-                'name': 'PluginX',
-                'type': 'router',
-                'path': '/plugin',
-                'params': {
-                    'src': '/plugin/demo'
+                    'src': f'/ui/plugin/{plugin["project_name"]}',
+                    'name': name
                 }
             })
         return context.make_ok_response(menu=menu)

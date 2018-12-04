@@ -46,14 +46,14 @@ def data_manager():
     return render_with_plugin('data_manager_v2.html')
 
 
-@ui.route('/plugin/base/<string:name>')
+@ui.route('/plugin/<string:name>')
 def plugin_base(name):
     report_handler.page_in(name)
-    plugin = plugin_manager.web_plugins.get(name)
+    plugin = plugin_manager.plugins.get(name)
     if not plugin:
         return "Plugin not found"
-    
-    web_content = plugin.index()
+    ui = plugin['beta_web']
+    web_content = ui.index()
     soup = BeautifulSoup(web_content, 'html.parser')
 
     # set all javascripts into script block
@@ -66,11 +66,10 @@ def plugin_base(name):
     for css_tag in soup.find_all('link'):
         all_css.append(css_tag)
         css_tag.extract()
-    return render_with_plugin('plugin.html', current_plugin={'name': name},
-                              plugin_content=str(soup),
-                              plugin_javascript=all_scripts,
-                              plugin_css=all_css)
-
+    return render_template('plugin-v2.html', 
+                            plugin_content=str(soup),
+                            plugin_javascript=all_scripts,
+                            plugin_css=all_css)
 
 @ui.route('/settings')
 def settings():
