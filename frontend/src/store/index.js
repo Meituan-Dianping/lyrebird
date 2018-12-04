@@ -1,10 +1,16 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import {getMenu} from '@/api/main'
+import inspector from './inspector'
+import dataManager from './datamanager'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+  modules: {
+    inspector,
+    dataManager
+  },
   state: {
     menu: null,
   },

@@ -9,7 +9,11 @@
   "dependencies": {
     "axios": "^0.18.0",
     "iview": "^3.1.5",
+    "monaco-editor": "^0.15.6",
+    "monaco-editor-webpack-plugin": "^1.7.0",
+    "socket.io-client": "^2.2.0",
     "vue": "^2.5.17",
+    "vue-resource": "^1.5.1",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
   },
