@@ -1,11 +1,26 @@
 <template>
     <div style="height:100%">
-        <iframe src="/plugin/demo" frameborder="0" class="plugin-frame"></iframe>
+        <iframe :src="src" frameborder="0" class="plugin-frame"></iframe>
     </div>
 </template>
 
 <script>   
     export default {
+        computed:{
+            src(){
+                let name = this.$route.params.name
+                let menu = this.$store.state.menu
+                // 取出store中的menu进行匹配，返回插件src地址
+                if(menu){
+                    for (let i=0; i< menu.length; i++){
+                        if(typeof(menu[i].params)=="object" && menu[i].params.name == name){
+                            console.log(this.$store.state.menu[i].params.src);
+                            return this.$store.state.menu[i].params.src
+                        }
+                    }
+                }
+            }
+        }
     }
 </script>
 
