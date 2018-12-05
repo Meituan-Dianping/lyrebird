@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {getMenu} from '@/api/main'
-import inspector from './inspector'
-import dataManager from './datamanager'
+import {getMenu} from '@/api/index'
+import inspector from '@/store/inspector'
+import dataManager from '@/store/datamanager'
 
 Vue.use(Vuex)
 
@@ -25,5 +25,9 @@ export default new Vuex.Store({
         commit('setMenu', response.data.menu)
       })
     }
+  },
+  modules:{
+    inspector,
+    dataManager
   }
 })

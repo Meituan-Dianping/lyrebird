@@ -1,14 +1,14 @@
 <template>
   <div>
     <Row class="button-bar">
-      <buttonBar></buttonBar>
+      <button-bar></button-bar>
     </Row>
     <Row>
       <Col span="12">
-        <flowList v-on:select-detail="selectedFlowChange" class="inspector-left"></flowList>
+        <flow-list v-on:select-detail="selectedFlowChange" class="inspector-left"></flow-list>
       </Col>
       <Col span="12">
-        <flowDetail v-bind:flow="selectedFlow" class="inspector-right"></flowDetail>
+        <flow-detail v-bind:flow="selectedFlow" class="inspector-right"></flow-detail>
       </Col>
     </Row>
   </div>
@@ -27,9 +27,9 @@
     color: "black",
     text: "Stop recording"
   };
-  import flowList from './flow-list.vue'
-  import flowDetail from './flow-detail.vue'
-  import buttonBar from './button-bar.vue'
+  import FlowList from '@/views/inspector/FlowList.vue'
+  import FlowDetail from '@/views/inspector/FlowDetail.vue'
+  import ButtonBar from '@/views/inspector/ButtonBar.vue'
 
  export default {
     name: 'Inspector',
@@ -46,9 +46,9 @@
       };
     },
     components: {
-      flowList,
-      flowDetail,
-      buttonBar,
+      FlowList,
+      FlowDetail,
+      ButtonBar,
     },
     mounted: function () {
       this.getRecordStatus();

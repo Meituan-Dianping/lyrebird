@@ -1,4 +1,4 @@
-import api from '@/api/api'
+import * as api from '@/api' 
 
 export default {
   state: {
