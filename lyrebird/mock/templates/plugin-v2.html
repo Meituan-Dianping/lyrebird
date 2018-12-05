@@ -6,35 +6,35 @@
     <title>Plugin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Bootstrap 3.3.7 -->
-    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/plugins/bootstrap/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
     <!-- Ionicons -->
-    <link href="https://cdn.bootcss.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
+    <link href="/static/css/ionicons.min.css" rel="stylesheet">
     <!-- Theme style -->
     <link href="/static/css/AdminLTE.css" rel="stylesheet" type="text/css"/>
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link rel="stylesheet" href="/static/css/skins/_all-skins.css">
     <!-- Morris chart -->
-    <link href="https://cdn.bootcss.com/morris.js/0.5.1/morris.css" rel="stylesheet">
+    <link href="/static/plugins/morris/morris.css" rel="stylesheet">
     <!-- jvectormap -->
-    <link href="https://cdn.bootcss.com/jvectormap/2.0.4/jquery-jvectormap.min.css" rel="stylesheet">
+    <link href="/static/plugins/jvectormap/jquery-jvectormap.min.css" rel="stylesheet">
     <!-- Date Picker -->
-    <link href="https://cdn.bootcss.com/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <link href="/static/plugins/bootstrap-datepicker/bootstrap-datepicker.min.css" rel="stylesheet">
     <!-- Daterange picker -->
-    <link href="https://cdn.bootcss.com/bootstrap-daterangepicker/2.1.25/daterangepicker.min.css" rel="stylesheet">
+    <link href="/static/plugins/daterangepicker/daterangepicker.min.css" rel="stylesheet">
     <!-- bootstrap wysihtml5 - text editor -->
     <link rel="stylesheet" href="/static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
     <!-- DataTable -->
     <link rel="stylesheet" href="/static/css/dataTables.bootstrap.min.css">
     <link rel="stylesheet" href="/static/plugins/jsonview/jquery.jsonview.css">
     <!-- JsonEditor -->
-    <link href="https://cdn.bootcss.com/jsoneditor/5.9.6/jsoneditor.min.css" rel="stylesheet">
+    <link href="/static/plugins/jsoneditor/jsoneditor.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="/static/js/iview/styles/iview.css">
     <!-- Google Font -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <link rel="stylesheet" href="/static/css/fonts-googleapis.css">
     [% block link %]
         [% for css in plugin_css %]
             [[ css|safe ]]
@@ -49,40 +49,40 @@
 
 
     <!-- jQuery 3 -->
-    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
 
     <!-- Bootstrap 3.3.7 -->
-    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/static/plugins/bootstrap/bootstrap.min.js"></script>
     <!-- Morris.js charts -->
-    <script src="https://cdn.bootcss.com/raphael/2.2.7/raphael.min.js"></script>
-    <script src="https://cdn.bootcss.com/morris.js/0.5.1/morris.min.js"></script>
+    <script src="/static/js/raphael.min.js"></script>
+    <script src="/static/plugins/morris/morris.min.js"></script>
     <!-- Sparkline -->
-    <script src="https://cdn.bootcss.com/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
+    <script src="/static/js/jquery.sparkline.min.js"></script>
     <!-- jvectormap -->
     <script src="/static/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
     <script src="/static/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
     <!-- jQuery Knob Chart -->
-    <script src="https://cdn.bootcss.com/jQuery-Knob/1.2.13/jquery.knob.min.js"></script>
+    <script src="/static/js/jquery.knob.min.js"></script>
     <!-- daterangepicker -->
-    <script src="https://cdn.bootcss.com/bootstrap-daterangepicker/2.1.25/moment.min.js"></script>
-    <script src="https://cdn.bootcss.com/bootstrap-daterangepicker/2.1.25/daterangepicker.min.js"></script>
+    <script src="/static/plugins/daterangepicker/moment.min.js"></script>
+    <script src="/static/plugins/daterangepicker/daterangepicker.min.js"></script>
     <!-- datepicker -->
-    <script src="https://cdn.bootcss.com/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+    <script src="/static/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
     <!-- Bootstrap WYSIHTML5 -->
     <script src="/static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
     <!-- Slimscroll -->
-    <script src="https://cdn.bootcss.com/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js"></script>
+    <script src="/static/js/jquery.slimscroll.min.js"></script>
     <!-- FastClick -->
-    <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+    <script src="/static/js/fastclick.min.js"></script>
     <!-- DataTable -->
-    <script src="https://cdn.bootcss.com/datatables/1.10.15/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.bootcss.com/datatables/1.10.15/js/dataTables.uikit.min.js"></script>
-    <script src="https://cdn.bootcss.com/datatables/1.10.15/js/dataTables.semanticui.min.js"></script>
-    <script src="https://cdn.bootcss.com/datatables/1.10.15/js/dataTables.material.min.js"></script>
-    <script src="https://cdn.bootcss.com/datatables/1.10.15/js/dataTables.jqueryui.min.js"></script>
+    <script src="/static/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/static/plugins/datatables/dataTables.uikit.min.js"></script>
+    <script src="/static/plugins/datatables/dataTables.semanticui.min.js"></script>
+    <script src="/static/plugins/datatables/dataTables.material.min.js"></script>
+    <script src="/static/plugins/datatables/dataTables.jqueryui.min.js"></script>
     <!-- JsonEditor -->
-    <script src="https://cdn.bootcss.com/jsoneditor/5.9.6/jsoneditor.min.js"></script>
+    <script src="/static/plugins/jsoneditor/jsoneditor.min.js"></script>
     <!-- Socket IO -->
     <script src="/static/js/socket.io.js"></script>
     <!-- AdminLTE App -->
