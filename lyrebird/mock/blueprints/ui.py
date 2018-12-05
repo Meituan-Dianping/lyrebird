@@ -66,7 +66,7 @@ def plugin_base(name):
     for css_tag in soup.find_all('link'):
         all_css.append(css_tag)
         css_tag.extract()
-    return render_template('plugin-v2.html', 
+    return render_template('plugin.html', 
                             plugin_content=str(soup),
                             plugin_javascript=all_scripts,
                             plugin_css=all_css)
