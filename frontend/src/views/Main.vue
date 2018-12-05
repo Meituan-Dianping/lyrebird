@@ -125,7 +125,7 @@ export default {
   transition: width 0.2s ease 0.2s;
 }
 .main-container {
-  margin: 5px;
+  padding: 5px;
   height: calc(100vh - 66px);
 }
 </style>

@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import CodeEditor from '@/views/CodeEditor.vue'
+import CodeEditor from '@/components/CodeEditor.vue'
 export default{
     components:{
         CodeEditor

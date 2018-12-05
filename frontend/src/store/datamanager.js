@@ -32,24 +32,8 @@ export default {
         setFoucsData(state, dataId){
             state.foucsData = dataId
         },
-        deleteSelectedData(state, dataId){
-            index = state.selectedData.indexOf(dataId)
-            if (index < 0) {
-                return
-            }
-            state.selectedData.splice(index, 1)
-        },
-        addSelectedData(state, dataId){
-            state.selectedData.push(dataId)
-        },
-        clearSelectedData(state){
-            state.selectedData = []
-        },
-        selectAllData(state){
-            state.selectedData = []
-            for (const dataItem of state.dataList) {
-                state.selectedData.push(dataItem.id)
-            }
+        updateSelectedData(state, data){
+            state.selectedData = data
         },
         setRule(state, rule){
             state.editorCache.rule = rule

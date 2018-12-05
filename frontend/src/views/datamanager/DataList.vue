@@ -1,58 +1,71 @@
 <template>
-    <card>
+    <Card> 
         <div class="data-list">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>
-                            <input type="checkbox" v-model="selectAll">
-                        </th>
-                        <th>Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr is="data-list-item" 
-                    v-for="(item, index) in dataItems" :key="index"
-                    :item=item
-                    >
-                    </tr>
-                </tbody>
-            </table>
+            <Table highlight-row 
+                size='small'
+                ref="selection" 
+                :columns="columns" 
+                :data="dataItems"
+                @on-row-click="onClickRow" 
+                @on-selection-change="onClickSelect" 
+            >
+            </Table>
         </div>
-    </card>
+    </Card>
 </template>
 
 <script>
-import DataListItem from '@/views/datamanager/DataListItem.vue'
 export default{
-    components:{
-        DataListItem
+    data: function () {
+      return {
+        columns: [
+            {
+                type: 'selection',
+                width: 60,
+                align: 'center'
+            },
+            {
+                title: 'Name',
+                key: 'name'
+            }
+        ],
+      };
     },
     computed: {
         dataItems(){
             return this.$store.state.dataManager.dataList
-        },
-        selectAll: {
-            get(){
-                return (this.$store.state.dataManager.dataList.length > 0) && (this.$store.state.dataManager.selectedData.length === this.$store.state.dataManager.dataList.length)
-            },
-            set(value){
-                if(value){
-                    this.$store.commit('selectAllData')
-                }else{
-                    this.$store.commit('clearSelectedData')
-                }
-            }
         }
     },
     methods: {
+        onClickRow(data){
+            this.$store.commit('setFoucsData', data.id)
+            this.$store.dispatch({
+                type: 'loadDataDetail',
+                groupId: this.$store.state.dataManager.currentDataGroup, 
+                dataId: data.id
+                })
+        },
+        onClickSelect(data){
+            console.log(data)
+            this.$store.commit('updateSelectedData', data)
+        }
     }
 }
 </script>
 
 <style>
     .data-list {
-        max-height: 550px;
+        height: calc(100vh - 166px);
+        /* total:100vh
+        header: 38px
+        padding: 5px + 5px
+        buttonBar: 48px
+        card-padding: 16px
+        table
+        card-padding: 16px
+        padding: 5px
+        footer: 28px
+         */
         overflow-y: auto;
     }
 </style>

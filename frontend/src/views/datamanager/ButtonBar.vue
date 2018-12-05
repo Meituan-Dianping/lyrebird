@@ -1,19 +1,30 @@
 <template>
-  <card :padding="5">
-    <label>DataGroup:</label>
-    <div class="inline">
-      <i-select v-model="selectedDataGroup" filterable clearable class="data-group" @on-change="onGroupSelected">
-        <option-group label="DataGroup">
-          <i-option v-for="item in groupList" :key="item.id" :value="item.id">{{item.name}}</i-option>
-        </option-group>
-      </i-select>
-    </div>
+  <Card :padding="5">
+    <Row type="flex" justify="start" align="middle">
+      <i-col span="2">
+        <label>DataGroup:</label>
+      </i-col>
+      <i-col span="4">
+        <div>
+          <i-select v-model="selectedDataGroup" filterable clearable @on-change="onGroupSelected">
+            <option-group label="DataGroup">
+              <i-option v-for="item in groupList" :key="item.id" :value="item.id">{{item.name}}</i-option>
+            </option-group>
+          </i-select>
+        </div>
+      </i-col>
+      <i-col span="12">
+        <i-button>NewGroup</i-button>
+        <i-button>DeleteGroup</i-button>
+        <i-button>NewData</i-button>
+        <i-button>DeleteData</i-button>
+      </i-col>
+    </Row>
 
-    <i-button>NewGroup</i-button>
-    <i-button>DeleteGroup</i-button>
-    <i-button>NewData</i-button>
-    <i-button>DeleteData</i-button>
-  </card>
+    
+
+    
+  </Card>
 </template>
 
 <script>
@@ -46,15 +57,5 @@ export default {
 </script>
 
 <style>
-  .inline {
-    display: inline;
-  }
 
-  .data-group {
-    width: 15vw;
-  }
-
-  .search-box {
-    width: 30vw;
-  }
 </style>
