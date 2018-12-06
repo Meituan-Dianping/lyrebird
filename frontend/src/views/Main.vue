@@ -96,15 +96,18 @@ export default {
     },
     menuItemOnClick(menuItem){
       if(menuItem.type==='router'){
-        
-       this.$router.push({name:menuItem.name, params:menuItem.params}) 
+        if(menuItem.name === 'plugin-view'){
+          this.$store.commit('setSrc', menuItem.params.src);
+        }
+        this.$router.push({name:menuItem.name, params:menuItem.params});
       }else{
         window.open(menuItem.path, '_self');
       }
     },
     jump(data) {
       let url = '/ui/plugin/lyrebird-bugit?source=overbridgeAlert&alertContext='+encodeURIComponent(data.message)+'&msg='+encodeURIComponent(JSON.stringify(data))
-      this.$router.push({name:'plugin-view', params:{name:'bugit', src:url}});
+      this.$store.commit('setSrc', url);
+      this.$router.push({name:'plugin-view'});
   }
   }
 };
