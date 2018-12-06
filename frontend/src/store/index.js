@@ -3,13 +3,15 @@ import Vuex from 'vuex'
 import {getMenu} from '@/api/index'
 import inspector from '@/store/inspector'
 import dataManager from '@/store/datamanager'
+import plugin from '@/store/plugin'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
     inspector,
-    dataManager
+    dataManager,
+    plugin
   },
   state: {
     menu: null,
@@ -25,9 +27,5 @@ export default new Vuex.Store({
         commit('setMenu', response.data.menu)
       })
     }
-  },
-  modules:{
-    inspector,
-    dataManager
   }
 })
