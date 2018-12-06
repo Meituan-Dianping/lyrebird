@@ -47,7 +47,7 @@ export default{
         },
         onClickSelect(data){
             console.log(data)
-            this.$store.commit('updateSelectedData', data)
+            this.$store.commit('setSelectedData', data)
         }
     }
 }

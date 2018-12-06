@@ -31,7 +31,7 @@
   import FlowDetail from '@/views/inspector/FlowDetail.vue'
   import ButtonBar from '@/views/inspector/ButtonBar.vue'
 
- export default {
+  export default {
     name: 'Inspector',
     data: function () {
       return {
@@ -177,7 +177,8 @@
 
 <style>
   .button-bar {
-    margin-bottom: 5px
+    margin-bottom: 5px;
+    height: 48px;
   }
 
   .inspector-left {
