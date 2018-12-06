@@ -30,12 +30,40 @@
 </template>
 
 <script>
+import io from 'socket.io-client'
+const alertIO = io('/alert')
 export default {
   name: 'MainLayout',
   data() {
     return {
       isCollapsed: true
     };
+  },
+  created: function(){
+    this.$Notice.config({
+      top: 0,
+    });
+    alertIO.on('show', data => {
+      this.$Notice.warning({
+        duration: 0,
+        title: null,
+        render: h => {
+          return h('div', [
+            h('div', data.message),
+            h('a', {
+                attrs: {
+                    href: '#',
+                },
+                on: {
+                    click: () => {
+                        this.jump(data)
+                    }
+                }
+            }, 'Create new issue')
+          ])
+          }
+        });
+      });
   },
   mounted(){
     this.$store.dispatch('loadMenu')
@@ -68,12 +96,19 @@ export default {
     },
     menuItemOnClick(menuItem){
       if(menuItem.type==='router'){
-        
-       this.$router.push({name:menuItem.name, params:menuItem.params}) 
+        if(menuItem.name === 'plugin-view'){
+          this.$store.commit('setSrc', menuItem.params.src);
+        }
+        this.$router.push({name:menuItem.name, params:menuItem.params});
       }else{
         window.open(menuItem.path, '_self');
       }
-    }
+    },
+    jump(data) {
+      let url = '/ui/plugin/lyrebird-bugit?source=overbridgeAlert&alertContext='+encodeURIComponent(data.message)+'&msg='+encodeURIComponent(JSON.stringify(data))
+      this.$store.commit('setSrc', url);
+      this.$router.push({name:'plugin-view'});
+  }
   }
 };
 </script>

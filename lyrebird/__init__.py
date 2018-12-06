@@ -56,7 +56,7 @@ def subscribe(channel, func, *args, **kwargs):
     :param sender: 信号发送者标识
     """
     # context.application.event_bus.subscribe(channel, func)
-    application.server['event'].subscribe(channel, func)
+    application.server['event'].subscribe(channel, func, *args, **kwargs)
 
 
 def publish(channel, event, *args, **kwargs):
