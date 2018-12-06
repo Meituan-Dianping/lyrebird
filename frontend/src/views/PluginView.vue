@@ -9,7 +9,6 @@
         computed:{
             src() {
                 let src = this.$store.state.plugin.src
-                console.log(src)
                 return src
             }
         }
