@@ -124,14 +124,10 @@ class LyrebirdMockServer(ThreadServer):
         server_ip = application.config.get('ip')
         _logger.warning(f'start on http://{server_ip}:{self.port}')
         report_handler.start()
-<<<<<<< HEAD
-        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=False, use_reloader=False)
-=======
         # cannot import at beginning, cause db hasn't init
         from lyrebird.mock.db.models import active_db_listener
         active_db_listener()
         self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
->>>>>>> 84c4b555d100371e736eaaf4c4b8c5d151bf54dd
 
 
     def stop(self):
