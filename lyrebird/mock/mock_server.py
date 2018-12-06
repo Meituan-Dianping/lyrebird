@@ -1,9 +1,10 @@
-import json
 import os
 import sys
-import socket
+import time
+import json
 import errno
 import socket
+import datetime
 import subprocess
 from . import plugin_manager
 from flask import Flask, request, redirect, url_for, Response
@@ -14,11 +15,10 @@ from .blueprints.api_mock import api_mock
 from flask_socketio import SocketIO
 from .reporter import report_handler
 from ..version import VERSION
-import datetime
-import time
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird import log
+from lyrebird.mock.db.database import DataBase
 
 
 """
@@ -80,6 +80,16 @@ class LyrebirdMockServer(ThreadServer):
             raise SyntaxError('Can not start mock server without config file.'
                               ' Default config file path = api-mock/conf.json')
 
+        # sqlite初始化
+        ROOT_DIR = application.root_dir()
+        DB_FILE_NAME = 'lyrebird.db'
+        if ROOT_DIR:
+            SQLALCHEMY_DATABASE_URI = ROOT_DIR/DB_FILE_NAME
+            # TODO: 'sqlite:///' is unfriendly to windows
+            self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+str(SQLALCHEMY_DATABASE_URI)
+            self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+            context.db = DataBase(self.app)
+        
         # 插件初始化
         plugin_manager.load()
         # 加载插件界面
@@ -111,10 +121,13 @@ class LyrebirdMockServer(ThreadServer):
             return response
 
     def run(self):
-        server_ip = application.config.get('ip')    
+        server_ip = application.config.get('ip')
         _logger.warning(f'start on http://{server_ip}:{self.port}')
         report_handler.start()
-        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=False, use_reloader=False)
+        # cannot import at beginning, cause db hasn't init
+        from lyrebird.mock.db.models import active_db_listener
+        active_db_listener()
+        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
 
 
     def stop(self):
