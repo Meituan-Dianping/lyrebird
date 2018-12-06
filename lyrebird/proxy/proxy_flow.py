@@ -22,7 +22,11 @@ def to_mock_server(flow: http.HTTPFlow):
     # mock server ip
     flow.request.host = conf.get('mock.host', 'localhost')
     # device real ip
-    flow.request.headers['lyrebird.device.ip'] = flow.client_conn.address[0]
+    address = flow.client_conn.address[0]
+    # 获取的address是IPv6（内嵌IPv4地址表示法），需要获取IPv4地址，需要做以下处理
+    if address.startswith('::ffff:'):
+        address = address.split('::ffff:')[1]
+    flow.request.headers['Lyrebird-Client-Address'] = address
     _logger.info('Redirect-> %s' % flow.request.url[:100])
 
 

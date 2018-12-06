@@ -5,6 +5,7 @@ requests>=2.20.0
 fire==0.1.0
 flask-socketio
 flask-restful
+Flask-SQLAlchemy
 beautifulsoup4
 pytest
 portpicker
