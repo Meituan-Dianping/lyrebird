@@ -1,29 +1,15 @@
 <template>
-  <Card>
-    <div style="max-height: 550px; overflow-y: auto;">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>
-              <input type="checkbox" v-model="selectAll">
-            </th>
-            <th>Src</th>
-            <th>Status</th>
-            <th>Host</th>
-            <th>Path</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr is="flow-list-item" 
-          v-for="flow in flowList" :key="flow.id" 
-          :flow="flow" 
-          :selected-ids="selectedIds" 
-          @click.native="selectFlow(flow)"
-          @item-checkbox-change="itemSelectChange"
-          :class="rowClass(flow)"
-          ></tr>
-        </tbody>
-      </table>
+  <Card> 
+    <div class="flow-list">
+      <Table highlight-row 
+        size='small'
+        ref="selection" 
+        :columns="columns" 
+        :data="originFlowList"
+        @on-row-click="selectFlow" 
+        @on-selection-change="itemSelectChange" 
+      >
+      </Table>
     </div>
   </Card>
 </template>
@@ -42,7 +28,58 @@
         flowList: [],
         originFlowList: [],
         selectAll: false,
-        foucsFlow: null
+        foucsFlow: null,
+        columns: [
+          {
+            type: 'selection',
+            width: 40,
+            align: 'center'
+          },
+          {
+            title: 'Src',
+            key: 'src',
+            width: 100,
+            align: 'center',
+            render: (h, params) => {
+              if (params.row.response.mock === 'proxy') {
+                return h("Tag", {
+                  props: {
+                    color: 'default',
+                    size: 'small'
+                  }
+                }, params.row.response.mock);
+              } else if (params.row.response.mock === 'mock') {
+                return h("Tag", {
+                  props: {
+                    color: 'green',
+                    size: 'small'
+                  }
+                }, params.row.response.mock);
+              }
+            }
+          },
+          {
+            title: 'Status',
+            key: 'status',
+            width: 80,
+            render: (h, params) => {
+              let code = params.row.response.code;
+              if (code === 200 || (code >= 300 && code <= 399)) {
+                return h("p", { style: { color: "green" } },code);
+              } else {
+                return h("p", { style: { color: "error" } },code);
+              }
+            }
+          },
+          {
+            title: 'Host',
+            key: 'id'
+          },
+          {
+            title: 'Path',
+            key: 'response-time'
+          }
+        ],
       };
     },
     mounted: function () {
@@ -128,7 +165,18 @@
 </script>
 
 <style>
-.foucs{
-  background-color: rgb(217, 239, 252)
+.flow-list {
+  height: calc(100vh - 166px);
+  /* total:100vh
+  header: 38px
+  padding: 5px + 5px
+  buttonBar: 48px
+  card-padding: 16px
+  table
+  card-padding: 16px
+  padding: 5px
+  footer: 28px
+    */
+  overflow-y: auto;
 }
 </style>

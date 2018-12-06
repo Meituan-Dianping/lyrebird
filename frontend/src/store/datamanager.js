@@ -32,8 +32,11 @@ export default {
         setFoucsData(state, dataId){
             state.foucsData = dataId
         },
-        updateSelectedData(state, data){
+        setSelectedData(state, data){
             state.selectedData = data
+        },
+        clearSelectedData(state){
+            state.selectedData = []
         },
         setRule(state, rule){
             state.editorCache.rule = rule

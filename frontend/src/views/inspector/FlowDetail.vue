@@ -6,7 +6,7 @@
             <TabPane label="Response" name="resp"></TabPane>
             <TabPane label="ResponseBody" name="resp-body"></TabPane>
         </Tabs>
-        <code-editor v-if="flowDetail" :language="codeType" :content="codeContent" style="height: 500px"></code-editor>
+        <code-editor v-if="flowDetail" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
     </Card>
 </template>
 
@@ -105,4 +105,18 @@
 </script>
 
 <style>
+.flow-detail {
+  height: calc(100vh - 218px);
+  /* total:100vh
+  header: 38px
+  padding: 5px + 5px
+  buttonBar: 48px
+  card-padding: 16px
+  tab-header: 52px
+  table
+  card-padding: 16px
+  padding: 5px
+  footer: 28px
+    */
+}
 </style>

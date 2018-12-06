@@ -7,7 +7,7 @@
             <tab-pane label="Response" name="resp"></tab-pane>
             <tab-pane label="ResponseBody" name="resp-body"></tab-pane>
         </tabs>
-        <code-editor v-if="dataDetail" :language="code.type" v-model="content" style="height: 500px"></code-editor>
+        <code-editor v-if="dataDetail" :language="code.type" v-model="content" class="data-detail"></code-editor>
         <div v-if="dataDetail" class="button-bar">
             <i-button type="primary" ghost @click="save">Save</i-button>
         </div>
@@ -118,5 +118,20 @@ export default{
 <style>
 .button-bar{
     margin-top: 5px
+}
+.data-detail {
+  height: calc(100vh - 276px);
+  /* total:100vh
+  header: 38px
+  padding: 5px + 5px
+  buttonBar: 48px
+  card-padding: 16px
+  tab-header: 52px
+  table
+  button: 58px
+  card-padding: 16px
+  padding: 5px
+  footer: 28px
+    */
 }
 </style>
