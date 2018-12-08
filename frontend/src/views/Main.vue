@@ -131,7 +131,7 @@ export default {
 }
 .logo span{
     color: white;
-    font-size: 30px;
+    font-size: 28px;
     font-weight: bolder;
     font-style: italic;
 }

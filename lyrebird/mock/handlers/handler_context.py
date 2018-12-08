@@ -1,6 +1,6 @@
-from flask import Request, Response
 from .. import context
 from lyrebird import application
+from urllib.parse import urlparse
 import uuid
 import time
 
@@ -12,29 +12,50 @@ class HandlerContext:
 
     """
 
-    def __init__(self):
+    def __init__(self, request, raw_path):
         self.id = str(uuid.uuid4())
-        self._request: Request = None
-        self.response: Response = None
+        self.request = request
+        self._raw_path = raw_path
+        self.response = None
         self.client_req_time = None
         self.client_resp_time = None
         self.server_req_time = None
         self.server_resp_time = None
         self.flow = {'id': self.id}
         self.client_address = None
+        self._parse_request()
     
-    
-    @property
-    def request(self):
-        return self._request
-    
-    @request.setter
-    def request(self, _request):
-        self._request = _request
-        if _request.headers.get('Lyrebird-Client-Address'):
-            self.client_address = _request.headers.get('Lyrebird-Client-Address')
+    def _parse_request(self):
+        # Read request
+        self.request.get_data()
+        
+        path_index = self.request.url.index(self._raw_path)
+        url = self.request.url[path_index:]
+        parsed_path = urlparse(url)
+        headers = {k:v for k,v in self.request.headers}
+        # 
+        
+
+        _request = dict(
+            url=url,
+            headers=headers,
+            scheme=parsed_path.scheme,
+            host=parsed_path.hostname,
+            port=parsed_path.port,
+            query=parsed_path.query,
+            method=self.request.method
+            )
+
+        content_type = _request['headers'].get('Content-type')
+
+        
+        if self.request.headers.get('Lyrebird-Client-Address'):
+            self.client_address = self.request.headers.get('Lyrebird-Client-Address')
         else:
-            self.client_address = _request.remote_addr
+            self.client_address = self.request.remote_addr
+    
+        self.flow['request'] = _request
+
 
 
     def update_client_req_time(self):
@@ -119,3 +140,10 @@ class HandlerContext:
         resp['status'] = self.response.status_code
         resp['headers'] = [{'name': header[0], 'value': header[1]} for header in self.response.headers]
         self.flow['response'] = resp
+
+
+class Request:
+    def __init__(self):
+        self.url = None
+        self.headers = None
+        self.data = None
