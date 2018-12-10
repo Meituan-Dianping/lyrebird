@@ -175,7 +175,7 @@
   };
 </script>
 
-<style>
+<style scoped>
   .button-bar {
     margin-bottom: 5px;
     height: 48px;
