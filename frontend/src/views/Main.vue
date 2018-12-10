@@ -22,7 +22,17 @@
                 </div>
             </Content>
             <Footer class="main-footer">
-
+              <Poptip v-if="status" content="content" placement="top-end" class="main-footer-status" width="200">
+                <Icon type="ios-arrow-up" style="color:#f8f8f9"/>
+                <b style="color:#f8f8f9">&nbsp;&nbsp;Version {{status.version}}</b>
+                <div slot="title"><b>💡运行状态</b></div>
+                <div slot="content">
+                  <Row v-for="(value, index) in status" :key="index" :gutter="16">
+                    <i-col span=12><b style="float: right">{{index}}</b></i-col>
+                    <i-col span=12>{{value}}</i-col>
+                  </Row>
+                </div>
+              </Poptip>
             </Footer>
         </Layout>
     </Layout>
@@ -67,6 +77,7 @@ export default {
   },
   mounted(){
     this.$store.dispatch('loadMenu')
+    this.$store.dispatch('loadStatus')
   },
   computed: {
     menuitemClasses(){
@@ -81,6 +92,9 @@ export default {
     },
     menu(){
       return this.$store.state.menu
+    },
+    status(){
+      return this.$store.state.status
     }
   },
   methods: {
@@ -144,8 +158,14 @@ export default {
 }
 .main-footer {
   height: 28px;
+  line-height: 28px;
   padding: 0;
   background-color: #0fccbf;
+}
+.main-footer-status {
+  float: right;
+  font-size: 11px;
+  margin-right: 10px
 }
 .collapsed-menu span {
   width: 0px;

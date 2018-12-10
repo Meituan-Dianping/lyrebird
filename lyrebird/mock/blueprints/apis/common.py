@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from lyrebird.mock import context
 from flask import jsonify
-
+from lyrebird import version
 
 class Status(Resource):
 
@@ -10,7 +10,9 @@ class Status(Resource):
         return context.make_ok_response(
             **{'ip':conf.get('ip', 'unknown ip'), 
             'mock.port':conf['mock.port'], 
-            'proxy.port':conf['proxy.port']})
+            'proxy.port':conf['proxy.port'],
+            'version': version.VERSION
+            })
 
 
 class WorkMode(Resource):
