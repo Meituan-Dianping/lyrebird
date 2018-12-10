@@ -23,9 +23,11 @@
             </Content>
             <Footer class="main-footer">
               <Poptip v-if="status" content="content" placement="top-end" class="main-footer-status" width="200">
-                <Icon type="ios-arrow-up" style="color:#f8f8f9"/>
-                <b style="color:#f8f8f9">&nbsp;&nbsp;Version {{status.version}}</b>
-                <div slot="title"><b>💡运行状态</b></div>
+                <a>
+                  <Icon type="ios-arrow-up" style="color:#f8f8f9"/>
+                  <b style="color:#f8f8f9">&nbsp;&nbsp;Version {{status.version}}</b>
+                </a>
+                <div slot="title"><b>💡Status</b></div>
                 <div slot="content">
                   <Row v-for="(value, index) in status" :key="index" :gutter="16">
                     <i-col span=12><b style="float: right">{{index}}</b></i-col>

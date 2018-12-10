@@ -9,6 +9,7 @@ import subprocess
 from . import plugin_manager
 from flask import Flask, request, redirect, url_for, Response
 from . import context
+from .blueprints.plugin import plugin
 from .blueprints.apis import api
 from .blueprints.ui import ui
 from .blueprints.api_mock import api_mock
@@ -34,7 +35,6 @@ Default port : 9090
 * Lyrebird plugin management
 """
 
-current_dir = os.path.dirname(__file__)
 _logger = log.get_logger()
 
 
@@ -54,7 +54,7 @@ class LyrebirdMockServer(ThreadServer):
         self.debug = False
         self.port = 9090
         self._working_thread = None
-        self.app = Flask('MOCK', static_folder=os.path.join(current_dir, 'static'))
+        self.app = Flask('MOCK')
         
         self.app.jinja_env.block_start_string = '[%'
         self.app.jinja_env.block_end_string = '%]'
@@ -90,20 +90,20 @@ class LyrebirdMockServer(ThreadServer):
             self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
             context.db = DataBase(self.app)
         
-        # 插件初始化
+        # Plugin
+        # init plugin
         plugin_manager.load()
-        # 加载插件界面
+        # load plugin frontend
         plugin_manager.add_view_to_blueprint(ui)
-        # 注册插件socket事件
+        plugin_manager.add_view_to_blueprint(plugin)
+        # Register event socket
         plugin_manager.add_event_rules(self.socket_io)
-
+        # Register blueprints
         self.app.register_blueprint(api)
         self.app.register_blueprint(api_mock)
         self.app.register_blueprint(ui)
-        # 注册插件
-        for plugin in plugin_manager.plugin_blueprint_list:
-            self.app.register_blueprint(plugin)
-
+        self.app.register_blueprint(plugin)
+        
         @self.app.route('/')
         def index():
             """

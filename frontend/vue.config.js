@@ -7,7 +7,7 @@ module.exports = {
       new MonacoWebpackPlugin()
     ]
   },
-  baseUrl: '/static',
+  baseUrl: '/ui/static',
   outputDir: '../lyrebird/client/static',
   devServer: {
     proxy: {
