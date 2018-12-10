@@ -21,7 +21,7 @@ export default{
         columns: [
             {
                 type: 'selection',
-                width: 60,
+                width: 50,
                 align: 'center'
             },
             {
@@ -46,7 +46,6 @@ export default{
                 })
         },
         onClickSelect(data){
-            console.log(data)
             this.$store.commit('setSelectedData', data)
         }
     }

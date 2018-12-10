@@ -17,21 +17,11 @@ export default {
     search: function (state, val) {
       state.searchStr = val
     },
-    addSelectedId: function (state, val) {
-      state.selectedIds.push(val)
+    setSelectedId: function(state, val) {
+      state.selectedIds = val
     },
     clearSelectedId: function (state) {
       state.selectedIds = []
-    },
-    updateSelectedId: function (state, val) {
-      state.selectedIds = val
-    },
-    deleteSelectedId: function (state, val) {
-      index = state.selectedIds.indexOf(val)
-      if (index < 0) {
-        return
-      }
-      state.selectedIds.splice(index, 1)
     }
   },
   actions: {

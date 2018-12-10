@@ -120,7 +120,7 @@ export default{
     margin-top: 5px
 }
 .data-detail {
-  height: calc(100vh - 276px);
+  height: calc(100vh - 253px);
   /* total:100vh
   header: 38px
   padding: 5px + 5px
@@ -128,8 +128,8 @@ export default{
   card-padding: 16px
   tab-header: 52px
   table
-  button: 58px
-  card-padding: 16px
+  button: 30px
+  card-padding: 16px + 5px
   padding: 5px
   footer: 28px
     */

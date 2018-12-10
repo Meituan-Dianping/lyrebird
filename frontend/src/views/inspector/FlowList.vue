@@ -27,12 +27,11 @@
       return {
         flowList: [],
         originFlowList: [],
-        selectAll: false,
         foucsFlow: null,
         columns: [
           {
             type: 'selection',
-            width: 40,
+                width: 50,
             align: 'center'
           },
           {
@@ -100,14 +99,6 @@
       }
     },
     watch: {
-      selectAll: function () {
-        this.$store.commit('clearSelectedId')
-        if (this.selectAll) {
-          for (const flow of this.flowList) {
-            this.$store.commit('addSelectedId', flow.id)
-          }
-        }
-      },
       selectedIds: function () {
         if (this.selectedIds.length > 0) {
           this.$store.commit('showDataButtons', true)
@@ -138,12 +129,7 @@
         this.$emit("select-detail", flow);
       },
       itemSelectChange: function (event) {
-        console.log('Item select change', event);
-        if (event.selected && this.selectedIds.indexOf(event.id) < 0) {
-          this.$store.commit('addSelectedId', event.id)
-        } else if (!event.selected && this.selectedIds.indexOf(event.id) >= 0) {
-          this.$store.commit('deleteSelectedId', event.id)
-        }
+        this.$store.commit('setSelectedId', event)
       },
       refreshFlowList: function(){
         this.flowList = []
