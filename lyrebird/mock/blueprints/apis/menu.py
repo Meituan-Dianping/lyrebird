@@ -36,7 +36,7 @@ class Menu(Resource):
                 'type': 'router',
                 'path': '/plugin',
                 'params': {
-                    'src': f'/ui/plugin/{plugin["project_name"]}',
+                    'src': f'/plugin/{plugin["project_name"]}',
                     'name': name
                 }
             })

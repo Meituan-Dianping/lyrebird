@@ -6,35 +6,35 @@
     <title>Plugin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Bootstrap 3.3.7 -->
-    <link href="/static/plugins/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="/plugin/static/plugins/bootstrap/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/plugin/static/css/font-awesome.min.css" rel="stylesheet">
     <!-- Ionicons -->
-    <link href="/static/css/ionicons.min.css" rel="stylesheet">
+    <link href="/plugin/static/css/ionicons.min.css" rel="stylesheet">
     <!-- Theme style -->
-    <link href="/static/css/AdminLTE.css" rel="stylesheet" type="text/css"/>
+    <link href="/plugin/static/css/AdminLTE.css" rel="stylesheet" type="text/css"/>
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
-    <link rel="stylesheet" href="/static/css/skins/_all-skins.css">
+    <link rel="stylesheet" href="/plugin/static/css/skins/_all-skins.css">
     <!-- Morris chart -->
-    <link href="/static/plugins/morris/morris.css" rel="stylesheet">
+    <link href="/plugin/static/plugins/morris/morris.css" rel="stylesheet">
     <!-- jvectormap -->
-    <link href="/static/plugins/jvectormap/jquery-jvectormap.min.css" rel="stylesheet">
+    <link href="/plugin/static/plugins/jvectormap/jquery-jvectormap.min.css" rel="stylesheet">
     <!-- Date Picker -->
-    <link href="/static/plugins/bootstrap-datepicker/bootstrap-datepicker.min.css" rel="stylesheet">
+    <link href="/plugin/static/plugins/bootstrap-datepicker/bootstrap-datepicker.min.css" rel="stylesheet">
     <!-- Daterange picker -->
-    <link href="/static/plugins/daterangepicker/daterangepicker.min.css" rel="stylesheet">
+    <link href="/plugin/static/plugins/daterangepicker/daterangepicker.min.css" rel="stylesheet">
     <!-- bootstrap wysihtml5 - text editor -->
-    <link rel="stylesheet" href="/static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+    <link rel="stylesheet" href="/plugin/static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
     <!-- DataTable -->
-    <link rel="stylesheet" href="/static/css/dataTables.bootstrap.min.css">
-    <link rel="stylesheet" href="/static/plugins/jsonview/jquery.jsonview.css">
+    <link rel="stylesheet" href="/plugin/static/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" href="/plugin/static/plugins/jsonview/jquery.jsonview.css">
     <!-- JsonEditor -->
-    <link href="/static/plugins/jsoneditor/jsoneditor.min.css" rel="stylesheet">
+    <link href="/plugin/static/plugins/jsoneditor/jsoneditor.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="/static/js/iview/styles/iview.css">
+    <link rel="stylesheet" href="/plugin/static/js/iview/styles/iview.css">
     <!-- Google Font -->
-    <link rel="stylesheet" href="/static/css/fonts-googleapis.css">
+    <link rel="stylesheet" href="/plugin/static/css/fonts-googleapis.css">
     [% block link %]
         [% for css in plugin_css %]
             [[ css|safe ]]
@@ -49,57 +49,57 @@
 
 
     <!-- jQuery 3 -->
-    <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/plugin/static/js/jquery.min.js"></script>
+    <script src="/plugin/static/js/jquery-ui.min.js"></script>
 
     <!-- Bootstrap 3.3.7 -->
-    <script src="/static/plugins/bootstrap/bootstrap.min.js"></script>
+    <script src="/plugin/static/plugins/bootstrap/bootstrap.min.js"></script>
     <!-- Morris.js charts -->
-    <script src="/static/js/raphael.min.js"></script>
-    <script src="/static/plugins/morris/morris.min.js"></script>
+    <script src="/plugin/static/js/raphael.min.js"></script>
+    <script src="/plugin/static/plugins/morris/morris.min.js"></script>
     <!-- Sparkline -->
-    <script src="/static/js/jquery.sparkline.min.js"></script>
+    <script src="/plugin/static/js/jquery.sparkline.min.js"></script>
     <!-- jvectormap -->
-    <script src="/static/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
-    <script src="/static/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="/plugin/static/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+    <script src="/plugin/static/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
     <!-- jQuery Knob Chart -->
-    <script src="/static/js/jquery.knob.min.js"></script>
+    <script src="/plugin/static/js/jquery.knob.min.js"></script>
     <!-- daterangepicker -->
-    <script src="/static/plugins/daterangepicker/moment.min.js"></script>
-    <script src="/static/plugins/daterangepicker/daterangepicker.min.js"></script>
+    <script src="/plugin/static/plugins/daterangepicker/moment.min.js"></script>
+    <script src="/plugin/static/plugins/daterangepicker/daterangepicker.min.js"></script>
     <!-- datepicker -->
-    <script src="/static/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="/plugin/static/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
     <!-- Bootstrap WYSIHTML5 -->
-    <script src="/static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
+    <script src="/plugin/static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
     <!-- Slimscroll -->
-    <script src="/static/js/jquery.slimscroll.min.js"></script>
+    <script src="/plugin/static/js/jquery.slimscroll.min.js"></script>
     <!-- FastClick -->
-    <script src="/static/js/fastclick.min.js"></script>
+    <script src="/plugin/static/js/fastclick.min.js"></script>
     <!-- DataTable -->
-    <script src="/static/plugins/datatables/jquery.dataTables.min.js"></script>
-    <script src="/static/plugins/datatables/dataTables.uikit.min.js"></script>
-    <script src="/static/plugins/datatables/dataTables.semanticui.min.js"></script>
-    <script src="/static/plugins/datatables/dataTables.material.min.js"></script>
-    <script src="/static/plugins/datatables/dataTables.jqueryui.min.js"></script>
+    <script src="/plugin/static/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/plugin/static/plugins/datatables/dataTables.uikit.min.js"></script>
+    <script src="/plugin/static/plugins/datatables/dataTables.semanticui.min.js"></script>
+    <script src="/plugin/static/plugins/datatables/dataTables.material.min.js"></script>
+    <script src="/plugin/static/plugins/datatables/dataTables.jqueryui.min.js"></script>
     <!-- JsonEditor -->
-    <script src="/static/plugins/jsoneditor/jsoneditor.min.js"></script>
+    <script src="/plugin/static/plugins/jsoneditor/jsoneditor.min.js"></script>
     <!-- Socket IO -->
-    <script src="/static/js/socket.io.js"></script>
+    <script src="/plugin/static/js/socket.io.js"></script>
     <!-- AdminLTE App -->
-    <script src="/static/js/adminlte.min.js"></script>
-    <script src="/static/js/app.min.js"></script>
+    <script src="/plugin/static/js/adminlte.min.js"></script>
+    <script src="/plugin/static/js/app.min.js"></script>
     <!-- lyrebird -->
-    <script src="/static/js/lyrebird.js"></script>
+    <script src="/plugin/static/js/lyrebird.js"></script>
     <!-- json view -->
-    <script src="/static/plugins/jsonview/jquery.jsonview.js"></script>
+    <script src="/plugin/static/plugins/jsonview/jquery.jsonview.js"></script>
     
-    <script src="/static/js/vue.js"></script>
-    <script src="/static/js/vuex.js"></script>
-    <script src="/static/js/iview/iview.min.js"></script>
-    <script src="/static/js/iview/locale/en-US.js"></script>
-    <script src="/static/js/vue-resource.js"></script>
-    <script src="/static/js/httpVueLoader.js"></script>
-    <script src="/static/js/axios.min.js"></script>
+    <script src="/plugin/static/js/vue.js"></script>
+    <script src="/plugin/static/js/vuex.js"></script>
+    <script src="/plugin/static/js/iview/iview.min.js"></script>
+    <script src="/plugin/static/js/iview/locale/en-US.js"></script>
+    <script src="/plugin/static/js/vue-resource.js"></script>
+    <script src="/plugin/static/js/httpVueLoader.js"></script>
+    <script src="/plugin/static/js/axios.min.js"></script>
 
 
     [% block scripts %]
