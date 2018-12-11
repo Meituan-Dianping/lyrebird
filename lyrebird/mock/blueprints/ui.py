@@ -1,5 +1,5 @@
 import os
-from flask import render_template, Blueprint
+from flask import render_template, Blueprint, send_file
 import traceback
 from lyrebird.mock import context
 from lyrebird import log
@@ -8,11 +8,17 @@ from .. import plugin_manager
 from bs4 import BeautifulSoup
 import datetime
 from ..reporter import report_handler
+from pathlib import Path
 
 
-ui = Blueprint('ui', __name__, url_prefix='/ui', template_folder='../templates', static_folder='../static')
+CLIENT_ROOT_DIR = Path(__file__).parent/'../../client/static'
+
+
+ui = Blueprint('ui', __name__, url_prefix='/ui', static_folder=str(CLIENT_ROOT_DIR))
+
 
 logger = log.get_logger()
+
 
 def render_with_plugin(template_name_or_list, **context):
     web_plugins = []
@@ -37,41 +43,4 @@ def render_with_plugin(template_name_or_list, **context):
 @ui.route('/')
 def index():
     report_handler.page_in('inspector')
-    return render_with_plugin('inspector.html')
-
-
-@ui.route('/data_manager')
-def data_manager():
-    report_handler.page_in('data_manager')
-    return render_with_plugin('data_manager_v2.html')
-
-
-@ui.route('/plugin/<string:name>')
-def plugin_base(name):
-    report_handler.page_in(name)
-    plugin = plugin_manager.plugins.get(name)
-    if not plugin:
-        return "Plugin not found"
-    ui = plugin['beta_web']
-    web_content = ui.index()
-    soup = BeautifulSoup(web_content, 'html.parser')
-
-    # set all javascripts into script block
-    all_scripts = []
-    for javascript_tag in soup.find_all('script'):
-        all_scripts.append(javascript_tag)
-        javascript_tag.extract()
-    # set all css link into header
-    all_css = []
-    for css_tag in soup.find_all('link'):
-        all_css.append(css_tag)
-        css_tag.extract()
-    return render_template('plugin.html', 
-                            plugin_content=str(soup),
-                            plugin_javascript=all_scripts,
-                            plugin_css=all_css)
-
-@ui.route('/settings')
-def settings():
-    report_handler.page_in('settings')
-    return render_with_plugin('settings.html')
+    return send_file(str(CLIENT_ROOT_DIR/'index.html'))
