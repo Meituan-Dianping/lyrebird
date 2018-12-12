@@ -1,6 +1,8 @@
 from flask_restful import Resource
 from lyrebird.mock import context
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, stream_with_context
+import json
+import time
 
 
 class Flow(Resource):
@@ -22,18 +24,23 @@ class FlowList(Resource):
         all_items = context.application.cache.items()[::-1]
         req_list = []
         for item in all_items:
-            info = dict()
-            info['id'] = item['id']
-            info['time'] = item['time']
-            info['response-time'] = item['response-time']
-            info['request'] = dict()
-            info['request']['url'] = item['request']['url']
-            info['request']['method'] = item['request']['method']
-            info['response'] = dict()
-            info['response']['code'] = item['response']['code']
-            info['response']['mock'] = item['response']['headers'].get('lyrebird', 'proxy')
+            info = dict(
+                id=item['id'], 
+                time=item['time'], 
+                request=dict(
+                    url=item['request']['url'],
+                    path=item['request']['path'],
+                    host=item['request']['host']
+                    ),
+                response=dict(
+                    code=item['response']['code'],
+                    mock=item['response']['headers'].get('lyrebird', 'proxy')
+                    )if item.get('response') else {}
+                )
             req_list.append(info)
-        return jsonify(req_list)
+        def gen():        
+            yield json.dumps(req_list)
+        return context.make_streamed_response(gen)
 
     def delete(self):
         _ids = request.form.getlist('ids')

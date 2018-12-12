@@ -17,7 +17,7 @@
 
       <Tooltip content="Save selected flow" :delay="500">
         <Button @click="saveSelectedFlow">
-          <Icon type="md-mail"></Icon>
+          <Icon type="md-archive"></Icon>
         </Button>
       </Tooltip>
 

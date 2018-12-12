@@ -127,7 +127,7 @@ class LyrebirdMockServer(ThreadServer):
         # cannot import at beginning, cause db hasn't init
         from lyrebird.mock.db.models import active_db_listener
         active_db_listener()
-        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
+        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=self.debug, use_reloader=False)
 
 
     def stop(self):

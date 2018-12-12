@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, stream_with_context, Response
 from . import cache
 from .filesystem import FileManager
 from .data_manager import DataManager
@@ -79,3 +79,7 @@ def make_fail_response(msg, code=3000, **kwargs):
         }
     fail_resp.update(kwargs)
     return jsonify(fail_resp)
+
+
+def make_streamed_response(generator, code=200, mimetype='application/json'):
+    return Response(stream_with_context(generator()), mimetype=mimetype, status=code)
