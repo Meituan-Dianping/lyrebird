@@ -85,7 +85,6 @@
       let sio = io();
       const reloadFlow = this.reload;
       sio.on("action", function () {
-        console.log("Inspector On new action");
         reloadFlow();
       });
       this.reload();

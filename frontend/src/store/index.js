@@ -5,6 +5,7 @@ import inspector from '@/store/inspector'
 import dataManager from '@/store/datamanager'
 import plugin from '@/store/plugin'
 
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({

@@ -43,39 +43,24 @@
 
 <script>
 import io from 'socket.io-client'
-const alertIO = io('/alert')
+
 export default {
   name: 'MainLayout',
   data() {
     return {
-      isCollapsed: true
-    };
+      isCollapsed: true,
+      alertIO: null
+    }
   },
-  created: function(){
+  created(){
     this.$Notice.config({
       top: 0,
     });
-    alertIO.on('show', data => {
-      this.$Notice.warning({
-        duration: 0,
-        title: null,
-        render: h => {
-          return h('div', [
-            h('div', data.message),
-            h('a', {
-                attrs: {
-                    href: '#',
-                },
-                on: {
-                    click: () => {
-                        this.jump(data)
-                    }
-                }
-            }, 'Create new issue')
-          ])
-          }
-        });
-      });
+    this.alertIO = io('/alert')
+    this.alertIO.on('show', this.showNotice);
+  },
+  destroyed() {
+    this.alertIO.close()
   },
   mounted(){
     this.$store.dispatch('loadMenu')
@@ -100,6 +85,27 @@ export default {
     }
   },
   methods: {
+    showNotice(data){
+      this.$Notice.warning({
+        duration: 0,
+        title: null,
+        render: h => {
+          return h('div', [
+            h('div', data.message),
+            h('a', {
+                attrs: {
+                    href: '#',
+                },
+                on: {
+                    click: () => {
+                        this.jump(data)
+                    }
+                }
+            }, 'Create new issue')
+          ])
+          }
+        });
+    },
     collapsedSider() {
       this.$refs.mainSider.toggleCollapse();
     },
@@ -147,7 +153,7 @@ export default {
 }
 .logo span{
     color: white;
-    font-size: 30px;
+    font-size: 28px;
     font-weight: bolder;
     font-style: italic;
 }

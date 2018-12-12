@@ -9,12 +9,6 @@ class MockHandler:
 
     """
     def handle(self, handler_context):
-        group_id = context.application.data_manager.activated_group_id
-        group = context.application.data_manager.groups.get(group_id)
-        if not group:
-            return
-        data = group.router.get_mock_data(handler_context.flow)
-        handler_context.response = Response(
-            data.response_data.content, 
-            200)
-
+        data = context.application.data_manager.router.get_mock_data(handler_context.flow)
+        if data:
+            handler_context.response = Response('OK: mock')
