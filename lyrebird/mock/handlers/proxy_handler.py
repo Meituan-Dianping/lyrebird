@@ -48,9 +48,11 @@ class ProxyHandler:
             resp_headers.append((name, value))
         
         handler_context.request.url = origin_url
+
+        handler_context.update_server_resp_time()
+        
         # After huangyuanzhen test, we use 2048byte buffer :D
         handler_context.response = Response(
             stream_with_context(r.iter_content(chunk_size=2048)),
             status=r.status_code,
             headers=resp_headers)
-        handler_context.update_server_resp_time()

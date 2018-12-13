@@ -21,6 +21,7 @@
 <script>
   import FlowListItem from '@/views/inspector/FlowListItem.vue'
   import io from 'socket.io-client'
+  import {readablizeBytes} from '@/utils'
 
   export default {
     name: 'flowList',
@@ -38,13 +39,13 @@
         columns: [
           {
             type: 'selection',
-                width: 50,
+                width: 30,
             align: 'center'
           },
           {
-            title: 'Src',
+            title: 'Source',
             key: 'src',
-            width: 100,
+            width: 60,
             align: 'center',
             render: (h, params) => {
               if (params.row.response.mock === 'proxy') {
@@ -67,7 +68,7 @@
           {
             title: 'Status',
             key: 'status',
-            width: 80,
+            width: 50,
             render: (h, params) => {
               let code = params.row.response.code;
               if (code === 200 || (code >= 300 && code <= 399)) {
@@ -78,22 +79,39 @@
             }
           },
           {
-            title: 'Host',
+            title: 'URL',
             key: 'request',
             render: (h, params) => {
-              return h("span", params.row.request.host)
+              return h("span", 
+              {style: {
+                wordBreak:"keep-all",
+                whiteSpace:"nowrap",
+                overflow:"hidden",
+                textOverflow:"ellipsis"
+              }}, 
+              params.row.request.url)
             }
           },
           {
-            title: 'Path',
-            render:(h, params) => {
-              return h("b", params.row.request.path)
+            title: 'Size',
+            key: 'size',
+            width: 60,
+            render: (h, params) => {
+              return h("span", readablizeBytes(params.row.size))
             }
           },
           {
-            title: 'Time',
-            key: 'time',
-            width: 60
+            title: 'Duration',
+            key: 'duration',
+            width: 60,
+            render:(h,params) => {
+              const duration = params.row.duration
+              if(duration>=1){
+                return h("span", Math.round(duration*100/100)+"s")
+              }else{
+                return h("span", (duration*1000).toFixed(0)+"ms")
+              }
+            }
           }
         ],
       };

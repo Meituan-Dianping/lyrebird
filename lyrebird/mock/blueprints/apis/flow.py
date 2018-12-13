@@ -26,7 +26,8 @@ class FlowList(Resource):
         for item in all_items:
             info = dict(
                 id=item['id'], 
-                time=item['time'], 
+                size=item['size'],
+                duration=item['duration'], 
                 request=dict(
                     url=item['request']['url'],
                     path=item['request']['path'],
