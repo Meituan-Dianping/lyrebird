@@ -5,11 +5,15 @@
         size='small'
         ref="selection" 
         :columns="columns" 
-        :data="originFlowList"
+        :data="flowList"
         @on-row-click="selectFlow" 
         @on-selection-change="itemSelectChange" 
+        class="data-table"
       >
       </Table>
+      <div style="float: right; margin-top: 5px">
+        <Page :total="originFlowList.length" :page-size="pageSize" :current.sync="currentPage" @on-change="refreshFlowList"/>
+      </div>
     </div>
   </Card>
 </template>
@@ -28,6 +32,9 @@
         flowList: [],
         originFlowList: [],
         foucsFlow: null,
+        pageSize: 50,
+        pageCount: 0,
+        currentPage: 1,
         columns: [
           {
             type: 'selection',
@@ -72,11 +79,21 @@
           },
           {
             title: 'Host',
-            key: 'id'
+            key: 'request',
+            render: (h, params) => {
+              return h("span", params.row.request.host)
+            }
           },
           {
             title: 'Path',
-            key: 'response-time'
+            render:(h, params) => {
+              return h("b", params.row.request.path)
+            }
+          },
+          {
+            title: 'Time',
+            key: 'time',
+            width: 60
           }
         ],
       };
@@ -131,12 +148,16 @@
         this.$store.commit('setSelectedId', event)
       },
       refreshFlowList: function(){
-        this.flowList = []
+        let flowList = []
         for (const flow of this.originFlowList) {
           if(flow.request.url.indexOf(this.$store.state.inspector.searchStr)>=0){
-            this.flowList.push(flow)
+            flowList.push(flow)
           }
         }
+        this.pageCount = Math.ceil(flowList.length/this.pageSize)
+        const startIndex = (this.currentPage-1)*this.pageSize
+        const endIndex = startIndex + this.pageSize
+        this.flowList = flowList.slice(startIndex, endIndex)
       },
       rowClass: function(flow){
         if(flow && this.foucsFlow){
@@ -163,5 +184,13 @@
   footer: 28px
     */
   overflow-y: auto;
+}
+.data-table th div{
+padding-left: 5px;
+padding-right: 5px;
+}
+.data-table td div{
+padding-left: 5px;
+padding-right: 5px;
 }
 </style>

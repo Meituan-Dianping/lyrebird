@@ -3,12 +3,15 @@
     <Layout class="main-layout">
         <Sider ref="mainSider" class="sider-bar" hide-trigger collapsible :collapsed-width="50" v-model="isCollapsed">
             <div class="logo">
-                <span>{{logo}}</span>
+              <img src="lyrebird.logo.png">
+              <span>{{logo}}</span>
             </div>
             <Divider class="sider-bar-divider"/>
             <Menu theme="dark" width="auto" :class="menuitemClasses" active-name="Inspector">
               <MenuItem v-for="(menuItem, index) in menu" :key="index" :name="menuItem.title" @click.native="menuItemOnClick(menuItem)">
-                <b>{{menuItemTitle(menuItem)}}</b>
+                <Tooltip :content="menuItem.title" placement="right" :disabled="!isCollapsed">
+                  <b>{{menuItemTitle(menuItem)}}</b>
+                </Tooltip>
               </MenuItem>
             </Menu>
         </Sider>
@@ -72,7 +75,7 @@ export default {
     },
     logo(){
       if(this.isCollapsed){
-        return 'L'
+        return ''
       }else{
         return 'Lyrebird'
       }
@@ -149,13 +152,18 @@ export default {
 }
 .logo {
   height: 38px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .logo span{
-    color: white;
-    font-size: 28px;
-    font-weight: bolder;
-    font-style: italic;
+  color: white;
+  font-size: 25px;
+  font-weight: bolder;
+  font-style: italic;
+}
+.logo img{
+  width: 32px;
 }
 .main-header {
   height: 38px;

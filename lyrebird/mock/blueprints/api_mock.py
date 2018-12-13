@@ -52,7 +52,7 @@ def index(path=''):
     if not resp:
         resp = abort(404, 'Not handle this request')
     
-    context.application.socket_io.emit('action', 'add flow log')
+    context.emit('action', 'add flow log')
 
     return resp
 
