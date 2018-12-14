@@ -30,8 +30,8 @@
                 <div slot="title"><b>💡Status</b></div>
                 <div slot="content">
                   <Row v-for="(value, index) in status" :key="index" :gutter="16">
-                      <i-col span=12><b style="float: right">{{index}}</b></i-col>
-                      <i-col span=12>{{value}}</i-col>
+                    <i-col span=12><b style="float: right">{{index}}</b></i-col>
+                    <i-col span=12>{{value}}</i-col>
                   </Row>
                 </div>
               </Poptip>
