@@ -14,6 +14,14 @@ class Status(Resource):
             'version': version.VERSION
             })
 
+class Manifest(Resource):
+
+    def get(self):
+        conf = context.application.conf
+        return context.make_ok_response(
+            **{'manifest': conf['manifest']
+            })
+
 
 class WorkMode(Resource):
 

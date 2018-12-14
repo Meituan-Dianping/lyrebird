@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_restful import Resource, Api
-from .common import Status, WorkMode
+from .common import Status, WorkMode, Manifest
 from .flow import Flow, FlowList
 from .mock import MockData, MockGroup, ActivatedMockGroup
 from .config import Conf, ResetConf
@@ -13,6 +13,7 @@ api_source = Api(api)
 
 
 api_source.add_resource(Status, '/status')
+api_source.add_resource(Manifest, '/manifest')
 api_source.add_resource(Flow, '/flow/<string:id>')
 api_source.add_resource(FlowList, '/flow')
 api_source.add_resource(MockGroup, '/mock', '/mock/<string:group_id>')

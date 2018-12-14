@@ -6,7 +6,7 @@
                 <span>{{logo}}</span>
             </div>
             <Divider class="sider-bar-divider"/>
-            <Menu theme="dark" width="auto" :class="menuitemClasses" active-name="Inspector">
+            <Menu theme="dark" width="auto" :class="menuitemClasses" active-name="inspector" opened-names="inspector">
               <MenuItem v-for="(menuItem, index) in menu" :key="index" :name="menuItem.title" @click.native="menuItemOnClick(menuItem)">
                 <b>{{menuItemTitle(menuItem)}}</b>
               </MenuItem>
@@ -30,8 +30,8 @@
                 <div slot="title"><b>💡Status</b></div>
                 <div slot="content">
                   <Row v-for="(value, index) in status" :key="index" :gutter="16">
-                    <i-col span=12><b style="float: right">{{index}}</b></i-col>
-                    <i-col span=12>{{value}}</i-col>
+                      <i-col span=12><b style="float: right">{{index}}</b></i-col>
+                      <i-col span=12>{{value}}</i-col>
                   </Row>
                 </div>
               </Poptip>
@@ -43,9 +43,13 @@
 
 <script>
 import io from 'socket.io-client'
+import Notice from '@/views/Notice.vue'
 
 export default {
   name: 'MainLayout',
+  components: {
+    Notice
+  },
   data() {
     return {
       isCollapsed: true,
@@ -65,6 +69,7 @@ export default {
   mounted(){
     this.$store.dispatch('loadMenu')
     this.$store.dispatch('loadStatus')
+    this.$store.dispatch('loadManifest')
   },
   computed: {
     menuitemClasses(){
@@ -82,6 +87,9 @@ export default {
     },
     status(){
       return this.$store.state.status
+    },
+    manifest(){
+      return this.$store.state.manifest
     }
   },
   methods: {
@@ -89,22 +97,10 @@ export default {
       this.$Notice.warning({
         duration: 0,
         title: null,
-        render: h => {
-          return h('div', [
-            h('div', data.message),
-            h('a', {
-                attrs: {
-                    href: '#',
-                },
-                on: {
-                    click: () => {
-                        this.jump(data)
-                    }
-                }
-            }, 'Create new issue')
-          ])
-          }
-        });
+        render() {
+          return (<Notice data={data}></Notice>)
+        }
+      });
     },
     collapsedSider() {
       this.$refs.mainSider.toggleCollapse();
@@ -119,18 +115,13 @@ export default {
     menuItemOnClick(menuItem){
       if(menuItem.type==='router'){
         if(menuItem.name === 'plugin-view'){
-          this.$store.commit('setSrc', menuItem.params.src);
+          this.$store.commit('plugin/setSrc', menuItem.params.src);
         }
         this.$router.push({name:menuItem.name, params:menuItem.params});
       }else{
         window.open(menuItem.path, '_self');
       }
-    },
-    jump(data) {
-      let url = '/ui/plugin/lyrebird-bugit?source=overbridgeAlert&alertContext='+encodeURIComponent(data.message)+'&msg='+encodeURIComponent(JSON.stringify(data))
-      this.$store.commit('setSrc', url);
-      this.$router.push({name:'plugin-view'});
-  }
+    }
   }
 };
 </script>

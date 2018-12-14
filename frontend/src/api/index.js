@@ -24,6 +24,24 @@ export const getStatus = () => {
   })
 }
 
+//------Lyrebird status--------    
+/**
+    Get lyrebird status
+    {
+        code: 1000,
+        message: 'success',
+        ip: '',
+        mock.port: 9090,
+        proxy.port: 4272
+    }
+    */
+
+export const getManifest = () => {
+  return axios({
+    url: '/api/manifest'
+  })
+}
+
 //------Mock data manager------
     /**
     Get group name list
