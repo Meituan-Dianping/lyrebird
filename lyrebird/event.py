@@ -23,6 +23,7 @@ class Event:
         self.message = message
         if isinstance(message, dict):
             message['channel'] = channel
+            message['id'] = str(uuid.uuid4())
 
 
 class EventServer(ThreadServer):
@@ -31,7 +32,8 @@ class EventServer(ThreadServer):
         super().__init__()
         self.event_queue = Queue()
         self.state = {}
-        self.history_message = {}
+        # TODO: get alert message from db, remove history_alert_message
+        self.history_alert_message = {}
         self.pubsub_channels = {}
         # channel name is 'any'. For linstening all channel's message
         self.any_channel = []
@@ -70,24 +72,19 @@ class EventServer(ThreadServer):
     def publish(self, channel, message, state=False, *args, **kwargs):
         """
         publish message
-        if state is true, message will be keep as state
+        if state is true, message will be kept as state
+        if channel is alert, message will be kept in history_alert_message
 
         """
-        if channel == 'alert':
-            message_id = str(uuid.uuid4())
-            self.history_message.update({
-                message_id:{
-                    'channel': channel,
-                    'message': message
-                }
-            })
-            message.update({
-                'id': message_id
-            })
         self.event_queue.put(Event(channel, message))
         if state:
             self.state[channel] = message
-
+        # TODO: get alert message from db, remove history_alert_message
+        if channel == 'alert' and isinstance(message, dict):
+            self.history_alert_message[message.get('id')] = {
+                'channel': channel,
+                'message': message
+            }
 
     def subscribe(self, channel, callback_fn, *args, **kwargs):
         """
