@@ -110,12 +110,7 @@ class EventServer(ThreadServer):
     def display_notice(self, msg):
         """
         display notice
-        msg = 
-        {
-            "message": str, displayed in notice
-            "id ": UUID, unique message id
-            "issue": bool, active CreateIssue button
-        }
+        
         """
         context.application.socket_io.emit('show', msg, namespace='/alert')
 
