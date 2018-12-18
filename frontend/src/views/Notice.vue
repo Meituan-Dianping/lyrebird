@@ -16,6 +16,7 @@
     props: ["data"],
     data() {
       return {
+        jumpUrl: null
       }
     },
     mounted() {
@@ -23,11 +24,16 @@
     methods: {
       jump(data) {
         // TODO: support select manifest
-        // let url = '/plugin/'+ store.state.manifest + '?eventId=' + data.id
-        let url = '/plugin/'+ store.state.manifest[0] + '?eventId=' + data.id
-        store.commit('plugin/setSrc', url);
-        router.push({name:'plugin-view', param:url});
-        
+        // store.state.manifest[0]: only support one manifest
+        for(const menuItem of store.state.menu){
+          if (menuItem['params'] && store.state.manifest[0] === menuItem['params']['name']){
+            store.commit('setActiveName', menuItem.title)
+            this.jumpUrl = menuItem['params']['src']
+            break
+          }
+        }
+        store.commit('plugin/setSrc', this.jumpUrl);
+        router.push({name:'plugin-view', param:this.jumpUrl});
       }
     }
   };

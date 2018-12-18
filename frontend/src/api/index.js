@@ -24,17 +24,10 @@ export const getStatus = () => {
   })
 }
 
-//------Lyrebird status--------    
+//------Lyrebird manifest--------    
 /**
-    Get lyrebird status
-    {
-        code: 1000,
-        message: 'success',
-        ip: '',
-        mock.port: 9090,
-        proxy.port: 4272
-    }
-    */
+    Get lyrebird manifest
+*/
 
 export const getManifest = () => {
   return axios({
