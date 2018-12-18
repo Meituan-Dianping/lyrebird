@@ -24,7 +24,7 @@
     methods: {
       jump(data) {
         // TODO: support select manifest
-        // store.state.manifest[0]: only support one manifest
+        // store.state.manifest[0]: only one manifest are supported in v1.0
         for(const menuItem of store.state.menu){
           if (menuItem['params'] && store.state.manifest[0] === menuItem['params']['name']){
             store.commit('setActiveName', menuItem.title)

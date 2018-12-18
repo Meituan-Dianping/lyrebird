@@ -6,7 +6,7 @@
                 <span>{{logo}}</span>
             </div>
             <Divider class="sider-bar-divider"/>
-            <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName" opened-names="inspector">
+            <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName">
               <MenuItem v-for="(menuItem, index) in menu" :key="index" :name="menuItem.title" @click.native="menuItemOnClick(menuItem)">
                 <b>{{menuItemTitle(menuItem)}}</b>
               </MenuItem>
@@ -33,8 +33,8 @@
                 <div slot="title"><b>💡Status</b></div>
                 <div slot="content">
                   <Row v-for="value in showedStatus" :key="value" :gutter="16">
-                      <i-col span=12><b style="float: right">{{value}}</b></i-col>
-                      <i-col span=12>{{status[value]}}</i-col>
+                    <i-col span=12><b style="float: right">{{value}}</b></i-col>
+                    <i-col span=12>{{status[value]}}</i-col>
                   </Row>
                 </div>
               </Poptip>

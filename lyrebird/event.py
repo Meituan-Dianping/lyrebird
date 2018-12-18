@@ -36,8 +36,8 @@ class EventServer(ThreadServer):
         # channel name is 'any'. For linstening all channel's message
         self.any_channel = []
         self.broadcast_executor = ThreadPoolExecutor(max_workers=10, thread_name_prefix='event-broadcast')
-        # push notice to event centre
-        self.subscribe('alert', self.publish_notice)
+        # display notice in frontend
+        self.subscribe('alert', self.display_notice)
 
     def broadcast_handler(self, callback_fn, event, args, kwargs):
         try:
@@ -107,7 +107,7 @@ class EventServer(ThreadServer):
                 if target_callback_fn == callback_fn:
                     callback_fn_list.remove([target_callback_fn, *_])
 
-    def publish_notice(self, msg):
+    def display_notice(self, msg):
         """
         display notice
         msg = 
