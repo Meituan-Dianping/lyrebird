@@ -8,8 +8,10 @@ from queue import Queue
 from concurrent.futures import ThreadPoolExecutor
 import traceback
 import inspect
+import uuid
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
+from lyrebird.mock import context
 
 
 class Event:
@@ -21,6 +23,7 @@ class Event:
         self.message = message
         if isinstance(message, dict):
             message['channel'] = channel
+            message['id'] = str(uuid.uuid4())
 
 
 class EventServer(ThreadServer):
@@ -33,6 +36,8 @@ class EventServer(ThreadServer):
         # channel name is 'any'. For linstening all channel's message
         self.any_channel = []
         self.broadcast_executor = ThreadPoolExecutor(max_workers=10, thread_name_prefix='event-broadcast')
+        # display notice in frontend
+        self.subscribe('alert', self.display_notice)
 
     def broadcast_handler(self, callback_fn, event, args, kwargs):
         try:
@@ -65,13 +70,12 @@ class EventServer(ThreadServer):
     def publish(self, channel, message, state=False, *args, **kwargs):
         """
         publish message
-        if state is true, message will be keep as state
+        if state is true, message will be kept as state
 
         """
         self.event_queue.put(Event(channel, message))
         if state:
             self.state[channel] = message
-
 
     def subscribe(self, channel, callback_fn, *args, **kwargs):
         """
@@ -103,6 +107,12 @@ class EventServer(ThreadServer):
                 if target_callback_fn == callback_fn:
                     callback_fn_list.remove([target_callback_fn, *_])
 
+    def display_notice(self, msg):
+        """
+        display notice
+        
+        """
+        context.application.socket_io.emit('show', msg, namespace='/alert')
 
 class CustomEventReceiver:
     """
