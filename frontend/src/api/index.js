@@ -24,6 +24,17 @@ export const getStatus = () => {
   })
 }
 
+//------Lyrebird manifest--------    
+/**
+    Get lyrebird manifest
+*/
+
+export const getManifest = () => {
+  return axios({
+    url: '/api/manifest'
+  })
+}
+
 //------Mock data manager------
     /**
     Get group name list

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {getMenu, getStatus} from '@/api/index'
+import * as api from '@/api' 
 import inspector from '@/store/inspector'
 import dataManager from '@/store/datamanager'
 import plugin from '@/store/plugin'
@@ -16,7 +16,9 @@ export default new Vuex.Store({
   },
   state: {
     menu: null,
-    status: null
+    status: null,
+    manifest: null,
+    activeName: null
   },
   mutations: {
     setMenu(state, menu){
@@ -24,17 +26,28 @@ export default new Vuex.Store({
     },
     setStatus(state, status){
       state.status = status
+    },
+    setManifest(state, manifest){
+      state.manifest = manifest
+    },
+    setActiveName(state, activeName){
+      state.activeName = activeName
     }
   },
   actions: {
     loadMenu({commit}){
-      getMenu().then(response=>{
+      api.getMenu().then(response=>{
         commit('setMenu', response.data.menu)
       })
     },
     loadStatus({commit}){
-      getStatus().then(response=>{
+      api.getStatus().then(response=>{
         commit('setStatus', response.data)
+      })
+    },
+    loadManifest({commit}){
+      api.getManifest().then(response=>{
+        commit('setManifest', response.data.manifest)
       })
     }
   }
