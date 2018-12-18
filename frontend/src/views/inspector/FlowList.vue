@@ -39,7 +39,7 @@
         columns: [
           {
             type: 'selection',
-                width: 30,
+            width: 30,
             align: 'center'
           },
           {
@@ -116,12 +116,17 @@
         ],
       };
     },
+    created() {
+      const reload = this.reload
+      this.sio = io()
+      this.sio.on("action", function(){
+        reload()
+      })
+    },
+    destroyed() {
+      this.sio.close()
+    },
     mounted: function () {
-      let sio = io();
-      const reloadFlow = this.reload;
-      sio.on("action", function () {
-        reloadFlow();
-      });
       this.reload();
     },
     computed: {
@@ -163,7 +168,11 @@
         this.$emit("select-detail", flow);
       },
       itemSelectChange: function (event) {
-        this.$store.commit('setSelectedId', event)
+        let selectedIds = []
+        for (const row of event) {
+          selectedIds.push(row.id)
+        }
+        this.$store.commit('setSelectedId', selectedIds)
       },
       refreshFlowList: function(){
         let flowList = []

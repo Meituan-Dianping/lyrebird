@@ -86,6 +86,27 @@ export default {
                 dispatch('loadDataDetail', {groupName:groupName, dataName:dataName})
             })
             .catch(error=>console.log(error))
+        },
+        newDataGroup({dispatch}, groupName){
+            api.createGroup(groupName)
+            .then(response=>{
+                dispatch('loadGroupList')
+            })
+            .catch(error=>{
+                console.error('Create group failed');
+            })
+        },
+        deleteDataGroup({}, groupId){
+            api.deleteGroup(groupId)
+            .then(response=>{
+
+            })
+        },
+        newData({dispatch}, {groupId, name}){
+            api.createData(groupId, name)
+            .then(response=>{
+
+            })
         }
     }
   }

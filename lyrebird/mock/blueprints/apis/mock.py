@@ -20,15 +20,15 @@ class MockGroup(Resource):
         return jsonify(_group.json(detail=True))
 
     def post(self):
-        name = request.form.get('name')
+        name = request.json.get('name')
         group = context.application.data_manager.create_group()
         group.name = name
         group.save()
         return context.make_ok_response(group_id=group.id)
 
     def put(self):
-        name = request.form.get('name')
-        group_id = request.form.get('group_id')
+        name = request.json.get('name')
+        group_id = request.json.get('group_id')
         group = context.application.data_manager.groups.get(group_id)
         if not group:
             return context.make_fail_response('Group not found')
@@ -86,22 +86,20 @@ class MockData(Resource):
         return context.make_ok_response()
 
     def post(self, group_id=None, data_id=None):
-        group = request.form.get('group')
-        name = request.form.get('name')
-        req = request.form.get('req')
-        req_data = request.form.get('req_data')
-        resp = request.form.get('resp')
-        resp_data = request.form.get('resp_data')
-        origin_name = request.form.get('origin_name')
-        if not group or not name:
-            return context.make_fail_response('请设置form：group & name')
-        
-        _group = context.application.data_manager.groups.get(group)
+        name = request.json.get('name')
+        rule = request.json.get('rule')
+        req = request.json.get('request')
+        req_data = request.json.get('request_data')
+        resp = request.json.get('response')
+        resp_data = request.json.get('response_data')
+
+        _group = context.application.data_manager.groups[group_id]
         if not _group:
-            return context.make_fail_response('Group not found')
+            return context.make_fail_response(f'Group not found by id={group_id}')
 
         _data = _group.create_data()
         _data.name = name
+        _data.rule = rule
         _data.request.content = req
         _data.request_data.content = req_data
         _data.response.content = resp

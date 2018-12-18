@@ -39,6 +39,29 @@ export const getGroups = () =>{
   })
 }
 
+export const createGroup = (name) => {
+  return axios({
+    url: '/api/mock',
+    method: 'POST',
+    data: {name:name}
+  })
+}
+
+export const updateGroup = (name) => {
+  return axios({
+    url: '/api/mock',
+    method: 'PUT',
+    data: {name:name}
+  })
+}
+
+export const deleteGroup = (groupId) => {
+  return axios({
+    url: '/api/mock/'+groupId,
+    method: 'DELETE'
+  })
+}
+
 /**
     Get data list by data group name
     {
@@ -67,6 +90,13 @@ export const getDataList = (groupId) =>{
   })
 }
 
+export const createData = (groupId, name) => {
+  return axios({
+    url: '/api/mock/'+groupId+'/data',
+    data:{name:name},
+    method: 'POST'
+  })
+}
 /**
 Get mock data detail
 {

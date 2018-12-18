@@ -109,7 +109,7 @@ class CustomEventReceiver:
     Event Receiver
 
     Decorator for plugin developer
-    useaeg:
+    Usage:
         event = CustomEventReceiver()
 
         @event('flow')

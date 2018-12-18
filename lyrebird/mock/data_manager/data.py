@@ -52,6 +52,7 @@ class Data:
         _id = str(uuid.uuid4())
         _name = _id
 
+        _url = None
         if flow:
             _url = flow.get('request', {'url': None}).get('url')
         elif request:
@@ -141,7 +142,8 @@ class Data:
                     }
                 }
             }
-            info['url'] = json.loads(self.request.content).get('url')
+            if self.request.content:
+                info['url'] = json.loads(self.request.content).get('url')
             json.dump(info, f, ensure_ascii=False, indent=4)
 
     
@@ -169,10 +171,14 @@ class Data:
         }
         if detail:
             json_obj['rule'] = self.rule
-            json_obj['request'] = self.request.json()
-            self.request_data.filetype = self._get_content_type_from_content(self.request.content)
-            json_obj['request_data'] = self.request_data.json()
-            json_obj['response'] = self.response.json()
-            self.response_data.filetype = self._get_content_type_from_content(self.response.content)
-            json_obj['response_data'] = self.response_data.json()
+            if self.request.content:
+                json_obj['request'] = self.request.json()
+                self.request_data.filetype = self._get_content_type_from_content(self.request.content)
+            if self.request_data.content:
+                json_obj['request_data'] = self.request_data.json()
+            if self.response.content:
+                json_obj['response'] = self.response.json()
+            if self.response_data.content:
+                self.response_data.filetype = self._get_content_type_from_content(self.response.content)
+                json_obj['response_data'] = self.response_data.json()
         return json_obj

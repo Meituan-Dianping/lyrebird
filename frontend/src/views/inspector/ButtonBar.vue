@@ -30,7 +30,7 @@
       <Divider type="vertical"></Divider>
     </div>
 
-    <label>Activated Data:</label>
+    <label><b>Activated Data: </b></label>
 
     <div class="inline">
       <Select v-model="activatedGroupId" filterable clearable style="width: 15vw">
