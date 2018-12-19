@@ -65,7 +65,9 @@ class FlowList(Resource):
         if not activated_group:
             return context.make_fail_response('Not activate any group')
         
-        # for item in record_items:
-        #     current_group.add_data_and_filter(item)
-        # TODO Save data
+        flow_list = context.application.cache.items()
+        for flow in flow_list:
+            if flow['id'] in _ids:
+                activated_group.create_data(flow=flow)
+
         return context.make_ok_response()

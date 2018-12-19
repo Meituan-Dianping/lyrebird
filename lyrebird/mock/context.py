@@ -74,7 +74,6 @@ last_emit_time = {}
 application = Application()
 db = None
 
-
 def make_ok_response(**kwargs):
     ok_resp = {
             "code": 1000,

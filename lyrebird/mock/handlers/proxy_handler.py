@@ -56,3 +56,4 @@ class ProxyHandler:
             stream_with_context(r.iter_content(chunk_size=2048)),
             status=r.status_code,
             headers=resp_headers)
+        handler_context.update_server_resp_time()

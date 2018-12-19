@@ -84,10 +84,7 @@
     mounted() {
       this.$store.dispatch('iLoadGroupList')
       this.$store.dispatch('loadActivatedGroup')
-      this.getRecordStatus();      
-      this.$Notice.config({
-        top: 75
-      })
+      this.getRecordStatus(); 
     },
     computed: {
       showDataButtons() {
@@ -171,14 +168,14 @@
         return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
       },
       saveSelectedFlow: function () {
-        if(this.selectedDataGroup === 'None'){
+        if(!this.activatedGroupId){
           this.showCreateGroupModal = true;
           return
         }
         this.$http.post('/api/flow',
           {
             ids:this.$store.state.inspector.selectedIds,
-            group:this.selectedDataGroup
+            group:this.activatedGroupId
           }
         )
         .then(resp=>{
@@ -193,7 +190,7 @@
             this.$Notice.error(
                 {
                   title:'Save flow failed',
-                  desc:resp.data,
+                  desc:resp.data.message,
                   duration:0
                 }
               )
