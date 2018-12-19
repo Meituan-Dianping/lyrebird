@@ -7,6 +7,7 @@
         </label>
         <div class="inline">
           <Select
+            ref="groupSelector"
             v-model="selectedDataGroup"
             filterable
             clearable
@@ -74,12 +75,18 @@ export default {
     createNewData(){
       this.$store.dispatch('newData', {groupId:this.selectedDataGroup, name:this.dataName})
     },
-    deleteData(){}
+    deleteData(){
+      this.$store.dispatch('deleteData', this.selectedDataGroup)
+    }
   },
   computed: {
     selectedDataGroup: {
       get() {
-        return this.$store.state.dataManager.currentDataGroup;
+        const selectedDataGroupId = this.$store.state.dataManager.currentDataGroup;
+        if(!selectedDataGroupId && this.$refs.groupSelector){
+          this.$refs.groupSelector.reset()
+        }
+        return selectedDataGroupId
       },
       set(value) {
         this.$store.commit("setCurrentDataGroup", value);

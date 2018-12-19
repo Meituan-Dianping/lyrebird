@@ -108,6 +108,14 @@ export const createData = (groupId, name) => {
     method: 'POST'
   })
 }
+
+export const deleteData = (groupId, ids) => {
+  return axios({
+    url:'/api/mock/'+groupId+'/data',
+    data:{ids:ids},
+    method:'DELETE'
+  })
+}
 /**
 Get mock data detail
 {
@@ -140,7 +148,7 @@ export const updateDataDetail = (groupName, dataName, dataDetail) =>{
   return axios({
     url: '/api/mock/' + groupName + '/data/' + dataName,
     method: 'PUT',
-    data: JSON.stringify(dataDetail)
+    data: dataDetail
   })
 }
 
@@ -159,6 +167,13 @@ Activate data group by ID
 export const activateGroup = (groupId) =>{
   return axios({
     url: '/api/mock/' + groupId + '/activate',
+    method: 'PUT'
+  })
+}
+
+export const deactivateGroup = () => {
+  return axios({
+    url: '/api/mock/groups/deactivate',
     method: 'PUT'
   })
 }

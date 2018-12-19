@@ -1,4 +1,4 @@
-import * as api from '@/api' 
+import * as api from '../api' 
 
 export default {
     state:{
@@ -79,33 +79,50 @@ export default {
             .catch(error=>console.log(error))
         },
         saveDataDetail({state, dispatch}, dataDetail){
-            groupName = state.currentDataGroup
-            dataName = state.foucsData
+            const groupName = state.currentDataGroup
+            const dataName = state.foucsData
             api.updateDataDetail(groupName, dataName, dataDetail)
             .then(response=>{
                 dispatch('loadDataDetail', {groupName:groupName, dataName:dataName})
             })
             .catch(error=>console.log(error))
         },
-        newDataGroup({dispatch}, groupName){
+        newDataGroup({state, commit, dispatch}, groupName){
             api.createGroup(groupName)
             .then(response=>{
-                dispatch('loadGroupList')
+                const groupId = response.data.group_id
+                state.groupList.push({
+                    id:groupId,
+                    name:groupName,
+                    parent:null
+                })
+                commit('setCurrentDataGroup', groupId)
+                dispatch('loadDataList', groupId)
             })
             .catch(error=>{
                 console.error('Create group failed');
             })
         },
-        deleteDataGroup({}, groupId){
+        deleteDataGroup({commit, dispatch}, groupId){
             api.deleteGroup(groupId)
             .then(response=>{
-
+                commit('setCurrentDataGroup', null)
+                dispatch('loadGroupList')
             })
         },
         newData({dispatch}, {groupId, name}){
             api.createData(groupId, name)
             .then(response=>{
-
+                dispatch('loadDataList', groupId)
+            })
+        },
+        deleteData({state, dispatch}, groupId){
+            let ids = []
+            for(const data of state.selectedData){
+                ids.push(data.id)
+            }
+            api.deleteData(groupId, ids).then(response=>{
+                dispatch('loadDataList', groupId)
             })
         }
     }

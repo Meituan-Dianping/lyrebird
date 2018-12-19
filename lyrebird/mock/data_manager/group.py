@@ -6,6 +6,10 @@ import shutil
 from .data import Data
 from collections import OrderedDict
 from .exceptions import DataGroupNotExistsError, DataGroupIsNotDirError, DataGroupInfoNotFoundError
+from lyrebird.log import get_logger
+
+
+logger = get_logger()
 
 
 class Group:
@@ -91,10 +95,13 @@ class Group:
         for subfile in Path(self.path).iterdir():
             if not subfile.is_dir():
                 continue
-            data = Data.createify(subfile)
-            if data:
-                self.all_data[data.id] = data
-    
+            try:
+                data = Data.createify(subfile)
+                if data:
+                    self.all_data[data.id] = data
+            except Exception as e:
+                logger.error(f'Load data failed. {subfile}\n{e}')    
+
     def json(self, detail=False):
         json_obj = {
             'id': self.id,

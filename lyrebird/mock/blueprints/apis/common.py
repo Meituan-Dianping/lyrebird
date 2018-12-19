@@ -19,7 +19,7 @@ class Manifest(Resource):
     def get(self):
         conf = context.application.conf
         return context.make_ok_response(
-            **{'manifest': conf['manifest']
+            **{'manifest': conf.get('manifest', [])
             })
 
 

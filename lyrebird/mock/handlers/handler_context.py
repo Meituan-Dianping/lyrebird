@@ -104,6 +104,12 @@ class HandlerContext:
             self.flow['size'] = len(val.data)
         self.flow['duration'] = self.server_resp_time - self.client_req_time
 
+        if context.application.work_mode == context.Mode.RECORD:
+            dm = context.application.data_manager
+            group = dm.groups.get(dm.activated_group_id)
+            if group:
+                data = group.create_data(flow=self.flow)
+                data.save()
 
     def _read_response_info(self):
         self._response.headers.get('Content-Type')

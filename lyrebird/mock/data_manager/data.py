@@ -59,18 +59,23 @@ class Data:
             _req = json.loads(request)
             _url = request.get('url')
         
+        _rule = {'request.url':None}
+
         if _url:
             parsed_url = urlparse(_url)
             if parsed_url.path is not '':
                 _name = parsed_url.path
             else:
                 _name = parsed_url.hostname
+            _rule['request.url'] = _name
 
         _data_path = Path(data_dir)/_id
         _data_path.mkdir(parents=True, exist_ok=True)
 
         data = cls(_id, _name, _data_path)
         
+        data.rule = _rule
+
         if flow:
             data.set_flow(flow)
         else:
@@ -118,7 +123,10 @@ class Data:
             
             self.response.content = json.dumps(response_obj, ensure_ascii=False, indent=4)
             if flow['response'].get('data'):
-                self.response_data.content = flow['response'].get('data')
+                if self.response_data.filetype == 'json':
+                    self.response_data.content = json.dumps(flow['response'].get('data'))
+                else:
+                    self.response_data.content = flow['response'].get('data')
 
 
     def save(self):

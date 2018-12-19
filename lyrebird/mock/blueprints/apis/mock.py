@@ -62,26 +62,28 @@ class MockData(Resource):
         _group = context.application.data_manager.groups.get(group_id)
         if not _group:
             return context.make_fail_response('Group not found')
-        _data = _group.get(data_id)
+        _data = _group.all_data.get(data_id)
         if not _data:
             return context.make_fail_response('Data not found')
 
-        prop = request.form.get('prop')
-        req = request.form.get('request')
-        req_data = request.form.get('request_data')
-        resp = request.form.get('response')
-        resp_data = request.form.get('response_data')
-
-        _data.name = prop.get('name')
-        _data.rule = prop.get('rule')
+        _data.name = request.json.get('name')
+        _data.rule = request.json.get('rule')
+        req = request.json.get('request')
         if req:
-            _data.request.content = req
+            _data.request.content = req['content']
+            _data.request.filetype = req['filetype']
+        req_data = request.json.get('request_data')
         if req_data:
-            _data.request_data.content = req_data
+            _data.request_data.content = req_data['content']
+            _data.request_data.filetype = req_data['filetype']
+        resp = request.json.get('response')
         if resp:
-            _data.response.content = resp
+            _data.response.content = resp['content']
+            _data.response.filetype = resp['filetype']
+        resp_data = request.json.get('response_data')
         if resp_data:
-            _data.response_data.content = resp_data
+            _data.response_data.content = resp_data['content']
+            _data.response_data.filetype = resp_data['filetype']
         _data.save()
         return context.make_ok_response()
 
@@ -93,7 +95,7 @@ class MockData(Resource):
         resp = request.json.get('response')
         resp_data = request.json.get('response_data')
 
-        _group = context.application.data_manager.groups[group_id]
+        _group = context.application.data_manager.groups.get(group_id)
         if not _group:
             return context.make_fail_response(f'Group not found by id={group_id}')
 
@@ -111,7 +113,9 @@ class MockData(Resource):
         _group = context.application.data_manager.groups.get(group_id)
         if not _group:
             return context.make_fail_response('Group not found')
-        _group.delete_data(data_id)        
+        ids = request.json.get('ids')
+        for data_id in ids:
+            _group.delete_data(data_id)        
         return context.make_ok_response()
 
 
@@ -128,5 +132,5 @@ class ActivatedMockGroup(Resource):
         if action == 'activate':
             context.application.data_manager.activate(group_id)
         else:
-            context.application.data_manager.deactivate(group_id)
+            context.application.data_manager.deactivate()
         return context.make_ok_response()

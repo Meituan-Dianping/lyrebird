@@ -3,7 +3,7 @@
     <Layout class="main-layout">
         <Sider ref="mainSider" class="sider-bar" hide-trigger collapsible :collapsed-width="50" v-model="isCollapsed">
             <div class="logo">
-              <img src="lyrebird.logo.png">
+              <img src="@/assets/lyrebird.logo.png">
               <span>{{logo}}</span>
             </div>
             <Divider class="sider-bar-divider"/>

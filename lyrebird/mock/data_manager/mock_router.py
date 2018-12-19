@@ -7,6 +7,8 @@ class MockRouter:
 
     def switch_group(self, data_group):
         self.data_map = []
+        if not data_group:
+            return
         for data_id in data_group.all_data:
             data = data_group.all_data[data_id]
             self.data_map.append((MockRule(data.rule), data))
@@ -22,6 +24,8 @@ class MockRule:
         self.rule = rule
 
     def match(self, flow):
+        if not self.rule:
+            return False
         for rule_name in self.rule:
             pattern = self.rule[rule_name]
             target = self._get_target_content(rule_name, flow)
