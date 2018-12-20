@@ -68,7 +68,7 @@ def test_create_data(tmpdir, flow):
     group.save()
 
     data = group.create_data(flow)
-    assert len(group.data_list) == 1
+    assert len(group.all_data) == 1
     data.save()
     assert Path(data.path).exists()
 
@@ -90,15 +90,14 @@ def test_load_data(tmpdir, flow):
 
     group_1 = dm.groups.get(group.id)
     assert group_1.name == group.name
-    assert len(group_1.data_list) == 5
-    for i in range(5):
-        data = group_1.data_list[i]
-        assert data.id in data_ids
+    assert len(group_1.all_data) == 5
+    for _id in group_1.all_data:
+        assert _id in data_ids
 
 
 def test_activate_group(dm_helper):
-    dm = dm_helper.create()
-    gid = dm.groups.keys()[0]
+    dm = dm_helper()
+    gid = list(dm.groups.keys())[0]
     dm.activate(gid)
 
     assert dm.activated_group_id == gid

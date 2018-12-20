@@ -74,7 +74,20 @@ export default{
             set(value){
                 const dataDetail = this.$store.state.dataManager.dataDetail
                 if(this.currentTab==='rule'){
-                    dataDetail.rule = JSON.parse(value)
+                    try {
+                        dataDetail.rule = JSON.parse(value)                        
+                    } catch (error) {
+                        console.error('Detail rule error');
+                        console.error(error);
+                    }
+                }else if(this.currentTab==='req'){
+                    dataDetail.request.content = value
+                }else if(this.currentTab==='req-body'){
+                    dataDetail.request_data.content = value
+                }else if(this.currentTab==='resp'){
+                    dataDetail.response.content = value
+                }else if(this.currentTab==='resp-body'){
+                    dataDetail.response_data.content = value
                 }
                 this.$store.commit('setDataDetail', dataDetail)
             }
@@ -109,7 +122,7 @@ export default{
             return parsedBody
         },
         save(){
-            this.$store.dispatch('saveDataDetail', dataDetail)
+            this.$store.dispatch('saveDataDetail', this.dataDetail)
         }
     }
 }

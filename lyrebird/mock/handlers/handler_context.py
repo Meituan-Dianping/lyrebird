@@ -22,7 +22,7 @@ class HandlerContext:
         self.client_resp_time = None
         self.server_req_time = None
         self.server_resp_time = None
-        self.flow = dict(id=self.id, time=0)
+        self.flow = dict(id=self.id, size=0, duration=0)
         self.client_address = None
         self._parse_request()
 
@@ -91,7 +91,6 @@ class HandlerContext:
 
     @response.setter
     def response(self, val):
-        print('Setter response', val)
         self._response = val
         _response = dict(
             code=self._response.status_code,
@@ -99,6 +98,18 @@ class HandlerContext:
         )
         ResponseDataHelper.resp2dict(self._response, output=_response)
         self.flow['response'] = _response
+        if val.content_length:
+            self.flow['size'] = val.content_length
+        else:
+            self.flow['size'] = len(val.data)
+        self.flow['duration'] = self.server_resp_time - self.client_req_time
+
+        if context.application.work_mode == context.Mode.RECORD:
+            dm = context.application.data_manager
+            group = dm.groups.get(dm.activated_group_id)
+            if group:
+                data = group.create_data(flow=self.flow)
+                data.save()
 
     def _read_response_info(self):
         self._response.headers.get('Content-Type')

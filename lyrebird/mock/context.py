@@ -5,6 +5,8 @@ from .data_manager import DataManager
 from flask_socketio import SocketIO
 import codecs, json, os
 from lyrebird import application as app
+import time
+
 
 """
 Mock server context
@@ -60,6 +62,15 @@ class Application:
             f.write(json.dumps(self._conf, ensure_ascii=False, indent=4))
 
 
+"""
+SocketIO emit interval
+Because of iview table has render preformance problem
+We need to limit render time
+"""
+EMIT_INTERVAL = 0.4
+last_emit_time = {}
+
+
 application = Application()
 db = None
 
@@ -83,3 +94,11 @@ def make_fail_response(msg, code=3000, **kwargs):
 
 def make_streamed_response(generator, code=200, mimetype='application/json'):
     return Response(stream_with_context(generator()), mimetype=mimetype, status=code)
+
+
+def emit(event, *args, **kwargs):
+    now = time.time()
+    last_push_time = last_emit_time.get(event, 0)
+    if (now - last_push_time) > EMIT_INTERVAL:
+        application.socket_io.emit(event, *args, **kwargs)
+        last_emit_time[event] = now

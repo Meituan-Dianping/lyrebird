@@ -25,7 +25,7 @@ class DataManager:
     def root(self, root_path):
         new_path = Path(root_path).expanduser()
         if not new_path.exists():
-            raise DataRootDirNotExistsError(root_path)
+            new_path.mkdir(parents=True)
         self._root_path = new_path
         self.scan()
 
@@ -37,8 +37,9 @@ class DataManager:
         else:
             raise ActivateFailed(f'Group id not found {group_id}')
 
-    def deactivate(self, group_id):
-        pass
+    def deactivate(self):
+        self.activated_group_id = None
+        self.router.switch_group(None)
 
     def create_group(self):
         group = Group.new_group(self.root)

@@ -5,11 +5,15 @@
         size='small'
         ref="selection" 
         :columns="columns" 
-        :data="originFlowList"
+        :data="flowList"
         @on-row-click="selectFlow" 
         @on-selection-change="itemSelectChange" 
+        class="data-table"
       >
       </Table>
+      <div style="float: right; margin-top: 5px">
+        <Page :total="originFlowList.length" :page-size="pageSize" :current.sync="currentPage" @on-change="refreshFlowList"/>
+      </div>
     </div>
   </Card>
 </template>
@@ -17,6 +21,7 @@
 <script>
   import FlowListItem from '@/views/inspector/FlowListItem.vue'
   import io from 'socket.io-client'
+  import {readablizeBytes} from '@/utils'
 
   export default {
     name: 'flowList',
@@ -28,16 +33,19 @@
         flowList: [],
         originFlowList: [],
         foucsFlow: null,
+        pageSize: 50,
+        pageCount: 0,
+        currentPage: 1,
         columns: [
           {
             type: 'selection',
-                width: 50,
+            width: 30,
             align: 'center'
           },
           {
-            title: 'Src',
+            title: 'Source',
             key: 'src',
-            width: 100,
+            width: 60,
             align: 'center',
             render: (h, params) => {
               if (params.row.response.mock === 'proxy') {
@@ -60,7 +68,7 @@
           {
             title: 'Status',
             key: 'status',
-            width: 80,
+            width: 50,
             render: (h, params) => {
               let code = params.row.response.code;
               if (code === 200 || (code >= 300 && code <= 399)) {
@@ -71,22 +79,54 @@
             }
           },
           {
-            title: 'Host',
-            key: 'id'
+            title: 'URL',
+            key: 'request',
+            render: (h, params) => {
+              return h("span", 
+              {style: {
+                wordBreak:"keep-all",
+                whiteSpace:"nowrap",
+                overflow:"hidden",
+                textOverflow:"ellipsis"
+              }}, 
+              params.row.request.url)
+            }
           },
           {
-            title: 'Path',
-            key: 'response-time'
+            title: 'Size',
+            key: 'size',
+            width: 60,
+            render: (h, params) => {
+              return h("span", readablizeBytes(params.row.size))
+            }
+          },
+          {
+            title: 'Duration',
+            key: 'duration',
+            width: 60,
+            render:(h,params) => {
+              const duration = params.row.duration
+              if(duration>=1){
+                return h("span", Math.round(duration*100/100)+"s")
+              }else{
+                return h("span", (duration*1000).toFixed(0)+"ms")
+              }
+            }
           }
         ],
       };
     },
+    created() {
+      const reload = this.reload
+      this.sio = io()
+      this.sio.on("action", function(){
+        reload()
+      })
+    },
+    destroyed() {
+      this.sio.close()
+    },
     mounted: function () {
-      let sio = io();
-      const reloadFlow = this.reload;
-      sio.on("action", function () {
-        reloadFlow();
-      });
       this.reload();
     },
     computed: {
@@ -128,15 +168,23 @@
         this.$emit("select-detail", flow);
       },
       itemSelectChange: function (event) {
-        this.$store.commit('setSelectedId', event)
+        let selectedIds = []
+        for (const row of event) {
+          selectedIds.push(row.id)
+        }
+        this.$store.commit('setSelectedId', selectedIds)
       },
       refreshFlowList: function(){
-        this.flowList = []
+        let flowList = []
         for (const flow of this.originFlowList) {
           if(flow.request.url.indexOf(this.$store.state.inspector.searchStr)>=0){
-            this.flowList.push(flow)
+            flowList.push(flow)
           }
         }
+        this.pageCount = Math.ceil(flowList.length/this.pageSize)
+        const startIndex = (this.currentPage-1)*this.pageSize
+        const endIndex = startIndex + this.pageSize
+        this.flowList = flowList.slice(startIndex, endIndex)
       },
       rowClass: function(flow){
         if(flow && this.foucsFlow){
@@ -163,5 +211,13 @@
   footer: 28px
     */
   overflow-y: auto;
+}
+.data-table th div{
+padding-left: 5px;
+padding-right: 5px;
+}
+.data-table td div{
+padding-left: 5px;
+padding-right: 5px;
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
   <Card :padding="5">
-    <Tooltip content="Record http flow" :delay="500">
+    <Tooltip content="Record" :delay="500">
       <Button @click="switchRecord">
         <Icon :type="recordingBtn.type" :color="recordingBtn.color" />
       </Button>
     </Tooltip>
 
-    <Tooltip content="Clear & reload flow list" :delay="500">
+    <Tooltip content="Clear" :delay="500">
       <Button @click="showClearModal=true" icon="md-refresh"></Button>
     </Tooltip>
 
@@ -15,13 +15,13 @@
         <Divider type="vertical"></Divider>
       </div>
 
-      <Tooltip content="Save selected flow" :delay="500">
+      <Tooltip content="Save" :delay="500">
         <Button @click="saveSelectedFlow">
           <Icon type="md-archive"></Icon>
         </Button>
       </Tooltip>
 
-      <Tooltip content="Delete selected flow" :delay="500">
+      <Tooltip content="Delete" :delay="500">
         <Button @click="deleteSelectedFlow" icon="md-trash"></Button>
       </Tooltip>
     </div>
@@ -30,7 +30,7 @@
       <Divider type="vertical"></Divider>
     </div>
 
-    <label>Activated Data:</label>
+    <label><b>Activated Data: </b></label>
 
     <div class="inline">
       <Select v-model="activatedGroupId" filterable clearable style="width: 15vw">
@@ -46,6 +46,10 @@
 
     <Modal v-model="showClearModal" title="Alert" @on-ok="clearModalOk" @on-cancel="showClearModal=false">
       <p>Clear flow list?</p>
+    </Modal>
+
+    <Modal v-model="showCreateGroupModal" title="Create mock group" @on-ok="createAndActivateGroupOk">
+      <Input v-model="newDataGroupName" placeholder="Data group name"></Input>
     </Modal>
   </Card>
 </template>
@@ -78,26 +82,27 @@
       };
     },
     mounted() {
-      this.$store.dispatch('loadGroupList')
+      this.$store.dispatch('iLoadGroupList')
       this.$store.dispatch('loadActivatedGroup')
-      this.getRecordStatus();      
-      this.$Notice.config({
-        top: 75
-      })
+      this.getRecordStatus(); 
     },
     computed: {
       showDataButtons() {
         return this.$store.state.inspector.showDataButtons;
       },
       dataGroups(){
-        return this.$store.state.dataManager.groupList
+        return this.$store.state.inspector.groupList
       },
       activatedGroupId:{
         get(){
           return this.$store.state.inspector.activatedGroupId
         },
         set(groupId){
-          this.$store.dispatch('activateGroup', groupId)
+          if(groupId){
+            this.$store.dispatch('activateGroup', groupId)
+          }else{
+            this.$store.dispatch('deactivateGroup')
+          }
         }
       }
     },
@@ -119,7 +124,7 @@
             }
           );
         } else {
-          if (this.selectedDataGroup === "None") {
+          if (!this.activatedGroupId) {
             this.showCreateGroupModal = true;
           }
           this.$http.put("/api/mode/record").then(
@@ -163,14 +168,14 @@
         return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
       },
       saveSelectedFlow: function () {
-        if(this.selectedDataGroup === 'None'){
+        if(!this.activatedGroupId){
           this.showCreateGroupModal = true;
           return
         }
         this.$http.post('/api/flow',
           {
             ids:this.$store.state.inspector.selectedIds,
-            group:this.selectedDataGroup
+            group:this.activatedGroupId
           }
         )
         .then(resp=>{
@@ -185,7 +190,7 @@
             this.$Notice.error(
                 {
                   title:'Save flow failed',
-                  desc:resp.data,
+                  desc:resp.data.message,
                   duration:0
                 }
               )
@@ -199,6 +204,9 @@
           console.log('DEL flow', this.$store.state.inspector.selectedIds, resp);
           this.$store.commit('clearSelectedId')
         })
+      },
+      createAndActivateGroupOk(){
+        this.$store.dispatch('createAndActivateGroup', this.newDataGroupName)
       }
     }
   };

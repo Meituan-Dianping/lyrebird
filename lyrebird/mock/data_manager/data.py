@@ -52,24 +52,30 @@ class Data:
         _id = str(uuid.uuid4())
         _name = _id
 
+        _url = None
         if flow:
             _url = flow.get('request', {'url': None}).get('url')
         elif request:
             _req = json.loads(request)
             _url = request.get('url')
         
+        _rule = {'request.url':None}
+
         if _url:
             parsed_url = urlparse(_url)
             if parsed_url.path is not '':
                 _name = parsed_url.path
             else:
                 _name = parsed_url.hostname
+            _rule['request.url'] = _name
 
         _data_path = Path(data_dir)/_id
         _data_path.mkdir(parents=True, exist_ok=True)
 
         data = cls(_id, _name, _data_path)
         
+        data.rule = _rule
+
         if flow:
             data.set_flow(flow)
         else:
@@ -117,7 +123,10 @@ class Data:
             
             self.response.content = json.dumps(response_obj, ensure_ascii=False, indent=4)
             if flow['response'].get('data'):
-                self.response_data.content = flow['response'].get('data')
+                if self.response_data.filetype == 'json':
+                    self.response_data.content = json.dumps(flow['response'].get('data'))
+                else:
+                    self.response_data.content = flow['response'].get('data')
 
 
     def save(self):
@@ -141,7 +150,8 @@ class Data:
                     }
                 }
             }
-            info['url'] = json.loads(self.request.content).get('url')
+            if self.request.content:
+                info['url'] = json.loads(self.request.content).get('url')
             json.dump(info, f, ensure_ascii=False, indent=4)
 
     
@@ -169,10 +179,14 @@ class Data:
         }
         if detail:
             json_obj['rule'] = self.rule
-            json_obj['request'] = self.request.json()
-            self.request_data.filetype = self._get_content_type_from_content(self.request.content)
-            json_obj['request_data'] = self.request_data.json()
-            json_obj['response'] = self.response.json()
-            self.response_data.filetype = self._get_content_type_from_content(self.response.content)
-            json_obj['response_data'] = self.response_data.json()
+            if self.request.content:
+                json_obj['request'] = self.request.json()
+                self.request_data.filetype = self._get_content_type_from_content(self.request.content)
+            if self.request_data.content:
+                json_obj['request_data'] = self.request_data.json()
+            if self.response.content:
+                json_obj['response'] = self.response.json()
+            if self.response_data.content:
+                self.response_data.filetype = self._get_content_type_from_content(self.response.content)
+                json_obj['response_data'] = self.response_data.json()
         return json_obj

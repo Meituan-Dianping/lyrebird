@@ -26,7 +26,8 @@ class FlowList(Resource):
         for item in all_items:
             info = dict(
                 id=item['id'], 
-                time=item['time'], 
+                size=item['size'],
+                duration=item['duration'], 
                 request=dict(
                     url=item['request']['url'],
                     path=item['request']['path'],
@@ -43,9 +44,9 @@ class FlowList(Resource):
         return context.make_streamed_response(gen)
 
     def delete(self):
-        _ids = request.form.getlist('ids')
+        _ids = request.json['ids']
         if _ids:
-            context.application.cache.delete_by_ids(_ids)
+            context.application.cache.delete_by_ids(*_ids)
         else:
             context.application.cache.clear()
         context.application.socket_io.emit('action', 'delete flow log')
@@ -64,7 +65,9 @@ class FlowList(Resource):
         if not activated_group:
             return context.make_fail_response('Not activate any group')
         
-        # for item in record_items:
-        #     current_group.add_data_and_filter(item)
-        # TODO Save data
+        flow_list = context.application.cache.items()
+        for flow in flow_list:
+            if flow['id'] in _ids:
+                activated_group.create_data(flow=flow)
+
         return context.make_ok_response()

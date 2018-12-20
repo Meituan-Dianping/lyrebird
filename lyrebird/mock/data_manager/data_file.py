@@ -36,6 +36,9 @@ class DataFile:
 
     @content.setter
     def content(self, val):
+        if not val:
+            return
+
         _content = None
         if self.filetype == 'json':
             _content = json.dumps(json.loads(val), ensure_ascii=False, indent=4)
