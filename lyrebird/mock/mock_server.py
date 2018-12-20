@@ -1,9 +1,6 @@
 import os
 import sys
-<<<<<<< HEAD
 import time
-=======
->>>>>>> 84c4b555d100371e736eaaf4c4b8c5d151bf54dd
 import json
 import errno
 import socket
