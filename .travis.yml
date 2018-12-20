@@ -24,7 +24,6 @@ jobs:
         - cd frontend
         - npm install
       script:
-        - cd frontend
         - npm run build
 
     - stage: release to pypi
