@@ -12,6 +12,20 @@ jobs:
       # command to run tests
       script: pytest
 
+    - stage: build frontend
+      if: type = push
+      language: node_js
+      node_js:
+        - "10"
+      cache:
+        yarn: true
+        directories: node_modules
+      install:
+        - cd frontend
+        - npm install
+      script:
+        - npm run build
+
     - stage: release to pypi
       if: type = push
       language: python
@@ -19,7 +33,7 @@ jobs:
       python:
         - "3.6"
       script:
-        - echo "Skipping tests"
+        - echo "No script for pypi release"
       deploy:
         provider: pypi
         user: meituanqa
@@ -38,9 +52,8 @@ jobs:
         directories: node_modules
       install:
         - yarn global add vuepress
-        - vuepress build docs
       script:
-        - echo "Skipping tests"
+        - vuepress build docs
       deploy:
         provider: pages
         skip-cleanup: true

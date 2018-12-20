@@ -1,4 +1,6 @@
 from lyrebird.mock import context
+from flask import Response, stream_with_context
+import json
 
 
 class MockHandler:
@@ -8,7 +10,17 @@ class MockHandler:
 
     """
     def handle(self, handler_context):
-        data_group = context.application.data_manager.current_data_group
-        if data_group:
-            handler_context.response = data_group.get_response(handler_context.get_origin_url(),
-                                                               handler_context.request.data)
+        data = context.application.data_manager.router.get_mock_data(handler_context.flow)
+        if data:
+            handler_context.update_server_resp_time()
+            handler_context.response = self.data2response(data)
+
+    def data2response(self, data):
+        resp_info = json.loads(data.response.content)
+        code = resp_info['code']
+        headers = resp_info['headers']
+        headers['lyrebird'] = 'mock'
+        resp_data = data.response_data.content
+        def gen():
+            yield resp_data
+        return Response(stream_with_context(gen()), status=code, headers=headers)

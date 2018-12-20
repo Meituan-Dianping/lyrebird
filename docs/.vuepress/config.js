@@ -29,6 +29,10 @@ module.exports = {
             '/guide/': [
                 'quickstart',
                 '',
+                'plugin_api_coverage',
+                'plugin_tracking',
+                'plugin_android',
+                'plugin_ios',
                 'faq'
             ],
             '/develop/': [

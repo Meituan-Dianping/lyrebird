@@ -1,0 +1,19 @@
+[% extends "base.html" %]
+[% set name = 'DataManager' %]
+
+[% block content %]
+<div id="app">
+    <data-manager></data-manager>
+</div>
+[% endblock %]
+
+[% block scripts %]
+<script>var require = {paths: {'vs': '/static/plugins/monaco-editor/min/vs'}};</script>
+<script src="/static/plugins/monaco-editor/min/vs/loader.js"></script>
+<script src="/static/plugins/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+<script src="/static/plugins/monaco-editor/min/vs/editor/editor.main.js"></script>
+
+<script src="/static/js/api.js?v=[[version]]"></script>
+<script src="/static/js/store.js?v=[[version]]"></script>
+<script src="/static/js/data-manager.js?v=[[version]]"></script> 
+[% endblock %]

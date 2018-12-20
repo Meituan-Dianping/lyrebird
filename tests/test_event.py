@@ -34,14 +34,15 @@ def test_event(callback_tester, event_server):
 
     assert event_server.pubsub_channels.get('Test')
 
-    event_server.publish('Test', 'Hello')
+    for _ in range(1000):
+        event_server.publish('Test', 'Hello')
 
     for _ in range(5):
         time.sleep(0.2)
         if len(cb_tester.history) > 0:
             break
 
-    assert len(cb_tester.history) == 1
+    assert len(cb_tester.history) == 1000
     assert cb_tester.history[0] == 'Hello'
 
 

@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import json
 import errno
 import socket
@@ -8,7 +9,8 @@ import subprocess
 from . import plugin_manager
 from flask import Flask, request, redirect, url_for, Response
 from . import context
-from .blueprints.api import api
+from .blueprints.plugin import plugin
+from .blueprints.apis import api
 from .blueprints.ui import ui
 from .blueprints.api_mock import api_mock
 from flask_socketio import SocketIO
@@ -33,7 +35,6 @@ Default port : 9090
 * Lyrebird plugin management
 """
 
-current_dir = os.path.dirname(__file__)
 _logger = log.get_logger()
 
 
@@ -53,7 +54,7 @@ class LyrebirdMockServer(ThreadServer):
         self.debug = False
         self.port = 9090
         self._working_thread = None
-        self.app = Flask('MOCK', static_folder=os.path.join(current_dir, 'static'))
+        self.app = Flask('MOCK')
         
         self.app.jinja_env.block_start_string = '[%'
         self.app.jinja_env.block_end_string = '%]'
@@ -61,6 +62,11 @@ class LyrebirdMockServer(ThreadServer):
         self.app.jinja_env.variable_end_string = ']]'
         self.app.jinja_env.comment_start_string = '[#'
         self.app.jinja_env.comment_end_string = '#]'
+
+        # Add global function for templates
+        self.app.jinja_env.globals['time'] = time.time
+        self.app.jinja_env.globals['datetime'] = datetime.datetime
+        self.app.jinja_env.globals['version'] = VERSION
 
         # async_mode = threading / eventlet / gevent / gevent_uwsgi
         self.socket_io = SocketIO(self.app, async_mode='threading', log_output=False)
@@ -84,17 +90,20 @@ class LyrebirdMockServer(ThreadServer):
             self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
             context.db = DataBase(self.app)
         
-        # 插件初始化
+        # Plugin
+        # init plugin
         plugin_manager.load()
-        # 加载插件界面
+        # load plugin frontend
         plugin_manager.add_view_to_blueprint(ui)
-        # 注册插件socket事件
+        plugin_manager.add_view_to_blueprint(plugin)
+        # Register event socket
         plugin_manager.add_event_rules(self.socket_io)
-
+        # Register blueprints
         self.app.register_blueprint(api)
         self.app.register_blueprint(api_mock)
         self.app.register_blueprint(ui)
-
+        self.app.register_blueprint(plugin)
+        
         @self.app.route('/')
         def index():
             """
@@ -118,7 +127,7 @@ class LyrebirdMockServer(ThreadServer):
         # cannot import at beginning, cause db hasn't init
         from lyrebird.mock.db.models import active_db_listener
         active_db_listener()
-        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
+        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=self.debug, use_reloader=False)
 
 
     def stop(self):

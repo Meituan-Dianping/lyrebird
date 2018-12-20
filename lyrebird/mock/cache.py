@@ -37,7 +37,7 @@ class ListCache:
     def delete_by_ids(self, *ids):
         del_items = []
         for item in list(self._cache):
-            if item.id in ids:
+            if item['id'] in ids:
                 del_items.append(item)
         for item in del_items:
             self.delete(item)

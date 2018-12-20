@@ -47,7 +47,7 @@ class ReportHandler:
         try:
             requests.request("POST", self.report_url, json=data, headers=self.report_headers)
         except Exception as e:
-            logger.error(f'Send report failed. {e}')
+            logger.error(f'Send report failed. \n{data} \n{e}')
 
     def send_report(self, data):
         self.event_executor.submit(self.report_worker, data)

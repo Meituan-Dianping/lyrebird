@@ -23,12 +23,7 @@ api_mock = Blueprint('mock', __name__, url_prefix='/mock')
 def index(path=''):
     # todo add request handlers
     resp = None
-    req_context = HandlerContext()
-
-    # 预处理request data， 避免因为支付接口上传base64 form导致data解析错误。
-    request.get_data()
-
-    req_context.request = request
+    req_context = HandlerContext(request, path)
     req_context.update_client_req_time()
 
     for handler_name in plugin_manager.inner_handler:
@@ -56,6 +51,9 @@ def index(path=''):
 
     if not resp:
         resp = abort(404, 'Not handle this request')
+    
+    context.emit('action', 'add flow log')
+
     return resp
 
 
