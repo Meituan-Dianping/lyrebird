@@ -29,9 +29,9 @@ class FlowList(Resource):
                 size=item['size'],
                 duration=item['duration'], 
                 request=dict(
-                    url=item['request']['url'],
-                    path=item['request']['path'],
-                    host=item['request']['host']
+                    url=item['request'].get('url'),
+                    path=item['request'].get('path'),
+                    host=item['request'].get('host')
                     ),
                 response=dict(
                     code=item['response']['code'],

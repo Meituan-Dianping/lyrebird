@@ -93,7 +93,7 @@ class HandlerContext:
     def response(self, val):
         self._response = val
         self.update_server_resp_time()
-        
+
         _response = dict(
             code=self._response.status_code,
             headers={k:v for (k,v) in self._response.headers}
@@ -154,7 +154,7 @@ class HandlerContext:
                                               flow=self.flow))
 
     def get_origin_url(self):
-        return self.flow['request']['url']
+        return self.flow['request'].get('url')
 
 
 class RequestDataHelper:
