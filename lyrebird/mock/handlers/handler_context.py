@@ -92,6 +92,8 @@ class HandlerContext:
     @response.setter
     def response(self, val):
         self._response = val
+        self.update_server_resp_time()
+        
         _response = dict(
             code=self._response.status_code,
             headers={k:v for (k,v) in self._response.headers}
