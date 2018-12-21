@@ -12,7 +12,6 @@ class MockHandler:
     def handle(self, handler_context):
         data = context.application.data_manager.router.get_mock_data(handler_context.flow)
         if data:
-            handler_context.update_server_resp_time()
             handler_context.response = self.data2response(data)
 
     def data2response(self, data):

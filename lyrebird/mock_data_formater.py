@@ -156,6 +156,7 @@ def update_data(data_dir, output_data_dir, old_group_conf=None):
 
 def check_data_dir(data_root_path):
     data_dir = Path(data_root_path)
+    data_dir.mkdir(exist_ok=True)
     if (data_dir/NEW_INFO_FILENAME).exists():
         return
     # Move data dir for data format

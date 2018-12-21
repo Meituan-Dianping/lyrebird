@@ -29,9 +29,9 @@ class FlowList(Resource):
                 size=item['size'],
                 duration=item['duration'], 
                 request=dict(
-                    url=item['request']['url'],
-                    path=item['request']['path'],
-                    host=item['request']['host']
+                    url=item['request'].get('url'),
+                    path=item['request'].get('path'),
+                    host=item['request'].get('host')
                     ),
                 response=dict(
                     code=item['response']['code'],
@@ -44,7 +44,7 @@ class FlowList(Resource):
         return context.make_streamed_response(gen)
 
     def delete(self):
-        _ids = request.json['ids']
+        _ids = request.json.get('ids')
         if _ids:
             context.application.cache.delete_by_ids(*_ids)
         else:

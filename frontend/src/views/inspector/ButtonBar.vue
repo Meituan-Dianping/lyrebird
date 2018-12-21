@@ -152,7 +152,7 @@
         );
       },
       clearModalOk: function () {
-        this.$http.delete("/api/flow").then(response => {});
+        this.$http.delete('/api/flow', {body: {ids:null}}).then(response => {});
         this.selectedFlow = null;
       },
       resetActivatedData: function () {
