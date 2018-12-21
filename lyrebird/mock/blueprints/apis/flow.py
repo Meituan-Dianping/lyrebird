@@ -44,7 +44,7 @@ class FlowList(Resource):
         return context.make_streamed_response(gen)
 
     def delete(self):
-        _ids = request.json['ids']
+        _ids = request.json.get('ids')
         if _ids:
             context.application.cache.delete_by_ids(*_ids)
         else:
