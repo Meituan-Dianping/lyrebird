@@ -1,8 +1,11 @@
 from .. import context
 from lyrebird import application
 from urllib.parse import urlparse
+import urllib
 import uuid
 import time
+import gzip
+import json
 
 
 class HandlerContext:
@@ -163,6 +166,12 @@ class RequestDataHelper:
     def req2dict(request, output=None):
         if not output:
             output = {}
+        content_encoding = request.headers.get('Content-Encoding')
+        # Content-Encoding handler
+        unziped_data = None
+        if content_encoding and content_encoding == 'gzip':
+            unziped_data = gzip.decompress(request.data)
+
         content_type = request.headers.get('Content-Type')
         if not content_type:
             output['binary_data'] =  'bin'
@@ -170,11 +179,20 @@ class RequestDataHelper:
             content_type = content_type.strip()
 
         if content_type.startswith('application/x-www-form-urlencoded'):
-            output['data'] = request.form.to_dict()
+            if unziped_data:
+                output['data'] = urllib.parse.parse_qs(unziped_data.decode('utf-8'))
+            else:
+                output['data'] = request.form.to_dict()
         elif content_type.startswith('application/json'):
-            output['data'] = request.json
+            if unziped_data:
+                output['data'] = json.loads(unziped_data.decode('utf-8'))
+            else:
+                output['data'] = request.json
         elif content_type.startswith('text/xml'):
-            output['data'] = request.data.decode('utf-8')
+            if unziped_data:
+                output['data'] = unziped_data.decode('utf-8')
+            else:
+                output['data'] = request.data.decode('utf-8')
         else:
             # TODO write bin data
             output['binary_data'] =  'bin'
