@@ -155,3 +155,17 @@ class CustomEventReceiver:
             message['script_name'] = script_name
             message['function_name'] = function_name
         application.server['event'].publish(channel, message, *args, **kwargs)
+
+    def issue(self, message, channel="issue", data=None):
+        notice = {"message": message,
+                    "actions": [
+                        {
+                            "type": "sender",
+                            "data": {
+                                "channel": channel,
+                                "data": data,
+                                "state": True
+                            }
+                        }
+                    ]}
+        application.server['event'].publish('notice', notice)
