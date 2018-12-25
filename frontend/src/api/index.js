@@ -109,6 +109,14 @@ export const createData = (groupId, name) => {
   })
 }
 
+export const createIssue = (data) => {
+  return axios({
+    url: '/api/notice/issue',
+    data:{data},
+    method: 'POST'
+  })
+}
+
 export const deleteData = (groupId, ids) => {
   return axios({
     url:'/api/mock/'+groupId+'/data',
