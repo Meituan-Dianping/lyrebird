@@ -5,6 +5,7 @@ import argparse
 import uuid
 import shutil
 from urllib.parse import urlparse
+import traceback
 
 
 NEW_INFO_FILENAME = '.lyrebird_prop'
@@ -32,7 +33,11 @@ def update(work_dir, output_dir):
     print(f'work dir is {work_dir} Output dir is {output_dir}')
     
     for group_dir_name in Path(work_dir).iterdir():
-        update_group(work_dir/group_dir_name.name, output_dir/group_dir_name.name)
+        try:
+            update_group(work_dir/group_dir_name.name, output_dir/group_dir_name.name)
+        except Exception as e:
+            print(f'!!! Load group fail. {e}. {group_dir_name}')
+            traceback.print_exc()
 
 
 def update_group(group_dir, output_group_dir):
@@ -59,7 +64,12 @@ def update_group(group_dir, output_group_dir):
     for data_dir_name in Path(group_dir).iterdir():
         if not data_dir_name.is_dir():
             continue
-        update_data(group_dir/data_dir_name.name, output_group_dir/data_dir_name.name, old_group_conf=old_conf)
+        try:
+            update_data(group_dir/data_dir_name.name, output_group_dir/data_dir_name.name, old_group_conf=old_conf)
+        except Exception as e:
+            print(f'!!! Load data error. {e} . {data_dir_name}')
+            traceback.print_exc()
+
 
 
 def update_data(data_dir, output_data_dir, old_group_conf=None):
