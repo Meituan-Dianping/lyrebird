@@ -64,6 +64,15 @@ def test_event_default_information(callback_tester, event_server):
     assert resent_history.get('message') == 'test'
     assert resent_history.get('channel') == 'Test'
 
+
+def test_event_default_information_with_sender(callback_tester, event_server):
+
+    cb_tester = CallbackTester()
+
+    event_server.subscribe('Test', cb_tester.callback)
+
+    assert event_server.pubsub_channels.get('Test')
+
     test = {
                 'sender': 'lyrebird'
             }
@@ -74,6 +83,7 @@ def test_event_default_information(callback_tester, event_server):
     assert resent_history.get('message') == None
     assert resent_history.get('channel') == 'Test'
     assert resent_history.get('sender') == 'lyrebird'
+
 
 def test_state(event_server):
     event_server.publish('Test', 'NewActivity', state=True)
