@@ -1,8 +1,10 @@
 <template>
     <div>
-      {{data.message}}
+      <div style="padding-right:15px;word-break:break-all">
+          {{noticeInfo.message}}
+      </div>
       <p>
-        <b><a href="#" @click="jump(data)">Create new issue</a></b>
+        <b><a href="#" @click="jump(noticeInfo)">Create new issue</a></b>
       </p>
     </div>
 </template>
@@ -13,27 +15,30 @@
 
   export default {
     name: 'notice',
-    props: ["data"],
+    props: ["noticeInfo"],
     data() {
       return {
-        jumpUrl: null
+        jumpToUrl: null,
+        jumpToName: null
       }
     },
     mounted() {
     },
     methods: {
-      jump(data) {
+      jump(noticeInfo) {
         // TODO: support select manifest
         // store.state.manifest[0]: only one manifest are supported in v1.0
         for(const menuItem of store.state.menu){
           if (menuItem['params'] && store.state.manifest[0] === menuItem['params']['name']){
             store.commit('setActiveName', menuItem.title)
-            this.jumpUrl = menuItem['params']['src']
+            this.jumpToUrl = menuItem.params.src
+            this.jumpToName = menuItem.params.name
             break
           }
         }
-        store.commit('plugin/setSrc', this.jumpUrl);
-        router.push({name:'plugin-view', param:this.jumpUrl});
+        store.commit('plugin/setSrc', this.jumpToUrl)
+        router.push({name:'plugin-view', params:{name:this.jumpToName}})
+        store.dispatch("createIssue", noticeInfo)
       }
     }
   };

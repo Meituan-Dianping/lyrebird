@@ -103,12 +103,12 @@ export default {
     }
   },
   methods: {
-    showNotice(data){
+    showNotice(noticeInfo){
       this.$Notice.warning({
         duration: 0,
         title: null,
         render() {
-          return (<Notice data={data}></Notice>)
+          return (<Notice noticeInfo={noticeInfo}></Notice>)
         }
       });
     },

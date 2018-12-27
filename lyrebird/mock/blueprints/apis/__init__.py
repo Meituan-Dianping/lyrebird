@@ -6,6 +6,7 @@ from .mock import MockData, MockGroup, ActivatedMockGroup
 from .config import Conf, ResetConf
 from .plugin import Plugin
 from .menu import Menu
+from .event import Event
 
 
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -24,3 +25,4 @@ api_source.add_resource(ResetConf, '/conf/<string:plugin_name>/reset')
 api_source.add_resource(WorkMode, '/mode', '/mode/<string:mode>')
 api_source.add_resource(Plugin, '/plugin', '/plugin/<string:plugin_name>')
 api_source.add_resource(Menu, '/menu')
+api_source.add_resource(Event, '/event')

@@ -49,6 +49,11 @@ export default new Vuex.Store({
       api.getManifest().then(response=>{
         commit('setManifest', response.data.manifest)
       })
+    },
+    createIssue({commit}, noticeInfo){
+      api.publishEvent(noticeInfo).then(response=>{
+      })
+      .catch(error => console.log(error))
     }
   }
 })

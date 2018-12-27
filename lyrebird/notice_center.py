@@ -5,10 +5,9 @@ class NoticeCenter():
     
     def __init__(self):
         # display notice in frontend
-        print('NoticeCenter OnCreate')
-        application.server['event'].subscribe('notice', self.display_notice)
+        application.server['event'].subscribe('notice', self.push_notice)
 
-    def display_notice(self, msg):
+    def push_notice(self, msg):
         """
         display notice
         

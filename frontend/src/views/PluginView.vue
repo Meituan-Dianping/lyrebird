@@ -6,6 +6,7 @@
 
 <script>   
     export default {
+        props:['name'],
         computed:{
             src() {
                 let src = this.$store.state.plugin.src

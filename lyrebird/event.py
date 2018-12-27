@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 import traceback
 import inspect
 import uuid
+import time
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird.mock import context
@@ -21,9 +22,6 @@ class Event:
     def __init__(self, channel, message):
         self.channel = channel 
         self.message = message
-        if isinstance(message, dict):
-            message['channel'] = channel
-            message['id'] = str(uuid.uuid4())
 
 
 class EventServer(ThreadServer):
@@ -70,9 +68,26 @@ class EventServer(ThreadServer):
     def publish(self, channel, message, state=False, *args, **kwargs):
         """
         publish message
+
+        if type of message is dict, set default event information: 
+            - channel
+            - id
+            - timestamp
+            - sender: if was cantained in message, do not update
+
         if state is true, message will be kept as state
 
         """
+        if isinstance(message, dict):
+            message['channel'] = channel
+            message['id'] = str(uuid.uuid4())
+            message['timestamp'] = int(time.time())
+            if not message.get('sender'):
+                stack = inspect.stack()
+                script_filename = stack[2].filename
+                script_name = script_filename[script_filename.rfind('/') + 1:]
+                message['sender'] = script_name
+        
         self.event_queue.put(Event(channel, message))
         if state:
             self.state[channel] = message
@@ -156,14 +171,14 @@ class CustomEventReceiver:
             message['function_name'] = function_name
         application.server['event'].publish(channel, message, *args, **kwargs)
 
-    def issue(self, message, channel="issue", data=None):
+    def issue(self, message, issue_message=None, channel="issue"):
         notice = {"message": message,
                     "actions": [
                         {
-                            "type": "sender",
-                            "data": {
+                            "type": "carrier",
+                            "box": {
                                 "channel": channel,
-                                "data": data,
+                                'message': issue_message,
                                 "state": True
                             }
                         }

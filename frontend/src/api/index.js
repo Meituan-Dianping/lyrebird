@@ -109,10 +109,10 @@ export const createData = (groupId, name) => {
   })
 }
 
-export const createIssue = (data) => {
+export const publishEvent = (eventInfo) => {
   return axios({
-    url: '/api/notice/issue',
-    data:{data},
+    url: '/api/event',
+    data:{eventInfo:eventInfo},
     method: 'POST'
   })
 }
