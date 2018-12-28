@@ -1,4 +1,4 @@
-from . import cache_handler, mock_handler, path_not_found_handler, proxy_handler
+from . import mock_handler, path_not_found_handler, proxy_handler
 from collections import OrderedDict
 
 
