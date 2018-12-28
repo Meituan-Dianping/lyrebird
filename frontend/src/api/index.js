@@ -109,6 +109,14 @@ export const createData = (groupId, name) => {
   })
 }
 
+export const publishEvent = (eventInfo) => {
+  return axios({
+    url: '/api/event',
+    data:{eventInfo:eventInfo},
+    method: 'POST'
+  })
+}
+
 export const deleteData = (groupId, ids) => {
   return axios({
     url:'/api/mock/'+groupId+'/data',

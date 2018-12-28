@@ -14,6 +14,7 @@ from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
+from lyrebird.notice_center import NoticeCenter
 
 
 logger = log.get_logger()
@@ -111,7 +112,7 @@ def run(args:argparse.Namespace):
     # show current config contents
     config_str = json.dumps(application._cm.config, ensure_ascii=False, indent=4)
     logger.warning(f'Lyrebird start with config:\n{config_str}')
-        
+
     application.server['event'] = EventServer()
     application.server['task'] = BackgroundTaskServer()
     application.server['proxy'] = LyrebirdProxyServer()   
@@ -119,6 +120,9 @@ def run(args:argparse.Namespace):
 
     application.start_server()
 
+    # activate notice center
+    application.notice = NoticeCenter()
+    
     # auto open web browser
     if not args.no_browser:
         webbrowser.open(f'http://localhost:{application.config["mock.port"]}')
