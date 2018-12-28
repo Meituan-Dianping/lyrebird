@@ -26,7 +26,7 @@
             </Content>
             <Footer class="main-footer">
               <span class="main-footer-copyright">
-                <strong style="color:#f8f8f9">Copyright &copy; 2018-present <a href="http://www.meituan.com">Meituan</a>. All rights reserved.</strong>
+                <strong style="color:#f8f8f9">Copyright &copy; 2018-present <a href="http://www.meituan.com">Meituan</a>. All rights reserved</strong>
               </span>
               <Poptip v-if="status" content="content" placement="top-end" class="main-footer-status" width="200">
                 <a>
@@ -69,9 +69,6 @@ export default {
     });
     this.alertIO = io('/alert')
     this.alertIO.on('show', this.showNotice);
-  },
-  destroyed() {
-    this.alertIO.close()
   },
   mounted(){
     this.$store.dispatch('loadMenu')
