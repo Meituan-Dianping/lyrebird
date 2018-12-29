@@ -12,7 +12,6 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: '_inspector',
       component: Main,
       children: [
         {
@@ -24,7 +23,6 @@ export default new Router({
     },
     {
       path: '/datamanager',
-      name: '_datamanager',
       component: Main,
       children: [
         {

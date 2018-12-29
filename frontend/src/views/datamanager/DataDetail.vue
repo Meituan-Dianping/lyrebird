@@ -128,7 +128,7 @@ export default{
 }
 </script>
 
-<style>
+<style scoped>
 .button-bar{
     margin-top: 5px
 }

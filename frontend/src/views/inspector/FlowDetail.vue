@@ -1,13 +1,20 @@
 <template>
-    <Card v-if="flowDetail">
-        <Tabs :value="currentTab" :animated="false" @on-click="switchTab">
-            <TabPane label="Request" name="req"></TabPane>
-            <TabPane label="RequestBody" name="req-body"></TabPane>
-            <TabPane label="Response" name="resp"></TabPane>
-            <TabPane label="ResponseBody" name="resp-body"></TabPane>
-        </Tabs>
+    <div v-if="flowDetail">
+        <Row type="flex" justify="center" align="middle">
+            <Col span="1">
+                <Button icon="ios-arrow-dropright-circle" type="text" size="small"></Button>
+            </Col>
+            <Col span="23" class="small-tab">
+            <Tabs :value="currentTab" :animated="false" size="small" @on-click="switchTab">
+                <TabPane label="Request" name="req"></TabPane>
+                <TabPane label="RequestBody" name="req-body"></TabPane>
+                <TabPane label="Response" name="resp"></TabPane>
+                <TabPane label="ResponseBody" name="resp-body"></TabPane>
+            </Tabs>
+            </Col>
+        </Row>
         <code-editor v-if="flowDetail" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
-    </Card>
+    </div>
 </template>
 
 <script>
@@ -15,9 +22,6 @@
 
    export default {
         name: 'flowDetail',
-        props: {
-            flow: null
-        },
         components: {
             CodeEditor
         },
@@ -29,10 +33,10 @@
                 currentTab: 'req'
             }
         },
-        watch: {
-            flow: function () {
-                console.log('FlowDetail: flow changed');
-                this.getFlowDetail(this.flow.id);
+        computed: {
+            flow(){
+                const flow = this.$store.state.inspector.focusedFlow
+                this.getFlowDetail(flow.id);
             }
         },
         methods: {
@@ -106,17 +110,17 @@
 
 <style>
 .flow-detail {
-  height: calc(100vh - 218px);
+  height: calc(100vh - 166px);
   /* total:100vh
   header: 38px
-  padding: 5px + 5px
-  buttonBar: 48px
-  card-padding: 16px
+  buttonBar: 38px
   tab-header: 52px
   table
-  card-padding: 16px
   padding: 5px
   footer: 28px
     */
+}
+.small-tab > .ivu-tabs > .ivu-tabs-bar {
+ margin-bottom: 0;
 }
 </style>

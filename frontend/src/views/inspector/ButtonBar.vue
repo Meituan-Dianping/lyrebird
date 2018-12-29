@@ -1,5 +1,5 @@
 <template>
-  <Card :padding="5">
+  <div class="button-bar">
     <Tooltip content="Record" :delay="500">
       <Button @click="switchRecord">
         <Icon :type="recordingBtn.type" :color="recordingBtn.color" />
@@ -30,7 +30,7 @@
       <Divider type="vertical"></Divider>
     </div>
 
-    <label><b>Activated Data: </b></label>
+    <label style="padding-right:5px"><b>Activated Data:</b></label>
 
     <div class="inline">
       <Select v-model="activatedGroupId" filterable clearable style="width: 15vw">
@@ -40,7 +40,7 @@
       </Select>
     </div>
 
-    <div class="inline" style="float:right">
+    <div class="inline" style="margin-left:auto">
       <Input search clearable style="width:30vw" v-model="searchStr"></Input>
     </div>
 
@@ -51,7 +51,7 @@
     <Modal v-model="showCreateGroupModal" title="Create mock group" @on-ok="createAndActivateGroupOk">
       <Input v-model="newDataGroupName" placeholder="Data group name"></Input>
     </Modal>
-  </Card>
+  </div>
 </template>
 
 <script>
@@ -152,7 +152,10 @@
         );
       },
       clearModalOk: function () {
-        this.$http.delete('/api/flow', {body: {ids:null}}).then(response => {});
+        this.$http.delete('/api/flow', {body: {ids:null}}).then(response => {
+          // this.$store.
+        });
+
         this.selectedFlow = null;
       },
       resetActivatedData: function () {
@@ -212,8 +215,11 @@
   };
 </script>
 
-<style>
+<style scoped>
   .inline {
     display: inline;
+  }
+  .button-bar {
+    flex-grow: 1
   }
 </style>

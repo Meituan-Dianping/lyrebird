@@ -134,3 +134,18 @@ class ActivatedMockGroup(Resource):
         else:
             context.application.data_manager.deactivate()
         return context.make_ok_response()
+
+
+class MockGroupByName(Resource):
+
+    def put(self):
+        group_name = request.json.get('group_name')
+        action = request.json.get('action', 'activate')
+        for group_id in context.application.data_manager.groups:
+            if group_name == context.application.data_manager.groups[group_id].name:
+                if action == 'activate':
+                    context.application.data_manager.activate(group_id)
+                else:
+                    context.application.data_manager.deactivate()
+                return context.make_ok_response()
+        return context.make_fail_response(f'Group not found. name={group_name}')

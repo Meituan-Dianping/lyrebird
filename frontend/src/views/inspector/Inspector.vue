@@ -3,12 +3,14 @@
     <Row class="button-bar">
       <button-bar></button-bar>
     </Row>
+    <div class="divider"></div>
     <Row>
-      <Col span="12">
+      <Col :span="listSpan">
         <flow-list v-on:select-detail="selectedFlowChange" class="inspector-left"></flow-list>
       </Col>
-      <Col span="12">
-        <flow-detail v-bind:flow="selectedFlow" class="inspector-right"></flow-detail>
+      <div class="split" v-if="focusedFlow"></div>
+      <Col span="12" v-if="focusedFlow">
+        <flow-detail class="inspector-right"></flow-detail>
       </Col>
     </Row>
   </div>
@@ -55,9 +57,21 @@
       this.updateDataGroups();
       this.updateActivatedDataGroup();
     },
+    computed: {
+      listSpan(){
+        if(this.focusedFlow){
+          return "12"
+        }else{
+          return "24"
+        }
+      },
+      focusedFlow(){
+        return this.$store.state.inspector.focusedFlow
+      }
+    },
     methods: {
       selectedFlowChange: function (payload) {
-        this.selectedFlow = payload;
+        this.$store.commit('setFocusedFlow', payload)
       },
       switchRecord: function () {
         if (this.recordingBtn.recording) {
@@ -177,15 +191,32 @@
 
 <style scoped>
   .button-bar {
-    margin-bottom: 5px;
-    height: 48px;
+    height: 38px;
+    display: flex;
+    align-items: center;
   }
 
   .inspector-left {
-    margin-right: 5px
+    margin-right: 0px
   }
 
   .inspector-right {
     margin-left: 5px
+  }
+  .divider{
+    display: block;
+    width: 100%;
+    height: 1px;
+    background: #eee;
+    top: 0;
+    left: 0;
+  }
+  .split{
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    border: 1px dashed #eee;
   }
 </style>

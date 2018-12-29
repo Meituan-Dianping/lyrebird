@@ -6,7 +6,8 @@ export default {
     showDataButtons: false,
     searchStr: '',
     selectedIds: [],
-    groupList: []
+    groupList: [],
+    focusedFlow: null
   },
   mutations: {
     setActivitedGroupId(state, groupId) {
@@ -23,6 +24,9 @@ export default {
     },
     clearSelectedId: function (state) {
       state.selectedIds = []
+    },
+    setFocusedFlow(state, flow){
+      state.focusedFlow = flow
     }
   },
   actions: {

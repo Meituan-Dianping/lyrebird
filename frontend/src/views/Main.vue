@@ -201,8 +201,10 @@ export default {
   transition: width 0.2s ease 0.2s;
 }
 .main-container {
-  padding: 5px;
-  height: calc(100vh - 66px);
+  padding-left: 5px;
+  padding-right: 5px;
+  height: calc(100vh - 71px);
+  background: #fff
 }
 </style>
 
