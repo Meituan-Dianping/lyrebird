@@ -27,7 +27,6 @@ class LyrebirdDatabaseServer(ThreadServer):
         SQLALCHEMY_DATABASE_URI = ROOT_DIR/DB_FILE_NAME
         sqlite_path = 'sqlite:///'+str(SQLALCHEMY_DATABASE_URI)
         # TODO: 'sqlite:///' is unfriendly to windows
-        # sqlite_path = 'sqlite:////Users/guanyunan/work/demo-sqlite/flow.db'
 
         engine = create_engine(str(sqlite_path))
         Base.metadata.create_all(engine)
