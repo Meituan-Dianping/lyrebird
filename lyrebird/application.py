@@ -31,6 +31,8 @@ server = {}
 plugins = {}
 
 
+notice = None
+
 def start_server():
     for name in server:
         server[name].start()

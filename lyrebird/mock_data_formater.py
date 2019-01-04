@@ -142,7 +142,7 @@ def update_data(data_dir, output_data_dir, old_group_conf=None):
     if len(url_regex) <= 0:
         print(f'Unused data {data_dir.name}')
         return
-    new_data_info['rule'] = {'request.url': '|'.join(url_regex[0])}
+    new_data_info['rule'] = {'request.url': '.*'.join(url_regex[0])}
 
     content_type = req_obj.get('headers', {}).get('Content-Type')
     if content_type:

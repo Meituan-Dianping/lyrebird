@@ -46,6 +46,45 @@ def test_event(callback_tester, event_server):
     assert cb_tester.history[0] == 'Hello'
 
 
+def test_event_default_information(callback_tester, event_server):
+
+    cb_tester = CallbackTester()
+
+    event_server.subscribe('Test', cb_tester.callback)
+
+    assert event_server.pubsub_channels.get('Test')
+
+    test = {
+                'message': 'test',
+            }
+
+    event_server.publish('Test', test)
+    time.sleep(1)
+    resent_history = cb_tester.history[0]
+    assert resent_history.get('message') == 'test'
+    assert resent_history.get('channel') == 'Test'
+
+
+def test_event_default_information_with_sender(callback_tester, event_server):
+
+    cb_tester = CallbackTester()
+
+    event_server.subscribe('Test', cb_tester.callback)
+
+    assert event_server.pubsub_channels.get('Test')
+
+    test = {
+                'sender': 'lyrebird'
+            }
+
+    event_server.publish('Test', test)
+    time.sleep(1)
+    resent_history = cb_tester.history[-1]
+    assert resent_history.get('message') == None
+    assert resent_history.get('channel') == 'Test'
+    assert resent_history.get('sender') == 'lyrebird'
+
+
 def test_state(event_server):
     event_server.publish('Test', 'NewActivity', state=True)
 
@@ -84,3 +123,16 @@ def test_customer_event_alert_not_dict(event_server):
         assert msg == 'a_string'
 
     lyrebird.subscribe('alert', msg_receiver)
+
+def test_customer_event_issue(event_server):
+    custom_event = CustomEventReceiver()
+    issue_message = {
+                        'message': 'test'
+                    }
+    custom_event.issue('issue_string', issue_message)
+
+    def msg_receiver(msg):
+        assert msg.get('sender') == 'test_event.py'
+        assert msg.get('message') == 'issue_string'
+    
+    lyrebird.subscribe('notice', msg_receiver)

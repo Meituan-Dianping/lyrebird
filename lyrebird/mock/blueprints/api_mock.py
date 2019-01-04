@@ -52,6 +52,8 @@ def index(path=''):
     if not resp:
         resp = abort(404, 'Not handle this request')
     
+    req_context.update_client_resp_time()
+    
     context.emit('action', 'add flow log')
 
     return resp

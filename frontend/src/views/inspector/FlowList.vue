@@ -123,9 +123,6 @@
         reload()
       })
     },
-    destroyed() {
-      this.sio.close()
-    },
     mounted: function () {
       this.reload();
     },

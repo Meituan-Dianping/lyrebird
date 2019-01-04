@@ -20,6 +20,13 @@ class MockHandler:
         headers = resp_info['headers']
         headers['lyrebird'] = 'mock'
         resp_data = data.response_data.content
+
+        if type(resp_data) == str:
+            data_len = len(resp_data.encode())
+        else:
+            data_len = len(resp_data)
+        headers['Content-Length'] = data_len
+
         def gen():
             yield resp_data
         return Response(stream_with_context(gen()), status=code, headers=headers)
