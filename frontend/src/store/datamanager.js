@@ -106,7 +106,9 @@ export default {
             .then(response=>{
                 dispatch('loadDataDetail', {groupName:groupName, dataName:dataName})
             })
-            .catch(error=>console.log(error))
+            .catch(error=>{
+                console.log(error)
+            })
         },
         newDataGroup({state, commit, dispatch}, groupName){
             api.createGroup(groupName)

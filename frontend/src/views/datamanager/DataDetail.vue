@@ -9,7 +9,7 @@
         </tabs>
         <code-editor v-if="dataDetail" :language="code.type" v-model="content" class="data-detail"></code-editor>
         <div v-if="dataDetail" class="button-bar">
-            <i-button type="primary" ghost @click="save">Save</i-button>
+            <i-button @click="save">Save</i-button>
         </div>
     </div>
 </template>
@@ -133,7 +133,7 @@ export default{
     margin-top: 5px
 }
 .data-detail {
-  height: calc(100vh - 201px);
+  height: calc(100vh - 180px);
   /* total:100vh
   header: 38px
   buttonBar: 38px

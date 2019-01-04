@@ -160,7 +160,6 @@
               flow['_checked'] = true
               this.originFlowList.push(flow)
             }
-            // this.originFlowList = response.data;
           },
           error => {
             console.log("Inspector: reload failed", error);
