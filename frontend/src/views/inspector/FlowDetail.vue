@@ -49,7 +49,11 @@
                         this.codeType = 'text';
                     }
                 } else if (this.currentTab === 'resp') {
-                    codeContent = JSON.stringify(this.flowDetail.response, null, 4);
+                    const respInfo = {
+                        code:this.flowDetail.response.code,
+                        headers:this.flowDetail.response.headers
+                    }
+                    codeContent = JSON.stringify(respInfo, null, 4);
                     this.codeType = 'json';
                 } else if (this.currentTab === 'resp-body') {
                     if (this.flowDetail.response.data === null) {

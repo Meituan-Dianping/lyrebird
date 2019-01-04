@@ -41,9 +41,11 @@
           </Select>
         </FormItem>
         <label v-if="dataGroupProp.parentId">Copy data from parent group</label>
-        <Table v-if="dataGroupProp.parentId"
-        :columns="parentListColumns"
-        :data="parentDataList"></Table>
+        <div v-if="dataGroupProp.parentId" class="modal-data-list">
+          <Table
+          :columns="parentListColumns"
+          :data="parentDataList"></Table>
+        </div>
       </Form>
     </Modal>
     <Modal v-model="deleteGroupModal" title="Delete group" @on-ok="deleteGroup">
@@ -143,5 +145,9 @@ export default {
 .button-bar {
   flex-grow: 1;
   display: flex;
+}
+.modal-data-list {
+  height: 30vh;
+  overflow-y: auto;
 }
 </style>
