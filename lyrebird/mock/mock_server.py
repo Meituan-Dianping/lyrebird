@@ -19,7 +19,6 @@ from ..version import VERSION
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird import log
-from lyrebird.mock.db.database import DataBase
 
 
 """
@@ -79,16 +78,6 @@ class LyrebirdMockServer(ThreadServer):
             _logger.error('Can not start mock server without config file')
             raise SyntaxError('Can not start mock server without config file.'
                               ' Default config file path = api-mock/conf.json')
-
-        # sqlite初始化
-        ROOT_DIR = application.root_dir()
-        DB_FILE_NAME = 'lyrebird.db'
-        if ROOT_DIR:
-            SQLALCHEMY_DATABASE_URI = ROOT_DIR/DB_FILE_NAME
-            # TODO: 'sqlite:///' is unfriendly to windows
-            self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+str(SQLALCHEMY_DATABASE_URI)
-            self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-            context.db = DataBase(self.app)
         
         # Plugin
         # init plugin
@@ -124,9 +113,6 @@ class LyrebirdMockServer(ThreadServer):
         server_ip = application.config.get('ip')
         _logger.warning(f'start on http://{server_ip}:{self.port}')
         report_handler.start()
-        # cannot import at beginning, cause db hasn't init
-        from lyrebird.mock.db.models import active_db_listener
-        active_db_listener()
         self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=self.debug, use_reloader=False)
 
 

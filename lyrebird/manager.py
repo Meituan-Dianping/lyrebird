@@ -15,6 +15,7 @@ from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.notice_center import NoticeCenter
+from lyrebird.db.database_server import LyrebirdDatabaseServer
 
 
 logger = log.get_logger()
@@ -117,6 +118,7 @@ def run(args:argparse.Namespace):
     application.server['task'] = BackgroundTaskServer()
     application.server['proxy'] = LyrebirdProxyServer()   
     application.server['mock'] = LyrebirdMockServer()
+    application.server['db'] = LyrebirdDatabaseServer()
 
     application.start_server()
 
