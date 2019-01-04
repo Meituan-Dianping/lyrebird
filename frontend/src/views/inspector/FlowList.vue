@@ -164,8 +164,7 @@
         );
       },
       selectFlow: function (flow) {
-        this.foucsFlow = flow
-        this.$emit("select-detail", flow);
+        this.$store.dispatch('focusFlow', flow)
       },
       itemSelectChange: function (event) {
         let selectedIds = []

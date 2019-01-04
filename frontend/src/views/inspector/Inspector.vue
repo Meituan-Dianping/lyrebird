@@ -6,7 +6,7 @@
     <div class="divider"></div>
     <Row>
       <Col :span="listSpan">
-        <flow-list v-on:select-detail="selectedFlowChange" class="inspector-left"></flow-list>
+        <flow-list class="inspector-left"></flow-list>
       </Col>
       <div class="split" v-if="focusedFlow"></div>
       <Col span="12" v-if="focusedFlow">
@@ -38,7 +38,6 @@
     data: function () {
       return {
         showClearModal: false,
-        selectedFlow: null,
         recordingBtn: stopedStatus,
         activatedData: null,
         selectedDataGroup: "",
@@ -70,9 +69,6 @@
       }
     },
     methods: {
-      selectedFlowChange: function (payload) {
-        this.$store.commit('setFocusedFlow', payload)
-      },
       switchRecord: function () {
         if (this.recordingBtn.recording) {
           this.$http.put("/api/mode/normal").then(
@@ -107,14 +103,14 @@
             } else {
               this.recordingBtn = stopedStatus;
             }
-            console.log("get recode mode", response);
           },
           error => {}
         );
       },
       clearModalOk: function () {
-        this.$http.delete("/api/flow").then(response => {});
-        this.selectedFlow = null;
+        this.$http.delete("/api/flow").then(response => {
+          this.$store.commit('setFocusedFlow', null)
+        });
       },
       activateData: function (name) {
         if (name === 'None') {
@@ -122,7 +118,6 @@
         } else {
           this.$http.put("/api/mock/" + name + "/activate").then(
             response => {
-              console.log("activated group", name);
               this.updateActivatedDataGroup();
             },
             errpr => {}
@@ -132,7 +127,6 @@
       resetActivatedData: function () {
         this.$http.put("/api/mock/group/deactivate").then(
           response => {
-            console.log("reset group");
             this.updateActivatedDataGroup();
           },
           errpr => {}
@@ -155,13 +149,11 @@
             } else {
               this.selectedDataGroup = "None";
             }
-            console.log("activated group", response);
           },
           error => {}
         );
       },
       activatedDataChange: function (val) {
-        console.log("Change", val);
         this.updateDataGroups();
         this.activateData(val);
       },
@@ -175,7 +167,6 @@
 
         this.$http.post("/api/mock", data).then(
           response => {
-            console.log("Create data group success");
             this.updateDataGroups();
             this.activateData(name);
             this.newDataGroupName = null;
@@ -195,11 +186,9 @@
     display: flex;
     align-items: center;
   }
-
   .inspector-left {
     margin-right: 0px
   }
-
   .inspector-right {
     margin-left: 5px
   }

@@ -1,6 +1,6 @@
 <template>
-    <card>
-        <tabs v-model="currentTab" :animated="false">
+    <div class="small-tab">
+        <tabs v-model="currentTab" :animated="false" size="small">
             <tab-pane label="Rule" name="rule"></tab-pane>
             <tab-pane label="Request" name="req"></tab-pane>
             <tab-pane label="RequestBody" name="req-body"></tab-pane>
@@ -11,7 +11,7 @@
         <div v-if="dataDetail" class="button-bar">
             <i-button type="primary" ghost @click="save">Save</i-button>
         </div>
-    </card>
+    </div>
 </template>
 
 <script>
@@ -133,18 +133,18 @@ export default{
     margin-top: 5px
 }
 .data-detail {
-  height: calc(100vh - 253px);
+  height: calc(100vh - 201px);
   /* total:100vh
   header: 38px
-  padding: 5px + 5px
-  buttonBar: 48px
-  card-padding: 16px
+  buttonBar: 38px
   tab-header: 52px
   table
   button: 30px
-  card-padding: 16px + 5px
   padding: 5px
   footer: 28px
     */
+}
+.small-tab > .ivu-tabs > .ivu-tabs-bar {
+ margin-bottom: 0;
 }
 </style>

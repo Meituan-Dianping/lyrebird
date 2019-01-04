@@ -35,6 +35,14 @@ export const getManifest = () => {
   })
 }
 
+//-------Flow----------------
+
+export const getFlowDetail = (flowId) => {
+  return axios({
+    url: '/api/flow/'+flowId
+  })
+}
+
 //------Mock data manager------
     /**
     Get group name list

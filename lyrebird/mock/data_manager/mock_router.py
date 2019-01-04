@@ -15,6 +15,9 @@ class MockRouter:
 
     def get_mock_data(self, flow):
         for rule, data in self.data_map:
+            urlRegx = rule.rule.get('request.url')
+            if urlRegx and urlRegx.contains('poiId=6995552'):
+                print('debug')
             if rule.match(flow):
                 return data
         # TODO none return

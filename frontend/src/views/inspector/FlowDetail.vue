@@ -2,7 +2,7 @@
     <div v-if="flowDetail">
         <Row type="flex" justify="center" align="middle">
             <Col span="1">
-                <Button icon="ios-arrow-dropright-circle" type="text" size="small"></Button>
+                <Button icon="ios-arrow-dropright-circle" type="text" size="small" @click="dismiss"></Button>
             </Col>
             <Col span="23" class="small-tab">
             <Tabs :value="currentTab" :animated="false" size="small" @on-click="switchTab">
@@ -27,82 +27,76 @@
         },
         data: function () {
             return {
-                flowDetail: null,
-                codeContent: null,
                 codeType: 'json',
                 currentTab: 'req'
             }
         },
         computed: {
-            flow(){
-                const flow = this.$store.state.inspector.focusedFlow
-                this.getFlowDetail(flow.id);
-            }
-        },
-        methods: {
-            getFlowDetail: function (flowID) {
-                this.$http.get('/api/flow/' + flowID)
-                    .then(response => {
-                        this.flowDetail = response.data;
-                        this.switchTab('req');
-                    }, error => {
-                        console.log('FlowDetail: get detail failed', error);
-                    });
+            flowDetail(){
+                return this.$store.state.inspector.focusedFlowDetail
             },
-            switchTab: function (name) {
-                console.log('FLowDetail:switchTab', name);
-                this.currentTab = name;
-                if (name === 'req') {
-                    this.codeContent = JSON.stringify(this.flowDetail.request, null, 4);
+            codeContent(){
+                let codeContent = ''
+                if (this.currentTab === 'req') {
+                    codeContent = JSON.stringify(this.flowDetail.request, null, 4);
                     this.codeType = 'json';
-                } else if (name === 'req-body') {
+                } else if (this.currentTab === 'req-body') {
                     if (this.flowDetail.request.data) {
-                        this.codeContent = JSON.stringify(this.flowDetail.request.data, null, 4);
+                        codeContent = JSON.stringify(this.flowDetail.request.data, null, 4);
                         this.codeType = 'json';
                     } else {
-                        this.codeContent = '';
+                        codeContent = '';
                         this.codeType = 'text';
                     }
-                } else if (name === 'resp') {
-                    this.codeContent = JSON.stringify(this.flowDetail.response, null, 4);
+                } else if (this.currentTab === 'resp') {
+                    codeContent = JSON.stringify(this.flowDetail.response, null, 4);
                     this.codeType = 'json';
-                } else if (name === 'resp-body') {
+                } else if (this.currentTab === 'resp-body') {
                     if (this.flowDetail.response.data === null) {
-                        this.codeContent = '';
+                        codeContent = '';
                         this.codeType = 'text';
                         return;
                     }
                     if (this.flowDetail.response.headers.hasOwnProperty('Content-Type')) {
                         let contentType = this.flowDetail.response.headers['Content-Type'];
                         if (contentType.includes('html')) {
-                            this.parseHtmlData(this.flowDetail.response.data);
+                            codeContent = this.parseHtmlData(this.flowDetail.response.data);
                         } else if (contentType.includes('xml')) {
-                            this.parseXmlData(this.flowDetail.response.data);
+                            codeContent = this.parseXmlData(this.flowDetail.response.data);
                         } else if (contentType.includes('json')) {
-                            this.parseJsonData(this.flowDetail.response.data);
+                            codeContent = this.parseJsonData(this.flowDetail.response.data);
                         } else {
-                            this.parseTextData(this.flowDetail.response.data);
+                            codeContent = this.parseTextData(this.flowDetail.response.data);
                         }
                     } else {
-                        this.parseTextData(this.flowDetail.response.data);
+                        codeContent = this.parseTextData(this.flowDetail.response.data);
                     }
                 }
+                return codeContent
+            }
+        },
+        methods: {
+            dismiss(){
+                this.$store.commit('setFocusedFlow', null)
+            },
+            switchTab: function (name) {
+                this.currentTab = name;                
             },
             parseJsonData: function (data) {
-                this.codeContent = JSON.stringify(data, null, 4);
                 this.codeType = 'json';
+                return JSON.stringify(data, null, 4);
             },
             parseHtmlData: function (data) {
-                this.codeContent = this.flowDetail.response.data;
                 this.codeType = 'html';
+                return this.flowDetail.response.data;
             },
             parseXmlData: function (data) {
-                this.codeContent = this.flowDetail.response.data;
                 this.codeType = 'xml';
+                return this.flowDetail.response.data;
             },
             parseTextData: function (data) {
-                this.codeContent = this.flowDetail.response.data;
                 this.codeType = 'text';
+                return this.flowDetail.response.data;
             }
         }
     };

@@ -68,6 +68,7 @@ class FlowList(Resource):
         flow_list = context.application.cache.items()
         for flow in flow_list:
             if flow['id'] in _ids:
-                activated_group.create_data(flow=flow)
+                data = activated_group.create_data(flow=flow)
+                data.save()
 
         return context.make_ok_response()

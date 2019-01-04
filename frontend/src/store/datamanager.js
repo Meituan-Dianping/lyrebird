@@ -14,6 +14,10 @@ export default {
             reqBody: '',
             resp: '',
             respBody: ''
+        },
+        createGroupModal: {
+            parentGroupId: null,
+            parentDataList: []
         }
     },
     mutations:{
@@ -52,6 +56,9 @@ export default {
         },
         setRespBody(state, respBody){
             state.editorCache.respBody = respBody
+        },
+        setCreateGroupModal(state, payload){
+            state.createGroupModal = payload
         }
     },
     actions:{
@@ -67,6 +74,16 @@ export default {
             .then(response=>{
                 commit('setDataList', response.data.data_list)
                 commit('clearSelectedData')
+            })
+            .catch(error=>console.log(error))
+        },
+        loadDataListForNewGroupForm({commit}, groupId){
+            api.getDataList(groupId)
+            .then(response=>{
+                commit('setCreateGroupModal', {
+                    parentGroupId: groupId,
+                    parentDataList: response.data.data_list
+                })
             })
             .catch(error=>console.log(error))
         },

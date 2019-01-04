@@ -1,7 +1,7 @@
 <template>
-  <Card :padding="5">
-    <Row type="flex" justify="start" align="middle" :gutter="5">
-      <i-col span="7">
+  <div class="button-bar">
+    <Row type="flex" justify="start" align="middle" :gutter="5" class="button-bar">
+      <i-col span="6">
         <label>
           <b>DataGroup:</b>
         </label>
@@ -11,6 +11,7 @@
             v-model="selectedDataGroup"
             filterable
             clearable
+            size="small"
             style="width: 60%"
             @on-change="onGroupSelected"
           >
@@ -21,27 +22,40 @@
         </div>
       </i-col>
       <i-col span="12">
-        <ButtonGroup>
-          <Button @click="groupNameModal=true">NewGroup</Button>
-          <Button @click="deleteGroupModal=true">DeleteGroup</Button>
-          <Button @click="dataNameModal=true">NewData</Button>
-          <Button @click="deleteDataModal=true">DeleteData</Button>
+        <ButtonGroup size="small">
+          <Button @click="groupNameModal=true" size="small">NewGroup</Button>
+          <Button @click="deleteGroupModal=true" size="small">DeleteGroup</Button>
+          <Button @click="dataNameModal=true" size="small">NewData</Button>
+          <Button @click="deleteDataModal=true" size="small">DeleteData</Button>
         </ButtonGroup>
       </i-col>
     </Row>
-    <Modal v-model="groupNameModal" title="Data group name" @on-ok="createNewGroup">
-      <Input v-model="groupName" placeholder="Data group name"></Input>
+    <Modal v-model="groupNameModal" title="DataGroup" @on-ok="createNewGroup">
+      <Form :label-width="80">
+        <FormItem label="GroupName">
+          <Input v-model="dataGroupProp.name" placeholder="Data group name"></Input>
+        </FormItem>
+        <FormItem label="Parent">
+          <Select v-model="dataGroupProp.parentId" @on-change="onCreateGroupModalParentChange" clearable>
+            <Option v-for="groupItem in groupList" :key="groupItem.id" :value="groupItem.id">{{groupItem.name}}</Option>
+          </Select>
+        </FormItem>
+        <label v-if="dataGroupProp.parentId">Copy data from parent group</label>
+        <Table v-if="dataGroupProp.parentId"
+        :columns="parentListColumns"
+        :data="parentDataList"></Table>
+      </Form>
     </Modal>
     <Modal v-model="deleteGroupModal" title="Delete group" @on-ok="deleteGroup">
       <p>Delete current group ?</p>
     </Modal>
-    <Modal v-model="dataNameModal" title="Data name" @on-ok="createNewData">
+    <Modal v-model="dataNameModal" title="Data" @on-ok="createNewData">
       <Input v-model="dataName" placeholder="Data name"></Input>
     </Modal>
     <Modal v-model="deleteDataModal" title="Delete data" @on-ok="deleteData">
       <p>Delete all selected data?</p>
     </Modal>
-  </Card>
+  </div>
 </template>
 
 <script>
@@ -53,7 +67,23 @@ export default {
       deleteGroupModal: false,
       dataNameModal: false,
       dataName: '',
-      deleteDataModal: false
+      deleteDataModal: false,
+      dataGroupProp:{
+        name: '',
+        parentId: null,
+        CopyDataIds: []
+      },
+      parentListColumns: [
+        {
+          type: "selection",
+          width: 50,
+          align: "center"
+        },
+        {
+          title: "Name",
+          key: "name"
+        }
+      ]
     };
   },
   mounted() {
@@ -77,6 +107,10 @@ export default {
     },
     deleteData(){
       this.$store.dispatch('deleteData', this.selectedDataGroup)
+    },
+    onCreateGroupModalParentChange(value){
+      console.log(value);
+      this.$store.dispatch('loadDataListForNewGroupForm', value)
     }
   },
   computed: {
@@ -94,6 +128,9 @@ export default {
     },
     groupList() {
       return this.$store.state.dataManager.groupList;
+    },
+    parentDataList(){
+      return this.$store.state.dataManager.createGroupModal.parentDataList
     }
   }
 };
@@ -102,5 +139,9 @@ export default {
 <style>
 .inline {
   display: inline;
+}
+.button-bar {
+  flex-grow: 1;
+  display: flex;
 }
 </style>
