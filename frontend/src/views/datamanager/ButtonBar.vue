@@ -44,7 +44,9 @@
         <div v-if="dataGroupProp.parentId" class="modal-data-list">
           <Table
           :columns="parentListColumns"
-          :data="parentDataList"></Table>
+          :data="parentDataList"
+          @on-selection-change="onModalParentDataSelectionChange"
+          ></Table>
         </div>
       </Form>
     </Modal>
@@ -113,6 +115,9 @@ export default {
     onCreateGroupModalParentChange(value){
       console.log(value);
       this.$store.dispatch('loadDataListForNewGroupForm', value)
+    },
+    onModalParentDataSelectionChange(selection){
+      this.$store.commit('setCreateGroupModalSelectedData', selection)
     }
   },
   computed: {

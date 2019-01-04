@@ -17,7 +17,8 @@ export default {
         },
         createGroupModal: {
             parentGroupId: null,
-            parentDataList: []
+            parentDataList: [],
+            selectedDataIdList: []
         }
     },
     mutations:{
@@ -59,6 +60,9 @@ export default {
         },
         setCreateGroupModal(state, payload){
             state.createGroupModal = payload
+        },
+        setCreateGroupModalSelectedData(state, dataIdList){
+            state.createGroupModal.selectedDataIdList = dataIdList
         }
     },
     actions:{
