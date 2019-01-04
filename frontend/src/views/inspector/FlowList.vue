@@ -153,7 +153,14 @@
       reload: function () {
         this.$http.get("/api/flow").then(
           response => {
-            this.originFlowList = response.data;
+            this.originFlowList = []
+            const selectedIds = this.$store.state.inspector.selectedIds
+            for (const flow of response.data) {
+              if(selectedIds.includes(flow.id))
+              flow['_checked'] = true
+              this.originFlowList.push(flow)
+            }
+            // this.originFlowList = response.data;
           },
           error => {
             console.log("Inspector: reload failed", error);
