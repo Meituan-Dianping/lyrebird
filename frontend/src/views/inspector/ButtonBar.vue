@@ -153,7 +153,6 @@
       },
       clearModalOk: function () {
         this.$http.delete('/api/flow', {body: {ids:null}}).then(response => {
-          // this.$store.
         });
 
         this.selectedFlow = null;
