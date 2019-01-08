@@ -47,13 +47,15 @@
             <Option v-for="groupItem in groupList" :key="groupItem.id" :value="groupItem.id">{{groupItem.name}}</Option>
           </Select>
         </FormItem>
-        <label v-if="dataGroupProp.parentId">Copy data from parent group</label>
-        <div v-if="dataGroupProp.parentId" class="modal-data-list">
-          <Table
-          :columns="parentListColumns"
-          :data="parentDataList"
-          @on-selection-change="onModalParentDataSelectionChange"
-          ></Table>
+        <div v-show="false">
+          <label v-if="dataGroupProp.parentId">Copy data from parent group</label>
+          <div v-if="dataGroupProp.parentId" class="modal-data-list">
+            <Table
+            :columns="parentListColumns"
+            :data="parentDataList"
+            @on-selection-change="onModalParentDataSelectionChange"
+            ></Table>
+          </div>
         </div>
       </Form>
     </Modal>
