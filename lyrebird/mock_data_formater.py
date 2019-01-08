@@ -81,14 +81,14 @@ def update_group(group_dir, output_group_dir):
             logger.error(f'Bad data: duplicate filter. {data_filter} -[removed]')
             continue
         try:
-            update_data(group_dir/data_name, output_group_dir/data_name, old_group_conf=old_conf)
+            update_data(group_dir/data_name, output_group_dir/data_name, old_group_filter=contents)
             saved_filter.add(filter_key)
         except Exception as e:
             logger.error(f'!!! Load data error. {e} . {group_dir/data_name}')
             traceback.print_exc()
 
 
-def update_data(data_dir, output_data_dir, old_group_conf=None):
+def update_data(data_dir, output_data_dir, old_group_filter=None):
     print(f'Working in data {data_dir}')
 
     output_data_dir.mkdir(exist_ok=True)
@@ -146,19 +146,10 @@ def update_data(data_dir, output_data_dir, old_group_conf=None):
         else:
             new_data_info['name'] = parsed_url.hostname
 
-    url_regex = []
-    for old_filter in old_group_conf['filters']:
-        if old_filter['response'] == data_dir.name:
-            if len(old_filter['contents']) == 0:
-                url_regex.append([parsed_url.hostname])
-            else:
-                url_regex.append(old_filter['contents'])
-    if len(url_regex) > 1:
-        print(f'Warning: data {data_dir.name} has more than one regex. We keep the 1st one')
-    if len(url_regex) <= 0:
-        print(f'Unused data {data_dir.name}')
-        return
-    new_data_info['rule'] = {'request.url': ''.join(f'(?=.*{url_regex[0]})')}
+    regex = ''
+    for filter_line in old_group_filter:
+        regex += f'(?=.*{filter_line})'
+    new_data_info['rule'] = {'request.url': regex}
 
     content_type = req_obj.get('headers', {}).get('Content-Type')
     if content_type:
