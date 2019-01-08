@@ -20,7 +20,6 @@
 
 <script>
   import FlowListItem from '@/views/inspector/FlowListItem.vue'
-  import io from 'socket.io-client'
   import {readablizeBytes} from '@/utils'
 
   export default {
@@ -45,7 +44,7 @@
           {
             title: 'Source',
             key: 'src',
-            width: 60,
+            width: 75,
             align: 'center',
             render: (h, params) => {
               if (params.row.response.mock === 'proxy') {
@@ -62,6 +61,13 @@
                     size: 'small'
                   }
                 }, params.row.response.mock);
+              } else {
+                return h("Tag", {
+                  props: {
+                    color: 'default',
+                    size: 'small'
+                  }
+                }, 'pending');
               }
             }
           },
@@ -118,8 +124,7 @@
     },
     created() {
       const reload = this.reload
-      this.sio = io()
-      this.sio.on("action", function(){
+      this.$io.on("action", function(){
         reload()
       })
     },

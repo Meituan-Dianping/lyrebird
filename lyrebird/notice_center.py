@@ -12,4 +12,4 @@ class NoticeCenter():
         display notice
         
         """
-        context.application.socket_io.emit('show', msg, namespace='/alert')
+        context.application.socket_io.emit('show', msg)

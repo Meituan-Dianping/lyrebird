@@ -17,7 +17,7 @@
         </Sider>
         <Layout>
             <Header class="main-header" inline>
-                <Icon type="md-menu" color="white" size="24" @click.native="collapsedSider"></Icon>
+              <Icon type="md-menu" color="white" size="24" @click.native="collapsedSider"></Icon>
             </Header>
             <Content>
                 <div class="main-container">
@@ -35,9 +35,9 @@
                 </a>
                 <div slot="title"><b>💡Status</b></div>
                 <div slot="content">
-                  <Row v-for="value in showedStatus" :key="value" :gutter="16">
-                    <i-col span=12><b style="float: right">{{value}}</b></i-col>
-                    <i-col span=12>{{status[value]}}</i-col>
+                  <Row v-for="key in showedStatus" :key="key">
+                    <i-col span=11><b style="float: right">{{key.toUpperCase()}}</b></i-col>
+                    <i-col span=12 offset=1>{{status[key]}}</i-col>
                   </Row>
                 </div>
               </Poptip>
@@ -48,7 +48,6 @@
 </template>
 
 <script>
-import io from 'socket.io-client'
 import Notice from '@/views/Notice.vue'
 
 export default {
@@ -59,7 +58,6 @@ export default {
   data() {
     return {
       isCollapsed: true,
-      alertIO: null,
       showedStatus: ["ip", "mock.port", "proxy.port", "version"]
     }
   },
@@ -67,8 +65,7 @@ export default {
     this.$Notice.config({
       top: 0,
     });
-    this.alertIO = io('/alert')
-    this.alertIO.on('show', this.showNotice);
+    this.$io.on('show', this.showNotice);
   },
   mounted(){
     this.$store.dispatch('loadMenu')
