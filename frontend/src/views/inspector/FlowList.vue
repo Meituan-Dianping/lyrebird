@@ -20,7 +20,6 @@
 
 <script>
   import FlowListItem from '@/views/inspector/FlowListItem.vue'
-  import io from 'socket.io-client'
   import {readablizeBytes} from '@/utils'
 
   export default {
@@ -125,8 +124,7 @@
     },
     created() {
       const reload = this.reload
-      this.sio = this.$io
-      this.sio.on("action", function(){
+      this.$io.on("action", function(){
         reload()
       })
     },
