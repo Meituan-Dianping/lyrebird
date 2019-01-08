@@ -110,20 +110,35 @@ export default {
                 console.log(error)
             })
         },
-        newDataGroup({state, commit, dispatch}, groupName){
-            api.createGroup(groupName)
+        newDataGroup({state, commit, dispatch}, {groupName, parentGroupId}){
+            api.createGroup(groupName, parentGroupId)
             .then(response=>{
                 const groupId = response.data.group_id
                 state.groupList.push({
                     id:groupId,
                     name:groupName,
-                    parent:null
+                    parent:parentGroupId
                 })
                 commit('setCurrentDataGroup', groupId)
                 dispatch('loadDataList', groupId)
             })
             .catch(error=>{
                 console.error('Create group failed');
+            })
+        },
+        updateDataGroup({state, commit, dispatch}, {groupId, groupName, parentGroupId}){
+            api.updateGroup(groupId, groupName, parentGroupId)
+            .then(response=>{
+                const groupId = response.data.group_id
+                for (const group of state.groupList) {
+                    if(groupId===group.id){
+                        group.name = groupName
+                        group.parent = parentGroupId
+                        break
+                    }
+                }
+                commit('setCurrentDataGroup', groupId)
+                dispatch('loadDataList', groupId)
             })
         },
         deleteDataGroup({commit, dispatch}, groupId){

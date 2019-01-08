@@ -2,7 +2,7 @@
   <div class="button-bar">
     <Row type="flex" justify="start" align="middle" :gutter="5" class="button-bar">
       <i-col span="6">
-        <label>
+        <label class="group-label">
           <b>DataGroup:</b>
         </label>
         <div class="inline">
@@ -21,9 +21,16 @@
           </Select>
         </div>
       </i-col>
+      <i-col span=6 class="btn-bar">
+        <label class="group-label">
+          <b>ParentGroup:</b>
+        </label>
+        <Tag color="default" class="parent-name" @click.native="onGroupEditBtnClick">{{selectedDataGroupParentName}}</Tag>
+        <Button icon="md-create" type="text" @click="onGroupEditBtnClick"></Button>
+      </i-col>
       <i-col span="12">
         <ButtonGroup size="small">
-          <Button @click="groupNameModal=true" size="small">NewGroup</Button>
+          <Button @click="onNewGroupBtnClick" size="small">NewGroup</Button>
           <Button @click="deleteGroupModal=true" size="small">DeleteGroup</Button>
           <Button @click="dataNameModal=true" size="small">NewData</Button>
           <Button @click="deleteDataModal=true" size="small">DeleteData</Button>
@@ -73,6 +80,7 @@ export default {
       dataName: '',
       deleteDataModal: false,
       dataGroupProp:{
+        id: null,
         name: '',
         parentId: null,
         CopyDataIds: []
@@ -101,7 +109,16 @@ export default {
       this.$store.dispatch("activateCurrentGroup");
     },
     createNewGroup(){
-      this.$store.dispatch('newDataGroup', this.groupName)
+      if(this.dataGroupProp.id){
+        this.$store.dispatch('updateDataGroup', {
+          groupId:this.dataGroupProp.id, 
+          groupName:this.dataGroupProp.name, 
+          parentGroupId:this.dataGroupProp.parentId})
+      }else{
+        this.$store.dispatch('newDataGroup', {
+          groupName:this.dataGroupProp.name, 
+          parentGroupId:this.dataGroupProp.parentId})
+      }
     },
     deleteGroup(){
       this.$store.dispatch('deleteDataGroup', this.selectedDataGroup)
@@ -113,11 +130,22 @@ export default {
       this.$store.dispatch('deleteData', this.selectedDataGroup)
     },
     onCreateGroupModalParentChange(value){
-      console.log(value);
       this.$store.dispatch('loadDataListForNewGroupForm', value)
     },
     onModalParentDataSelectionChange(selection){
       this.$store.commit('setCreateGroupModalSelectedData', selection)
+    },
+    onNewGroupBtnClick(){
+      this.dataGroupProp.id = null
+      this.dataGroupProp.name = null
+      this.dataGroupProp.parentId = null
+      this.groupNameModal = true
+    },
+    onGroupEditBtnClick(){
+      this.dataGroupProp.id = this.selectedDataGroup
+      this.dataGroupProp.name = this.selectedDataGroupName
+      this.dataGroupProp.parentId = this.selectedDataGroupParentId
+      this.groupNameModal = true
     }
   },
   computed: {
@@ -133,6 +161,44 @@ export default {
         this.$store.commit("setCurrentDataGroup", value);
       }
     },
+    selectedDataGroupName(){
+      const groups = this.$store.state.dataManager.groupList
+      const selectedGroupId = this.$store.state.dataManager.currentDataGroup
+      let parentId = null
+      for (const group of groups) {
+        if(group.id===selectedGroupId){
+          return group.name
+        }
+      }
+    },
+    selectedDataGroupParentId(){
+      const groups = this.$store.state.dataManager.groupList
+      const selectedGroupId = this.$store.state.dataManager.currentDataGroup
+      let parentId = null
+      for (const group of groups) {
+        if(group.id===selectedGroupId){
+          return group.parent
+        }
+      }
+      return null
+    },
+    selectedDataGroupParentName(){
+      const groups = this.$store.state.dataManager.groupList
+      const selectedGroupId = this.$store.state.dataManager.currentDataGroup
+      let parentId = null
+      for (const group of groups) {
+        if(group.id===selectedGroupId){
+          parentId = group.parent
+          break
+        }
+      }
+      for (const group of groups) {
+        if(group.id===parentId){
+          return group.name
+        }
+      }
+      return ''
+    },
     groupList() {
       return this.$store.state.dataManager.groupList;
     },
@@ -143,7 +209,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .inline {
   display: inline;
 }
@@ -154,5 +220,18 @@ export default {
 .modal-data-list {
   height: 30vh;
   overflow-y: auto;
+}
+.group-label {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.btn-bar button {
+  padding: 0;
+  font-size: 18px;
+  border-radius: 0px;
+}
+.parent-name {
+  max-width: 200px;
+  text-overflow: ellipsis
 }
 </style>
