@@ -84,9 +84,14 @@ class EventServer(ThreadServer):
             message['timestamp'] = int(time.time())
             if not message.get('sender'):
                 stack = inspect.stack()
-                script_filename = stack[2].filename
-                script_name = script_filename[script_filename.rfind('/') + 1:]
-                message['sender'] = script_name
+                script_path = stack[2].filename
+                script_name = script_path[script_path.rfind('/') + 1:]
+                function_name = stack[2].function
+                sender_dict = {
+                    "file": script_name,
+                    "function": function_name
+                }
+                message['sender'] = sender_dict
         
         self.event_queue.put(Event(channel, message))
         if state:

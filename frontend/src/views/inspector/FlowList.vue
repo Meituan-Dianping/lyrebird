@@ -45,7 +45,7 @@
           {
             title: 'Source',
             key: 'src',
-            width: 60,
+            width: 75,
             align: 'center',
             render: (h, params) => {
               if (params.row.response.mock === 'proxy') {
@@ -62,6 +62,13 @@
                     size: 'small'
                   }
                 }, params.row.response.mock);
+              } else {
+                return h("Tag", {
+                  props: {
+                    color: 'default',
+                    size: 'small'
+                  }
+                }, 'pending');
               }
             }
           },

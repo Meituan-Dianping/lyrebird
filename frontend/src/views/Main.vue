@@ -35,9 +35,9 @@
                 </a>
                 <div slot="title"><b>💡Status</b></div>
                 <div slot="content">
-                  <Row v-for="value in showedStatus" :key="value" :gutter="16">
-                    <i-col span=12><b style="float: right">{{value}}</b></i-col>
-                    <i-col span=12>{{status[value]}}</i-col>
+                  <Row v-for="value in showedStatus" :key="value">
+                    <i-col span=10><b style="float: right">{{value}}</b></i-col>
+                    <i-col span=14>{{status[value]}}</i-col>
                   </Row>
                 </div>
               </Poptip>
