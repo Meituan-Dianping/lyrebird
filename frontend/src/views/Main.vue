@@ -17,7 +17,7 @@
         </Sider>
         <Layout>
             <Header class="main-header" inline>
-                <Icon type="md-menu" color="white" size="24" @click.native="collapsedSider"></Icon>
+              <Icon type="md-menu" color="white" size="24" @click.native="collapsedSider"></Icon>
             </Header>
             <Content>
                 <div class="main-container">
@@ -67,7 +67,7 @@ export default {
     this.$Notice.config({
       top: 0,
     });
-    this.alertIO = io('/alert')
+    this.alertIO = this.$io
     this.alertIO.on('show', this.showNotice);
   },
   mounted(){

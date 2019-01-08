@@ -118,7 +118,7 @@
     },
     created() {
       const reload = this.reload
-      this.sio = io()
+      this.sio = this.$io
       this.sio.on("action", function(){
         reload()
       })
