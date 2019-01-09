@@ -33,7 +33,8 @@ class DataManager:
         if group_id in self.groups:
             self.activated_group_id = group_id
             group = self.groups.get(group_id)
-            self.router.switch_group(group)
+            parent = self.groups.get(group.parent_id)
+            self.router.switch_group(group, parent=parent)
         else:
             raise ActivateFailed(f'Group id not found {group_id}')
 

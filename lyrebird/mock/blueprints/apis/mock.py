@@ -21,20 +21,24 @@ class MockGroup(Resource):
 
     def post(self):
         name = request.json.get('name')
+        parent = request.json.get('parent')
         group = context.application.data_manager.create_group()
         group.name = name
+        group.parent_id = parent
         group.save()
         return context.make_ok_response(group_id=group.id)
 
     def put(self):
         name = request.json.get('name')
-        group_id = request.json.get('group_id')
+        group_id = request.json.get('id')
+        parent = request.json.get('parent')
         group = context.application.data_manager.groups.get(group_id)
         if not group:
             return context.make_fail_response('Group not found')
         group.name = name
+        group.parent_id = parent
         group.save()
-        return context.make_ok_response()
+        return context.make_ok_response(group_id=group.id)
 
     def delete(self, group_id):
         context.application.data_manager.delete_group(group_id)
@@ -134,3 +138,18 @@ class ActivatedMockGroup(Resource):
         else:
             context.application.data_manager.deactivate()
         return context.make_ok_response()
+
+
+class MockGroupByName(Resource):
+
+    def put(self):
+        group_name = request.json.get('group_name')
+        action = request.json.get('action', 'activate')
+        for group_id in context.application.data_manager.groups:
+            if group_name == context.application.data_manager.groups[group_id].name:
+                if action == 'activate':
+                    context.application.data_manager.activate(group_id)
+                else:
+                    context.application.data_manager.deactivate()
+                return context.make_ok_response()
+        return context.make_fail_response(f'Group not found. name={group_name}')

@@ -4,17 +4,26 @@ import re
 class MockRouter:
     def __init__(self):
         self.data_map = []
+        self.parent_data_map = []
 
-    def switch_group(self, data_group):
+    def switch_group(self, data_group, parent=None):
         self.data_map = []
+        self.parent_data_map = []
         if not data_group:
             return
         for data_id in data_group.all_data:
             data = data_group.all_data[data_id]
             self.data_map.append((MockRule(data.rule), data))
+        if parent:
+            for data_id in parent.all_data:
+                data = parent.all_data[data_id]
+                self.parent_data_map.append((MockRule(data.rule), data))
 
     def get_mock_data(self, flow):
         for rule, data in self.data_map:
+            if rule.match(flow):
+                return data
+        for rule, data in self.parent_data_map:
             if rule.match(flow):
                 return data
         # TODO none return

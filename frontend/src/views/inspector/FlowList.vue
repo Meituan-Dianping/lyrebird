@@ -1,5 +1,5 @@
 <template>
-  <Card> 
+  <div>
     <div class="flow-list">
       <Table highlight-row 
         size='small'
@@ -15,7 +15,7 @@
         <Page :total="originFlowList.length" :page-size="pageSize" :current.sync="currentPage" @on-change="refreshFlowList"/>
       </div>
     </div>
-  </Card>
+  </div>
 </template>
 
 <script>
@@ -158,7 +158,13 @@
       reload: function () {
         this.$http.get("/api/flow").then(
           response => {
-            this.originFlowList = response.data;
+            this.originFlowList = []
+            const selectedIds = this.$store.state.inspector.selectedIds
+            for (const flow of response.data) {
+              if(selectedIds.includes(flow.id))
+              flow['_checked'] = true
+              this.originFlowList.push(flow)
+            }
           },
           error => {
             console.log("Inspector: reload failed", error);
@@ -166,8 +172,7 @@
         );
       },
       selectFlow: function (flow) {
-        this.foucsFlow = flow
-        this.$emit("select-detail", flow);
+        this.$store.dispatch('focusFlow', flow)
       },
       itemSelectChange: function (event) {
         let selectedIds = []
@@ -201,14 +206,11 @@
 
 <style>
 .flow-list {
-  height: calc(100vh - 166px);
+  height: calc(100vh - 114px);
   /* total:100vh
   header: 38px
-  padding: 5px + 5px
-  buttonBar: 48px
-  card-padding: 16px
+  buttonBar: 38px
   table
-  card-padding: 16px
   padding: 5px
   footer: 28px
     */

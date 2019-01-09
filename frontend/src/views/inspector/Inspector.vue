@@ -3,12 +3,14 @@
     <Row class="button-bar">
       <button-bar></button-bar>
     </Row>
+    <div class="divider"></div>
     <Row>
-      <Col span="12">
-        <flow-list v-on:select-detail="selectedFlowChange" class="inspector-left"></flow-list>
+      <Col :span="listSpan">
+        <flow-list class="inspector-left"></flow-list>
       </Col>
-      <Col span="12">
-        <flow-detail v-bind:flow="selectedFlow" class="inspector-right"></flow-detail>
+      <div class="split" v-if="focusedFlow"></div>
+      <Col span="12" v-if="focusedFlow">
+        <flow-detail class="inspector-right"></flow-detail>
       </Col>
     </Row>
   </div>
@@ -36,7 +38,6 @@
     data: function () {
       return {
         showClearModal: false,
-        selectedFlow: null,
         recordingBtn: stopedStatus,
         activatedData: null,
         selectedDataGroup: "",
@@ -55,10 +56,19 @@
       this.updateDataGroups();
       this.updateActivatedDataGroup();
     },
-    methods: {
-      selectedFlowChange: function (payload) {
-        this.selectedFlow = payload;
+    computed: {
+      listSpan(){
+        if(this.focusedFlow){
+          return "12"
+        }else{
+          return "24"
+        }
       },
+      focusedFlow(){
+        return this.$store.state.inspector.focusedFlow
+      }
+    },
+    methods: {
       switchRecord: function () {
         if (this.recordingBtn.recording) {
           this.$http.put("/api/mode/normal").then(
@@ -93,14 +103,14 @@
             } else {
               this.recordingBtn = stopedStatus;
             }
-            console.log("get recode mode", response);
           },
           error => {}
         );
       },
       clearModalOk: function () {
-        this.$http.delete("/api/flow").then(response => {});
-        this.selectedFlow = null;
+        this.$http.delete("/api/flow").then(response => {
+          this.$store.commit('setFocusedFlow', null)
+        });
       },
       activateData: function (name) {
         if (name === 'None') {
@@ -108,7 +118,6 @@
         } else {
           this.$http.put("/api/mock/" + name + "/activate").then(
             response => {
-              console.log("activated group", name);
               this.updateActivatedDataGroup();
             },
             errpr => {}
@@ -118,7 +127,6 @@
       resetActivatedData: function () {
         this.$http.put("/api/mock/group/deactivate").then(
           response => {
-            console.log("reset group");
             this.updateActivatedDataGroup();
           },
           errpr => {}
@@ -141,13 +149,11 @@
             } else {
               this.selectedDataGroup = "None";
             }
-            console.log("activated group", response);
           },
           error => {}
         );
       },
       activatedDataChange: function (val) {
-        console.log("Change", val);
         this.updateDataGroups();
         this.activateData(val);
       },
@@ -161,7 +167,6 @@
 
         this.$http.post("/api/mock", data).then(
           response => {
-            console.log("Create data group success");
             this.updateDataGroups();
             this.activateData(name);
             this.newDataGroupName = null;
@@ -177,15 +182,30 @@
 
 <style scoped>
   .button-bar {
-    margin-bottom: 5px;
-    height: 48px;
+    height: 38px;
+    display: flex;
+    align-items: center;
   }
-
   .inspector-left {
-    margin-right: 5px
+    margin-right: 0px
   }
-
   .inspector-right {
     margin-left: 5px
+  }
+  .divider{
+    display: block;
+    width: 100%;
+    height: 1px;
+    background: #eee;
+    top: 0;
+    left: 0;
+  }
+  .split{
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    border: 1px dashed #eee;
   }
 </style>

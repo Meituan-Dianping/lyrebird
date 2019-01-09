@@ -52,8 +52,9 @@ class Group:
 
         _gid = info.get('id')
         _gname = info.get('name')
+        _gparent = info.get('parent')
 
-        group = cls(_gid, _gname, new_path)
+        group = cls(_gid, _gname, new_path, gparent_id=_gparent)
         group.scan()
         return group
 

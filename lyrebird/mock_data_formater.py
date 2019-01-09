@@ -6,6 +6,10 @@ import uuid
 import shutil
 from urllib.parse import urlparse
 import traceback
+from lyrebird.log import get_logger
+
+
+logger = get_logger()
 
 
 NEW_INFO_FILENAME = '.lyrebird_prop'
@@ -36,14 +40,15 @@ def update(work_dir, output_dir):
         try:
             update_group(work_dir/group_dir_name.name, output_dir/group_dir_name.name)
         except Exception as e:
-            print(f'!!! Load group fail. {e}. {group_dir_name}')
+            logger.error(f'!!! Load group fail. {e}. {group_dir_name} . [removed]')
             traceback.print_exc()
+            shutil.rmtree(str(output_dir/group_dir_name.name))
 
 
 def update_group(group_dir, output_group_dir):
     old_conf_file = group_dir/OLD_INFO_FILENAME
     if not old_conf_file.exists():
-        print(f'Dir {group_dir} is not data group. skip >>')
+        logger.error(f'Dir {group_dir} is not data group. skip >>')
         return
 
     print(f'Working in group {group_dir}')
@@ -61,18 +66,29 @@ def update_group(group_dir, output_group_dir):
     with codecs.open(output_group_dir/NEW_INFO_FILENAME, 'w', 'utf-8') as f:
         json.dump(new_group_info, f, ensure_ascii=False, indent=4)
 
-    for data_dir_name in Path(group_dir).iterdir():
-        if not data_dir_name.is_dir():
+    saved_filter = set()
+    for data_filter in old_conf['filters']:
+        data_name = data_filter.get('response')
+        if not data_name:
+            logger.error(f'Bad data: not set response data. {data_filter}')
+            continue
+        contents = data_filter.get('contents')
+        if not contents:
+            logger.error(f'Bad data: not set filter. {data_filter}')
+            continue
+        filter_key = '.*'.join(contents)
+        if filter_key in saved_filter:
+            logger.error(f'Bad data: duplicate filter. {data_filter} -[removed]')
             continue
         try:
-            update_data(group_dir/data_dir_name.name, output_group_dir/data_dir_name.name, old_group_conf=old_conf)
+            update_data(group_dir/data_name, output_group_dir/data_name, old_group_filter=contents)
+            saved_filter.add(filter_key)
         except Exception as e:
-            print(f'!!! Load data error. {e} . {data_dir_name}')
+            logger.error(f'!!! Load data error. {e} . {group_dir/data_name}')
             traceback.print_exc()
 
 
-
-def update_data(data_dir, output_data_dir, old_group_conf=None):
+def update_data(data_dir, output_data_dir, old_group_filter=None):
     print(f'Working in data {data_dir}')
 
     output_data_dir.mkdir(exist_ok=True)
@@ -130,19 +146,10 @@ def update_data(data_dir, output_data_dir, old_group_conf=None):
         else:
             new_data_info['name'] = parsed_url.hostname
 
-    url_regex = []
-    for old_filter in old_group_conf['filters']:
-        if old_filter['response'] == data_dir.name:
-            if len(old_filter['contents']) == 0:
-                url_regex.append([parsed_url.hostname])
-            else:
-                url_regex.append(old_filter['contents'])
-    if len(url_regex) > 1:
-        print(f'Warning: data {data_dir.name} has more than one regex. We keep the 1st one')
-    if len(url_regex) <= 0:
-        print(f'Unused data {data_dir.name}')
-        return
-    new_data_info['rule'] = {'request.url': '|'.join(url_regex[0])}
+    regex = ''
+    for filter_line in old_group_filter:
+        regex += f'(?=.*{filter_line})'
+    new_data_info['rule'] = {'request.url': regex}
 
     content_type = req_obj.get('headers', {}).get('Content-Type')
     if content_type:

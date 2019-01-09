@@ -35,6 +35,14 @@ export const getManifest = () => {
   })
 }
 
+//-------Flow----------------
+
+export const getFlowDetail = (flowId) => {
+  return axios({
+    url: '/api/flow/'+flowId
+  })
+}
+
 //------Mock data manager------
     /**
     Get group name list
@@ -50,19 +58,19 @@ export const getGroups = () =>{
   })
 }
 
-export const createGroup = (name) => {
+export const createGroup = (name, parentId) => {
   return axios({
     url: '/api/mock',
     method: 'POST',
-    data: {name:name}
+    data: {name:name, parent:parentId}
   })
 }
 
-export const updateGroup = (name) => {
+export const updateGroup = (id, name, parentId) => {
   return axios({
     url: '/api/mock',
     method: 'PUT',
-    data: {name:name}
+    data: {id:id, name:name, parent:parentId}
   })
 }
 

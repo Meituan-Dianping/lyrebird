@@ -6,7 +6,9 @@ export default {
     showDataButtons: false,
     searchStr: '',
     selectedIds: [],
-    groupList: []
+    groupList: [],
+    focusedFlow: null,
+    focusedFlowDetail: null
   },
   mutations: {
     setActivitedGroupId(state, groupId) {
@@ -23,6 +25,12 @@ export default {
     },
     clearSelectedId: function (state) {
       state.selectedIds = []
+    },
+    setFocusedFlow(state, flow){
+      state.focusedFlow = flow
+    },
+    setFocusedFlowDetail(state, flowDetail){
+      state.focusedFlowDetail = flowDetail
     }
   },
   actions: {
@@ -66,6 +74,15 @@ export default {
         })
         dispatch('activateGroup', groupId)
       })
+    },
+    loadFlowDetail({commit}, flowId){
+      api.getFlowDetail(flowId).then(response=>{
+        commit('setFocusedFlowDetail', response.data)
+      })
+    },
+    focusFlow({commit, dispatch}, flow){
+      commit('setFocusedFlow', flow)
+      dispatch('loadFlowDetail', flow.id)
     }
   }
 }

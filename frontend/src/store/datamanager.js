@@ -14,6 +14,11 @@ export default {
             reqBody: '',
             resp: '',
             respBody: ''
+        },
+        createGroupModal: {
+            parentGroupId: null,
+            parentDataList: [],
+            selectedDataIdList: []
         }
     },
     mutations:{
@@ -52,6 +57,12 @@ export default {
         },
         setRespBody(state, respBody){
             state.editorCache.respBody = respBody
+        },
+        setCreateGroupModal(state, payload){
+            state.createGroupModal = payload
+        },
+        setCreateGroupModalSelectedData(state, dataIdList){
+            state.createGroupModal.selectedDataIdList = dataIdList
         }
     },
     actions:{
@@ -70,6 +81,16 @@ export default {
             })
             .catch(error=>console.log(error))
         },
+        loadDataListForNewGroupForm({commit}, groupId){
+            api.getDataList(groupId)
+            .then(response=>{
+                commit('setCreateGroupModal', {
+                    parentGroupId: groupId,
+                    parentDataList: response.data.data_list
+                })
+            })
+            .catch(error=>console.log(error))
+        },
         loadDataDetail({commit}, payload){
             api.getDataDetail(payload.groupId, payload.dataId)
             .then(response=>{
@@ -85,22 +106,39 @@ export default {
             .then(response=>{
                 dispatch('loadDataDetail', {groupName:groupName, dataName:dataName})
             })
-            .catch(error=>console.log(error))
+            .catch(error=>{
+                console.log(error)
+            })
         },
-        newDataGroup({state, commit, dispatch}, groupName){
-            api.createGroup(groupName)
+        newDataGroup({state, commit, dispatch}, {groupName, parentGroupId}){
+            api.createGroup(groupName, parentGroupId)
             .then(response=>{
                 const groupId = response.data.group_id
                 state.groupList.push({
                     id:groupId,
                     name:groupName,
-                    parent:null
+                    parent:parentGroupId
                 })
                 commit('setCurrentDataGroup', groupId)
                 dispatch('loadDataList', groupId)
             })
             .catch(error=>{
                 console.error('Create group failed');
+            })
+        },
+        updateDataGroup({state, commit, dispatch}, {groupId, groupName, parentGroupId}){
+            api.updateGroup(groupId, groupName, parentGroupId)
+            .then(response=>{
+                const groupId = response.data.group_id
+                for (const group of state.groupList) {
+                    if(groupId===group.id){
+                        group.name = groupName
+                        group.parent = parentGroupId
+                        break
+                    }
+                }
+                commit('setCurrentDataGroup', groupId)
+                dispatch('loadDataList', groupId)
             })
         },
         deleteDataGroup({commit, dispatch}, groupId){
