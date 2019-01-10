@@ -56,4 +56,4 @@ class LyrebirdProxyServer(ThreadServer):
 
 
 def info_msg(*msg):
-    print(f'{Fore.YELLOW}mitmproxy', *msg, Style.RESET_ALL)
+    print(f'{Fore.YELLOW}[proxy_server]', *msg, Style.RESET_ALL)
