@@ -28,7 +28,7 @@
               <span class="main-footer-copyright">
                 <strong style="color:#f8f8f9">Copyright &copy; 2018-present <a href="http://www.meituan.com">Meituan</a>. All rights reserved</strong>
               </span>
-              <Poptip v-if="status" content="content" placement="top-end" class="main-footer-status" width="200">
+              <Poptip v-if="status" content="content" placement="top-end" class="main-footer-status" width="220">
                 <a>
                   <Icon type="ios-arrow-up" style="color:#f8f8f9"/>
                   <b style="color:#f8f8f9">&nbsp;&nbsp;Version {{status.version}}</b>
