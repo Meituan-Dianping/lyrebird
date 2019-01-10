@@ -42,7 +42,8 @@ class LyrebirdProxyServer(ThreadServer):
         self._master = None
 
     def run(self):
-        info_msg(f'start on {get_ip()}:{self.proxy_port}', f'{Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
+        server_ip = application.config.get('ip')
+        info_msg(f'start on {server_ip}:{self.proxy_port}', f'{Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
         mitm_arguments = [
             '-s', str(FLOW_PATH),
             '-p', self.proxy_port,
@@ -52,19 +53,6 @@ class LyrebirdProxyServer(ThreadServer):
         if self.ignore_hosts:
             mitm_arguments += ['--ignore-hosts', self.ignore_hosts]
         run(DumpMaster, mitmdump, mitm_arguments)
-
-
-def get_ip():
-    """
-    获取本机ip
-    这种方式，在有网络的时候相对准确一些
-
-    :return: IP地址字符串
-
-    """
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('google.com', 80))
-    return s.getsockname()[0]
 
 
 def info_msg(*msg):
