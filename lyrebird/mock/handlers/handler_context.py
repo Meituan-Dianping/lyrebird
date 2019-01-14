@@ -1,11 +1,17 @@
 from .. import context
 from lyrebird import application
+from lyrebird.log import get_logger
 from urllib.parse import urlparse
 import urllib
 import uuid
 import time
 import gzip
 import json
+import ipaddress
+import binascii
+
+
+logger = get_logger()
 
 
 class HandlerContext:
@@ -80,8 +86,16 @@ class HandlerContext:
         scheme = scheme.strip()
         host = host.strip()
         port = port.strip()
+        # if host is IP address then full_host=host:port
+        # else if is a domain the full_host=host
+        full_host = host
+        try:
+            ipaddress.ip_address(host)
+            full_host = host + ':' + port
+        except Exception:
+            pass
         return dict(
-            url=scheme+'://'+host+':'+port+self.request.full_path[len(self.MOCK_PATH_PREFIX):],
+            url=scheme+'://'+full_host+self.request.full_path[len(self.MOCK_PATH_PREFIX):],
             scheme=scheme,
             host=host,
             port=port,
@@ -101,8 +115,10 @@ class HandlerContext:
             code=self._response.status_code,
             headers={k:v for (k,v) in self._response.headers}
         )
+
         ResponseDataHelper.resp2dict(self._response, output=_response)
         self.flow['response'] = _response
+
         if val.content_length:
             self.flow['size'] = val.content_length
         else:
@@ -160,7 +176,18 @@ class HandlerContext:
         return self.flow['request'].get('url')
 
 
-class RequestDataHelper:
+class DataHelper:
+
+    @staticmethod
+    def data2Str(data):
+        try:
+            return data.decode('utf-8')
+        except Exception as e:
+            logger.warning(f'Data to string failed. {e}')
+            return binascii.b2a_base64(data).decode('utf-8')
+
+
+class RequestDataHelper(DataHelper):
 
     @staticmethod
     def req2dict(request, output=None):
@@ -169,36 +196,41 @@ class RequestDataHelper:
         content_encoding = request.headers.get('Content-Encoding')
         # Content-Encoding handler
         unziped_data = None
-        if content_encoding and content_encoding == 'gzip':
-            unziped_data = gzip.decompress(request.data)
 
-        content_type = request.headers.get('Content-Type')
-        if not content_type:
-            output['binary_data'] =  'bin'
-        else:
-            content_type = content_type.strip()
+        try:
+            if content_encoding and content_encoding == 'gzip':
+                unziped_data = gzip.decompress(request.data)
 
-        if content_type.startswith('application/x-www-form-urlencoded'):
-            if unziped_data:
-                output['data'] = urllib.parse.parse_qs(unziped_data.decode('utf-8'))
+            content_type = request.headers.get('Content-Type')
+            if not content_type:
+                output['binary_data'] =  'bin'
             else:
-                output['data'] = request.form.to_dict()
-        elif content_type.startswith('application/json'):
-            if unziped_data:
-                output['data'] = json.loads(unziped_data.decode('utf-8'))
+                content_type = content_type.strip()
+
+            if content_type.startswith('application/x-www-form-urlencoded'):
+                if unziped_data:
+                    output['data'] = urllib.parse.parse_qs(unziped_data.decode('utf-8'))
+                else:
+                    output['data'] = request.form.to_dict()
+            elif content_type.startswith('application/json'):
+                if unziped_data:
+                    output['data'] = json.loads(unziped_data.decode('utf-8'))
+                else:
+                    output['data'] = request.json
+            elif content_type.startswith('text/xml'):
+                if unziped_data:
+                    output['data'] = unziped_data.decode('utf-8')
+                else:
+                    output['data'] = request.data.decode('utf-8')
             else:
-                output['data'] = request.json
-        elif content_type.startswith('text/xml'):
-            if unziped_data:
-                output['data'] = unziped_data.decode('utf-8')
-            else:
-                output['data'] = request.data.decode('utf-8')
-        else:
-            # TODO write bin data
-            output['binary_data'] =  'bin'
+                # TODO write bin data
+                output['data'] =  RequestDataHelper.data2Str(request.data)
+        except Exception as e:
+            output['data'] = RequestDataHelper.data2Str(request.data)
+            logger.warning(f'Convert request data fail. {e}')
 
 
-class ResponseDataHelper:
+class ResponseDataHelper(DataHelper):
 
     @staticmethod
     def resp2dict(response, output=None):
@@ -210,12 +242,16 @@ class ResponseDataHelper:
         else:
             content_type = content_type.strip()
         
-        if content_type.startswith('application/json'):
-            output['data'] = response.json
-        elif content_type.startswith('text/xml'):
-            output['data'] = response.data.decode('utf-8')
-        elif content_type.startswith('text/html'):
-            output['data'] = response.data.decode('utf-8')
-        else:
-            # TODO write bin data
-            output['binary_data'] =  'bin'
+        try:
+            if content_type.startswith('application/json'):
+                output['data'] = response.json
+            elif content_type.startswith('text/xml'):
+                output['data'] = response.data.decode('utf-8')
+            elif content_type.startswith('text/html'):
+                output['data'] = response.data.decode('utf-8')
+            else:
+                # TODO write bin data
+                output['data'] =  ResponseDataHelper.data2Str(response.data)
+        except Exception as e:
+            output['data'] = ResponseDataHelper.data2Str(response.data)
+            logger.warning(f'Convert response failed. {e}')
