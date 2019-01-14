@@ -67,7 +67,7 @@ class Data:
                 _name = parsed_url.path
             else:
                 _name = parsed_url.hostname
-            _rule['request.url'] = _name
+            _rule['request.url'] = f'(?=.*{_name})'
 
         _data_path = Path(data_dir)/_id
         _data_path.mkdir(parents=True, exist_ok=True)
