@@ -56,6 +56,10 @@ export default {
 </script>
 
 <style>
+.main-header-notice {
+ float: right;
+ margin-right: 15px;
+}
 .notice-badge{
   background: #FF7F55 !important;
   box-shadow:0 0 0 transparent !important;

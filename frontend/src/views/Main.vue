@@ -151,10 +151,6 @@ export default {
   margin: 0;
   background-color: #0fccbf;
 }
-.main-header-notice {
- float: right;
- margin-right: 15px;
-}
 .main-footer {
   height: 28px;
   line-height: 28px;
