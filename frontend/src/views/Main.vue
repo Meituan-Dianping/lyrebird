@@ -18,6 +18,7 @@
         <Layout>
             <Header class="main-header" inline>
               <Icon type="md-menu" color="white" size="24" @click.native="collapsedSider"></Icon>
+              <notice-center></notice-center>
             </Header>
             <Content>
                 <div class="main-container">
@@ -48,24 +49,18 @@
 </template>
 
 <script>
-import Notice from '@/views/Notice.vue'
+import NoticeCenter from '@/views/notice/NoticeCenter.vue'
 
 export default {
   name: 'MainLayout',
   components: {
-    Notice
+    NoticeCenter
   },
   data() {
     return {
       isCollapsed: true,
       showedStatus: ["ip", "mock.port", "proxy.port", "version"]
     }
-  },
-  created(){
-    this.$Notice.config({
-      top: 0,
-    });
-    this.$io.on('show', this.showNotice);
   },
   mounted(){
     this.$store.dispatch('loadMenu')
@@ -97,15 +92,6 @@ export default {
     }
   },
   methods: {
-    showNotice(noticeInfo){
-      this.$Notice.warning({
-        duration: 0,
-        title: null,
-        render() {
-          return (<Notice noticeInfo={noticeInfo}></Notice>)
-        }
-      });
-    },
     collapsedSider() {
       this.$refs.mainSider.toggleCollapse();
     },

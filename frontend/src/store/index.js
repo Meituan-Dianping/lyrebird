@@ -4,6 +4,7 @@ import * as api from '@/api'
 import inspector from '@/store/inspector'
 import dataManager from '@/store/datamanager'
 import plugin from '@/store/plugin'
+import notice from '@/store/notice'
 
 
 Vue.use(Vuex)
@@ -12,7 +13,8 @@ export default new Vuex.Store({
   modules: {
     inspector,
     dataManager,
-    plugin
+    plugin,
+    notice
   },
   state: {
     menu: null,
