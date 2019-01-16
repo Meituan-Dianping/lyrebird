@@ -31,7 +31,11 @@ class HandlerContext:
         self.client_resp_time = None
         self.server_req_time = None
         self.server_resp_time = None
-        self.flow = dict(id=self.id, size=0, duration=0)
+        self.flow = dict(
+            id=self.id, 
+            size=0, 
+            duration=0, 
+            start_time=time.time())
         self.client_address = None
         self._parse_request()
 
@@ -255,3 +259,4 @@ class ResponseDataHelper(DataHelper):
         except Exception as e:
             output['data'] = ResponseDataHelper.data2Str(response.data)
             logger.warning(f'Convert response failed. {e}')
+

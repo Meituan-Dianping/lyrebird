@@ -28,10 +28,12 @@ class FlowList(Resource):
                 id=item['id'], 
                 size=item['size'],
                 duration=item['duration'], 
+                start_time=item['start_time'],
                 request=dict(
                     url=item['request'].get('url'),
                     path=item['request'].get('path'),
-                    host=item['request'].get('host')
+                    host=item['request'].get('host'),
+                    method=item['request'].get('method')
                     ),
                 response=dict(
                     code=item['response']['code'],
