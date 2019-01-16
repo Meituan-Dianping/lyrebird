@@ -72,6 +72,18 @@
             }
           },
           {
+            title: 'Method',
+            key: 'method',
+            width: 60,
+            render: (h, params) => {
+              return h("p", {
+                style:{
+                  color: 'green'
+                }
+              }, params.row.request.method)
+            }
+          },
+          {
             title: 'Status',
             key: 'status',
             width: 50,
@@ -99,8 +111,28 @@
             }
           },
           {
+            title: 'Time',
+            key: 'start_time',
+            width: 60,
+            sortable: true,
+            render: (h, params) => {
+              const startTime = new Date(params.row.start_time * 1000)
+              function addZero(i){
+                if(i < 10){
+                  i = "0" + i
+                }
+                return i
+              }
+              const timeStr = startTime.getHours() + ':' 
+              + addZero(startTime.getMinutes()) + ':' 
+              + addZero(startTime.getSeconds())
+              return h("span", timeStr)
+            }
+          },
+          {
             title: 'Size',
             key: 'size',
+            sortable: true,
             width: 60,
             render: (h, params) => {
               return h("span", readablizeBytes(params.row.size))
@@ -109,7 +141,8 @@
           {
             title: 'Duration',
             key: 'duration',
-            width: 60,
+            width: 80,
+            sortable: true,
             render:(h,params) => {
               const duration = params.row.duration
               if(duration>=1){
