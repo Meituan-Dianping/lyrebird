@@ -1,39 +1,48 @@
 <template>
   <div class="button-bar">
     <Row type="flex" justify="start" align="middle" :gutter="5" class="button-bar">
-      <i-col span="6">
-        <label class="group-label">
-          <b>DataGroup:</b>
+      <i-col span="12">
+        <label class="btn-label">
+          <b>Group:</b>
         </label>
-        <div class="inline">
-          <Select
-            ref="groupSelector"
-            v-model="selectedDataGroup"
-            filterable
-            clearable
-            size="small"
-            style="width: 60%"
-            @on-change="onGroupSelected"
-          >
-            <option-group label="DataGroup">
-              <i-option v-for="item in groupList" :key="item.id" :value="item.id">{{item.name}}</i-option>
-            </option-group>
-          </Select>
-        </div>
-      </i-col>
-      <i-col span=6 class="btn-bar">
-        <label class="group-label">
-          <b>ParentGroup:</b>
+        <ButtonGroup size="small">
+          <Button @click="onNewGroupBtnClick" size="small">New</Button>
+          <Button @click="deleteGroupModal=true" size="small">Delete</Button>
+        </ButtonGroup>
+        <label class="btn-label">
+          <b>Current:</b>
         </label>
-        <Tag color="default" class="parent-name" @click.native="onGroupEditBtnClick">{{selectedDataGroupParentName}}</Tag>
-        <Button icon="md-create" type="text" @click="onGroupEditBtnClick"></Button>
+        <Select
+          ref="groupSelector"
+          v-model="selectedDataGroup"
+          filterable
+          clearable
+          size="small"
+          style="width: 15vh"
+          @on-change="onGroupSelected"
+        >
+          <option-group label="DataGroup">
+            <i-option v-for="item in groupList" :key="item.id" :value="item.id">{{item.name}}</i-option>
+          </option-group>
+        </Select>
+        <label class="btn-label" v-if="selectedDataGroupParentName">
+          <b>Parent:</b>
+        </label>
+        <Tag
+          v-if="selectedDataGroupParentName"
+          color="default"
+          class="parent-name"
+          @click.native="onGroupEditBtnClick"
+        >{{selectedDataGroupParentName}}</Tag>
+        <Button icon="md-create" type="text" @click="onGroupEditBtnClick" class="edit-btn"></Button>
       </i-col>
       <i-col span="12">
+        <label>
+          <b class="btn-label">Data:</b>
+        </label>
         <ButtonGroup size="small">
-          <Button @click="onNewGroupBtnClick" size="small">NewGroup</Button>
-          <Button @click="deleteGroupModal=true" size="small">DeleteGroup</Button>
-          <Button @click="dataNameModal=true" size="small">NewData</Button>
-          <Button @click="deleteDataModal=true" size="small">DeleteData</Button>
+          <Button @click="dataNameModal=true" size="small">New</Button>
+          <Button @click="deleteDataModal=true" size="small">Delete</Button>
         </ButtonGroup>
       </i-col>
     </Row>
@@ -43,17 +52,25 @@
           <Input v-model="dataGroupProp.name" placeholder="Data group name"></Input>
         </FormItem>
         <FormItem label="Parent">
-          <Select v-model="dataGroupProp.parentId" @on-change="onCreateGroupModalParentChange" clearable>
-            <Option v-for="groupItem in groupList" :key="groupItem.id" :value="groupItem.id">{{groupItem.name}}</Option>
+          <Select
+            v-model="dataGroupProp.parentId"
+            @on-change="onCreateGroupModalParentChange"
+            clearable
+          >
+            <Option
+              v-for="groupItem in groupList"
+              :key="groupItem.id"
+              :value="groupItem.id"
+            >{{groupItem.name}}</Option>
           </Select>
         </FormItem>
         <div v-show="false">
           <label v-if="dataGroupProp.parentId">Copy data from parent group</label>
           <div v-if="dataGroupProp.parentId" class="modal-data-list">
             <Table
-            :columns="parentListColumns"
-            :data="parentDataList"
-            @on-selection-change="onModalParentDataSelectionChange"
+              :columns="parentListColumns"
+              :data="parentDataList"
+              @on-selection-change="onModalParentDataSelectionChange"
             ></Table>
           </div>
         </div>
@@ -76,14 +93,14 @@ export default {
   data() {
     return {
       groupNameModal: false,
-      groupName: '',
+      groupName: "",
       deleteGroupModal: false,
       dataNameModal: false,
-      dataName: '',
+      dataName: "",
       deleteDataModal: false,
-      dataGroupProp:{
+      dataGroupProp: {
         id: null,
-        name: '',
+        name: "",
         parentId: null,
         CopyDataIds: []
       },
@@ -110,110 +127,117 @@ export default {
     activteCurrentGroup() {
       this.$store.dispatch("activateCurrentGroup");
     },
-    createNewGroup(){
-      if(this.dataGroupProp.id){
-        this.$store.dispatch('updateDataGroup', {
-          groupId:this.dataGroupProp.id, 
-          groupName:this.dataGroupProp.name, 
-          parentGroupId:this.dataGroupProp.parentId})
-      }else{
-        this.$store.dispatch('newDataGroup', {
-          groupName:this.dataGroupProp.name, 
-          parentGroupId:this.dataGroupProp.parentId})
+    createNewGroup() {
+      if (this.dataGroupProp.id) {
+        this.$store.dispatch("updateDataGroup", {
+          groupId: this.dataGroupProp.id,
+          groupName: this.dataGroupProp.name,
+          parentGroupId: this.dataGroupProp.parentId
+        });
+      } else {
+        this.$store.dispatch("newDataGroup", {
+          groupName: this.dataGroupProp.name,
+          parentGroupId: this.dataGroupProp.parentId
+        });
       }
     },
-    deleteGroup(){
-      this.$store.dispatch('deleteDataGroup', this.selectedDataGroup)
+    deleteGroup() {
+      this.$store.dispatch("deleteDataGroup", this.selectedDataGroup);
     },
-    createNewData(){
-      this.$store.dispatch('newData', {groupId:this.selectedDataGroup, name:this.dataName})
+    createNewData() {
+      this.$store.dispatch("newData", {
+        groupId: this.selectedDataGroup,
+        name: this.dataName
+      });
     },
-    deleteData(){
-      this.$store.dispatch('deleteData', this.selectedDataGroup)
+    deleteData() {
+      this.$store.dispatch("deleteData", this.selectedDataGroup);
     },
-    onCreateGroupModalParentChange(value){
-      this.$store.dispatch('loadDataListForNewGroupForm', value)
+    onCreateGroupModalParentChange(value) {
+      this.$store.dispatch("loadDataListForNewGroupForm", value);
     },
-    onModalParentDataSelectionChange(selection){
-      this.$store.commit('setCreateGroupModalSelectedData', selection)
+    onModalParentDataSelectionChange(selection) {
+      this.$store.commit("setCreateGroupModalSelectedData", selection);
     },
-    onNewGroupBtnClick(){
-      this.dataGroupProp.id = null
-      this.dataGroupProp.name = null
-      this.dataGroupProp.parentId = null
-      this.groupNameModal = true
+    onNewGroupBtnClick() {
+      this.dataGroupProp.id = null;
+      this.dataGroupProp.name = null;
+      this.dataGroupProp.parentId = null;
+      this.groupNameModal = true;
     },
-    onGroupEditBtnClick(){
-      this.dataGroupProp.id = this.selectedDataGroup
-      this.dataGroupProp.name = this.selectedDataGroupName
-      this.dataGroupProp.parentId = this.selectedDataGroupParentId
-      this.groupNameModal = true
+    onGroupEditBtnClick() {
+      this.dataGroupProp.id = this.selectedDataGroup;
+      this.dataGroupProp.name = this.selectedDataGroupName;
+      this.dataGroupProp.parentId = this.selectedDataGroupParentId;
+      this.groupNameModal = true;
     }
   },
   computed: {
     selectedDataGroup: {
       get() {
-        const selectedDataGroupId = this.$store.state.dataManager.currentDataGroup;
-        if(!selectedDataGroupId && this.$refs.groupSelector){
-          this.$refs.groupSelector.reset()
+        const selectedDataGroupId = this.$store.state.dataManager
+          .currentDataGroup;
+        if (!selectedDataGroupId && this.$refs.groupSelector) {
+          this.$refs.groupSelector.reset();
         }
-        return selectedDataGroupId
+        return selectedDataGroupId;
       },
       set(value) {
         this.$store.commit("setCurrentDataGroup", value);
       }
     },
-    selectedDataGroupName(){
-      const groups = this.$store.state.dataManager.groupList
-      const selectedGroupId = this.$store.state.dataManager.currentDataGroup
-      let parentId = null
+    selectedDataGroupName() {
+      const groups = this.$store.state.dataManager.groupList;
+      const selectedGroupId = this.$store.state.dataManager.currentDataGroup;
+      let parentId = null;
       for (const group of groups) {
-        if(group.id===selectedGroupId){
-          return group.name
+        if (group.id === selectedGroupId) {
+          return group.name;
         }
       }
     },
-    selectedDataGroupParentId(){
-      const groups = this.$store.state.dataManager.groupList
-      const selectedGroupId = this.$store.state.dataManager.currentDataGroup
-      let parentId = null
+    selectedDataGroupParentId() {
+      const groups = this.$store.state.dataManager.groupList;
+      const selectedGroupId = this.$store.state.dataManager.currentDataGroup;
+      let parentId = null;
       for (const group of groups) {
-        if(group.id===selectedGroupId){
-          return group.parent
+        if (group.id === selectedGroupId) {
+          return group.parent;
         }
       }
-      return null
+      return null;
     },
-    selectedDataGroupParentName(){
-      const groups = this.$store.state.dataManager.groupList
-      const selectedGroupId = this.$store.state.dataManager.currentDataGroup
-      let parentId = null
+    selectedDataGroupParentName() {
+      const groups = this.$store.state.dataManager.groupList;
+      const selectedGroupId = this.$store.state.dataManager.currentDataGroup;
+      let parentId = null;
       for (const group of groups) {
-        if(group.id===selectedGroupId){
-          parentId = group.parent
-          break
+        if (group.id === selectedGroupId) {
+          parentId = group.parent;
+          break;
         }
       }
       for (const group of groups) {
-        if(group.id===parentId){
-          return group.name
+        if (group.id === parentId) {
+          return group.name;
         }
       }
-      return ''
+      return "";
     },
     groupList() {
       return this.$store.state.dataManager.groupList;
     },
-    parentDataList(){
-      return this.$store.state.dataManager.createGroupModal.parentDataList
+    parentDataList() {
+      return this.$store.state.dataManager.createGroupModal.parentDataList;
     }
   }
 };
 </script>
 
 <style scoped>
-.inline {
-  display: inline;
+.edit-btn {
+  padding: 0;
+  font-size: 16px;
 }
 .button-bar {
   flex-grow: 1;
@@ -234,6 +258,10 @@ export default {
 }
 .parent-name {
   max-width: 200px;
-  text-overflow: ellipsis
+  text-overflow: ellipsis;
+}
+.btn-label {
+  margin-left: 5px;
+  margin-right: 5px;
 }
 </style>

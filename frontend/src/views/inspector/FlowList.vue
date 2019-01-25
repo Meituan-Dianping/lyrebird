@@ -111,7 +111,7 @@
             }
           },
           {
-            title: 'Time',
+            title: 'Start',
             key: 'start_time',
             width: 60,
             sortable: true,
@@ -130,15 +130,6 @@
             }
           },
           {
-            title: 'Size',
-            key: 'size',
-            sortable: true,
-            width: 60,
-            render: (h, params) => {
-              return h("span", readablizeBytes(params.row.size))
-            }
-          },
-          {
             title: 'Duration',
             key: 'duration',
             width: 80,
@@ -150,6 +141,15 @@
               }else{
                 return h("span", (duration*1000).toFixed(0)+"ms")
               }
+            }
+          },
+                    {
+            title: 'Size',
+            key: 'size',
+            sortable: true,
+            width: 60,
+            render: (h, params) => {
+              return h("span", readablizeBytes(params.row.size))
             }
           }
         ],

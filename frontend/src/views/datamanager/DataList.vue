@@ -53,14 +53,12 @@ export default {
 
 <style>
 .data-list {
-  height: calc(100vh - 166px);
+  height: calc(100vh - 118px);
   /* total:100vh
         header: 38px
         padding: 5px + 5px
         buttonBar: 48px
-        card-padding: 16px
         table
-        card-padding: 16px
         padding: 5px
         footer: 28px
          */

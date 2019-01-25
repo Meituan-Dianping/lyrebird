@@ -94,20 +94,26 @@ export default {
         loadDataDetail({commit}, payload){
             api.getDataDetail(payload.groupId, payload.dataId)
             .then(response=>{
-                console.log(response.data);
-                commit('setDataDetail', response.data)
-            })
-            .catch(error=>console.log(error))
-        },
-        saveDataDetail({state, dispatch}, dataDetail){
-            const groupName = state.currentDataGroup
-            const dataName = state.foucsData
-            api.updateDataDetail(groupName, dataName, dataDetail)
-            .then(response=>{
-                dispatch('loadDataDetail', {groupName:groupName, dataName:dataName})
+                if(response.data.hasOwnProperty('code')&&response.data.code!=1000){
+                    console.log('Load detail Failed',response.data);
+                }else{
+                    commit('setDataDetail', response.data)
+                    console.log('Load detail success',response.data);
+                }
             })
             .catch(error=>{
-                console.log(error)
+                console.log('Load detail failed',error)
+            })
+        },
+        saveDataDetail({state, dispatch}, dataDetail){
+            let groupName = state.currentDataGroup
+            let dataName = state.foucsData
+            api.updateDataDetail(groupName, dataName, dataDetail)
+            .then(response=>{
+                dispatch('loadDataDetail', {groupId:groupName, dataId:dataName})
+            })
+            .catch(error=>{
+                console.log('Update detail failed',error)
             })
         },
         newDataGroup({state, commit, dispatch}, {groupName, parentGroupId}){

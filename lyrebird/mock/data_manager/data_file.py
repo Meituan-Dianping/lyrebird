@@ -41,7 +41,10 @@ class DataFile:
 
         _content = None
         if self.filetype == 'json':
-            _content = json.dumps(json.loads(val), ensure_ascii=False, indent=4)
+            if type(val) == str:
+                _content = json.dumps(json.loads(val), ensure_ascii=False, indent=4)
+            else:
+                _content = json.dumps(val, ensure_ascii=False, indent=4)
         elif self.filetype == 'html':
             _content = BeautifulSoup(val, features="html.parser").prettify()
         elif self.filetype == 'text':
