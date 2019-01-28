@@ -13,7 +13,7 @@ jobs:
       script: pytest
 
     - stage: release to pypi
-      if: type = push
+      if: type = push AND tag IS present
       language: python
       catch: 
         - pip
