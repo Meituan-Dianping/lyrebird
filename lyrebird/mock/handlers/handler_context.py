@@ -63,7 +63,7 @@ class HandlerContext:
             self.client_address = self.request.headers.get('Lyrebird-Client-Address')
         else:
             self.client_address = self.request.remote_addr
-        self.flow['lyrebird_client_address'] = self.client_address        
+        self.flow['client_address'] = self.client_address        
     
         self.flow['request'] = _request
         context.application.cache.add(self.flow)
