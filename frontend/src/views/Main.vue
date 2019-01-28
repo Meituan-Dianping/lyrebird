@@ -183,7 +183,7 @@ export default {
 .main-container {
   padding-left: 5px;
   padding-right: 5px;
-  height: calc(100vh - 71px);
+  height: calc(100vh - 66px);
   background: #fff
 }
 </style>

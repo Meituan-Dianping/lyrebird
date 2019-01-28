@@ -5,7 +5,9 @@
         <Icon :type="recordingBtn.type" :color="recordingBtn.color" />
       </Button>
     </Tooltip>
-
+    <div class="inline">
+      <Divider type="vertical"></Divider>
+    </div>
     <Tooltip content="Clear" :delay="500">
       <Button @click="showClearModal=true" icon="md-refresh"></Button>
     </Tooltip>
@@ -77,8 +79,7 @@
         showClearModal: false,
         showCreateGroupModal: false,
         newDataGroupName: '',
-        recordingBtn: stopedStatus,
-        searchStr: ''
+        recordingBtn: stopedStatus
       };
     },
     mounted() {
@@ -104,11 +105,14 @@
             this.$store.dispatch('deactivateGroup')
           }
         }
-      }
-    },
-    watch: {
-      searchStr: function(){
-        this.$store.commit('search', this.searchStr)
+      },
+      searchStr:{
+        get(){
+          return this.$store.state.inspector.searchStr
+        },
+        set(val){
+          this.$store.commit('search', val)
+        }
       }
     },
     methods: {

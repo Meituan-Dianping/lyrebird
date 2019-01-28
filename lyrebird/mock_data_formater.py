@@ -183,7 +183,9 @@ def check_data_dir(data_root_path):
     if (data_dir/NEW_INFO_FILENAME).exists():
         return
     # Move data dir for data format
-    old_dir = data_dir.parent/(data_dir.name+'(old)')
+    old_dir = data_dir.parent/(data_dir.name+'_old')
+    if old_dir.exists():
+        shutil.rmtree(old_dir)
     shutil.move(data_dir, old_dir)
     # Transform old data
     update(old_dir, data_dir)

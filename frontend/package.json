@@ -24,6 +24,8 @@
     "eslint": "^5.9.0",
     "eslint-loader": "^2.1.1",
     "eslint-plugin-vue": "^4.7.1",
+    "vue-svg-icon": "^1.2.9",
+    "vue-svg-loader": "^0.11.0",
     "vue-template-compiler": "^2.5.17"
   },
   "postcss": {

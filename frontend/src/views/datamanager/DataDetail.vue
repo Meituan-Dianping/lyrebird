@@ -8,17 +8,22 @@
             <tab-pane label="ResponseBody" name="resp-body"></tab-pane>
         </tabs>
         <code-editor v-if="dataDetail" :language="code.type" v-model="content" class="data-detail"></code-editor>
-        <div v-if="dataDetail" class="button-bar">
-            <i-button @click="save">Save</i-button>
+        <div class="save-btn" v-if="dataDetail">
+            <Button type="primary" shape="circle" @click="save">
+                <icon name="md-save" scale="4"></icon>
+            </Button>
         </div>
     </div>
 </template>
 
 <script>
 import CodeEditor from '@/components/CodeEditor.vue'
+import Icon from 'vue-svg-icon/Icon.vue'
+
 export default{
     components:{
-        CodeEditor
+        CodeEditor,
+        Icon
     },
     data(){
         return {
@@ -133,18 +138,35 @@ export default{
     margin-top: 5px
 }
 .data-detail {
-  height: calc(100vh - 180px);
+  height: calc(100vh - 150px);
   /* total:100vh
   header: 38px
   buttonBar: 38px
   tab-header: 52px
   table
-  button: 30px
   padding: 5px
   footer: 28px
     */
 }
 .small-tab > .ivu-tabs > .ivu-tabs-bar {
  margin-bottom: 0;
+}
+.save-btn {
+    color:#fff;
+    font-size: 0.6rem;
+    text-align: center;
+    line-height: 3rem;
+    width:3rem;
+    height:3rem;
+    position: fixed;
+    right: 50px;
+    bottom: 70px;
+    border-radius: 50%;
+    z-index: 500;
+  }
+.save-btn > .ivu-btn {
+    padding: 5px 8px 5px;
+    background-color: #0fccbf;
+    border-color: #0fccbf;
 }
 </style>
