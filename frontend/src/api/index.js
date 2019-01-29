@@ -117,6 +117,28 @@ export const createData = (groupId, name) => {
   })
 }
 
+export const getNoticeList = () => {
+  return axios({
+    url: '/api/event'
+  })
+}
+
+export const deleteNotice = (key) => {
+  return axios({
+    url: '/api/event',
+    data:{key:key},
+    method: 'DELETE'
+  })
+}
+
+export const updateNoticeStatus = (key, status) => {
+  return axios({
+    url: '/api/event',
+    data: {key:key, status:status},
+    method: 'PUT'
+  })
+}
+
 export const publishEvent = (eventInfo) => {
   return axios({
     url: '/api/event',
