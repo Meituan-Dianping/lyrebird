@@ -26,6 +26,7 @@ jobs:
         - cd frontend
         - npm install
         - npm run build
+        - cd ..
       script:
         - echo "No script for pypi release"
       deploy:
