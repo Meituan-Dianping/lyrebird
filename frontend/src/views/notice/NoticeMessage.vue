@@ -3,9 +3,12 @@
     <p slot="title" style="line-height:16px">
       <Row>
         <Col span="20">
-        <p style="text-overflow:ellipsis;white-space:nowrap" :title="notice.sender.file">
-          {{notice.sender.file}}
-        </p>
+          <div :title="notice.sender.file">
+            <span style="display:inline-block;max-width:270px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+              {{notice.sender.file}}&nbsp;
+            </span>
+            <Badge v-if="notice.count > 1" :count="notice.count" class-name="notice-badge" ></Badge>
+          </div>
         </Col>
         <Col span="4" align="right">
           <div v-if="isDisplayDate">
@@ -14,15 +17,26 @@
             </p>
           </div>
           <div v-else>
-            <a><Icon type="md-close" @click="deleteNotice(notice.id)"/></a>
+            <a><Icon type="md-close" @click="deleteNotice(notice.key)"/></a>
           </div>
         </Col>
       </Row>
     </p>
     <p style="word-break:break-all">{{notice.message}}</p>
-    <p>
-      <b><a href="#" @click="jump(notice)">Create new issue</a></b>
-    </p>
+    <Row>
+      <Col span="20">
+        <p>
+          <b><a href="#" @click="jump(notice)">Create new issue</a></b>
+        </p>
+      </Col>
+      <Col span="4" align="right">
+        <div v-if="!isDisplayDate">
+          <a href="#" @click="changeNoticeStatusToFalse(notice)" title="Don't remind again">
+            <Icon type="ios-eye-off" style="font-size:16px"/>
+          </a>
+        </div>
+      </Col>
+    </Row>
   </Card>
 </template>
 
@@ -45,8 +59,8 @@ export default {
       let second = (date.getSeconds() < 10 ? '0'+date.getSeconds() : date.getSeconds())
       return hour + minute + second
     },
-    deleteNotice(noticeId){
-      this.$store.dispatch('deleteNotice', noticeId)
+    deleteNotice(noticeKey){
+      this.$store.dispatch('deleteNotice', noticeKey)
     },
     jump(notice) {
       // TODO: support select manifest
@@ -62,8 +76,13 @@ export default {
       this.$store.commit('plugin/setSrc', this.jumpToUrl)
       this.$router.push({name:'plugin-view', params:{name:this.jumpToName}})
       this.$store.dispatch("createIssue", notice)
-      this.$store.dispatch('deleteNotice', notice.id)
-      
+      this.$store.dispatch('deleteNotice', notice.key)
+    },
+    changeNoticeStatusToFalse(notice) {
+      this.$store.dispatch('updateNoticeStatus', {
+        key:notice.key,
+        status:false
+      })
     }
   }
 }
