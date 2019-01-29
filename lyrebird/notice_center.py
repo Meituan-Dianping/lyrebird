@@ -11,7 +11,7 @@ class NoticeCenter():
     
     def __init__(self):
         self.HISTORY_NOTICE = None
-        self.notice_hashmap = None
+        self.notice_hashmap = {}
         self.notice_list = []
         self.not_remind_list = []
         application.server['event'].subscribe('notice', self.new_notice)
