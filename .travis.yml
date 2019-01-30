@@ -31,6 +31,7 @@ jobs:
         - echo "No script for pypi release"
       deploy:
         provider: pypi
+        skip-cleanup: true
         user: meituanqa
         password:
           secure: "BDziC3zSwJtftkB0nn04laZymaPP9T13F81ffplkhMltUJc/zUcghjABM3HOPGk7jjpibsoYyXa6B3rg+KJhXGM3A50WX2iiYExSdgRMmV3beKlO8RYTXzqw2hkeS/atF4++564HTzRC+0NAsj8N7/T6KZNHCfFcajlk0bsHSRYtgzjPsB7YjIuSivVwwqxfve7iUClePGHH0Z5pxvO2LRRLOJZz3TScgQGBSryJjQmL4wnDjYzPUb37REi7PaDWzAUKzRwqISHXs/KQqb4AySU/p/gg7WgOan1dfDhYMEMXsBJgvUKi9itVcVZKuPSqf/pqVVIqn0mxBED7/K0EE5APDFFHG/IsVQSB/qL25AT+F4O+k8lwWvBvcE5AlvYWE6KPDM7xj9mDQ6LRNAKW95Jh/xmOSVCYoRsybdxw2QxfAqmEiG8vXwsyU49ChwXOOUpXKhBnZ65Fse/faipUPWn982pGeUZ39JdcE3WaEJhs5ssyqhObkhOAtSRa+qNzXocwF2JmR3K7tqcpVktD/HPFNwY0VKqB1T5ytOtSu4k/vKo1tLVhUfx5R49GQ96dV4g5x41xUdJYLueOvpG2i16inDHDGA7rlbn2GMqg53w002UOnTBSihE4k1nzDFlLIaP1OAi62CxR7okKZH5yLbgssw+gFqxj1VrwL82h0YM="
