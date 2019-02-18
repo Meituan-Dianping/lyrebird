@@ -57,9 +57,13 @@ export default {
     };
   },
   created(){
-    this.$io.on('alert', this.showNoticeAlert);
+    this.$io.on('alert', this.showNoticeAlert)
     this.$io.on('update', this.updateNotice)
     this.$store.dispatch('loadNoticeCenterData')
+  },
+  destroyed() {
+    this.$io.removeListener('alert', this.showNoticeAlert)
+    this.$io.removeListener('update', this.updateNotice)
   },
   computed: {
     noticeList() {

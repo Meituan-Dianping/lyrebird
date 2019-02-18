@@ -156,10 +156,10 @@
       };
     },
     created() {
-      const reload = this.reload
-      this.$io.on("action", function(){
-        reload()
-      })
+      this.$io.on("action", this.reload)
+    },
+    destroyed() {
+      this.$io.removeListener('action', this.reload)
     },
     mounted: function () {
       this.reload();

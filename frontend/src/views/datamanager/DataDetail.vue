@@ -9,9 +9,11 @@
         </tabs>
         <code-editor v-if="dataDetail" :language="code.type" v-model="content" class="data-detail"></code-editor>
         <div class="save-btn" v-if="dataDetail">
+            <Tooltip content="Save" placement="top" :delay="500">
             <Button type="primary" shape="circle" @click="save">
                 <icon name="md-save" scale="4"></icon>
             </Button>
+            </Tooltip>
         </div>
     </div>
 </template>
@@ -164,7 +166,7 @@ export default{
     border-radius: 50%;
     z-index: 500;
   }
-.save-btn > .ivu-btn {
+.save-btn > .ivu-tooltip > .ivu-tooltip-rel > .ivu-btn {
     padding: 5px 8px 5px;
     background-color: #0fccbf;
     border-color: #0fccbf;

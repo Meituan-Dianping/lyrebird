@@ -60,6 +60,18 @@ def _ep_to_plugin(ep, **kwargs):
         plugins[plugin_key] = plugin
 
 
+def _plugin_entry_check(ep_entry):
+    pass
+
+
+def _load_plugin():
+    for ep in pkg_resources.iter_entry_points(PLUGIN_ENTRY_POINT):
+        plugin_entry = ep.load()
+        if not _plugin_entry_check(plugin_entry).result:
+            logger.error(f'Load plugin {plugin_entry.name} error . skip')
+            continue
+        
+
 def _load_data_handler_plugin():
     data_handler_plugins.clear()
     for ep in pkg_resources.iter_entry_points(DATA_HANDLER_ENTRY_POINT):

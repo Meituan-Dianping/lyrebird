@@ -16,6 +16,7 @@ from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.notice_center import NoticeCenter
 from lyrebird.db.database_server import LyrebirdDatabaseServer
+from lyrebird import version
 
 
 logger = log.get_logger()
@@ -50,6 +51,7 @@ def main():
     """
     parser = argparse.ArgumentParser(prog='lyrebird')
 
+    parser.add_argument('-V', '--version', dest='version', action='store_true', help='show lyrebird version')
     parser.add_argument('-v', dest='verbose', action='store_true', help='Show verbose log')
     parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 4272')
     parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 9090')
@@ -64,6 +66,10 @@ def main():
     subparser.add_parser('plugin')
 
     args = parser.parse_args()
+
+    if args.version:
+        print(version.LYREBIRD)
+        return
 
     if args.config:
         application._cm = ConfigManager(conf_path=args.config)
