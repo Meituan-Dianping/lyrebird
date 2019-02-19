@@ -98,7 +98,7 @@ class LyrebirdMockServer(ThreadServer):
             """
             设置默认页面为UI首页
             """
-            return redirect(url_for('ui.index'))
+            return redirect(url_for('ui.index')+f'?v={VERSION}')
 
         @self.app.after_request
         def after_request(response: Response):

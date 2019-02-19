@@ -1,6 +1,6 @@
 <template>
   <div class="button-bar">
-    <Tooltip content="Record" :delay="500">
+    <Tooltip :content="recordBtnTooltip" placement="bottom-start" :delay="500">
       <Button @click="switchRecord">
         <Icon :type="recordingBtn.type" :color="recordingBtn.color" />
       </Button>
@@ -112,6 +112,13 @@
         },
         set(val){
           this.$store.commit('search', val)
+        }
+      },
+      recordBtnTooltip(){
+        if(this.recordingBtn.recording){
+          return 'Stop recording'
+        }else{
+          return 'Record'
         }
       }
     },
