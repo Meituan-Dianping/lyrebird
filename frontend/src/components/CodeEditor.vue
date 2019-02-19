@@ -11,7 +11,8 @@ export default {
     name: 'codeEditor',
     model: {
         prop: 'content',
-        event: 'change'
+        event: 'change',
+        event: 'change-cursor',
     },
     props: {
         'content': null, 
@@ -41,6 +42,7 @@ export default {
         }
     },
     mounted: function(){
+        const copyToClipboard = this.copyToClipboard
         this.editor = monaco.editor.create(
             this.$el.querySelector('#code-editor'), 
             {
@@ -50,12 +52,47 @@ export default {
                 readOnly: this.readOnly
             }
         );
+        this.editor.addAction({
+            id: 'json-path',
+            label: 'Copy JsonPath',
+            keybindings: [
+                monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_J)
+            ],
+            precondition: null,
+            keybindingContext: null,
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 1.5,
+            run: copyToClipboard
+        });
         this.editor.onDidChangeModelContent(event => {
-        const value = this.editor.getValue()
-        if (this.value !== value) {
-          this.$emit('change', value, event)
+            const value = this.editor.getValue()
+            if (this.value !== value) {
+                this.$emit('change', value, event)
+            }
+        })
+        this.editor.onDidChangeCursorPosition(event => {
+            const value = this.editor.getValue()
+            const offSet = this.editor.getModel().getOffsetAt(event.position)
+            const language = this.language;
+            if (this.value !== value) {
+                this.$emit('change-cursor', {offSet: offSet, content: value, language: language}, event)
+            }
+        })
+    },
+    methods:{
+        copyToClipboard() {
+            const notification = this.$Notice
+            navigator.clipboard.writeText(this.$store.state.dataManager.jsonPath)
+                .then(function() {
+                    notification.success({
+                        title: 'jsonpath copy successded.'
+                    });
+                }, function() {
+                    notification.error({
+                        title: 'jsonpath copy failed.'
+                    });
+                });
         }
-      })
     }
 };
 </script>

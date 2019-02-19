@@ -1,4 +1,5 @@
 import * as api from '../api' 
+import {getJsonPath} from '@/store/jsonpath'
 
 export default {
     state:{
@@ -19,7 +20,8 @@ export default {
             parentGroupId: null,
             parentDataList: [],
             selectedDataIdList: []
-        }
+        },
+        jsonPath: null
     },
     mutations:{
         setGroupList(state, groupList){
@@ -63,6 +65,9 @@ export default {
         },
         setCreateGroupModalSelectedData(state, dataIdList){
             state.createGroupModal.selectedDataIdList = dataIdList
+        },
+        setJsonPath(state, jsonPath) {
+            state.jsonPath = jsonPath
         }
     },
     actions:{
@@ -168,6 +173,15 @@ export default {
             api.deleteData(groupId, ids).then(response=>{
                 dispatch('loadDataList', groupId)
             })
+        },
+        updateJsonPath({commit}, {text, language, offSet}) {
+            if (language !== 'json') {
+                return commit('setJsonPath', '')
+            }
+            if (offSet === 0) {
+                return commit('setJsonPath', '')
+            }
+            return commit('setJsonPath', getJsonPath(text, offSet))
         }
     }
-  }
+}

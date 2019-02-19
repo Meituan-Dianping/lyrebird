@@ -7,7 +7,13 @@
             <tab-pane label="Response" name="resp"></tab-pane>
             <tab-pane label="ResponseBody" name="resp-body"></tab-pane>
         </tabs>
-        <code-editor v-if="dataDetail" :language="code.type" v-model="content" class="data-detail"></code-editor>
+        <code-editor 
+          v-if="dataDetail" 
+          :language="code.type" 
+          v-model="content" 
+          class="data-detail"
+          v-on:change-cursor="onDidChangeCursor"
+          ></code-editor>
         <div class="save-btn" v-if="dataDetail">
             <Tooltip content="Save" placement="top" :delay="500">
             <Button type="primary" shape="circle" @click="save">
@@ -130,6 +136,13 @@ export default{
         },
         save(){
             this.$store.dispatch('saveDataDetail', this.dataDetail)
+        },
+        onDidChangeCursor(payload) {
+            this.$store.dispatch('updateJsonPath', {
+                text: payload.content,
+                language: payload.language,
+                offSet: payload.offSet
+            })
         }
     }
 }

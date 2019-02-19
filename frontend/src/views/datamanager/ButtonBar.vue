@@ -44,6 +44,7 @@
           <Button @click="dataNameModal=true" size="small">New</Button>
           <Button @click="deleteDataModal=true" size="small">Delete</Button>
         </ButtonGroup>
+        <JsonPathBar class="json-path-bar"></JsonPathBar>
       </i-col>
     </Row>
     <Modal v-model="groupNameModal" title="DataGroup" @on-ok="createNewGroup">
@@ -89,7 +90,11 @@
 </template>
 
 <script>
+import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
 export default {
+  components:{
+    JsonPathBar
+  },
   data() {
     return {
       groupNameModal: false,
