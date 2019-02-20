@@ -68,7 +68,7 @@ function pathToString(path) {
         }
         return s;
     } catch (ex) {
-        return s;
+        return '';
     }
 }
 

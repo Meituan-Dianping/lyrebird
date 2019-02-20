@@ -12,7 +12,7 @@
           :language="code.type" 
           v-model="content" 
           class="data-detail"
-          v-on:change-cursor="onDidChangeCursor"
+          v-on:jsonpath="onDidChangeJsonPath"
           ></code-editor>
         <div class="save-btn" v-if="dataDetail">
             <Tooltip content="Save" placement="top" :delay="500">
@@ -137,8 +137,8 @@ export default{
         save(){
             this.$store.dispatch('saveDataDetail', this.dataDetail)
         },
-        onDidChangeCursor(payload) {
-            if (payload.offSet !== 0) {
+        onDidChangeJsonPath(payload) {
+            if (payload.jsonPath) {
                 this.$store.dispatch('updateJsonPath', payload.jsonPath)
             } else {
                 this.$store.dispatch('updateJsonPath', '')

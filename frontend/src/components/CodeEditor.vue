@@ -14,6 +14,7 @@ export default {
         prop: 'content',
         event: 'change',
         event: 'change-cursor',
+        event: 'jsonpath'
     },
     props: {
         'content': null, 
@@ -26,7 +27,8 @@ export default {
     },
     data: function(){
         return {
-            editor: null
+            editor: null,
+            jsonPath: null
         }
     },
     watch:{
@@ -75,23 +77,21 @@ export default {
             const value = this.editor.getValue()
             const offSet = this.editor.getModel().getOffsetAt(event.position)
             const language = this.language;
-            const jsonPath = getJsonPath(value, offSet);
             if (this.value !== value && language === 'json') {
-                this.$emit('change-cursor', {offSet: offSet, jsonPath: jsonPath})
-            }  
+                this.$emit('change-cursor', {offSet: offSet})
+            }
+            if (language == 'json') {
+                this.jsonPath = getJsonPath(value, offSet)
+                this.$emit('jsonpath', {jsonPath: this.jsonPath})
+            }
         })
     },
     methods:{
         copyToClipboard() {
             const notification = this.$Notice
-            const jsonPath = this.$store.state.dataManager.jsonPath
-            if (jsonPath) {
-                navigator.clipboard.writeText(jsonPath)
-                    .then(function() {
-                        notification.success({
-                            title: 'jsonpath copy successded.'
-                        });
-                    }, function() {
+            if (this.jsonPath) {
+                navigator.clipboard.writeText(this.jsonPath)
+                    .then(function() { }, function() {
                         notification.error({
                             title: 'jsonpath copy failed.'
                         });
@@ -106,6 +106,3 @@ export default {
     }
 };
 </script>
-
-<style>
-</style>
