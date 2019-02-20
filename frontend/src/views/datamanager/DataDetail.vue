@@ -138,12 +138,7 @@ export default{
             this.$store.dispatch('saveDataDetail', this.dataDetail)
         },
         onDidChangeJsonPath(payload) {
-            if (payload.jsonPath) {
-                this.$store.dispatch('updateJsonPath', payload.jsonPath)
-            } else {
-                this.$store.dispatch('updateJsonPath', '')
-            }
-            
+            this.$store.dispatch('updateJsonPath', payload.jsonPath)
         }
     }
 }
