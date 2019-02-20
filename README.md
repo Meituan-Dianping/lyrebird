@@ -1,5 +1,5 @@
 
-<p align="center"><img src="./image/lyrebird.png" width="220"></p>
+<p align="center"><a herf="https://meituan-dianping.github.io/lyrebird/"></a><img src="./image/lyrebird.png" width="220"></p>
 <h1 align="center">Lyrebird</h1>
 
 [![Build Status](https://travis-ci.org/Meituan-Dianping/lyrebird.svg?branch=master)](https://travis-ci.org/Meituan-Dianping/lyrebird)
@@ -142,7 +142,7 @@ lyrebird
 
 ```bash
 # clone 代码
-git clone https://github.com/meituan/lyrebird.git
+git clone https://github.com/Meituan-Dianping/lyrebird.git
 ```
 
 ## 前端开发
