@@ -12,7 +12,7 @@
           :language="code.type" 
           v-model="content" 
           class="data-detail"
-          v-on:jsonpath="onDidChangeJsonPath"
+          v-on:on-jsonpath-change="onDidChangeJsonPath"
           ></code-editor>
         <div class="save-btn" v-if="dataDetail">
             <Tooltip content="Save" placement="top" :delay="500">
@@ -138,7 +138,7 @@ export default{
             this.$store.dispatch('saveDataDetail', this.dataDetail)
         },
         onDidChangeJsonPath(payload) {
-            this.$store.dispatch('updateJsonPath', payload.jsonPath)
+            this.$store.commit('setJsonPath', payload.jsonPath)
         }
     }
 }

@@ -13,8 +13,8 @@ export default {
     model: {
         prop: 'content',
         event: 'change',
-        event: 'change-cursor',
-        event: 'jsonpath'
+        event: 'on-cursor-change',
+        event: 'on-jsonpath-change'
     },
     props: {
         'content': null, 
@@ -78,11 +78,11 @@ export default {
             const offSet = this.editor.getModel().getOffsetAt(event.position)
             const language = this.language;
             if (this.value !== value && language === 'json') {
-                this.$emit('change-cursor', {offSet: offSet})
+                this.$emit('on-cursor-change', {offSet: offSet})
             }
-            if (language == 'json') {
+            if (language == 'json' && offSet !== 0) {
                 this.jsonPath = getJsonPath(value, offSet)
-                this.$emit('jsonpath', {jsonPath: this.jsonPath})
+                this.$emit('on-jsonpath-change', {jsonPath: this.jsonPath})
             }
         })
     },
@@ -99,7 +99,7 @@ export default {
                 );
             } else{
                 notification.warning({
-                    title: 'jsonpath empty.'
+                    title: 'There is no jsonpath that can be copied.'
                 });
             }
         }

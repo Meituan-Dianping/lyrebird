@@ -172,9 +172,6 @@ export default {
             api.deleteData(groupId, ids).then(response=>{
                 dispatch('loadDataList', groupId)
             })
-        },
-        updateJsonPath({commit}, jsonPath) {
-            return commit('setJsonPath', jsonPath)
         }
     }
 }
