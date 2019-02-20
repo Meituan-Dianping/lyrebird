@@ -6,12 +6,15 @@
 
 <script>
 import * as monaco from 'monaco-editor'
+import { getJsonPath } from './jsonpath'
 
 export default {
     name: 'codeEditor',
     model: {
         prop: 'content',
-        event: 'change'
+        event: 'change',
+        event: 'on-cursor-change',
+        event: 'on-jsonpath-change'
     },
     props: {
         'content': null, 
@@ -24,7 +27,8 @@ export default {
     },
     data: function(){
         return {
-            editor: null
+            editor: null,
+            jsonPath: null
         }
     },
     watch:{
@@ -41,6 +45,7 @@ export default {
         }
     },
     mounted: function(){
+        const copyToClipboard = this.copyToClipboard
         this.editor = monaco.editor.create(
             this.$el.querySelector('#code-editor'), 
             {
@@ -50,15 +55,54 @@ export default {
                 readOnly: this.readOnly
             }
         );
+        this.editor.addAction({
+            id: 'json-path',
+            label: 'Copy JsonPath',
+            keybindings: [
+                monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_J)
+            ],
+            precondition: "editorLangId == 'json'",
+            keybindingContext: "editorLangId == 'json'",
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 1.5,
+            run: copyToClipboard
+        });
         this.editor.onDidChangeModelContent(event => {
-        const value = this.editor.getValue()
-        if (this.value !== value) {
-          this.$emit('change', value, event)
+            const value = this.editor.getValue()
+            if (this.value !== value) {
+                this.$emit('change', value, event)
+            }
+        })
+        this.editor.onDidChangeCursorPosition(event => {
+            const value = this.editor.getValue()
+            const offSet = this.editor.getModel().getOffsetAt(event.position)
+            const language = this.language;
+            if (this.value !== value && language === 'json') {
+                this.$emit('on-cursor-change', {offSet: offSet})
+            }
+            if (language == 'json' && offSet !== 0) {
+                this.jsonPath = getJsonPath(value, offSet)
+                this.$emit('on-jsonpath-change', {jsonPath: this.jsonPath})
+            }
+        })
+    },
+    methods:{
+        copyToClipboard() {
+            const notification = this.$Notice
+            if (this.jsonPath) {
+                navigator.clipboard.writeText(this.jsonPath)
+                    .then(function() { }, function() {
+                        notification.error({
+                            title: 'jsonpath copy failed.'
+                        });
+                    }
+                );
+            } else{
+                notification.warning({
+                    title: 'There is no jsonpath that can be copied.'
+                });
+            }
         }
-      })
     }
 };
 </script>
-
-<style>
-</style>

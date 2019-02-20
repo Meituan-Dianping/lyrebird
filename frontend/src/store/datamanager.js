@@ -19,7 +19,8 @@ export default {
             parentGroupId: null,
             parentDataList: [],
             selectedDataIdList: []
-        }
+        },
+        jsonPath: null
     },
     mutations:{
         setGroupList(state, groupList){
@@ -63,6 +64,9 @@ export default {
         },
         setCreateGroupModalSelectedData(state, dataIdList){
             state.createGroupModal.selectedDataIdList = dataIdList
+        },
+        setJsonPath(state, jsonPath) {
+            state.jsonPath = jsonPath
         }
     },
     actions:{
@@ -170,4 +174,4 @@ export default {
             })
         }
     }
-  }
+}
