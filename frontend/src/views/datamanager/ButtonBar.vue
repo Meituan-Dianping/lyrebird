@@ -269,4 +269,11 @@ export default {
   margin-left: 5px;
   margin-right: 5px;
 }
+.json-path-bar {
+float: right;
+display: flex;
+align-items: center;
+font-size: 11px;
+margin-left: 10px
+}
 </style>

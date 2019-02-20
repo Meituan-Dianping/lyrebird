@@ -1,5 +1,4 @@
 import * as api from '../api' 
-import {getJsonPath} from '@/store/jsonpath'
 
 export default {
     state:{
@@ -174,14 +173,8 @@ export default {
                 dispatch('loadDataList', groupId)
             })
         },
-        updateJsonPath({commit}, {text, language, offSet}) {
-            if (language !== 'json') {
-                return commit('setJsonPath', '')
-            }
-            if (offSet === 0) {
-                return commit('setJsonPath', '')
-            }
-            return commit('setJsonPath', getJsonPath(text, offSet))
+        updateJsonPath({commit}, jsonPath) {
+            return commit('setJsonPath', jsonPath)
         }
     }
 }

@@ -138,11 +138,12 @@ export default{
             this.$store.dispatch('saveDataDetail', this.dataDetail)
         },
         onDidChangeCursor(payload) {
-            this.$store.dispatch('updateJsonPath', {
-                text: payload.content,
-                language: payload.language,
-                offSet: payload.offSet
-            })
+            if (payload.offSet !== 0) {
+                this.$store.dispatch('updateJsonPath', payload.jsonPath)
+            } else {
+                this.$store.dispatch('updateJsonPath', '')
+            }
+            
         }
     }
 }

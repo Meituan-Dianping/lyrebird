@@ -1,4 +1,3 @@
-// Used from https://github.com/richie5um/vscode-statusbar-json-path
 const colType = { Object, Array }
 
 export function getJsonPath(text, offSet) {
@@ -51,22 +50,26 @@ export function getJsonPath(text, offSet) {
 
 function pathToString(path) {
     let s = '$'
-    for (const frame of path) {
-        if (frame.colType === colType.Object) {
-            if (!frame.key.match(/^[a-zA-Z$_][a-zA-Z\d$_]*$/)) {
-                const key = frame.key.replace('"', '\\"')
-                s += `["${frame.key}"]`
-            } else {
-                if (s.length) {
-                    s += '.'
+    try {
+        for (const frame of path) {
+            if (frame.colType === colType.Object) {
+                if (!frame.key.match(/^[a-zA-Z$_][a-zA-Z\d$_]*$/)) {
+                    const key = frame.key.replace('"', '\\"')
+                    s += `["${frame.key}"]`
+                } else {
+                    if (s.length) {
+                        s += '.'
+                    }
+                    s += frame.key
                 }
-                s += frame.key
+            } else {
+                s += `[${frame.index}]`
             }
-        } else {
-            s += `[${frame.index}]`
         }
+        return s;
+    } catch (ex) {
+        return s;
     }
-    return s;
 }
 
 function isEven(n) {

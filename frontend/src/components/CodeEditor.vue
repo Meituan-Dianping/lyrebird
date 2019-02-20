@@ -6,6 +6,7 @@
 
 <script>
 import * as monaco from 'monaco-editor'
+import { getJsonPath } from './jsonpath'
 
 export default {
     name: 'codeEditor',
@@ -58,8 +59,8 @@ export default {
             keybindings: [
                 monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_J)
             ],
-            precondition: null,
-            keybindingContext: null,
+            precondition: "editorLangId == 'json'",
+            keybindingContext: "editorLangId == 'json'",
             contextMenuGroupId: 'navigation',
             contextMenuOrder: 1.5,
             run: copyToClipboard
@@ -74,24 +75,33 @@ export default {
             const value = this.editor.getValue()
             const offSet = this.editor.getModel().getOffsetAt(event.position)
             const language = this.language;
-            if (this.value !== value) {
-                this.$emit('change-cursor', {offSet: offSet, content: value, language: language}, event)
-            }
+            const jsonPath = getJsonPath(value, offSet);
+            if (this.value !== value && language === 'json') {
+                this.$emit('change-cursor', {offSet: offSet, jsonPath: jsonPath})
+            }  
         })
     },
     methods:{
         copyToClipboard() {
             const notification = this.$Notice
-            navigator.clipboard.writeText(this.$store.state.dataManager.jsonPath)
-                .then(function() {
-                    notification.success({
-                        title: 'jsonpath copy successded.'
-                    });
-                }, function() {
-                    notification.error({
-                        title: 'jsonpath copy failed.'
-                    });
+            const jsonPath = this.$store.state.dataManager.jsonPath
+            if (jsonPath) {
+                navigator.clipboard.writeText(jsonPath)
+                    .then(function() {
+                        notification.success({
+                            title: 'jsonpath copy successded.'
+                        });
+                    }, function() {
+                        notification.error({
+                            title: 'jsonpath copy failed.'
+                        });
+                    }
+                );
+            } else{
+                notification.warning({
+                    title: 'jsonpath empty.'
                 });
+            }
         }
     }
 };

@@ -1,6 +1,6 @@
 <template>
-    <div class="json-path-bar">
-        <label v-if="jsonPath">{{jsonPath}}</label>
+    <div>
+        <label v-if="jsonPath">Json Path: {{jsonPath}}</label>
     </div>
 </template>
 
@@ -14,12 +14,5 @@ export default {
 };
 </script>
 
-<style scoped>
-.json-path-bar {
-float: right;
-display: flex;
-align-items: center;
-font-size: 11px;
-margin-left: 10px
-}
+<style>
 </style>
