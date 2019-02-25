@@ -46,11 +46,7 @@ class NoticeCenter():
         
         """
         self.notice_hashmap_to_list()
-        notice_for_frontend = {
-            'noticeList': self.notice_list,
-            'notRemindList': self.not_remind_list
-        }
-        context.application.socket_io.emit('update', notice_for_frontend)
+        context.application.socket_io.emit('update')
 
     def load_history_notice(self):
         """
@@ -121,5 +117,5 @@ class NoticeCenter():
         
         """
         self.notice_hashmap.pop(unique_key)
-
+        self.update_frontend()
         self.storage_notice(self.notice_hashmap)
