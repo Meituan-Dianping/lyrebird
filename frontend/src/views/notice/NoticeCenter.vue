@@ -83,7 +83,7 @@ export default {
         }
       });
     },
-    updateNotice(payload){
+    updateNotice(){
       this.$store.dispatch('loadNoticeCenterData')
     },
     setTargetTab(selectedTab){
