@@ -127,6 +127,7 @@ ENV/
 
 #mock
 mock/record/
+lyrebird/client/static/
 data/
 tmp/
 
