@@ -23,9 +23,6 @@ export default {
         }
       }
       api.deleteNotice(noticeKey)
-      .then(response=>{
-        // TODO:
-      })
       .catch(error => console.log(error))
     },
     deleteNotRemind({state}, noticeKey) {
@@ -37,9 +34,6 @@ export default {
         }
       }
       api.deleteNotice(noticeKey)
-      .then(response=>{
-        // TODO:
-      })
       .catch(error => console.log(error))
     },
     loadNoticeCenterData({state, commit}){

@@ -30,11 +30,9 @@
         </p>
       </Col>
       <Col span="4" align="right">
-        <div v-if="!isDisplayDate">
-          <a href="#" @click="changeNoticeStatusToFalse(notice)" title="Don't remind again">
-            <Icon type="ios-eye-off" style="font-size:16px"/>
-          </a>
-        </div>
+        <a href="#" @click="changeNoticeStatusToFalse(notice)" title="Don't remind again">
+          <Icon type="ios-eye-off" style="font-size:16px"/>
+        </a>
       </Col>
     </Row>
   </Card>

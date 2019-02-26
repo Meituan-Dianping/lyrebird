@@ -29,11 +29,9 @@
         </p>
       </Col>
       <Col span="4" align="right">
-        <div v-if="!isDisplayDate">
-          <a href="#" @click="changeNoticeStatusToTrue(notice)" title="Remind me again">
-            <Icon type="ios-eye" style="font-size:16px"/>
-          </a>
-        </div>
+        <a href="#" @click="changeNoticeStatusToTrue(notice)" title="Remind me again">
+          <Icon type="ios-eye" style="font-size:16px"/>
+        </a>
       </Col>
     </Row>
   </Card>
@@ -97,4 +95,4 @@ export default {
   padding: 5px 5px 5px 8px;
   font-size: 12px;
 }
-</style> 
+</style>
