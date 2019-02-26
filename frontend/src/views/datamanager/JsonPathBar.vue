@@ -1,6 +1,9 @@
 <template>
     <div>
-        <label v-if="jsonPath">Json Path: {{jsonPath}}</label>
+        <label v-if="jsonPath">
+            <strong>Json Path:</strong>
+            <span class="json-path-str">{{jsonPath}}</span>
+        </label>
     </div>
 </template>
 
@@ -14,5 +17,8 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.json-path-str{
+    font-style: italic
+}
 </style>

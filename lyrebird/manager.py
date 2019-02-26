@@ -149,11 +149,12 @@ def run(args:argparse.Namespace):
 def debug():
     # use lyrebird.debug to start plugin in debug mode
     # can pass args by sys.args
+    import sys
+    sys.argv.append("-b")
+
     main()
-    # main thread loop
-    import asyncio
-    loop = asyncio.get_event_loop()
-    loop.run_forever()
+   
+    print('\033[0;32m**************\nLyrebid debug mode:\n\nset auto open browser :off\n**************\033[0m\n')
 
 
 def plugin(args:argparse.Namespace):

@@ -95,11 +95,11 @@ export default{
                     }
                 }else if(this.currentTab==='req'){
                     dataDetail.request.content = value
-                }else if(this.currentTab==='req-body'){
+                }else if(this.currentTab==='req-body' && dataDetail.request_data){
                     dataDetail.request_data.content = value
                 }else if(this.currentTab==='resp'){
                     dataDetail.response.content = value
-                }else if(this.currentTab==='resp-body'){
+                }else if(this.currentTab==='resp-body' && dataDetail.response_data){
                     dataDetail.response_data.content = value
                 }
                 this.$store.commit('setDataDetail', dataDetail)

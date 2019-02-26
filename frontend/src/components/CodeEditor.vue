@@ -12,9 +12,7 @@ export default {
     name: 'codeEditor',
     model: {
         prop: 'content',
-        event: 'change',
-        event: 'on-cursor-change',
-        event: 'on-jsonpath-change'
+        event: 'change'
     },
     props: {
         'content': null, 
@@ -63,8 +61,8 @@ export default {
             ],
             precondition: "editorLangId == 'json'",
             keybindingContext: "editorLangId == 'json'",
-            contextMenuGroupId: 'navigation',
-            contextMenuOrder: 1.5,
+            contextMenuGroupId: '9_cutcopypaste',
+            contextMenuOrder: 2,
             run: copyToClipboard
         });
         this.editor.onDidChangeModelContent(event => {
