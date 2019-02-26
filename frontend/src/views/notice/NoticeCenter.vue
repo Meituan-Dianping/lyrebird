@@ -83,9 +83,8 @@ export default {
         }
       });
     },
-    updateNotice(payload){
-      this.$store.state.notice.noticeList = payload.noticeList
-      this.$store.state.notice.notRemindList = payload.notRemindList
+    updateNotice(){
+      this.$store.dispatch('loadNoticeCenterData')
     },
     setTargetTab(selectedTab){
       this.selectedTab = selectedTab
