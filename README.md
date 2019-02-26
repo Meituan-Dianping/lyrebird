@@ -1,11 +1,12 @@
 
-<p align="center"><a herf="https://meituan-dianping.github.io/lyrebird/"></a><img src="./image/lyrebird.png" width="220"></p>
+<p align="center"><a herf="https://meituan-dianping.github.io/lyrebird/"><img src="./image/lyrebird.png" width="220"></a></p>
 <h1 align="center">Lyrebird</h1>
 
 [![Build Status](https://travis-ci.org/Meituan-Dianping/lyrebird.svg?branch=master)](https://travis-ci.org/Meituan-Dianping/lyrebird)
 [![PyPI](https://img.shields.io/pypi/v/lyrebird.svg)](https://pypi.python.org/pypi/lyrebird)
 ![PyPI](https://img.shields.io/pypi/pyversions/lyrebird.svg)
 ![GitHub](https://img.shields.io/github/license/meituan/lyrebird.svg)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/lyrebird.svg)
 [![Backers on Open Collective](https://opencollective.com/lyrebird/backers/badge.svg)](#backers) 
 [![Sponsors on Open Collective](https://opencollective.com/lyrebird/sponsors/badge.svg)](#sponsors) 
 
@@ -25,7 +26,6 @@
   - [使用Mock数据](#使用Mock数据)
   - [Mock数据管理](#Mock数据管理)
 - [基本命令](#基本命令)
-- [在代码中使用Lyrebird](#在代码中使用lyrebird)
 - [开发者指南](#开发者指南)
   - [配置Lyrebird工程](#配置lyrebird工程)
 - [感谢](#感谢)
@@ -82,6 +82,15 @@ lyrebird
 
 * 被测设备上用浏览器打开 http://mitm.it, 选择对应操作系统安装证书
 
+>Lyrebird接入有两种方式:
+
+a. 设置代理
+
+<img src="./image/connect-by-proxy.png" width="800">
+
+b. 直连
+
+<img src="./image/direct-connect.png" width="800">
 
 
 ## 查看及录制数据
@@ -102,6 +111,10 @@ lyrebird
 <img src="./image/datamanager-a.gif" width="800">
 
 > mock数据可由左边导航栏切换到DataManager界面进行编辑管理
+
+----
+
+## 插件
 
 ----
 
