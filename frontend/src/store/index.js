@@ -5,6 +5,7 @@ import inspector from '@/store/inspector'
 import dataManager from '@/store/datamanager'
 import plugin from '@/store/plugin'
 import notice from '@/store/notice'
+import checker from '@/store/checker'
 
 
 Vue.use(Vuex)
@@ -14,7 +15,8 @@ export default new Vuex.Store({
     inspector,
     dataManager,
     plugin,
-    notice
+    notice,
+    checker
   },
   state: {
     menu: null,

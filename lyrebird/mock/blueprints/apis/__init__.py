@@ -7,6 +7,7 @@ from .config import Conf, ResetConf
 from .plugin import Plugin
 from .menu import Menu
 from .event import Event
+from .checker import Checker
 
 
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -27,3 +28,4 @@ api_source.add_resource(WorkMode, '/mode', '/mode/<string:mode>')
 api_source.add_resource(Plugin, '/plugin', '/plugin/<string:plugin_name>')
 api_source.add_resource(Menu, '/menu')
 api_source.add_resource(Event, '/event')
+api_source.add_resource(Checker, '/checker', '/checker/<string:checker_id>')

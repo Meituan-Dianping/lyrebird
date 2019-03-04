@@ -32,6 +32,7 @@ plugins = {}
 
 
 notice = None
+checkers = {}
 
 def start_server():
     for name in server:

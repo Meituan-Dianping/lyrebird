@@ -215,3 +215,23 @@ export const deactivateGroup = () => {
     method: 'PUT'
   })
 }
+
+export const getCheckers = () => {
+  return axios({
+    url: '/api/checker'
+  })
+}
+
+export const getCheckerDetail = (checkerId) => {
+  return axios({
+    url: '/api/checker/' + checkerId
+  })
+}
+
+export const updateCheckerStatus = (checkerId, status) => {
+  return axios({
+    url: '/api/checker/' + checkerId,
+    method: 'PUT',
+    data: {status:status}
+  })
+}

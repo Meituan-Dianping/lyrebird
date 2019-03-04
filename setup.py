@@ -44,6 +44,5 @@ setup(
         'beautifulsoup4',
         'portpicker', 
         'colorama',
-        'packaging',
-        'Flask-SQLAlchemy'
+        'packaging'
     ])
