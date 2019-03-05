@@ -24,7 +24,7 @@ class Checker(Resource):
         _checker = application.checkers.get(checker_id)
         if not _checker:
             return context.make_fail_response(f'Checker {checker_id} not found')
-        
+
         if 'status' not in request.json:
             return context.make_fail_response(f'Checker {checker_id} status not found')
 

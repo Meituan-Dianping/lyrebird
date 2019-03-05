@@ -60,7 +60,7 @@ export default new Vuex.Store({
     createIssue({commit}, noticeInfo){
       api.publishEvent(noticeInfo).then((response) => {
       })
-      .catch(error => console.log(error));
+      .catch((error) => console.log(error));
     }
   }
 })
