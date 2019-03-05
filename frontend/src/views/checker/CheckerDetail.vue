@@ -8,25 +8,21 @@
 </template>
 
 <script>
-import CodeEditor from '@/components/CodeEditor.vue'
+import CodeEditor from "@/components/CodeEditor.vue";
 
   export default {
-    name: 'checkerDetail',
     components:{
       CodeEditor
     },
     data () {
       return {
-        codeType: 'python'
-      }
+        codeType: "python"
+      };
     },
     computed: {
       checkerDetail() {
-        return this.$store.state.checker.focusCheckerDetail
+        return this.$store.state.checker.focusCheckerDetail;
       }
-    },
-    methods: {
-
     }
   };
 </script>

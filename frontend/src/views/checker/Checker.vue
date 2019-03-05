@@ -1,6 +1,6 @@
 <template>
-  <div class="demo-split">
-    <Split v-model="split1">
+  <div class="checker-split">
+    <Split v-model="split">
       <div slot="left">
         <checker-list></checker-list>
       </div>
@@ -16,11 +16,9 @@ import CheckerList from "@/views/checker/CheckerList.vue";
 import CheckerDetail from "@/views/checker/CheckerDetail.vue";
 
 export default {
-  name: "Checker",
   data() {
     return {
-      split1: 0.2,
-      split4: 0.8
+      split: 0.2
     };
   },
   components: {
@@ -28,25 +26,13 @@ export default {
     CheckerDetail
   },
   created() {
-    this.$store.dispatch('loadCheckers')
-  },
-  computed: {
-    
-  },
-  mounted: function() {
-
-  },
-  computed: {
-
-  },
-  methods: {
-
+    this.$store.dispatch("loadCheckers");
   }
 };
 </script>
 
 <style scoped>
-.demo-split{
+.checker-split{
   height: calc(100vh - 66px);
   border: 1px solid #dcdee2;
 }

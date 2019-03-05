@@ -1,11 +1,11 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import * as api from '@/api' 
-import inspector from '@/store/inspector'
-import dataManager from '@/store/datamanager'
-import plugin from '@/store/plugin'
-import notice from '@/store/notice'
-import checker from '@/store/checker'
+import Vue from "vue";
+import Vuex from "vuex"
+import * as api from "@/api";
+import inspector from "@/store/inspector";
+import dataManager from "@/store/datamanager";
+import plugin from "@/store/plugin";
+import notice from "@/store/notice";
+import checker from "@/store/checker";
 
 
 Vue.use(Vuex)
@@ -41,17 +41,17 @@ export default new Vuex.Store({
   actions: {
     loadMenu({commit}){
       api.getMenu().then(response=>{
-        commit('setMenu', response.data.menu)
+        commit("setMenu", response.data.menu)
       })
     },
     loadStatus({commit}){
       api.getStatus().then(response=>{
-        commit('setStatus', response.data)
+        commit("setStatus", response.data)
       })
     },
     loadManifest({commit}){
       api.getManifest().then(response=>{
-        commit('setManifest', response.data.manifest)
+        commit("setManifest", response.data.manifest)
       })
     },
     createIssue({commit}, noticeInfo){

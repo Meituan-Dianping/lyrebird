@@ -3,7 +3,7 @@ from flask import request, jsonify
 from flask_restful import Resource
 from lyrebird import application
 from lyrebird.mock import context
-# from lyrebird import checker as checker_operator
+
 
 class Checker(Resource):
     def get(self, checker_id=None):

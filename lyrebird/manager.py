@@ -16,6 +16,7 @@ from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.notice_center import NoticeCenter
 from lyrebird.db.database_server import LyrebirdDatabaseServer
+from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird import version
 
 
@@ -125,6 +126,7 @@ def run(args:argparse.Namespace):
     application.server['proxy'] = LyrebirdProxyServer()   
     application.server['mock'] = LyrebirdMockServer()
     application.server['db'] = LyrebirdDatabaseServer()
+    application.server['checker'] = LyrebirdCheckerServer()
 
     application.start_server()
 
