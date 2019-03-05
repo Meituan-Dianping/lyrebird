@@ -16,6 +16,6 @@ features:
   details: 不只提供UI操作，也可以通过API控制所有功能。
 - title: 完整的记录人机交互过程
   details: 实时的记录测试执行过程中人机交互过程，更方便的记录问题、复现问题。
-footer: MIT Licensed | Copyright © 2018-present Meituan HBQA
+footer: MIT Licensed | Copyright © 2018-present Meituan
 ---
 

@@ -4,12 +4,13 @@ module.exports = {
         '/': {
             lang: 'zh-CN',
             title: 'Lyrebird',
-            description: '插件式测试工作台'
+            description: '面向移动应用的插件式测试工作台'
         }
     },
     themeConfig: {
         nav: [
             { text: '指南', link: '/guide/' },
+            { text: '检查器', link: '/checker/'},
             { text: '插件', link: '/plugins/'},
             { text: '高级', link: '/advance/'},
             { text: '开发者指南', link: '/develop/' },
@@ -33,6 +34,9 @@ module.exports = {
                 'command-line',
                 'api',
                 'faq'
+            ],
+            '/checker/': [
+                ''
             ],
             '/plugins/': [
                 '',
