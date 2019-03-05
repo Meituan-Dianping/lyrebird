@@ -1,5 +1,5 @@
 import Vue from "vue";
-import Vuex from "vuex"
+import Vuex from "vuex";
 import * as api from "@/api";
 import inspector from "@/store/inspector";
 import dataManager from "@/store/datamanager";
@@ -40,24 +40,27 @@ export default new Vuex.Store({
   },
   actions: {
     loadMenu({commit}){
-      api.getMenu().then(response=>{
-        commit("setMenu", response.data.menu)
-      })
+      api.getMenu()
+      .then((response) => {
+        commit("setMenu", response.data.menu);
+      });
     },
     loadStatus({commit}){
-      api.getStatus().then(response=>{
-        commit("setStatus", response.data)
-      })
+      api.getStatus()
+      .then((response) => {
+        commit("setStatus", response.data);
+      });
     },
     loadManifest({commit}){
-      api.getManifest().then(response=>{
-        commit("setManifest", response.data.manifest)
-      })
+      api.getManifest()
+      .then((response) => {
+        commit("setManifest", response.data.manifest);
+      });
     },
     createIssue({commit}, noticeInfo){
-      api.publishEvent(noticeInfo).then(response=>{
+      api.publishEvent(noticeInfo).then((response) => {
       })
-      .catch(error => console.log(error))
+      .catch(error => console.log(error));
     }
   }
 })

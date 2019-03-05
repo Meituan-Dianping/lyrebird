@@ -1,4 +1,4 @@
-import * as api from "@/api"
+import * as api from "@/api";
 
 export default {
   state: {
@@ -27,20 +27,20 @@ export default {
   actions: {
     loadCheckers({state, commit}){
       api.getCheckers()
-      .then(response=>{
+      .then((response) => {
         commit("setCheckers", response.data);
       });
     },
     loadCheckerDetail({commit}, checkerId){
       api.getCheckerDetail(checkerId)
-      .then((response)=> {
+      .then((response) => {
         commit("setFocusCheckerDetail", response.data);
       })
-      .catch((error)=> console.log(error));
+      .catch((error) => console.log(error));
     },
     updateCheckerStatus({}, checker){
       api.updateCheckerStatus(checker.name, checker.activated)
-      .catch((error)=> console.log(error));
+      .catch((error) => console.log(error));
     }
   }
 };

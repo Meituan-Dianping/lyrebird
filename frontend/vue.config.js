@@ -1,6 +1,7 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
+  lintOnSave: process.env.NODE_ENV !== 'production',
   configureWebpack: {
     devtool: 'source-map',
     plugins: [
@@ -11,6 +12,10 @@ module.exports = {
   productionSourceMap: false,
   outputDir: '../lyrebird/client/static',
   devServer: {
+    overlay: {
+      warnings: true,
+      errors: true
+    },
     proxy: {
       '/api': {
           target: 'http://localhost:9090'
@@ -24,6 +29,6 @@ module.exports = {
       '/socket.io': {
         target: 'http://localhost:9090'
       }
-  }
+    }
   }
 }
