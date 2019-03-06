@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios from 'axios'
 
 export const getMenu = () => {
   return axios({
-    url: "/api/menu"
-  });
+    url: '/api/menu'
+  })
 }
 
 //------Lyrebird status--------    
@@ -11,8 +11,8 @@ export const getMenu = () => {
     Get lyrebird status
     {
         code: 1000,
-        message: "success",
-        ip: "",
+        message: 'success',
+        ip: '',
         mock.port: 9090,
         proxy.port: 4272
     }
@@ -20,8 +20,8 @@ export const getMenu = () => {
 
 export const getStatus = () => {
   return axios({
-    url: "/api/status"
-  });
+    url: '/api/status'
+  })
 }
 
 //------Lyrebird manifest--------    
@@ -31,16 +31,16 @@ export const getStatus = () => {
 
 export const getManifest = () => {
   return axios({
-    url: "/api/manifest"
-  });
+    url: '/api/manifest'
+  })
 }
 
 //-------Flow----------------
 
 export const getFlowDetail = (flowId) => {
   return axios({
-    url: "/api/flow/"+flowId
-  });
+    url: '/api/flow/'+flowId
+  })
 }
 
 //------Mock data manager------
@@ -48,37 +48,37 @@ export const getFlowDetail = (flowId) => {
     Get group name list
     return:
     [
-        "GroupNameA",
-        "GroupNameB"
+        'GroupNameA',
+        'GroupNameB'
     ]
     */
 export const getGroups = () => {
   return axios({
-    url: "/api/mock"
-  });
+    url: '/api/mock'
+  })
 }
 
 export const createGroup = (name, parent) => {
   return axios({
-    url: "/api/mock",
-    method: "POST",
+    url: '/api/mock',
+    method: 'POST',
     data: {name, parent}
-  });
+  })
 }
 
 export const updateGroup = (id, name, parent) => {
   return axios({
-    url: "/api/mock",
-    method: "PUT",
+    url: '/api/mock',
+    method: 'PUT',
     data: {id, name, parent}
-  });
+  })
 }
 
 export const deleteGroup = (groupId) => {
   return axios({
-    url: "/api/mock/"+groupId,
-    method: "DELETE"
-  });
+    url: '/api/mock/'+groupId,
+    method: 'DELETE'
+  })
 }
 
 /**
@@ -105,16 +105,16 @@ export const deleteGroup = (groupId) => {
     */
 export const getDataList = (groupId) => {
   return axios({
-    url: "/api/mock/" + groupId
-  });
+    url: '/api/mock/' + groupId
+  })
 }
 
 export const createData = (groupId, name) => {
   return axios({
-    url: "/api/mock/"+groupId+"/data",
-    data:{name},
-    method: "POST"
-  });
+    url: '/api/mock/'+groupId+'/data',
+    data: {name},
+    method: 'POST'
+  })
 }
 
 //------Notice manager------
@@ -122,14 +122,14 @@ export const createData = (groupId, name) => {
     Get notification list
     return:
     {
-      "noticeList": [],
-      "notRemindList": []
+      'noticeList': [],
+      'notRemindList': []
     }
     */
 export const getNoticeList = () => {
   return axios({
-    url: "/api/event"
-  });
+    url: '/api/event'
+  })
 }
 
 //------Notice manager------
@@ -138,10 +138,10 @@ export const getNoticeList = () => {
     */
 export const deleteNotice = (key) => {
   return axios({
-    url: "/api/event",
+    url: '/api/event',
     data:{key},
-    method: "DELETE"
-  });
+    method: 'DELETE'
+  })
 }
 
 //------Notice manager------
@@ -151,10 +151,10 @@ export const deleteNotice = (key) => {
     */
 export const updateNoticeStatus = (key, status) => {
   return axios({
-    url: "/api/event",
+    url: '/api/event',
     data: {key, status},
-    method: "PUT"
-  });
+    method: 'PUT'
+  })
 }
 
 //------Notice manager------
@@ -163,18 +163,18 @@ export const updateNoticeStatus = (key, status) => {
     */
 export const publishEvent = (eventInfo) => {
   return axios({
-    url: "/api/event",
+    url: '/api/event',
     data:{eventInfo},
-    method: "POST"
-  });
+    method: 'POST'
+  })
 }
 
 export const deleteData = (groupId, ids) => {
   return axios({
-    url:"/api/mock/"+groupId+"/data",
+    url:'/api/mock/'+groupId+'/data',
     data:{ids},
-    method:"DELETE"
-  });
+    method:'DELETE'
+  })
 }
 /**
 Get mock data detail
@@ -200,16 +200,16 @@ Get mock data detail
 */
 export const getDataDetail = (groupId, dataId) => {
   return axios({
-    url: "/api/mock/" + groupId + "/data/" + dataId
-  });
+    url: '/api/mock/' + groupId + '/data/' + dataId
+  })
 }
 
 export const updateDataDetail = (groupName, dataName, dataDetail) => {
   return axios({
-    url: "/api/mock/" + groupName + "/data/" + dataName,
-    method: "PUT",
+    url: '/api/mock/' + groupName + '/data/' + dataName,
+    method: 'PUT',
     data: dataDetail
-  });
+  })
 }
 
 /**
@@ -217,8 +217,8 @@ Get activated data group ID
 */
 export const getActivatedGroup = () => {
   return axios({
-    url: "/api/mock/activated"
-  });
+    url: '/api/mock/activated'
+  })
 }
 
 /**
@@ -226,16 +226,16 @@ Activate data group by ID
 */
 export const activateGroup = (groupId) => {
   return axios({
-    url: "/api/mock/" + groupId + "/activate",
-    method: "PUT"
-  });
+    url: '/api/mock/' + groupId + '/activate',
+    method: 'PUT'
+  })
 }
 
 export const deactivateGroup = () => {
   return axios({
-    url: "/api/mock/groups/deactivate",
-    method: "PUT"
-  });
+    url: '/api/mock/groups/deactivate',
+    method: 'PUT'
+  })
 }
 
 //------Checker manager------
@@ -244,8 +244,8 @@ export const deactivateGroup = () => {
     */
 export const getCheckers = () => {
   return axios({
-    url: "/api/checker"
-  });
+    url: '/api/checker'
+  })
 }
 
 //------Checker manager------
@@ -254,8 +254,8 @@ export const getCheckers = () => {
     */
 export const getCheckerDetail = (checkerId) => {
   return axios({
-    url: "/api/checker/" + checkerId
-  });
+    url: '/api/checker/' + checkerId
+  })
 }
 
 //------Checker manager------
@@ -264,8 +264,8 @@ export const getCheckerDetail = (checkerId) => {
     */
 export const updateCheckerStatus = (checkerId, status) => {
   return axios({
-    url: "/api/checker/" + checkerId,
-    method: "PUT",
+    url: '/api/checker/' + checkerId,
+    method: 'PUT',
     data: {status}
-  });
-};
+  })
+}

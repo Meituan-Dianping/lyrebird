@@ -1,8 +1,6 @@
-import json
 import pytest
 from lyrebird import event
 from lyrebird import application
-from lyrebird.mock import context
 from lyrebird.checker import LyrebirdCheckerServer
 
 CHECKER_A_FILENAME = "checker_a.py"
@@ -30,7 +28,7 @@ def checker_init(tmp_path):
 
     # mock config
     application._cm = type('MockedContentManager', (), {'config': config})()
-    
+
     return application.checkers
 
 @pytest.fixture

@@ -1,60 +1,60 @@
-import Vue from "vue";
-import Router from "vue-router";
-import Main from "./views/Main.vue";
-import Inspector from "./views/inspector/Inspector.vue";
-import DataManager from "./views/datamanager/DataManager.vue";
-import Checker from "./views/checker/Checker.vue";
-import PluginView from "./views/PluginView.vue";
+import Vue from 'vue'
+import Router from 'vue-router'
+import Main from './views/Main.vue'
+import Inspector from './views/inspector/Inspector.vue'
+import DataManager from './views/datamanager/DataManager.vue'
+import Checker from './views/checker/Checker.vue'
+import PluginView from './views/PluginView.vue'
 
 
-Vue.use(Router);
+Vue.use(Router)
 
 export default new Router({
   routes: [
     {
-      path: "/",
+      path: '/',
       component: Main,
       children: [
         {
-          path: "",
-          name: "inspector",
+          path: '',
+          name: 'inspector',
           component: Inspector
         }
       ]
     },
     {
-      path: "/datamanager",
+      path: '/datamanager',
       component: Main,
       children: [
         {
-          path:"",
-          name: "datamanager",
+          path:'',
+          name: 'datamanager',
           component: DataManager
         }
       ]
     },
     {
-      path: "/checker",
+      path: '/checker',
       component: Main,
       children: [
         {
-          path: "",
-          name: "checker",
+          path: '',
+          name: 'checker',
           component: Checker
         }
       ]
     },
     {
-      path: "/plugin",
-      name: "plugin",
+      path: '/plugin',
+      name: 'plugin',
       component: Main,
       children:[
         {
-          path:":name",
-          name: "plugin-view",
+          path:':name',
+          name: 'plugin-view',
           component: PluginView
         }
       ]
     }
   ]
-});
+})
