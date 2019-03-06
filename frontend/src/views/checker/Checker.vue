@@ -12,23 +12,23 @@
 </template>
 
 <script>
-import CheckerList from "@/views/checker/CheckerList.vue";
-import CheckerDetail from "@/views/checker/CheckerDetail.vue";
+import CheckerList from '@/views/checker/CheckerList.vue'
+import CheckerDetail from '@/views/checker/CheckerDetail.vue'
 
 export default {
   data() {
     return {
       split: 0.2
-    };
+    }
   },
   components: {
     CheckerList,
     CheckerDetail
   },
   created() {
-    this.$store.dispatch("loadCheckers");
+    this.$store.dispatch('loadCheckers')
   }
-};
+}
 </script>
 
 <style scoped>

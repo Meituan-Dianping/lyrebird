@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import CodeEditor from "@/components/CodeEditor.vue";
+import CodeEditor from '@/components/CodeEditor.vue'
 
   export default {
     components:{
@@ -16,15 +16,15 @@ import CodeEditor from "@/components/CodeEditor.vue";
     },
     data () {
       return {
-        codeType: "python"
-      };
+        codeType: 'python'
+      }
     },
     computed: {
       checkerDetail() {
-        return this.$store.state.checker.focusCheckerDetail;
+        return this.$store.state.checker.focusCheckerDetail
       }
     }
-  };
+  }
 </script>
 
 <style scoped>

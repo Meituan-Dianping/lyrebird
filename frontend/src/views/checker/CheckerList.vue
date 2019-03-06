@@ -23,19 +23,19 @@
 export default {
   computed: {
     checkerList() {
-      return this.$store.state.checker.checkers;
+      return this.$store.state.checker.checkers
     }
   },
   methods: {
     onClickCell(name) {
-      this.$store.commit("setFocusChecker", name);
-      this.$store.dispatch("loadCheckerDetail", name);
+      this.$store.commit('setFocusChecker', name)
+      this.$store.dispatch('loadCheckerDetail', name)
     },
     changeStatus(checker) {
-      this.$store.dispatch("updateCheckerStatus", checker);
+      this.$store.dispatch('updateCheckerStatus', checker)
     }
   }
-};
+}
 </script>
 
 <style scoped>
