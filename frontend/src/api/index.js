@@ -139,7 +139,7 @@ export const getNoticeList = () => {
 export const deleteNotice = (key) => {
   return axios({
     url: '/api/event',
-    data:{key},
+    data: {key},
     method: 'DELETE'
   })
 }
@@ -164,7 +164,7 @@ export const updateNoticeStatus = (key, status) => {
 export const publishEvent = (eventInfo) => {
   return axios({
     url: '/api/event',
-    data:{eventInfo},
+    data: {eventInfo},
     method: 'POST'
   })
 }
@@ -172,7 +172,7 @@ export const publishEvent = (eventInfo) => {
 export const deleteData = (groupId, ids) => {
   return axios({
     url:'/api/mock/'+groupId+'/data',
-    data:{ids},
+    data: {ids},
     method:'DELETE'
   })
 }
