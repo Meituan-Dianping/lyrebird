@@ -1,7 +1,6 @@
 import argparse
 import webbrowser
 import json
-import traceback
 import socket
 import threading
 import signal
@@ -123,7 +122,7 @@ def run(args:argparse.Namespace):
 
     application.server['event'] = EventServer()
     application.server['task'] = BackgroundTaskServer()
-    application.server['proxy'] = LyrebirdProxyServer()   
+    application.server['proxy'] = LyrebirdProxyServer()
     application.server['mock'] = LyrebirdMockServer()
     application.server['db'] = LyrebirdDatabaseServer()
     application.server['checker'] = LyrebirdCheckerServer()
@@ -155,7 +154,7 @@ def debug():
     sys.argv.append("-b")
 
     main()
-   
+
     print('\033[0;32m**************\nLyrebid debug mode:\n\nset auto open browser :off\n**************\033[0m\n')
 
 

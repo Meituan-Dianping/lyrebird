@@ -7,7 +7,7 @@ import Checker from "./views/checker/Checker.vue";
 import PluginView from "./views/PluginView.vue";
 
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
   routes: [
@@ -57,4 +57,4 @@ export default new Router({
       ]
     }
   ]
-})
+});

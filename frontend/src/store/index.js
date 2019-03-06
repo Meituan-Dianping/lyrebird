@@ -8,7 +8,7 @@ import notice from "@/store/notice";
 import checker from "@/store/checker";
 
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules: {
@@ -26,16 +26,16 @@ export default new Vuex.Store({
   },
   mutations: {
     setMenu(state, menu){
-      state.menu = menu
+      state.menu = menu;
     },
     setStatus(state, status){
-      state.status = status
+      state.status = status;
     },
     setManifest(state, manifest){
-      state.manifest = manifest
+      state.manifest = manifest;
     },
     setActiveName(state, activeName){
-      state.activeName = activeName
+      state.activeName = activeName;
     }
   },
   actions: {
@@ -63,4 +63,4 @@ export default new Vuex.Store({
       .catch((error) => console.log(error));
     }
   }
-})
+});

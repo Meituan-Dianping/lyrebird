@@ -52,25 +52,25 @@ export const getFlowDetail = (flowId) => {
         "GroupNameB"
     ]
     */
-export const getGroups = () =>{
+export const getGroups = () => {
   return axios({
     url: "/api/mock"
   });
 }
 
-export const createGroup = (name, parentId) => {
+export const createGroup = (name, parent) => {
   return axios({
     url: "/api/mock",
     method: "POST",
-    data: {name:name, parent:parentId}
+    data: {name, parent}
   });
 }
 
-export const updateGroup = (id, name, parentId) => {
+export const updateGroup = (id, name, parent) => {
   return axios({
     url: "/api/mock",
     method: "PUT",
-    data: {id:id, name:name, parent:parentId}
+    data: {id, name, parent}
   });
 }
 
@@ -103,7 +103,7 @@ export const deleteGroup = (groupId) => {
         ]
     }
     */
-export const getDataList = (groupId) =>{
+export const getDataList = (groupId) => {
   return axios({
     url: "/api/mock/" + groupId
   });
@@ -112,7 +112,7 @@ export const getDataList = (groupId) =>{
 export const createData = (groupId, name) => {
   return axios({
     url: "/api/mock/"+groupId+"/data",
-    data:{name:name},
+    data:{name},
     method: "POST"
   });
 }
@@ -198,13 +198,13 @@ Get mock data detail
     }
 }
 */
-export const getDataDetail = (groupId, dataId) =>{
+export const getDataDetail = (groupId, dataId) => {
   return axios({
     url: "/api/mock/" + groupId + "/data/" + dataId
   });
 }
 
-export const updateDataDetail = (groupName, dataName, dataDetail) =>{
+export const updateDataDetail = (groupName, dataName, dataDetail) => {
   return axios({
     url: "/api/mock/" + groupName + "/data/" + dataName,
     method: "PUT",
@@ -215,7 +215,7 @@ export const updateDataDetail = (groupName, dataName, dataDetail) =>{
 /**
 Get activated data group ID
 */
-export const getActivatedGroup = () =>{
+export const getActivatedGroup = () => {
   return axios({
     url: "/api/mock/activated"
   });
@@ -224,7 +224,7 @@ export const getActivatedGroup = () =>{
 /**
 Activate data group by ID
 */
-export const activateGroup = (groupId) =>{
+export const activateGroup = (groupId) => {
   return axios({
     url: "/api/mock/" + groupId + "/activate",
     method: "PUT"
@@ -268,4 +268,4 @@ export const updateCheckerStatus = (checkerId, status) => {
     method: "PUT",
     data: {status}
   });
-}
+};
