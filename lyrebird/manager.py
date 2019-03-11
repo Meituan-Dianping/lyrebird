@@ -59,11 +59,11 @@ def main():
     parser.add_argument('-b', '--no_browser', dest='no_browser', action='store_true', help='Start without open a browser')
     parser.add_argument('-c', '--config', dest='config', help='Start with a config file. Default is "~/.lyrebird/conf.json"')
     parser.add_argument('--log', dest='log', help='Set output log file path')
+    parser.add_argument('--script', action='append', help='Set a checker script path')
+    parser.add_argument('--plugin', action='append', help='Set a plugin project path')
 
     subparser = parser.add_subparsers(dest='sub_command')
-    src_parser = subparser.add_parser('src')
-    src_parser.add_argument('uri')
-    subparser.add_parser('plugin')
+    subparser.add_parser('gen')
 
     args = parser.parse_args()
 
@@ -75,7 +75,6 @@ def main():
         application._cm = ConfigManager(conf_path=args.config)
     else:
         application._cm = ConfigManager()
-    application._src = Rescource()
 
     # set current ip to config
     try:
@@ -98,14 +97,11 @@ def main():
 
     logger.debug(f'Read args: {args}')
 
-    if args.sub_command == 'src':
-        logger.debug('EXEC SUBCMD:SRC')
-        src(args)
-    elif args.sub_command == 'plugin':
-        logger.debug('EXEC SUBCMD:PLUGIN')
+    if args.sub_command == 'gen':
+        logger.debug('EXEC: Plugin project generator')
         plugin(args)
     else:
-        logger.debug('EXEC LYREBIRD START')
+        logger.debug('EXEC: LYREBIRD START')
         run(args)
 
 
@@ -120,12 +116,14 @@ def run(args:argparse.Namespace):
     config_str = json.dumps(application._cm.config, ensure_ascii=False, indent=4)
     logger.warning(f'Lyrebird start with config:\n{config_str}')
 
+    # Main server
     application.server['event'] = EventServer()
+    
     application.server['task'] = BackgroundTaskServer()
     application.server['proxy'] = LyrebirdProxyServer()   
     application.server['mock'] = LyrebirdMockServer()
     application.server['db'] = LyrebirdDatabaseServer()
-
+    application.server['plugin']
     application.start_server()
 
     # activate notice center
@@ -134,6 +132,8 @@ def run(args:argparse.Namespace):
     # auto open web browser
     if not args.no_browser:
         webbrowser.open(f'http://localhost:{application.config["mock.port"]}')
+    else:
+        print('\033[0;32m**************\nLyrebid debug mode:\n\nset auto open browser :off\n**************\033[0m\n')
 
     # stop event handler
     def signal_handler(signum, frame):
@@ -146,26 +146,17 @@ def run(args:argparse.Namespace):
     signal.signal(signal.SIGTERM, signal_handler)
 
 
-def debug():
-    # use lyrebird.debug to start plugin in debug mode
-    # can pass args by sys.args
-    import sys
-    sys.argv.append("-b")
-
-    main()
-   
-    print('\033[0;32m**************\nLyrebid debug mode:\n\nset auto open browser :off\n**************\033[0m\n')
-
-
-def plugin(args:argparse.Namespace):
+def gen(args):
     pass
 
 
-def src(args:argparse.Namespace):
-    from threading import Thread
-    def worker():
-        application._src.download(args.uri)
-    Thread(target=worker).start()
+def plugin(args:argparse.Namespace):
+    run(args)
+
+    from . import plugins
+    p = plugins.load(debug_plugin_path=args.plugin)
+
+    print(f"!!! Load plugin : {p}")
 
 
 def _get_ip():

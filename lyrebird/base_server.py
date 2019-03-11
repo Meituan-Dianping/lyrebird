@@ -26,3 +26,12 @@ class ThreadServer:
         Server main function
         """
         pass
+
+
+class StaticServer:
+
+    def start(self, *args, **kwargs):
+        pass
+    
+    def stop(self):
+        pass
