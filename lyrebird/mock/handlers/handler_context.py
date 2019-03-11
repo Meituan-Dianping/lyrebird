@@ -46,12 +46,15 @@ class HandlerContext:
         # parse path
         request_info = self._read_origin_request_info_from_url()
         if not request_info['host']:
-            request_info = self._read_origin_request_info_from_header()
+            request_info_from_header = self._read_origin_request_info_from_header()
+            if len(request_info_from_header)>0 :
+                request_info = request_info_from_header
 
         headers = {k:v for k,v in self.request.headers}
         _request = dict(
             headers=headers,
             method=self.request.method,
+            query=self.request.args
             )
         _request.update(request_info)
         
