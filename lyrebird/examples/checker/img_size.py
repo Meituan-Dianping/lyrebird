@@ -7,14 +7,14 @@ steps:
 - check data
 
 Info used in channel flow
-├── name  
-└─┬ flow  
-  ├── size  
-  ├─┬ request  
-  │ └── url  
-  └─┬ response  
-    └─┬ headers  
-      └── Content-Type  
+├── name
+└─┬ flow
+  ├── size
+  ├─┬ request
+  │ └── url
+  └─┬ response
+    └─┬ headers
+      └── Content-Type
 
 """
 

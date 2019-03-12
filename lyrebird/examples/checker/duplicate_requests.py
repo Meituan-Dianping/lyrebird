@@ -76,7 +76,7 @@ def duplicate_request(msg):
         description = f'Duplicated requests: {url}\n'
         description += f'First occured at {first_url_time}\n'
         description += f'Second occured at {second_url_time}\n'
-        
+
         event.issue(f'Duplicate request: {url}',
             {
                 "summary": "[checker][duplicate_request]",
@@ -114,7 +114,8 @@ def sort_params(url):
         return url
 
 def get_md5_code(keys:list):
-    md5_module = hashlib.md5()
+    md5_module = hashlib.sha224()
     for key in keys:
-        md5_module.update(key)
+        # 没测试
+        md5_module.update(bytes(key, encoding = "utf8")  )
     return md5_module.hexdigest()
