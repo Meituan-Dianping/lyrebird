@@ -32,9 +32,9 @@
 
 # 简介
 
-**Lyrebird** 是一个基于拦截以及模拟HTTP/HTTPS网络请求的面向移动应用的插件化测试平台。
+**Lyrebird** 是一个基于拦截以及模拟HTTP/HTTPS网络请求的面向移动应用的插件式测试平台。
 
-**Lyrebird** 不止提供UI操作，也可以通过API控制所有功能。
+**Lyrebird** 不只提供UI操作，也可以通过API控制所有功能。
 
 **Lyrebird** 也可作为服务端接口测试mock工具使用。
 
