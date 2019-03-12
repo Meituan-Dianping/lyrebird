@@ -44,5 +44,6 @@ setup(
         'beautifulsoup4',
         'portpicker', 
         'colorama',
-        'packaging'
+        'packaging',
+        'sqlalchemy'
     ])

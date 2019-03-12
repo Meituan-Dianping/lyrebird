@@ -1,3 +1,4 @@
+import imp
 import importlib
 from pathlib import Path
 from lyrebird import log
@@ -62,7 +63,7 @@ class LyrebirdCheckerServer(ThreadServer):
             logger.debug(self.checkers[checker_name].json())
 
     def report_to_ELK(self, msg):
-        if msg.get('channel') == 'notice':
+        if isinstance(msg, dict) and msg.get('channel') == 'notice':
             msg_sender = msg.get('sender', {})
             report({
                 "action": "alert",
@@ -74,6 +75,12 @@ class LyrebirdCheckerServer(ThreadServer):
             })
         if self.activate_debug_console:
             context.application.socket_io.emit('event', msg, namespace='/checker')
+
+    def load_scripts(self, scripts):
+        for path in scripts:
+            class_module = imp.load_source('checker', path)
+            for event in class_module.event.listeners:
+                application.server['event'].subscribe(event['channel'], event['func'])
 
     def run(self):
         super().run()

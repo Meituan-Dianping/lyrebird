@@ -59,6 +59,8 @@ def main():
     parser.add_argument('-b', '--no_browser', dest='no_browser', action='store_true', help='Start without open a browser')
     parser.add_argument('-c', '--config', dest='config', help='Start with a config file. Default is "~/.lyrebird/conf.json"')
     parser.add_argument('--log', dest='log', help='Set output log file path')
+    parser.add_argument('--script', action='append', help='Set a checker script path')
+    parser.add_argument('--plugin', action='append', help='Set a plugin project path')
 
     subparser = parser.add_subparsers(dest='sub_command')
     src_parser = subparser.add_parser('src')
@@ -131,6 +133,10 @@ def run(args:argparse.Namespace):
 
     # activate notice center
     application.notice = NoticeCenter()
+
+    # load debug script
+    if args.script:
+        application.server['checker'].load_scripts(args.script)
     
     # auto open web browser
     if not args.no_browser:
@@ -145,6 +151,8 @@ def run(args:argparse.Namespace):
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+
+    threading.Event().wait()
 
 
 def debug():
