@@ -55,6 +55,8 @@ class LyrebirdMockServer(ThreadServer):
         self._working_thread = None
         self.app = Flask('MOCK')
         
+        self.app.env = 'development'
+
         self.app.jinja_env.block_start_string = '[%'
         self.app.jinja_env.block_end_string = '%]'
         self.app.jinja_env.variable_start_string = '[['
@@ -68,9 +70,12 @@ class LyrebirdMockServer(ThreadServer):
         self.app.jinja_env.globals['version'] = VERSION
 
         # async_mode = threading / eventlet / gevent / gevent_uwsgi
-        self.socket_io = SocketIO(self.app, async_mode='threading', log_output=False)
+        self.socket_io = SocketIO(self.app, async_mode='threading', logger=False)
+        
         # 存储socket-io
         context.application.socket_io = self.socket_io
+        application._socketio = self.socket_io
+
         # 生成过滤器实例
         if self.conf:
             self.port = self.conf.get('mock.port')
@@ -99,15 +104,6 @@ class LyrebirdMockServer(ThreadServer):
             设置默认页面为UI首页
             """
             return redirect(url_for('ui.index')+f'?v={VERSION}')
-
-        @self.app.after_request
-        def after_request(response: Response):
-            """
-            输出每条请求概要信息
-            """
-            lyrebird_info = response.headers.get('lyrebird', default='')
-            _logger.info(f'{response.status_code} {lyrebird_info} {request.method} {request.url[:100]}')
-            return response
 
     def run(self):
         server_ip = application.config.get('ip')

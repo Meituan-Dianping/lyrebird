@@ -3,6 +3,7 @@ from flask import Response, stream_with_context
 from requests.packages import urllib3
 from .. import context
 import urllib
+from lyrebird import application
 
 
 # 关闭ssl警告
@@ -27,6 +28,9 @@ class ProxyHandler:
 
         parsed_url = urllib.parse.urlparse(origin_url)
         if not parsed_url.hostname:
+            return
+        elif parsed_url.hostname in ['localhost', '127.0.0.1', ] and parsed_url.port == application.config["mock.port"]:
+            handler_context.response = Response(response='Duplicate request path\n', status=400)
             return
         
         method = request.method
