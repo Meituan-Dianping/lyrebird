@@ -1,5 +1,5 @@
 import requests
-from flask import Response, stream_with_context, abort
+from flask import Response, stream_with_context
 from requests.packages import urllib3
 from .. import context
 import urllib
