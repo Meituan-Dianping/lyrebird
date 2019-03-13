@@ -52,7 +52,7 @@ def main():
     parser = argparse.ArgumentParser(prog='lyrebird')
 
     parser.add_argument('-V', '--version', dest='version', action='store_true', help='show lyrebird version')
-    parser.add_argument('-v', dest='verbose', action='store_true', help='Show verbose log')
+    parser.add_argument('-v', dest='verbose', action='count', default=0, help='Show verbose log')
     parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 4272')
     parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 9090')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
@@ -83,10 +83,8 @@ def main():
     except socket.gaierror as e:
         logger.error('Failed to get local IP address, error occurs on %s' % e)
 
-    if args.verbose:
-        application._cm.config['verbose'] = True
-
     # init file logger after config init
+    application._cm.config['verbose'] = args.verbose
     log.init(args.log)
     
     if args.mock:

@@ -53,8 +53,7 @@ def _init_stream_logger():
 
 def _init_file_logger(custom_log_path=None):
     file_formater = logging.Formatter(
-        fmt='%(asctime)s %(levelname)s [%(module)s] - %(threadName)s [PID] %(process)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        fmt='%(asctime)s %(levelname)s [%(module)s] - %(threadName)s [PID] %(process)s - %(message)s'
     )
     if custom_log_path:
         log_file = custom_log_path
@@ -70,24 +69,30 @@ def _init_file_logger(custom_log_path=None):
 
 def _setup_3rd_loggers():
     socketio = logging.getLogger('socketio')
-    socketio.setLevel(logging.WARNING)
+    socketio.setLevel(logging.ERROR)
 
     engineio = logging.getLogger('engineio')
-    engineio.setLevel(logging.WARNING)
+    engineio.setLevel(logging.ERROR)
 
     mock = logging.getLogger('mock')
-    mock.setLevel(logging.WARNING)
+    mock.setLevel(logging.ERROR)
     mock.addHandler(logging.StreamHandler())
 
     werkzeug = logging.getLogger('werkzeug')
-    werkzeug.setLevel(logging.WARNING)
+    werkzeug.setLevel(logging.ERROR)
+
 
 def init(custom_log_path=None):    
     _init_file_logger(custom_log_path=custom_log_path)
     _setup_3rd_loggers()
 
     logger:logging.Logger = logging.getLogger('lyrebird')
-    if application.config.get('verbose', False):
-        logger.setLevel(logging.DEBUG)
-    else:
+    verbose = application.config.get('verbose', 0)
+    if verbose == 0:
+        logger.setLevel(logging.ERROR)
+    elif verbose == 1:
         logger.setLevel(logging.WARNING)
+    elif verbose == 2:
+        logger.setLevel(logging.INFO)
+    elif verbose >= 3:
+        logger.setLevel(logging.DEBUG)

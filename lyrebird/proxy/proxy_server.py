@@ -6,6 +6,8 @@ from mitmproxy.tools.dump import DumpMaster
 from mitmproxy.tools.cmdline import mitmdump
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
+from lyrebird.log import get_logger
+
 
 """
 HTTP proxy server
@@ -15,6 +17,9 @@ Default port 4272
 
 CURRENT_PATH = Path(__file__).parent
 FLOW_PATH = CURRENT_PATH/'proxy_flow.py'
+
+
+logger = get_logger()
 
 
 class LyrebirdProxyServer(ThreadServer):
@@ -43,7 +48,8 @@ class LyrebirdProxyServer(ThreadServer):
 
     def run(self):
         server_ip = application.config.get('ip')
-        info_msg(f'start on {server_ip}:{self.proxy_port}', f'{Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
+        # info_msg(f'start on {server_ip}:{self.proxy_port}', f'{Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
+        logger.warning(f'start on {server_ip}:{self.proxy_port}   {Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
         mitm_arguments = [
             '-s', str(FLOW_PATH),
             '-p', self.proxy_port,
