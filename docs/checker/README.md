@@ -18,12 +18,13 @@
 
 | Filename | Description |
 | :------- | :---------- |
-| duplicate_requests.py | 检查在某段时间内是否有重复的网络请求 |
-| img_size.py | 检查图片大小是否超出限制 |
+| [img_size.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/img_size.py) | 检查网络请求中图片大小是否超出限制 |
+| [duplicate_requests.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/duplicate_requests.py) | 检查在某段时间内是否有重复的网络请求 |
 
-此外，lyrebird支持使用在启动时指定需要加载的脚本
+此外，lyrebird支持使用在启动时指定需要加载的脚本。
+
 ```sh
-lyrebird -s [filename] [filename] ... 
+lyrebird --script [filename] --script [filename]
 ```
 
 ## 捕获报警

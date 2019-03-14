@@ -4,23 +4,24 @@ Lyrebird支持灵活的检查器编写、调试和运行。
 
 ## 环境准备
 
-在调试脚本的目录下，创建虚拟环境
-
-```sh
-python3 -m venv venv
-```
-
-激活虚拟环境
-
-```sh
-source venv/bin/activate
-```
-
 安装lyrebird
 
 ```sh
 pip3 install lyrebird
 ```
+
+在检查器的默认路径下，新建一个检查器。
+```sh
+code ~/.lyrebird/checkers/first_checker.py
+```
+
+> 如遇到如下错误：
+> ```sh
+> >> code ~/.lyrebird/checkers/first_checker.py
+> zsh: command not found: code
+> ```
+> 在VSCode的命令面板中输入shell，以安装code命令
+> ![](../img/checker-d.png)
 
 ## 编写检查器
 
@@ -81,7 +82,7 @@ def img_size(msg):
 
 ## 调试
 
-调试推荐使用vscode。
+Lyrebird支持检查器的调试，推荐使用vscode。
 
 ### 调试配置
 
@@ -112,6 +113,5 @@ vscode debug配置如下。
 
 ![](../img/checker-c.png)
 
-## 运行检查器
 
-将编写好的检查器移入~/.lyrebird/checkers目录，启动lyrebird，便会自动载入编写好的检查器。
+至此，第一个检查器就编写完成了，启动lyrebird，体验检查器功能吧！Have fun！

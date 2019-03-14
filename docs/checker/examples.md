@@ -6,8 +6,8 @@
 
 | Filename | Channel | Description |
 | :------- | :------ | :---------- |
-| duplicate_requests.py | flow | 检查在某段时间内是否有重复的网络请求 |
-| img_size.py | flow | 检查网络请求中图片大小是否超出限制 |
+| [img_size.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/img_size.py) | flow | 检查网络请求中图片大小是否超出限制 |
+| [duplicate_requests.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/duplicate_requests.py) | flow | 检查在某段时间内是否有重复的网络请求 |
 
 ## 大图检测
 

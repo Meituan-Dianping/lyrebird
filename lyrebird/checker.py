@@ -55,7 +55,8 @@ class LyrebirdCheckerServer(ThreadServer):
 
         for checker_file in self.scripts_dir.iterdir():
             # Add new checker script
-            self.init_checker(checker_file.name, str(checker_file.absolute()))
+            if checker_file.name.endswith('.py'):
+                self.init_checker(checker_file.name, str(checker_file.absolute()))
 
         del_name_list = []
         for checker_name in self.checkers:
