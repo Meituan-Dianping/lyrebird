@@ -39,11 +39,4 @@ import CodeEditor from '@/components/CodeEditor.vue'
     footer: 28px
     */
   }
-  .checker-empty {
-    position: absolute; 
-    top:40%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    text-align: center;
-  }
 </style>

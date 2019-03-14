@@ -1,4 +1,5 @@
 import imp
+import shutil
 import importlib
 from pathlib import Path
 from lyrebird import log
@@ -15,9 +16,12 @@ class LyrebirdCheckerServer(ThreadServer):
     def __init__(self):
         super().__init__()
 
-        self.SCRIPTS_DIR = Path(application.config.get('checker.workspace'))
+        ROOT = application._cm.root
+        self.SCRIPTS_DIR_TEMPLATE = ROOT/'checkers'
+        self.EXAMPLE_DIR = Path(__file__).parent/'examples'/'checkers'
+
+        self.scripts_dir = None
         self.checkers = application.checkers
-        self.activate_debug_console = False
         self.load_checkers()
 
         # subscribe all channel for ELK
@@ -29,17 +33,29 @@ class LyrebirdCheckerServer(ThreadServer):
         for checker_name in self.checkers:
             self.checkers[checker_name].update = False
 
-        if not self.SCRIPTS_DIR.exists():
-            logger.error('Checker scripts dir not found')
-            return
+        # get checker workspace
+        if application.config.get('checker.workspace'):
+            self.scripts_dir = Path(application.config.get('checker.workspace'))
+            if not self.scripts_dir.exists():
+                logger.error('Checker scripts dir not found')
+                return
+        else:
+            self.scripts_dir = self.SCRIPTS_DIR_TEMPLATE
+            self.scripts_dir.mkdir(parents=True, exist_ok=True)
 
-        for checker_file in self.SCRIPTS_DIR.iterdir():
-            if not checker_file.name.startswith('_') and not checker_file.name.startswith('.'):
-                # Add new checker script
-                if checker_file.name not in self.checkers:
-                    checker = Checker(checker_file.name, str(checker_file.absolute()))
-                    self.checkers[checker_file.name] = checker
-                self.checkers[checker_file.name].update = True
+        # get checker files
+        scripts_list = [script for script in self.scripts_dir.iterdir() if script.name.endswith('.py')]
+
+        # load examples if scripts_dir has no python script
+        if not scripts_list:
+            for example in self.EXAMPLE_DIR.iterdir():
+                if example.name.endswith('.py'):
+                    dst = self.SCRIPTS_DIR_TEMPLATE / example.name
+                    shutil.copy(example, dst)
+
+        for checker_file in self.scripts_dir.iterdir():
+            # Add new checker script
+            self.init_checker(checker_file.name, str(checker_file.absolute()))
 
         del_name_list = []
         for checker_name in self.checkers:
@@ -62,6 +78,12 @@ class LyrebirdCheckerServer(ThreadServer):
                 checker.deactivate()
             logger.debug(self.checkers[checker_name].json())
 
+    def init_checker(self, name, path):
+        if name not in self.checkers:
+            checker = Checker(name, path)
+            self.checkers[name] = checker
+        self.checkers[name].update = True
+
     def report_to_ELK(self, msg):
         if isinstance(msg, dict) and msg.get('channel') == 'notice':
             msg_sender = msg.get('sender', {})
@@ -73,14 +95,15 @@ class LyrebirdCheckerServer(ThreadServer):
                     'message': msg.get('message')
                 }
             })
-        if self.activate_debug_console:
-            context.application.socket_io.emit('event', msg, namespace='/checker')
 
     def load_scripts(self, scripts):
         for path in scripts:
-            class_module = imp.load_source('checker', path)
-            for event in class_module.event.listeners:
-                application.server['event'].subscribe(event['channel'], event['func'])
+            try:
+                class_module = imp.load_source('checker', path)
+                for event in class_module.event.listeners:
+                    application.server['event'].subscribe(event['channel'], event['func'])
+            except ValueError:
+                logger.error(f'{path} failed to load. Only python file is allowed.')
 
     def run(self):
         super().run()

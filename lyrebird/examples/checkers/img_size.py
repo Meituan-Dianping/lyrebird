@@ -45,10 +45,10 @@ def img_size(msg):
         img_url = msg['flow']['request']['url']
         img_url = img_url[img_url.rfind('//') + 2:]
 
-        description = 'Image size exceeded!\n'
+        description = f'Image size {img_size}KB is beyond expectations: {img_url}\n'
         description += f'Expecte: {THRESHOLD_IMG_SIZE}KB\n'
         description += f'Actual: {img_size}KB\n'
-        event.issue(f'Image size exceeded',
+        event.issue(f'Image size {img_size}KB is beyond expectations: {img_url}',
                     {
                         "summary": "[checker][img_size]",
                         "description": description
@@ -56,6 +56,8 @@ def img_size(msg):
 
 def ignore_check(msg):
     if msg['name'] != 'server.response':
+        return True
+    if 'response' not in msg['flow']:
         return True
     if 'image' not in msg['flow']['response']['headers']['Content-Type']:
         return True

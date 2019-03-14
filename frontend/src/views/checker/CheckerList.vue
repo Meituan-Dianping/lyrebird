@@ -1,22 +1,28 @@
 <template>
-  <div class="data-table">
-    <div class="cell-border" style="background:#f8f8f9;font-size:14px">
-      <Strong>Checker scripts</Strong>
+  <div v-if="checkerList.length">
+    <div class="data-table">
+      <div class="cell-border" style="background:#f8f8f9;font-size:14px">
+        <Strong>Checker scripts</Strong>
+      </div>
+      <CellGroup style="" @on-click="onClickCell">
+        <Cell 
+          class="cell-border" 
+          v-for="checker in checkerList" 
+          title="With Switch" 
+          :key="checker.name"
+          :name="checker.name"
+          :selected="checker.select"
+        >
+          {{checker.name}}
+          <i-switch slot="extra" v-model="checker.activated" size="small" @on-change="changeStatus(checker)"></i-switch>
+        </Cell>
+      </CellGroup>
     </div>
-    <CellGroup style="" @on-click="onClickCell">
-      <Cell 
-        class="cell-border" 
-        v-for="checker in checkerList" 
-        title="With Switch" 
-        :key="checker.name"
-        :name="checker.name"
-        :selected="checker.select"
-      >
-        {{checker.name}}
-        <i-switch slot="extra" v-model="checker.activated" size="small" @on-change="changeStatus(checker)"></i-switch>
-      </Cell>
-    </CellGroup>
   </div>
+  <div v-else class="checker-empty">
+    No scripts
+  </div>
+  
 </template>
 
 <script>

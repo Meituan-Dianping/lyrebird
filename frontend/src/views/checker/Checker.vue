@@ -36,4 +36,11 @@ export default {
   height: calc(100vh - 66px);
   border: 1px solid #dcdee2;
 }
+.checker-empty {
+  position: absolute; 
+  top:40%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-align: center;
+}
 </style>

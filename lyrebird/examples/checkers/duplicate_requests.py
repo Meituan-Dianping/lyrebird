@@ -40,7 +40,7 @@ IGNORE_HOSTNAME = [
     'report.meituan.com',
     'frep.meituan.net'
 ]
- 
+
 IGNORE_PARAMETER = ['token',
                     'version_name',
                     'uuid'
@@ -70,12 +70,8 @@ def duplicate_request(msg):
             return
 
         url = HISTORY_URL[request_key]['url']
-        first_url_time = time.strftime("%Y-%m-%d %X", HISTORY_URL[request_key])
-        second_url_time = time.strftime("%Y-%m-%d %X", request_time)
 
         description = f'Duplicated requests: {url}\n'
-        description += f'First occured at {first_url_time}\n'
-        description += f'Second occured at {second_url_time}\n'
 
         event.issue(f'Duplicate request: {url}',
             {
@@ -91,10 +87,14 @@ def duplicate_request(msg):
         }
     })
 
+    overdue_urls = []
     for key, value in HISTORY_URL.items():
         if time.time() - value['time'] >= THRESHOLD_TIME:
-            del HISTORY_URL[key]
+            overdue_urls.append(key)
+        else:
             break
+    for overdue_url in overdue_urls:
+        del HISTORY_URL[overdue_url]
 
 def ignore_check(msg):
     if msg.get('name') != 'client.request':
@@ -116,6 +116,5 @@ def sort_params(url):
 def get_md5_code(keys:list):
     md5_module = hashlib.sha224()
     for key in keys:
-        # 没测试
         md5_module.update(bytes(key, encoding = "utf8")  )
     return md5_module.hexdigest()
