@@ -9,7 +9,7 @@ CHECKER_A_SWITCH = True
 CHECKER_B_SWITCH = False
 
 @pytest.fixture
-def checker_init(tmp_path):
+def checker_init(tmp_path, tmpdir):
     # default config
     config = {
         "checker.workspace": tmp_path,
@@ -27,7 +27,7 @@ def checker_init(tmp_path):
     checker_b_file.write_text(content)
 
     # mock config
-    application._cm = type('MockedContentManager', (), {'config': config})()
+    application._cm = type('MockedContentManager', (), {'config': config, 'root':tmpdir})()
 
     return application.checkers
 
