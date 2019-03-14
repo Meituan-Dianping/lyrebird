@@ -71,6 +71,8 @@ class HandlerContext:
         self.flow['request'] = _request
         context.application.cache.add(self.flow)
 
+        logger.debug(f'[On client request] {self.flow["request"]["url"]}')
+
     def _read_origin_request_info_from_url(self):
         path_index = self.request.url.index(self._raw_path)
         url = self.request.url[path_index:]
@@ -211,10 +213,10 @@ class RequestDataHelper(DataHelper):
 
             content_type = request.headers.get('Content-Type')
             if not content_type:
-                output['binary_data'] =  'bin'
-            else:
-                content_type = content_type.strip()
-
+                output['data'] =  RequestDataHelper.data2Str(request.data)
+                return
+            
+            content_type = content_type.strip()
             if content_type.startswith('application/x-www-form-urlencoded'):
                 if unziped_data:
                     output['data'] = urllib.parse.parse_qs(unziped_data.decode('utf-8'))

@@ -13,6 +13,10 @@ import time
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird.mock import context
+from lyrebird.log import get_logger
+
+
+logger = get_logger()
 
 
 class Event:
@@ -96,6 +100,7 @@ class EventServer(ThreadServer):
         self.event_queue.put(Event(channel, message))
         if state:
             self.state[channel] = message
+        logger.debug(f'channel={channel} state={state}\nmessage:\n-----------\n{message}\n-----------\n')
 
     def subscribe(self, channel, callback_fn, *args, **kwargs):
         """

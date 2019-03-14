@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, request
 from flask_restful import Resource, Api
 from .common import Status, WorkMode, Manifest
 from .flow import Flow, FlowList
@@ -8,11 +8,23 @@ from .plugin import Plugin
 from .menu import Menu
 from .event import Event
 from .checker import Checker
+from lyrebird.log import get_logger
+
+
+logger = get_logger()
 
 
 api = Blueprint('api', __name__, url_prefix='/api')
 api_source = Api(api)
 
+@api.after_request
+def after_request(response):
+    """
+    输出每条请求概要信息
+    """
+    lyrebird_info = response.headers.get('lyrebird', default='')
+    logger.info(f'[On API]{response.status_code} {lyrebird_info} {request.method} {request.url[:100]}')
+    return response
 
 api_source.add_resource(Status, '/status')
 api_source.add_resource(Manifest, '/manifest')
