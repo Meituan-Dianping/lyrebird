@@ -4,38 +4,28 @@ Lyrebird支持灵活的检查器编写、调试和运行。
 
 ## 环境准备
 
-安装lyrebird
+安装Lyrebird
 
 ```sh
 pip3 install lyrebird
 ```
 
-在检查器的默认路径下，新建一个检查器。
-```sh
-code ~/.lyrebird/checkers/first_checker.py
-```
-
-> 如遇到如下错误：
-> ```sh
-> >> code ~/.lyrebird/checkers/first_checker.py
-> zsh: command not found: code
-> ```
-> 在VSCode的命令面板中输入shell，以安装code命令
-> ![](../img/checker-d.png)
+在检查器的默认路径~/.lyrebird/checkers/下，新建一个检查器。
 
 ## 编写检查器
 
-检查器的目的是实时检查Lyrebird中某个频道的数据是否满足预期。
+第一个检查器的目的是实时检查Lyrebird的flow频道中图片数据的大小。
 
 ### 监听频道
 
-在消息总线的频道中，flow频道包含了所有的网络请求，监听flow频道以获得设备的网络请求。
+在[消息总线](/advance/eventbus.md)的频道中，flow频道包含了所有的网络请求，监听flow频道以获得设备的网络请求。
 
 ```py
 from lyrebird import CustomEventReceiver
 
 event = CustomEventReceiver()
 
+# 使用装饰器监听flow频道，当flow频道中出现新数据时，会回调img_size方法
 @event('flow')
 def img_size(msg):
     pass
@@ -43,28 +33,28 @@ def img_size(msg):
 
 ### 数据校验
 
-flow频道中出现新的数据时会回调img_size方法，并传入msg。此时，可对msg中的数据进行检测。
+flow频道中出现新的数据时会回调检查器中的方法，并传入频道中的消息，此时可对该消息进行校验。
 
 ```py
 from lyrebird import CustomEventReceiver
 
 event = CustomEventReceiver()
 
+# 检测阈值
 THRESHOLD_IMG_SIZE = 1024
 
 @event('flow')
 def img_size(msg):
-    if msg.get('size') > THRESHOLD_IMG_SIZE:
-        # Do something
+    if msg['flow']['size'] > THRESHOLD_IMG_SIZE:
+        # 检测到数据中的size不满足预期值
 
     return
 ```
 
-检查中需要明确的预期值作为阈值，可以通过修改含THRESHOLD字样的变量，来修改检查器中的预期值。
-
 ### 报警
 
-当检测到不满足预期的数据时，可调用issue接口触发报警。
+当检测到不满足预期的数据时，可调用Lyrebird[消息总线](/advance/eventbus.md)的issue接口触发报警。
+
 ```py
 from lyrebird import CustomEventReceiver
 
@@ -74,7 +64,7 @@ THRESHOLD_IMG_SIZE = 1024
 
 @event('flow')
 def img_size(msg):
-    if msg.get('size') > THRESHOLD_IMG_SIZE:
+    if msg['flow']['size'] > THRESHOLD_IMG_SIZE:
         event.issue('Image size is beyond expectations!')
 
     return
@@ -82,11 +72,13 @@ def img_size(msg):
 
 ## 调试
 
-Lyrebird支持检查器的调试，推荐使用vscode。
+Lyrebird支持检查器的调试，调试时配置启动参数，使用--script命令指定启动时加载的脚本。
 
-### 调试配置
+```sh
+lyrebird --script [filename]
+```
 
-vscode debug配置如下。
+以VSCode为例，检查器debug配置如下。
 
 ```json
 {
@@ -114,4 +106,4 @@ vscode debug配置如下。
 ![](../img/checker-c.png)
 
 
-至此，第一个检查器就编写完成了，启动lyrebird，体验检查器功能吧！Have fun！
+至此，第一个检查器就编写完成了，启动Lyrebird，体验检查器功能吧！Have fun！

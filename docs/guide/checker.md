@@ -1,5 +1,5 @@
 # 检查器
-检查器(Checker)是一种支持用户⾃定义的python脚本，在Lyrebird运行的过程中，于Lyrebird后台并行的工作。展开Checker标签可查看当前运行的检查器。
+检查器(Checker)是一种支持用户⾃定义的Python脚本，在Lyrebird运行的过程中，于Lyrebird后台并行地工作。展开Checker标签可查看当前运行的检查器。
 
 ![](../img/checker-a.png)
 
@@ -7,7 +7,7 @@
 
 ## 载入检查器
 
-运行时携带的检查器存放在默认路径~/.lyrebird/checkers下，用户可新增、删除、修改目录下的检查器。
+运行时携带的检查器存放在默认路径~/.lyrebird/checkers下，用户可新增、删除、修改该目录下的检查器。
 
 更多载入检查器的方式见[检查器](/checker/)。
 
