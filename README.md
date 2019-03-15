@@ -9,7 +9,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/lyrebird.svg)
 [![Backers on Open Collective](https://opencollective.com/lyrebird/backers/badge.svg)](#backers) 
 [![Sponsors on Open Collective](https://opencollective.com/lyrebird/sponsors/badge.svg)](#sponsors) 
-<a herf="https://meituan-dianping.github.io/lyrebird/">[![Doc](https://img.shields.io/badge/docs-github_page-green.svg)](#doc)</a>
+[![Doc](https://img.shields.io/badge/docs-github_page-green.svg)](https://meituan-dianping.github.io/lyrebird/)
 
 ----
 
