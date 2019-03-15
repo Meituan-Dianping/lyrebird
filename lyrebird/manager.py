@@ -16,6 +16,7 @@ from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.notice_center import NoticeCenter
 from lyrebird.db.database_server import LyrebirdDatabaseServer
+from lyrebird.plugins import PluginManager
 from lyrebird import version
 
 
@@ -123,7 +124,7 @@ def run(args:argparse.Namespace):
     application.server['proxy'] = LyrebirdProxyServer()   
     application.server['mock'] = LyrebirdMockServer()
     application.server['db'] = LyrebirdDatabaseServer()
-    application.server['plugin']
+    application.server['plugin'] = PluginManager()
     application.start_server()
 
     # activate notice center
@@ -132,8 +133,6 @@ def run(args:argparse.Namespace):
     # auto open web browser
     if not args.no_browser:
         webbrowser.open(f'http://localhost:{application.config["mock.port"]}')
-    else:
-        print('\033[0;32m**************\nLyrebid debug mode:\n\nset auto open browser :off\n**************\033[0m\n')
 
     # stop event handler
     def signal_handler(signum, frame):
@@ -148,15 +147,6 @@ def run(args:argparse.Namespace):
 
 def gen(args):
     pass
-
-
-def plugin(args:argparse.Namespace):
-    run(args)
-
-    from . import plugins
-    p = plugins.load(debug_plugin_path=args.plugin)
-
-    print(f"!!! Load plugin : {p}")
 
 
 def _get_ip():

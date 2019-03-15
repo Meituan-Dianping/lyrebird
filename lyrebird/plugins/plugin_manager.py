@@ -5,8 +5,12 @@ from . import plugin_loader
 class PluginManager(StaticServer):
 
     def __init__(self):
-        self.plgin_path_list = []
-        self.plgins = {}
+        self.plugin_path_list = []
+        self.plugins = {}
 
-    def reload(self, debug_plugin_path=None):
-        self.plgins = plugin_loader.load(debug_plugin_path=debug_plugin_path)
+    def reload(self):
+        self.plugins = {}
+        self.plugins.update(plugin_loader.load_all_from_ep())
+        for plugin_path in self.plugin_path_list:
+            plugin = plugin_loader.load_from_path(plugin_path)
+            self.plugins[plugin.project_name] = plugin

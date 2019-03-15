@@ -1,4 +1,4 @@
-from .manager import main, run, debug
+from .manager import main, run
 from .mock import context
 from .mock.plugin_manager import PluginView, caller_info
 from .mock.handlers.handler_context import HandlerContext
@@ -98,3 +98,7 @@ class StateProxy:
         return application.server['event'].state[index]
 
 state = StateProxy()
+
+
+if __name__ == "__main__":
+    main()

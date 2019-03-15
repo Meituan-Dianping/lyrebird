@@ -57,12 +57,12 @@ def manifest(**options):
     manifest_cache.append(options)
 
 
-def load():
+def load_all_from_ep():
     plugins = {}
     # Load plugin from pypi installed packages
     for ep in pkg_resources.iter_entry_points(PLUGIN_ENTRY_POINT):
         try:
-            plugin = _load_plugin_from_ep(ep)
+            plugin = load_plugin_from_ep(ep)
             if plugin.project_name in plugins:
                 logger.error('Load plugin failed: More than one manifest in this plugin')
                 continue
@@ -73,7 +73,7 @@ def load():
     return plugins
 
 
-def _load_plugin_from_ep(ep):
+def load_plugin_from_ep(ep):
     global manifest_cache
     manifest_cache=[]
     

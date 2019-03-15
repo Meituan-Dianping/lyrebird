@@ -2,7 +2,6 @@ import codecs
 import json
 import os
 import traceback
-import genson
 from types import FunctionType
 from flask import Blueprint, request, abort
 
