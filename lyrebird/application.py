@@ -32,6 +32,7 @@ plugins = {}
 
 
 notice = None
+checkers = {}
 
 def start_server():
     for name in server:
@@ -53,7 +54,7 @@ class ConfigProxy:
 
     def __getitem__(self, k):
         return _cm.config[k]
-    
+
     def raw(self):
         return _cm.config
 

@@ -45,5 +45,5 @@ setup(
         'portpicker', 
         'colorama',
         'packaging',
-        'Flask-SQLAlchemy'
+        'sqlalchemy'
     ])

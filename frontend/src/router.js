@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Main from './views/Main.vue'
 import Inspector from './views/inspector/Inspector.vue'
 import DataManager from './views/datamanager/DataManager.vue'
+import Checker from './views/checker/Checker.vue'
 import PluginView from './views/PluginView.vue'
 
 
@@ -29,6 +30,17 @@ export default new Router({
           path:'',
           name: 'datamanager',
           component: DataManager
+        }
+      ]
+    },
+    {
+      path: '/checker',
+      component: Main,
+      children: [
+        {
+          path: '',
+          name: 'checker',
+          component: Checker
         }
       ]
     },

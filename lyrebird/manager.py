@@ -1,7 +1,6 @@
 import argparse
 import webbrowser
 import json
-import traceback
 import socket
 import threading
 import signal
@@ -16,6 +15,7 @@ from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.notice_center import NoticeCenter
 from lyrebird.db.database_server import LyrebirdDatabaseServer
+from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird import version
 
 
@@ -59,6 +59,8 @@ def main():
     parser.add_argument('-b', '--no_browser', dest='no_browser', action='store_true', help='Start without open a browser')
     parser.add_argument('-c', '--config', dest='config', help='Start with a config file. Default is "~/.lyrebird/conf.json"')
     parser.add_argument('--log', dest='log', help='Set output log file path')
+    parser.add_argument('--script', action='append', help='Set a checker script path')
+    parser.add_argument('--plugin', action='append', help='Set a plugin project path')
 
     subparser = parser.add_subparsers(dest='sub_command')
     src_parser = subparser.add_parser('src')
@@ -120,14 +122,19 @@ def run(args:argparse.Namespace):
 
     application.server['event'] = EventServer()
     application.server['task'] = BackgroundTaskServer()
-    application.server['proxy'] = LyrebirdProxyServer()   
+    application.server['proxy'] = LyrebirdProxyServer()
     application.server['mock'] = LyrebirdMockServer()
     application.server['db'] = LyrebirdDatabaseServer()
+    application.server['checker'] = LyrebirdCheckerServer()
 
     application.start_server()
 
     # activate notice center
     application.notice = NoticeCenter()
+
+    # load debug script
+    if args.script:
+        application.server['checker'].load_scripts(args.script)
     
     # auto open web browser
     if not args.no_browser:
@@ -143,6 +150,8 @@ def run(args:argparse.Namespace):
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
+    threading.Event().wait()
+
 
 def debug():
     # use lyrebird.debug to start plugin in debug mode
@@ -151,7 +160,7 @@ def debug():
     sys.argv.append("-b")
 
     main()
-   
+
     print('\033[0;32m**************\nLyrebid debug mode:\n\nset auto open browser :off\n**************\033[0m\n')
 
 

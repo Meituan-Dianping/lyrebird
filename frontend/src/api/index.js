@@ -52,25 +52,25 @@ export const getFlowDetail = (flowId) => {
         'GroupNameB'
     ]
     */
-export const getGroups = () =>{
+export const getGroups = () => {
   return axios({
     url: '/api/mock'
   })
 }
 
-export const createGroup = (name, parentId) => {
+export const createGroup = (name, parent) => {
   return axios({
     url: '/api/mock',
     method: 'POST',
-    data: {name:name, parent:parentId}
+    data: {name, parent}
   })
 }
 
-export const updateGroup = (id, name, parentId) => {
+export const updateGroup = (id, name, parent) => {
   return axios({
     url: '/api/mock',
     method: 'PUT',
-    data: {id:id, name:name, parent:parentId}
+    data: {id, name, parent}
   })
 }
 
@@ -103,7 +103,7 @@ export const deleteGroup = (groupId) => {
         ]
     }
     */
-export const getDataList = (groupId) =>{
+export const getDataList = (groupId) => {
   return axios({
     url: '/api/mock/' + groupId
   })
@@ -112,37 +112,59 @@ export const getDataList = (groupId) =>{
 export const createData = (groupId, name) => {
   return axios({
     url: '/api/mock/'+groupId+'/data',
-    data:{name:name},
+    data: {name},
     method: 'POST'
   })
 }
 
+//------Notice manager------
+    /**
+    Get notification list
+    return:
+    {
+      'noticeList': [],
+      'notRemindList': []
+    }
+    */
 export const getNoticeList = () => {
   return axios({
     url: '/api/event'
   })
 }
 
+//------Notice manager------
+    /**
+    Delete notification by key
+    */
 export const deleteNotice = (key) => {
   return axios({
     url: '/api/event',
-    data:{key:key},
+    data: {key},
     method: 'DELETE'
   })
 }
 
+//------Notice manager------
+    /**
+    Change notification status by key
+    return:
+    */
 export const updateNoticeStatus = (key, status) => {
   return axios({
     url: '/api/event',
-    data: {key:key, status:status},
+    data: {key, status},
     method: 'PUT'
   })
 }
 
+//------Notice manager------
+    /**
+    Publish new notification
+    */
 export const publishEvent = (eventInfo) => {
   return axios({
     url: '/api/event',
-    data:{eventInfo:eventInfo},
+    data: {eventInfo},
     method: 'POST'
   })
 }
@@ -150,7 +172,7 @@ export const publishEvent = (eventInfo) => {
 export const deleteData = (groupId, ids) => {
   return axios({
     url:'/api/mock/'+groupId+'/data',
-    data:{ids:ids},
+    data: {ids},
     method:'DELETE'
   })
 }
@@ -176,13 +198,13 @@ Get mock data detail
     }
 }
 */
-export const getDataDetail = (groupId, dataId) =>{
+export const getDataDetail = (groupId, dataId) => {
   return axios({
     url: '/api/mock/' + groupId + '/data/' + dataId
   })
 }
 
-export const updateDataDetail = (groupName, dataName, dataDetail) =>{
+export const updateDataDetail = (groupName, dataName, dataDetail) => {
   return axios({
     url: '/api/mock/' + groupName + '/data/' + dataName,
     method: 'PUT',
@@ -193,7 +215,7 @@ export const updateDataDetail = (groupName, dataName, dataDetail) =>{
 /**
 Get activated data group ID
 */
-export const getActivatedGroup = () =>{
+export const getActivatedGroup = () => {
   return axios({
     url: '/api/mock/activated'
   })
@@ -202,7 +224,7 @@ export const getActivatedGroup = () =>{
 /**
 Activate data group by ID
 */
-export const activateGroup = (groupId) =>{
+export const activateGroup = (groupId) => {
   return axios({
     url: '/api/mock/' + groupId + '/activate',
     method: 'PUT'
@@ -213,5 +235,37 @@ export const deactivateGroup = () => {
   return axios({
     url: '/api/mock/groups/deactivate',
     method: 'PUT'
+  })
+}
+
+//------Checker manager------
+    /**
+    Get checkers list
+    */
+export const getCheckers = () => {
+  return axios({
+    url: '/api/checker'
+  })
+}
+
+//------Checker manager------
+    /**
+    Get checkers content
+    */
+export const getCheckerDetail = (checkerId) => {
+  return axios({
+    url: '/api/checker/' + checkerId
+  })
+}
+
+//------Checker manager------
+    /**
+    Change checkers activate status by checker_id
+    */
+export const updateCheckerStatus = (checkerId, status) => {
+  return axios({
+    url: '/api/checker/' + checkerId,
+    method: 'PUT',
+    data: {status}
   })
 }

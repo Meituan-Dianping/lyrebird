@@ -36,7 +36,9 @@ module.exports = {
                 'faq'
             ],
             '/checker/': [
-                ''
+                '',
+                'dev_debug',
+                'examples'
             ],
             '/plugins/': [
                 '',
