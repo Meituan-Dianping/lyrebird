@@ -9,7 +9,7 @@
 
 运行时携带的检查器存放在默认路径~/.lyrebird/checkers下，用户可新增、删除、修改该目录下的检查器。
 
-更多载入检查器的方式见[检查器](/checker/)。
+更多载入检查器的方式见[载入检查器](/checker/#载入检查器)。
 
 ## 示例脚本
 
@@ -20,7 +20,7 @@
 | [img_size.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/img_size.py) | 检查网络请求中图片大小是否超出限制 |
 | [duplicate_requests.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/duplicate_requests.py) | 检查在某段时间内是否有重复的网络请求 |
 
-检查器编写方式见[检查器](/checker/)。
+检查器编写方式见[第一个检查器](/checker/dev_debug.html)。
 
 ## 捕获报警
 
