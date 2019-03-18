@@ -19,6 +19,12 @@ class Menu(Resource):
                 'title': 'DataManager',
                 'type': 'router',
                 'path': '/datamanager'
+            },
+            {
+                'name': 'checker',
+                'title': 'Checker',
+                'type': 'router',
+                'path': '/checker'
             }]
         for plugin_key in plugin_manager.plugins:
             plugin = plugin_manager.plugins[plugin_key]

@@ -1,7 +1,6 @@
 import argparse
 import webbrowser
 import json
-import traceback
 import socket
 import threading
 import signal
@@ -17,6 +16,7 @@ from lyrebird.task import BackgroundTaskServer
 from lyrebird.notice_center import NoticeCenter
 from lyrebird.db.database_server import LyrebirdDatabaseServer
 from lyrebird.plugins import PluginManager
+from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird import version
 
 
@@ -53,7 +53,7 @@ def main():
     parser = argparse.ArgumentParser(prog='lyrebird')
 
     parser.add_argument('-V', '--version', dest='version', action='store_true', help='show lyrebird version')
-    parser.add_argument('-v', dest='verbose', action='store_true', help='Show verbose log')
+    parser.add_argument('-v', dest='verbose', action='count', default=0, help='Show verbose log')
     parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 4272')
     parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 9090')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
@@ -83,10 +83,8 @@ def main():
     except socket.gaierror as e:
         logger.error('Failed to get local IP address, error occurs on %s' % e)
 
-    if args.verbose:
-        application._cm.config['verbose'] = True
-
     # init file logger after config init
+    application._cm.config['verbose'] = args.verbose
     log.init(args.log)
     
     if args.mock:
@@ -100,7 +98,7 @@ def main():
 
     if args.sub_command == 'gen':
         logger.debug('EXEC: Plugin project generator')
-        plugin(args)
+        gen(args)
     else:
         logger.debug('EXEC: LYREBIRD START')
         run(args)
@@ -121,14 +119,20 @@ def run(args:argparse.Namespace):
     application.server['event'] = EventServer()
     
     application.server['task'] = BackgroundTaskServer()
-    application.server['proxy'] = LyrebirdProxyServer()   
+    application.server['proxy'] = LyrebirdProxyServer()
     application.server['mock'] = LyrebirdMockServer()
     application.server['db'] = LyrebirdDatabaseServer()
     application.server['plugin'] = PluginManager()
+    application.server['checker'] = LyrebirdCheckerServer()
+
     application.start_server()
 
     # activate notice center
     application.notice = NoticeCenter()
+
+    # load debug script
+    if args.script:
+        application.server['checker'].load_scripts(args.script)
     
     # auto open web browser
     if not args.no_browser:
@@ -143,6 +147,8 @@ def run(args:argparse.Namespace):
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+
+    threading.Event().wait()
 
 
 def gen(args):

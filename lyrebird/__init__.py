@@ -98,7 +98,3 @@ class StateProxy:
         return application.server['event'].state[index]
 
 state = StateProxy()
-
-
-if __name__ == "__main__":
-    main()

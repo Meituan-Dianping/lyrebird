@@ -9,8 +9,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/lyrebird.svg)
 [![Backers on Open Collective](https://opencollective.com/lyrebird/backers/badge.svg)](#backers) 
 [![Sponsors on Open Collective](https://opencollective.com/lyrebird/sponsors/badge.svg)](#sponsors) 
-
-
+[![Doc](https://img.shields.io/badge/docs-github_page-green.svg)](https://meituan-dianping.github.io/lyrebird/)
 
 ----
 
@@ -250,5 +249,3 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/lyrebird/sponsor/7/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/7/avatar.svg"></a>
 <a href="https://opencollective.com/lyrebird/sponsor/8/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/lyrebird/sponsor/9/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/9/avatar.svg"></a>
-
-

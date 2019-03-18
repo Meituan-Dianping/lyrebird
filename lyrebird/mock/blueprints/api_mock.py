@@ -17,7 +17,7 @@ logger = log.get_logger()
 api_mock = Blueprint('mock', __name__, url_prefix='/mock')
 
 
-@api_mock.route('/')
+@api_mock.route('/', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 @api_mock.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 def index(path=''):
     # todo add request handlers
