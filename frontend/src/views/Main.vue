@@ -105,7 +105,7 @@ export default {
     menuItemOnClick(menuItem){
       this.$store.commit('setActiveName', menuItem.title)
       if(menuItem.type==='router'){
-        if(menuItem.name === 'plugin-view'){
+        if(menuItem.name === 'plugin-view'|| menuItem.name === 'plugin-container'){
           this.$store.commit('plugin/setSrc', menuItem.params.src);
         }
         this.$router.push({name:menuItem.name, params:menuItem.params});

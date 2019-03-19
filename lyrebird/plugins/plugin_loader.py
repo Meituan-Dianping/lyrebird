@@ -1,4 +1,5 @@
 import imp
+import inspect
 from pathlib import Path
 
 import pkg_resources
@@ -54,7 +55,8 @@ def manifest(**options):
             ]
         )
     """
-    manifest_cache.append(options)
+    caller_info = inspect.stack()[1]
+    manifest_cache.append((options, caller_info))
 
 
 def load_all_from_ep():
@@ -85,12 +87,13 @@ def load_plugin_from_ep(ep):
     if len(manifest_cache)==0:
         raise ManifestError('Not found manifest in plugin')
 
+    # TODO
     plugin = Plugin(
             ep.project_name,
             entry_point_name=ep.name,
             version=ep.dist.version,
             location=ep.dist.location,
-            **manifest_cache[0])
+            **manifest_cache[0][0])
 
     return plugin
 
@@ -110,5 +113,8 @@ def load_from_path(plugin_path):
     if len(manifest_cache) == 0:
         raise ManifestError(f'Not found any manifest in {plugin_path}')
 
-    plugin = Plugin(Path(plugin_path).name, **manifest_cache[0])
+    # TODO 
+    plugin = Plugin(Path(plugin_path).name, **manifest_cache[0][0])
+    caller_info = manifest_cache[0][1]
+    plugin.location = str(Path(caller_info.filename).parent)
     return plugin

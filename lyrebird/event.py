@@ -37,7 +37,7 @@ class EventServer(ThreadServer):
         self.pubsub_channels = {}
         # channel name is 'any'. For linstening all channel's message
         self.any_channel = []
-        self.broadcast_executor = ThreadPoolExecutor(max_workers=10, thread_name_prefix='event-broadcast')
+        self.broadcast_executor = ThreadPoolExecutor(thread_name_prefix='event-broadcast-')
         # display notice in frontend
         self.subscribe('alert', self.display_notice)
 

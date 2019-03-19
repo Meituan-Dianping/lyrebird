@@ -130,10 +130,17 @@ def run(args:argparse.Namespace):
     # activate notice center
     application.notice = NoticeCenter()
 
+    # load debug plugin
+    # TODO
+    if args.plugin:
+        plugin_manager = application.server['plugin']
+        plugin_manager.plugin_path_list += args.plugin
+        plugin_manager.reload()
+
     # load debug script
     if args.script:
         application.server['checker'].load_scripts(args.script)
-    
+
     # auto open web browser
     if not args.no_browser:
         webbrowser.open(f'http://localhost:{application.config["mock.port"]}')
