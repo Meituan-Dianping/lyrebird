@@ -28,12 +28,11 @@ class Menu(Resource):
                 'path': '/checker'
             }]
         # Load plugins from new plugin manager
-        # TODO
         _pm = application.server['plugin']
         for plugin_id, plugin in _pm.plugins.items():
             menu.append({
                 'name': 'plugin-container',
-                'title': plugin.manifest['name'],
+                'title': plugin.manifest.name,
                 'type': 'router',
                 'path': '/plugins',
                 'params': {
@@ -41,7 +40,8 @@ class Menu(Resource):
                     'name': plugin_id
                 }
             })
-        # Old plugins
+        # Load old plugins
+        # TODO remove after all plugin use new manifest function
         for plugin_key in plugin_manager.plugins:
             plugin = plugin_manager.plugins[plugin_key]
             if 'beta_web' not in plugin:

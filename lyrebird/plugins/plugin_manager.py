@@ -15,6 +15,7 @@ class PluginManager(StaticServer):
         for plugin_path in self.plugin_path_list:
             plugin = plugin_loader.load_from_path(plugin_path)
             self.plugins[plugin.project_name] = plugin
+        
         mock_service = application.server['mock']
         mock_service.register_plugin()
 

@@ -64,10 +64,11 @@ class LyrebirdMockServer(ThreadServer):
         self.app.jinja_env.comment_start_string = '[#'
         self.app.jinja_env.comment_end_string = '#]'
 
+        # TODO delete
         # Add global function for templates
-        self.app.jinja_env.globals['time'] = time.time
-        self.app.jinja_env.globals['datetime'] = datetime.datetime
-        self.app.jinja_env.globals['version'] = VERSION
+        # self.app.jinja_env.globals['time'] = time.time
+        # self.app.jinja_env.globals['datetime'] = datetime.datetime
+        # self.app.jinja_env.globals['version'] = VERSION
 
         # async_mode = threading / eventlet / gevent / gevent_uwsgi
         self.socket_io = SocketIO(self.app, async_mode='threading', logger=False)
@@ -111,7 +112,6 @@ class LyrebirdMockServer(ThreadServer):
         report_handler.start()
         self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=self.debug, use_reloader=False)
 
-
     def stop(self):
         """
         停止服务
@@ -131,14 +131,14 @@ class LyrebirdMockServer(ThreadServer):
         for p_name, plugin in pm.plugins.items():
             plugin_static_folder = f"{plugin.location}/dist"
             bp = Blueprint(
-                f'plugins_{plugin.project_name}', 
-                f'plugins_{plugin.project_name}', 
-                url_prefix=f'/plugins/{plugin.project_name}',
+                f'plugins_{p_name}', 
+                f'plugins_{p_name}', 
+                url_prefix=f'/plugins/{p_name}',
                 static_folder=plugin_static_folder)
-            for ui in plugin.manifest['ui']:
+            for ui in plugin.manifest.ui:
                 def view_func():
                     return send_file(f"{plugin.location}/dist/index.html")
                 bp.add_url_rule(ui[0], view_func=view_func)
-            for api in plugin.manifest['api']:
+            for api in plugin.manifest.api:
                 bp.add_url_rule(api[0], view_func=api[1], methods=api[2])
             self.app.register_blueprint(bp)

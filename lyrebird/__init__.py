@@ -14,6 +14,9 @@ from lyrebird.log import get_logger
 APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
 
 
+event  = CustomEventReceiver()
+
+
 def start_background_task(target, *args, **kwargs):
     """Start a background task in a new thread
 

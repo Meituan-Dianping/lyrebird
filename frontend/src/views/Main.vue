@@ -27,8 +27,11 @@
             </Content>
             <Footer class="main-footer">
               <span class="main-footer-copyright">
-                <strong style="color:#f8f8f9">Copyright &copy; 2018-present <a href="http://www.meituan.com">Meituan</a>. All rights reserved.</strong>
+                <strong style="color:#f8f8f9">Copyright &copy; 2018-present <a href="https://meituan-dianping.github.io/lyrebird" target="_blank">Meituan</a>. All rights reserved.</strong>
               </span>
+              <a href="https://github.com/Meituan-Dianping/lyrebird/issues/new?assignees=&labels=&template=bug_report.md&title=" target="_blank" class="main-footer-status">
+                <Icon type="ios-bug" color='white'/>
+              </a>
               <Poptip v-if="status" content="content" placement="top-end" class="main-footer-status" width="220">
                 <a>
                   <Icon type="ios-arrow-up" style="color:#f8f8f9"/>

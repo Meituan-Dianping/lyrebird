@@ -59,9 +59,21 @@ def manifest(**options):
     manifest_cache.append((options, caller_info))
 
 
+def view(static_folder='dist', index_file='index.html'):
+    return ('/', static_folder, index_file)
+
+
+def api(router, view_func, methods=['GET']):
+    return (router, view_func, methods)
+
+
+def event(channel, handle_func):
+    return (channel, handle_func)
+
+
 def load_all_from_ep():
     plugins = {}
-    # Load plugin from pypi installed packages
+    # Load plugin from installed packages by entry point 'lyrebird_plugin'
     for ep in pkg_resources.iter_entry_points(PLUGIN_ENTRY_POINT):
         try:
             plugin = load_plugin_from_ep(ep)
