@@ -94,12 +94,13 @@ def load_plugin_from_ep(ep):
         raise ManifestError('Not found manifest in plugin')
 
     # TODO
+    manifest = manifest_cache[0][0]
     plugin = Plugin(
-            ep.dist.project_name,
+            manifest['id'],
             entry_point_name=ep.name,
             version=ep.dist.version,
             location=str(Path(ep_instance.__file__).parent),
-            **manifest_cache[0][0])
+            **manifest)
 
     return plugin
 
@@ -120,7 +121,8 @@ def load_from_path(plugin_path):
         raise ManifestError(f'Not found any manifest in {plugin_path}')
 
     # TODO 
-    plugin = Plugin(Path(plugin_path).name, **manifest_cache[0][0])
+    manifest = manifest_cache[0][0]
     caller_info = manifest_cache[0][1]
+    plugin = Plugin(manifest['id'], **manifest)
     plugin.location = str(Path(caller_info.filename).parent)
     return plugin
