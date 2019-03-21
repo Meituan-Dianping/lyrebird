@@ -85,8 +85,8 @@ def load_plugin_from_ep(ep):
     global manifest_cache
     manifest_cache=[]
     
-    ep.load()
-
+    ep_instance = ep.load()
+    
     # There can only be one manifest in each plugin
     if len(manifest_cache)>1:
         raise ManifestError('More than one manifest in this plugin')
@@ -95,10 +95,10 @@ def load_plugin_from_ep(ep):
 
     # TODO
     plugin = Plugin(
-            ep.project_name,
+            ep.dist.project_name,
             entry_point_name=ep.name,
             version=ep.dist.version,
-            location=ep.dist.location,
+            location=str(Path(ep_instance.__file__).parent),
             **manifest_cache[0][0])
 
     return plugin

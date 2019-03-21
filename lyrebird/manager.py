@@ -132,10 +132,10 @@ def run(args:argparse.Namespace):
 
     # load debug plugin
     # TODO
+    plugin_manager = application.server['plugin']
     if args.plugin:
-        plugin_manager = application.server['plugin']
         plugin_manager.plugin_path_list += args.plugin
-        plugin_manager.reload()
+    plugin_manager.reload()
 
     # load debug script
     if args.script:
