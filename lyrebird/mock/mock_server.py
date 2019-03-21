@@ -124,21 +124,3 @@ class LyrebirdMockServer(ThreadServer):
             pass
         report_handler.stop()
         _logger.warning('MockServer shutdown')
-
-    def register_plugin(self):
-        # TODO register plugins pb
-        pm = application.server['plugin']
-        for p_name, plugin in pm.plugins.items():
-            plugin_static_folder = f"{plugin.location}/dist"
-            bp = Blueprint(
-                f'plugins_{p_name}', 
-                f'plugins_{p_name}', 
-                url_prefix=f'/plugins/{p_name}',
-                static_folder=plugin_static_folder)
-            for ui in plugin.manifest.ui:
-                def view_func():
-                    return send_file(f"{plugin.location}/dist/index.html")
-                bp.add_url_rule(ui[0], view_func=view_func)
-            for api in plugin.manifest.api:
-                bp.add_url_rule(api[0], view_func=api[1], methods=api[2])
-            self.app.register_blueprint(bp)

@@ -1,3 +1,3 @@
-IVERSION = (1, 5, 0)
+IVERSION = (1, 6, 0)
 VERSION = ".".join(str(i) for i in IVERSION)
 LYREBIRD = "Lyrebird " + VERSION

@@ -26,30 +26,36 @@ def manifest(**options):
         Usage:
 
         manifest(
+
             # Set UI entry point. 
             # Each page need a tuple : (path, static-file-dir, html-file-name)
             # path - base url for plugin main page， userally it is '/'
             # static-file-dir - your frontent output dir
             # html-file-name (optional)  - default=index.html
-            ui=[
-                ('/', 'static')
-            ],
+            
+            view=('/', 'static'),
+
             # Set plugin API. 
             # Each API option is a tuple : (path, api-function, methods)
             # path - API path. If path='/status', the url will be 'http://lyrebid-host:port/plugin/plugin-name/api/status
             # api-function - API callback function. You can use flask.request for getting request info in this function.
             # methods - Same as flask methods. 
+            
             api=[
                 ('status', plugin.mycallback, ['GET', 'POST'])
             ],
+
             # Set background task into a lyrebird task thread.
+            
             background=[
                 (task_name, task_function)
             ],
+            
             # Set event listener
             # Each listener is a tuple : (channel, callback_function)
             # channel - Register listener to this channel
             # callback_function - This function will receive new event from the channel registered
+            
             event=[
                 ('flow', plugin.event_handler)
             ]
@@ -57,18 +63,6 @@ def manifest(**options):
     """
     caller_info = inspect.stack()[1]
     manifest_cache.append((options, caller_info))
-
-
-def view(static_folder='dist', index_file='index.html'):
-    return ('/', static_folder, index_file)
-
-
-def api(router, view_func, methods=['GET']):
-    return (router, view_func, methods)
-
-
-def event(channel, handle_func):
-    return (channel, handle_func)
 
 
 def load_all_from_ep():
