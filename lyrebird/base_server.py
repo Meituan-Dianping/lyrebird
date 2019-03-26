@@ -32,6 +32,6 @@ class StaticServer:
 
     def start(self, *args, **kwargs):
         pass
-    
+
     def stop(self):
         pass

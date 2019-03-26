@@ -26,36 +26,35 @@ def manifest(**options):
         Usage:
 
         manifest(
-
-            # Set UI entry point. 
+            # Set UI entry point.
             # Each page need a tuple : (path, static-file-dir, html-file-name)
             # path - base url for plugin main page， userally it is '/'
             # static-file-dir - your frontent output dir
             # html-file-name (optional)  - default=index.html
-            
+
             view=('/', 'static'),
 
-            # Set plugin API. 
+            # Set plugin API.
             # Each API option is a tuple : (path, api-function, methods)
             # path - API path. If path='/status', the url will be 'http://lyrebid-host:port/plugin/plugin-name/api/status
             # api-function - API callback function. You can use flask.request for getting request info in this function.
-            # methods - Same as flask methods. 
-            
+            # methods - Same as flask methods.
+
             api=[
                 ('status', plugin.mycallback, ['GET', 'POST'])
             ],
 
             # Set background task into a lyrebird task thread.
-            
+
             background=[
                 (task_name, task_function)
             ],
-            
+
             # Set event listener
             # Each listener is a tuple : (channel, callback_function)
             # channel - Register listener to this channel
             # callback_function - This function will receive new event from the channel registered
-            
+
             event=[
                 ('flow', plugin.event_handler)
             ]
@@ -86,7 +85,7 @@ def load_plugin_from_ep(ep):
     manifest_cache=[]
     
     ep_instance = ep.load()
-    
+
     # There can only be one manifest in each plugin
     if len(manifest_cache)>1:
         raise ManifestError('More than one manifest in this plugin')
@@ -120,7 +119,7 @@ def load_from_path(plugin_path):
     if len(manifest_cache) == 0:
         raise ManifestError(f'Not found any manifest in {plugin_path}')
 
-    # TODO 
+    # TODO
     manifest = manifest_cache[0][0]
     caller_info = manifest_cache[0][1]
     plugin = Plugin(manifest['id'], **manifest)

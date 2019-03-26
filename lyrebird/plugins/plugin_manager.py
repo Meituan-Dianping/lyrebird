@@ -28,7 +28,7 @@ class PluginManager(StaticServer):
             # Create new blueprint for each plugin
             _bp = Blueprint(
                 f'plugins_{p_name}', 
-                f'plugins_{p_name}', 
+                f'plugins_{p_name}',
                 url_prefix=f'/plugins/{p_name}',
                 static_folder=plugin_static_folder)
             
@@ -47,7 +47,7 @@ class PluginManager(StaticServer):
                 else:
                     methods = ['GET']
                 _bp.add_url_rule(rule, view_func=view_func, methods=methods)
-            
+
             # Register blueprint
             mock_service = application.server['mock']
             mock_service.app.register_blueprint(_bp)

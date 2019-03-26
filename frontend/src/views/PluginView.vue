@@ -14,7 +14,7 @@
         },
         methods: {
             onLoad(event){
-                console.log('plugins view on load', this.src);
+                console.log('plugins view on load', this.src)
             }
         }
     }

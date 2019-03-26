@@ -24,7 +24,7 @@ class ManifestProxy:
     def __init__(self, **kwargs):
         self._manifest = kwargs
         self._set_default()
-    
+
     def __getattr__(self, key):
         return self._manifest[key]
 
