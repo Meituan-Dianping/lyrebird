@@ -24,7 +24,7 @@ class PluginManager(StaticServer):
             view_static_folder_name = plugin.manifest.view[0]
             view_entry_file = plugin.manifest.view[1]
             plugin_static_folder = f"{plugin.location}/{view_static_folder_name}"
-            
+
             # Create new blueprint for each plugin
             _bp = Blueprint(
                 f'plugins_{p_name}',
