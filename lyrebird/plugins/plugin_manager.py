@@ -27,11 +27,11 @@ class PluginManager(StaticServer):
             
             # Create new blueprint for each plugin
             _bp = Blueprint(
-                f'plugins_{p_name}', 
+                f'plugins_{p_name}',
                 f'plugins_{p_name}',
                 url_prefix=f'/plugins/{p_name}',
                 static_folder=plugin_static_folder)
-            
+
             # Add plugin main view to flask blueprint
             _view = plugin.manifest.view
             def view_func():

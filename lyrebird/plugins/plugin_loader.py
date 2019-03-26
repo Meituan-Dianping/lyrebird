@@ -83,7 +83,7 @@ def load_all_from_ep():
 def load_plugin_from_ep(ep):
     global manifest_cache
     manifest_cache=[]
-    
+
     ep_instance = ep.load()
 
     # There can only be one manifest in each plugin
