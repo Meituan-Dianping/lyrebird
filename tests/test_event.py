@@ -1,4 +1,4 @@
-from lyrebird import event
+from lyrebird.event import EventServer
 import time
 import pytest
 import lyrebird
@@ -19,7 +19,7 @@ def callback_tester():
 
 @pytest.fixture
 def event_server():
-    server = event.EventServer()
+    server = EventServer()
     server.start()
     lyrebird.application.server['event'] = server
     yield server
