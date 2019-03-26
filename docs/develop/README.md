@@ -42,19 +42,19 @@ Vscode debug 配置
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Lyrebird",
+            "name": "backend",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/debug.py",
+            "module": "lyrebird",
             "console": "integratedTerminal",
             "args": [
-                "-v"
+                "-vvv"
             ]
         },
         {
+            "name": "frontend",
             "type": "chrome",
             "request": "launch",
-            "name": "vuejs: chrome",
             "url": "http://localhost:8080/ui/static/",
             "webRoot": "${workspaceFolder}/frontend/src/",
             "breakOnLoad": true,
