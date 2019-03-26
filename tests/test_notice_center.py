@@ -1,7 +1,8 @@
 from lyrebird.mock import context
 from lyrebird.notice_center import NoticeCenter
 from lyrebird import application
-from lyrebird import event
+from lyrebird.event import EventServer
+
 import pytest
 
 
@@ -29,7 +30,7 @@ def notice():
 
 @pytest.fixture
 def event_server():
-    server = event.EventServer()
+    server = EventServer()
     application.server['event'] = server
     yield server
 
