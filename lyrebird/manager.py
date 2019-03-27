@@ -15,6 +15,7 @@ from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.notice_center import NoticeCenter
 from lyrebird.db.database_server import LyrebirdDatabaseServer
+from lyrebird.plugins import PluginManager
 from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird import version
 
@@ -63,9 +64,7 @@ def main():
     parser.add_argument('--plugin', action='append', help='Set a plugin project path')
 
     subparser = parser.add_subparsers(dest='sub_command')
-    src_parser = subparser.add_parser('src')
-    src_parser.add_argument('uri')
-    subparser.add_parser('plugin')
+    subparser.add_parser('gen')
 
     args = parser.parse_args()
 
@@ -77,7 +76,6 @@ def main():
         application._cm = ConfigManager(conf_path=args.config)
     else:
         application._cm = ConfigManager()
-    application._src = Rescource()
 
     # set current ip to config
     try:
@@ -98,14 +96,11 @@ def main():
 
     logger.debug(f'Read args: {args}')
 
-    if args.sub_command == 'src':
-        logger.debug('EXEC SUBCMD:SRC')
-        src(args)
-    elif args.sub_command == 'plugin':
-        logger.debug('EXEC SUBCMD:PLUGIN')
-        plugin(args)
+    if args.sub_command == 'gen':
+        logger.debug('EXEC: Plugin project generator')
+        gen(args)
     else:
-        logger.debug('EXEC LYREBIRD START')
+        logger.debug('EXEC: LYREBIRD START')
         run(args)
 
 
@@ -120,11 +115,14 @@ def run(args:argparse.Namespace):
     config_str = json.dumps(application._cm.config, ensure_ascii=False, indent=4)
     logger.warning(f'Lyrebird start with config:\n{config_str}')
 
+    # Main server
     application.server['event'] = EventServer()
+    
     application.server['task'] = BackgroundTaskServer()
     application.server['proxy'] = LyrebirdProxyServer()
     application.server['mock'] = LyrebirdMockServer()
     application.server['db'] = LyrebirdDatabaseServer()
+    application.server['plugin'] = PluginManager()
     application.server['checker'] = LyrebirdCheckerServer()
 
     application.start_server()
@@ -132,10 +130,17 @@ def run(args:argparse.Namespace):
     # activate notice center
     application.notice = NoticeCenter()
 
+    # load debug plugin
+    # TODO
+    plugin_manager = application.server['plugin']
+    if args.plugin:
+        plugin_manager.plugin_path_list += args.plugin
+    plugin_manager.reload()
+
     # load debug script
     if args.script:
         application.server['checker'].load_scripts(args.script)
-    
+
     # auto open web browser
     if not args.no_browser:
         webbrowser.open(f'http://localhost:{application.config["mock.port"]}')
@@ -153,26 +158,8 @@ def run(args:argparse.Namespace):
     threading.Event().wait()
 
 
-def debug():
-    # use lyrebird.debug to start plugin in debug mode
-    # can pass args by sys.args
-    import sys
-    sys.argv.append("-b")
-
-    main()
-
-    print('\033[0;32m**************\nLyrebid debug mode:\n\nset auto open browser :off\n**************\033[0m\n')
-
-
-def plugin(args:argparse.Namespace):
+def gen(args):
     pass
-
-
-def src(args:argparse.Namespace):
-    from threading import Thread
-    def worker():
-        application._src.download(args.uri)
-    Thread(target=worker).start()
 
 
 def _get_ip():

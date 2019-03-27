@@ -34,16 +34,14 @@ setup(
     },
     install_requires=[
         'mitmproxy==4.0.4',
-        'flask',
-        'requests',
-        'fire',
-        'colorama',
-        'genson', 
-        'flask-socketio', 
-        'flask-restful', 
-        'beautifulsoup4',
-        'portpicker', 
-        'colorama',
-        'packaging',
-        'sqlalchemy'
+        'flask==1.0.2',
+        'requests==2.21.0',
+        'colorama==0.4.1',
+        'flask-socketio==3.3.1',
+        'flask-restful==0.3.7',
+        'beautifulsoup4==4.7.1',
+        'portpicker==1.3.0',
+        'colorama==0.4.1',
+        'packaging==19.0',
+        'SQLAlchemy==1.2.18'
     ])

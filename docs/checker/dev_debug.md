@@ -20,7 +20,7 @@ pip3 install lyrebird
 
 在[消息总线](/advance/eventbus.md)的频道中，flow频道包含了所有的网络请求，监听flow频道以获得设备的网络请求。
 
-```py
+```python
 from lyrebird import CustomEventReceiver
 
 event = CustomEventReceiver()
@@ -35,7 +35,7 @@ def img_size(msg):
 
 flow频道中出现新的数据时会回调检查器中的方法，并传入频道中的消息，此时可对该消息进行校验。
 
-```py
+```python
 from lyrebird import CustomEventReceiver
 
 event = CustomEventReceiver()
@@ -55,7 +55,7 @@ def img_size(msg):
 
 当检测到不满足预期的数据时，可调用Lyrebird[消息总线](/advance/eventbus.md)的issue接口触发报警。
 
-```py
+```python
 from lyrebird import CustomEventReceiver
 
 event = CustomEventReceiver()

@@ -55,6 +55,18 @@ export default new Router({
           component: PluginView
         }
       ]
+    },
+    {
+      path: '/plugins',
+      name: 'plugins',
+      component: Main,
+      children:[
+        {
+          path:':name',
+          name: 'plugin-container',
+          component: PluginView
+        }
+      ]
     }
   ]
 })

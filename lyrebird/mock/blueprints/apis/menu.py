@@ -2,6 +2,7 @@ from flask_restful import Resource
 from flask import jsonify
 from lyrebird.mock import context
 from lyrebird.mock import plugin_manager
+from lyrebird import application
 
 
 class Menu(Resource):
@@ -26,6 +27,21 @@ class Menu(Resource):
                 'type': 'router',
                 'path': '/checker'
             }]
+        # Load plugins from new plugin manager
+        _pm = application.server['plugin']
+        for plugin_id, plugin in _pm.plugins.items():
+            menu.append({
+                'name': 'plugin-container',
+                'title': plugin.manifest.name,
+                'type': 'router',
+                'path': '/plugins',
+                'params': {
+                    'src': f'/plugins/{plugin_id}',
+                    'name': plugin_id
+                }
+            })
+        # Load old plugins
+        # TODO remove after all plugin use new manifest function
         for plugin_key in plugin_manager.plugins:
             plugin = plugin_manager.plugins[plugin_key]
             if 'beta_web' not in plugin:

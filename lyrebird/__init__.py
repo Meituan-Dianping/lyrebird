@@ -1,4 +1,4 @@
-from .manager import main, run, debug
+from .manager import main, run
 from .mock import context
 from .mock.plugin_manager import PluginView, caller_info
 from .mock.handlers.handler_context import HandlerContext
@@ -12,6 +12,9 @@ from lyrebird.log import get_logger
 
 
 APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
+
+
+event  = CustomEventReceiver()
 
 
 def start_background_task(target, *args, **kwargs):

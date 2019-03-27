@@ -15,7 +15,7 @@ module.exports = {
       '/api': {
           target: 'http://localhost:9090'
       },
-      '/plugin': {
+      '/*plugin*': {
           target: 'http://localhost:9090'
       },
       '/static': {

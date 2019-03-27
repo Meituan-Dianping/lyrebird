@@ -1,5 +1,5 @@
 import pytest
-from lyrebird import event
+from lyrebird.event import EventServer
 from lyrebird import application
 from lyrebird.checker import LyrebirdCheckerServer
 
@@ -43,7 +43,7 @@ def checker_server(checker_init, tmp_path):
 
 @pytest.fixture
 def event_server():
-    server = event.EventServer()
+    server = EventServer()
     application.server['event'] = server
     yield server
 

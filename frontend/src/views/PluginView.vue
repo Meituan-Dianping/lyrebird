@@ -6,7 +6,6 @@
 
 <script>   
     export default {
-        props:['name'],
         computed:{
             src() {
                 let src = this.$store.state.plugin.src
@@ -15,7 +14,7 @@
         },
         methods: {
             onLoad(event){
-                console.log('plugins view on load', this.name, this.src);
+                console.log('plugins view on load', this.src)
             }
         }
     }

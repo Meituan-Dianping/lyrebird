@@ -7,7 +7,7 @@ import socket
 import datetime
 import subprocess
 from . import plugin_manager
-from flask import Flask, request, redirect, url_for, Response
+from flask import Flask, request, redirect, url_for, Response, Blueprint, send_file
 from . import context
 from .blueprints.plugin import plugin
 from .blueprints.apis import api
@@ -64,10 +64,11 @@ class LyrebirdMockServer(ThreadServer):
         self.app.jinja_env.comment_start_string = '[#'
         self.app.jinja_env.comment_end_string = '#]'
 
+        # TODO delete
         # Add global function for templates
-        self.app.jinja_env.globals['time'] = time.time
-        self.app.jinja_env.globals['datetime'] = datetime.datetime
-        self.app.jinja_env.globals['version'] = VERSION
+        # self.app.jinja_env.globals['time'] = time.time
+        # self.app.jinja_env.globals['datetime'] = datetime.datetime
+        # self.app.jinja_env.globals['version'] = VERSION
 
         # async_mode = threading / eventlet / gevent / gevent_uwsgi
         self.socket_io = SocketIO(self.app, async_mode='threading', logger=False)
@@ -97,7 +98,7 @@ class LyrebirdMockServer(ThreadServer):
         self.app.register_blueprint(api_mock)
         self.app.register_blueprint(ui)
         self.app.register_blueprint(plugin)
-        
+
         @self.app.route('/')
         def index():
             """
@@ -110,7 +111,6 @@ class LyrebirdMockServer(ThreadServer):
         _logger.warning(f'start on http://{server_ip}:{self.port}')
         report_handler.start()
         self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=self.debug, use_reloader=False)
-
 
     def stop(self):
         """

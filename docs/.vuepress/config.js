@@ -49,7 +49,9 @@ module.exports = {
             ],
             '/advance/': [
                 '',
-                'eventbus'
+                'eventbus',
+                'ci',
+                'elk'
             ],
             '/develop/': [
                 '',
