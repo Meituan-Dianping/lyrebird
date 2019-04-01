@@ -44,7 +44,7 @@ class ColorFormater(logging.Formatter):
 
 def _init_stream_logger():
     logger:logging.Logger = logging.getLogger('lyrebird')
-    
+
     color_formater = ColorFormater(fmt='%(levelname)s [%(module)s] %(message)s')
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(color_formater)
@@ -62,27 +62,28 @@ def _init_file_logger(custom_log_path=None):
 
     file_handler = logging.handlers.TimedRotatingFileHandler(log_file, backupCount=1, encoding='utf-8', when='midnight')
     file_handler.setFormatter(file_formater)
-    
+
     logger:logging.Logger = logging.getLogger('lyrebird')
     logger.addHandler(file_handler)
 
 
 def _setup_3rd_loggers():
+    logger_level = logging.ERROR
     socketio = logging.getLogger('socketio')
-    socketio.setLevel(logging.ERROR)
+    socketio.setLevel(logger_level)
 
     engineio = logging.getLogger('engineio')
-    engineio.setLevel(logging.ERROR)
+    engineio.setLevel(logger_level)
 
     mock = logging.getLogger('mock')
-    mock.setLevel(logging.ERROR)
+    mock.setLevel(logger_level)
     mock.addHandler(logging.StreamHandler())
 
     werkzeug = logging.getLogger('werkzeug')
-    werkzeug.setLevel(logging.ERROR)
+    werkzeug.setLevel(logger_level)
 
 
-def init(custom_log_path=None):    
+def init(custom_log_path=None):
     _init_file_logger(custom_log_path=custom_log_path)
     _setup_3rd_loggers()
 
