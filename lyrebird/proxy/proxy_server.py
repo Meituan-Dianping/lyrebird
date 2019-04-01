@@ -26,24 +26,24 @@ class LyrebirdProxyServer(ThreadServer):
 
     def __init__(self):
         super().__init__()
-        
+
         conf = application.config
         self.proxy_port = str(conf.get('proxy.port', '4272')) if conf else '4272'
         '''
         --ignore_hosts:
-        The ignore_hosts option allows you to specify a regex which is matched against a host:port 
-        string (e.g. “example.com:443”) of a connection. Matching hosts are excluded from interception, 
+        The ignore_hosts option allows you to specify a regex which is matched against a host:port
+        string (e.g. “example.com:443”) of a connection. Matching hosts are excluded from interception,
         and passed on unmodified.
-        
+
         # Ignore everything but sankuai.com, meituan.com and dianping.com:
         --ignore-hosts '^(?!.*sankuai.*)(?!.*meituan.*)(?!.*dianping.*)'
-        
+
         According to mitmproxy docs: https://docs.mitmproxy.org/stable/howto-ignoredomains/
         '''
         self.ignore_hosts = None
         if conf.get('proxy.filters'):
             self.ignore_hosts = '^%s' % ''.join(['(?!.*%s.*)' % i for i in conf.get('proxy.filters')])
-        
+
         self._master = None
 
     def run(self):
@@ -54,6 +54,7 @@ class LyrebirdProxyServer(ThreadServer):
             '-s', str(FLOW_PATH),
             '-p', self.proxy_port,
             '--ssl-insecure',
+            '--no-http2',
             '-q'
         ]
         if self.ignore_hosts:
