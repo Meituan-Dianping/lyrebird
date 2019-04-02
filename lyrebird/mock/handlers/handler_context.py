@@ -22,24 +22,23 @@ class HandlerContext:
     """
     MOCK_PATH_PREFIX = '/mock'
 
-    def __init__(self, request, raw_path):
+    def __init__(self, request):
         self.id = str(uuid.uuid4())
         self.request = request
-        self._raw_path = raw_path
         self._response = None
         self.client_req_time = None
         self.client_resp_time = None
         self.server_req_time = None
         self.server_resp_time = None
         self.flow = dict(
-            id=self.id, 
-            size=0, 
-            duration=0, 
+            id=self.id,
+            size=0,
+            duration=0,
             start_time=time.time())
         self.client_address = None
         self._parse_request()
 
-    
+
     def _parse_request(self):
         # Read stream
         self.request.get_data()
@@ -57,35 +56,35 @@ class HandlerContext:
             query=self.request.args
             )
         _request.update(request_info)
-        
+
         # handle request data
         if self.request.method in ['POST', 'PUT']:
             RequestDataHelper.req2dict(self.request, output=_request)
-        
+
         if self.request.headers.get('Lyrebird-Client-Address'):
             self.client_address = self.request.headers.get('Lyrebird-Client-Address')
         else:
             self.client_address = self.request.remote_addr
-        self.flow['client_address'] = self.client_address        
-    
+        self.flow['client_address'] = self.client_address
+
         self.flow['request'] = _request
         context.application.cache.add(self.flow)
 
         logger.debug(f'[On client request] {self.flow["request"]["url"]}')
 
     def _read_origin_request_info_from_url(self):
-        path_index = self.request.url.index(self._raw_path)
-        url = self.request.url[path_index:]
-        parsed_path = urlparse(url)
+        url_prefix = self.request.url_root+self.request.blueprint+'/'
+        raw_url = self.request.url[len(url_prefix):]
+        parsed_path = urlparse(raw_url)
         _request = dict(
-            url=url,
+            url=raw_url,
             scheme=parsed_path.scheme,
             host=parsed_path.hostname,
             port=parsed_path.port if parsed_path.port else '80',
             path=parsed_path.path
             )
         return _request
-    
+
     def _read_origin_request_info_from_header(self):
         proxy_headers = application.config['mock.proxy_headers']
         scheme = self.request.headers.get(proxy_headers['scheme'], default='http')
@@ -215,7 +214,7 @@ class RequestDataHelper(DataHelper):
             if not content_type:
                 output['data'] =  RequestDataHelper.data2Str(request.data)
                 return
-            
+
             content_type = content_type.strip()
             if content_type.startswith('application/x-www-form-urlencoded'):
                 if unziped_data:
@@ -251,7 +250,7 @@ class ResponseDataHelper(DataHelper):
             output['binary_data'] = 'bin'
         else:
             content_type = content_type.strip()
-        
+
         try:
             if content_type.startswith('application/json'):
                 output['data'] = response.json

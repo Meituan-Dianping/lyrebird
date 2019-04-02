@@ -21,7 +21,7 @@ api_mock = Blueprint('mock', __name__, url_prefix='/mock')
 @api_mock.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 def index(path=''):
     resp = None
-    req_context = HandlerContext(request, path)
+    req_context = HandlerContext(request)
     req_context.update_client_req_time()
 
     for handler_name in plugin_manager.inner_handler:
