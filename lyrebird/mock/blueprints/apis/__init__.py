@@ -6,8 +6,9 @@ from .mock import MockData, MockGroup, ActivatedMockGroup , MockGroupByName
 from .config import Conf, ResetConf
 from .plugin import Plugin
 from .menu import Menu
-from .event import Event
+from .notice import Notice
 from .checker import Checker
+from .event import Event, Channel
 from lyrebird.log import get_logger
 
 
@@ -39,5 +40,7 @@ api_source.add_resource(ResetConf, '/conf/<string:plugin_name>/reset')
 api_source.add_resource(WorkMode, '/mode', '/mode/<string:mode>')
 api_source.add_resource(Plugin, '/plugin', '/plugin/<string:plugin_name>')
 api_source.add_resource(Menu, '/menu')
-api_source.add_resource(Event, '/event')
+api_source.add_resource(Notice, '/notice')
 api_source.add_resource(Checker, '/checker', '/checker/<string:checker_id>')
+api_source.add_resource(Event, '/event', '/event/<string:channel>', '/event/<string:channel>/<int:page>')
+api_source.add_resource(Channel, '/channel')

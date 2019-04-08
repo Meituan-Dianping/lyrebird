@@ -45,7 +45,7 @@ def test_new_notice(notice, event_server, notice_center):
 def test_new_notices(notice, event_server, notice_center):
     notice_center.notice_hashmap = {}
     times = 10
-    for i in range(times):
+    for _ in range(times):
         notice_center.new_notice(notice)
     test_str = notice.get('message')
     len_notice_hashmap = len(notice_center.notice_hashmap)
