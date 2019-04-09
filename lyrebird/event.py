@@ -24,32 +24,46 @@ class Event:
     Event bus inner class
     """
     def __init__(self, channel, message):
-        self.channel = channel 
+        self.channel = channel
         self.message = message
 
 
 class EventServer(ThreadServer):
-    
+
     def __init__(self):
         super().__init__()
         self.event_queue = Queue()
         self.state = {}
         self.pubsub_channels = {}
-        # channel name is 'any'. For linstening all channel's message
+        # channel name is 'any'. Linstening on all channel
         self.any_channel = []
         self.broadcast_executor = ThreadPoolExecutor(thread_name_prefix='event-broadcast-')
-        # display notice in frontend
-        self.subscribe('alert', self.display_notice)
+
 
     def broadcast_handler(self, callback_fn, event, args, kwargs):
+        """
+
+        """
+
+        # Check
+        func_sig = inspect.signature(callback_fn)
+        func_parameters = list(func_sig.parameters.values())
+        if len(func_parameters)<1 or func_parameters[0].default!=inspect._empty:
+            logger.error(f'Event callback function [{callback_fn.__name__}] need a argument for receiving event object')
+            return
+
+        # Append event content to args
+        callback_args = []
+        callback_args.append(event.message)
+        # Add channel to kwargs
+        callback_kwargs = {}
+        if 'channel' in func_sig.parameters:
+            callback_kwargs['channel'] = event.channel
+        # Execute callback function
         try:
-            if kwargs.get('event', False):
-                callback_fn(event)
-            else:
-                callback_fn(event.message)
+            callback_fn(*callback_args, **callback_kwargs)
         except Exception:
-            # TODO handle exceptioins and send to event bus
-            traceback.print_exc()
+            logger.error(f'Event callback function [{callback_fn.__name__}] error. {traceback.format_exc()}')
 
     def run(self):
         while self.running:
@@ -73,7 +87,7 @@ class EventServer(ThreadServer):
         """
         publish message
 
-        if type of message is dict, set default event information: 
+        if type of message is dict, set default event information:
             - channel
             - id
             - timestamp
@@ -96,7 +110,7 @@ class EventServer(ThreadServer):
                     "function": function_name
                 }
                 message['sender'] = sender_dict
-        
+
         self.event_queue.put(Event(channel, message))
         if state:
             self.state[channel] = message
@@ -107,9 +121,8 @@ class EventServer(ThreadServer):
         Subscribe channel with a callback function
         That function will be called when a new message was published into it's channel
 
-        kwargs:
-            event=False receiver gets a message dict
-            event=True receiver gets an Event object
+        callback function kwargs:
+            channel=None receive channel name
         """
         if channel == 'any':
             self.any_channel.append([callback_fn, args, kwargs])
@@ -132,12 +145,6 @@ class EventServer(ThreadServer):
                 if target_callback_fn == callback_fn:
                     callback_fn_list.remove([target_callback_fn, *_])
 
-    def display_notice(self, msg):
-        """
-        display notice
-        
-        """
-        context.application.socket_io.emit('show', msg, namespace='/alert')
 
 class CustomEventReceiver:
     """

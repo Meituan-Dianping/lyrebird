@@ -15,7 +15,7 @@ jobs:
     - stage: release to pypi
       if: type = push AND tag IS present
       language: python
-      catch: 
+      catch:
         - pip
         - npm
       python:
@@ -31,6 +31,7 @@ jobs:
         - echo "No script for pypi release"
       deploy:
         provider: pypi
+        skip_existing: true
         skip-cleanup: true
         user: meituanqa
         password:

@@ -23,7 +23,7 @@ class Task:
         try:
             result = self.func()
             self.status = Task.FINISH
-            application.server['event'].publish('task', 
+            application.server['event'].publish('task',
             {
                 'status': 'finish',
                 'code': '1000',
@@ -31,7 +31,7 @@ class Task:
             })
         except Exception:
             self.status = Task.ERROR
-            application.server['event'].publish('task', 
+            application.server['event'].publish('task',
             {
                 'status': 'error',
                 'code': '3000',
@@ -40,7 +40,7 @@ class Task:
 
 
 class BackgroundTaskServer(ThreadServer):
-    
+
     def __init__(self):
         super().__init__()
         self.tasks = []

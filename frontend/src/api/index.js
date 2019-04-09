@@ -6,7 +6,7 @@ export const getMenu = () => {
   })
 }
 
-//------Lyrebird status--------    
+//------Lyrebird status--------
 /**
     Get lyrebird status
     {
@@ -24,7 +24,7 @@ export const getStatus = () => {
   })
 }
 
-//------Lyrebird manifest--------    
+//------Lyrebird manifest--------
 /**
     Get lyrebird manifest
 */
@@ -128,7 +128,7 @@ export const createData = (groupId, name) => {
     */
 export const getNoticeList = () => {
   return axios({
-    url: '/api/event'
+    url: '/api/notice'
   })
 }
 
@@ -138,7 +138,7 @@ export const getNoticeList = () => {
     */
 export const deleteNotice = (key) => {
   return axios({
-    url: '/api/event',
+    url: '/api/notice',
     data: {key},
     method: 'DELETE'
   })
@@ -151,7 +151,7 @@ export const deleteNotice = (key) => {
     */
 export const updateNoticeStatus = (key, status) => {
   return axios({
-    url: '/api/event',
+    url: '/api/notice',
     data: {key, status},
     method: 'PUT'
   })
@@ -163,7 +163,7 @@ export const updateNoticeStatus = (key, status) => {
     */
 export const publishEvent = (eventInfo) => {
   return axios({
-    url: '/api/event',
+    url: '/api/notice',
     data: {eventInfo},
     method: 'POST'
   })
