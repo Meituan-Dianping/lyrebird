@@ -27,6 +27,9 @@ class MockHandler:
             else:
                 data_len = len(resp_data)
             headers['Content-Length'] = data_len
+        else:
+            # Handle none response data
+            resp_data = ''
 
         def gen():
             yield resp_data
