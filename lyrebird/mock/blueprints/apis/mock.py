@@ -119,7 +119,7 @@ class MockData(Resource):
             return context.make_fail_response('Group not found')
         ids = request.json.get('ids')
         for data_id in ids:
-            _group.delete_data(data_id)        
+            _group.delete_data(data_id)
         return context.make_ok_response()
 
 

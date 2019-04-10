@@ -68,12 +68,19 @@ class LyrebirdDatabaseServer(ThreadServer):
 
     def get_event(self, channel_rules, offset=0, limit=20):
         session = self._scoped_session()
-        result = session.query(Event) \
-            .order_by(Event.id.desc()) \
-            .filter(Event.channel.in_(channel_rules)) \
-            .offset(offset) \
-            .limit(limit) \
-            .all()
+        if len(channel_rules) == 0:
+            result = session.query(Event) \
+                .order_by(Event.id.desc()) \
+                .offset(offset) \
+                .limit(limit) \
+                .all()
+        else:
+            result = session.query(Event) \
+                .order_by(Event.id.desc()) \
+                .filter(Event.channel.in_(channel_rules)) \
+                .offset(offset) \
+                .limit(limit) \
+                .all()
         self._scoped_session.remove()
         return result
 
