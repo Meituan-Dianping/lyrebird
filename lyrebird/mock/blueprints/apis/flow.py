@@ -25,9 +25,9 @@ class FlowList(Resource):
         req_list = []
         for item in all_items:
             info = dict(
-                id=item['id'], 
+                id=item['id'],
                 size=item['size'],
-                duration=item['duration'], 
+                duration=item['duration'],
                 start_time=item['start_time'],
                 request=dict(
                     url=item['request'].get('url'),
@@ -41,7 +41,7 @@ class FlowList(Resource):
                     )if item.get('response') else {}
                 )
             req_list.append(info)
-        def gen():        
+        def gen():
             yield json.dumps(req_list)
         return context.make_streamed_response(gen)
 
@@ -66,11 +66,13 @@ class FlowList(Resource):
         activated_group = dm.groups.get(dm.activated_group_id)
         if not activated_group:
             return context.make_fail_response('Not activate any group')
-        
+
         flow_list = context.application.cache.items()
         for flow in flow_list:
             if flow['id'] in _ids:
                 data = activated_group.create_data(flow=flow)
                 data.save()
+
+        dm.router.switch_group(activated_group)
 
         return context.make_ok_response()

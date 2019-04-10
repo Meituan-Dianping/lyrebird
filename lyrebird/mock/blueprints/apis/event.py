@@ -7,7 +7,10 @@ class Event(Resource):
 
     def get(self, channel=None, page=0):
         db = application.server['db']
-        events = db.get_event(channel.split('+'), offset=page*20)
+        channel_rules = []
+        if channel:
+            channel_rules = channel.split('+')
+        events = db.get_event(channel_rules, offset=page*20)
         result = []
         for event in events:
             event_str = event.json()
