@@ -1,4 +1,5 @@
 import json
+import math
 import datetime
 import traceback
 from queue import Queue
@@ -7,7 +8,7 @@ from lyrebird import log
 from lyrebird.base_server import ThreadServer
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine
+from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine, func
 
 """
 Database server
@@ -46,7 +47,7 @@ class LyrebirdDatabaseServer(ThreadServer):
 
     def event_receiver(self, event, channel=None):
         content = json.dumps(event)
-        flow = Event(channel=channel, content=content)
+        flow = Event(event_id=event['id'], channel=channel, content=content)
         self.storage_queue.put(flow)
 
     def run(self):
@@ -54,7 +55,7 @@ class LyrebirdDatabaseServer(ThreadServer):
         while self.running:
             try:
                 event = self.storage_queue.get()
-                session.add(Event(channel=event.channel, content=event.content))
+                session.add(event)
                 session.commit()
             except Exception:
                 logger.error(f'Save event failed. {traceback.format_exc()}')
@@ -68,19 +69,11 @@ class LyrebirdDatabaseServer(ThreadServer):
 
     def get_event(self, channel_rules, offset=0, limit=20):
         session = self._scoped_session()
-        if len(channel_rules) == 0:
-            result = session.query(Event) \
-                .order_by(Event.id.desc()) \
-                .offset(offset) \
-                .limit(limit) \
-                .all()
-        else:
-            result = session.query(Event) \
-                .order_by(Event.id.desc()) \
-                .filter(Event.channel.in_(channel_rules)) \
-                .offset(offset) \
-                .limit(limit) \
-                .all()
+        query = session.query(Event).order_by(Event.id.desc())
+        if len(channel_rules) > 0:
+            query = query.filter(Event.channel.in_(channel_rules))
+        query = query.offset(offset).limit(limit)
+        result = query.all()
         self._scoped_session.remove()
         return result
 
@@ -91,6 +84,15 @@ class LyrebirdDatabaseServer(ThreadServer):
             .all()
         self._scoped_session.remove()
         return result
+
+    def get_page_count(self, channel_rules, page_size=20):
+        session = self._scoped_session()
+        query = session.query(Event.id)
+        if len(channel_rules) > 0:
+            query = query.filter(Event.channel.in_(channel_rules))
+        result = query.count()
+        self._scoped_session.remove()
+        return math.ceil(result/page_size)
 
 
 class JSONFormat:
@@ -105,15 +107,15 @@ class JSONFormat:
             if isinstance(prop_obj, (str, int, bool)):
                 prop_collection[prop] = prop_obj
             elif isinstance(prop_obj, datetime.datetime):
-                prop_collection[prop] = str(prop_obj)
+                prop_collection[prop] = prop_obj.timestamp()
         return prop_collection
 
 
 class Event(Base, JSONFormat):
-    __tablename__ = 'flow'
+    __tablename__ = 'event'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     channel = Column(String(16), index=True)
+    event_id = Column(String(32), index=True)
     content = Column(Text)
-    ts = Column(DateTime(timezone=True), default=datetime.datetime.now)
-
+    timestamp = Column(DateTime(timezone=True), default=datetime.datetime.now)

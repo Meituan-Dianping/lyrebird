@@ -2,6 +2,9 @@ from flask_restful import Resource
 from flask import jsonify
 from lyrebird import application
 
+# Default event page size
+PAGE_SIZE = 20
+
 
 class Event(Resource):
 
@@ -10,12 +13,13 @@ class Event(Resource):
         channel_rules = []
         if channel:
             channel_rules = channel.split('+')
-        events = db.get_event(channel_rules, offset=page*20)
+        events = db.get_event(channel_rules, offset=page*PAGE_SIZE, limit=PAGE_SIZE)
+        page_count = db.get_page_count(channel_rules, page_size=PAGE_SIZE)
         result = []
         for event in events:
             event_str = event.json()
             result.append(event_str)
-        return jsonify(result)
+        return application.make_ok_response(events=result, page=page, page_count=page_count, page_size=PAGE_SIZE)
 
 
 class Channel(Resource):

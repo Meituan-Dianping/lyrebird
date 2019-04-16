@@ -81,7 +81,7 @@ class EventServer(ThreadServer):
 
     def stop(self):
         super().stop()
-        self.publish('any', 'stop')
+        self.publish('system', {'name': 'event.stop'})
 
     def publish(self, channel, message, state=False, *args, **kwargs):
         """
@@ -99,7 +99,7 @@ class EventServer(ThreadServer):
         if isinstance(message, dict):
             message['channel'] = channel
             message['id'] = str(uuid.uuid4())
-            message['timestamp'] = int(time.time())
+            message['timestamp'] = round(time.time(), 3)
             if not message.get('sender'):
                 stack = inspect.stack()
                 script_path = stack[2].filename

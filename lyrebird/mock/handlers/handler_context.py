@@ -53,7 +53,8 @@ class HandlerContext:
         _request = dict(
             headers=headers,
             method=self.request.method,
-            query=self.request.args
+            query=self.request.args,
+            timestamp=round(time.time(), 3)
             )
         _request.update(request_info)
 
@@ -122,7 +123,8 @@ class HandlerContext:
 
         _response = dict(
             code=self._response.status_code,
-            headers={k:v for (k,v) in self._response.headers}
+            headers={k:v for (k,v) in self._response.headers},
+            timestamp=round(time.time(), 3)
         )
 
         ResponseDataHelper.resp2dict(self._response, output=_response)
@@ -146,40 +148,41 @@ class HandlerContext:
 
     def update_client_req_time(self):
         self.client_req_time = time.time()
-        # 消息总线 客户端请求事件
-        context.application.event_bus.publish('flow',
-                                              dict(name='client.request',
-                                              time=self.client_req_time,
-                                              id=self.id,
-                                              flow=self.flow
-                                              ))
+        # 消息总线 客户端请求事件，暂不使用
+        # context.application.event_bus.publish('flow',
+        #                                       dict(name='client.request',
+        #                                       time=self.client_req_time,
+        #                                       id=self.id,
+        #                                       flow=self.flow
+        #                                       ))
 
     def update_client_resp_time(self):
         self.client_resp_time = time.time()
-        # 消息总线 客户端响应事件
+        # 消息总线 客户端响应事件， 目前仅启用此事件
         context.application.event_bus.publish('flow',
-                                              dict(name='client.response',
-                                              time=self.client_resp_time,
-                                              id=self.id,
-                                              flow=self.flow))
+        dict(
+            flow=self.flow,
+            message=f"URL:{self.flow['request']['url']}\nStatusCode:{self.flow['response']['code']}"
+            )
+        )
 
     def update_server_req_time(self):
         self.server_req_time = time.time()
-        # 消息总线 客户端请求事件
-        context.application.event_bus.publish('flow',
-                                              dict(name='server.request',
-                                              time=self.server_req_time,
-                                              id=self.id,
-                                              flow=self.flow))
+        # 消息总线 客户端请求事件，暂不使用
+        # context.application.event_bus.publish('flow',
+        #                                       dict(name='server.request',
+        #                                       time=self.server_req_time,
+        #                                       id=self.id,
+        #                                       flow=self.flow))
 
     def update_server_resp_time(self):
         self.server_resp_time = time.time()
-        # 消息总线 客户端请求事件
-        context.application.event_bus.publish('flow',
-                                              dict(name='server.response',
-                                              time=self.server_resp_time,
-                                              id=self.id,
-                                              flow=self.flow))
+        # 消息总线 客户端请求事件，暂不使用
+        # context.application.event_bus.publish('flow',
+        #                                       dict(name='server.response',
+        #                                       time=self.server_resp_time,
+        #                                       id=self.id,
+        #                                       flow=self.flow))
 
     def get_origin_url(self):
         return self.flow['request'].get('url')
