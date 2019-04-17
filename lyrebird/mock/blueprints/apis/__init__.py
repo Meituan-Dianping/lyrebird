@@ -42,5 +42,13 @@ api_source.add_resource(Plugin, '/plugin', '/plugin/<string:plugin_name>')
 api_source.add_resource(Menu, '/menu')
 api_source.add_resource(Notice, '/notice')
 api_source.add_resource(Checker, '/checker', '/checker/<string:checker_id>')
-api_source.add_resource(Event, '/event', '/event/page/<int:page>', '/event/<string:channel>', '/event/<string:channel>/page/<int:page>')
+api_source.add_resource(
+    Event,
+    '/event',
+    '/event/page/<int:page>',
+    '/event/id/<string:event_id>',
+    '/event/<string:channel>',
+    '/event/<string:channel>/page/<int:page>',
+    '/event/<string:channel>/id/<string:event_id>'
+    )
 api_source.add_resource(Channel, '/channel')

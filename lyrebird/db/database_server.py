@@ -77,6 +77,15 @@ class LyrebirdDatabaseServer(ThreadServer):
         self._scoped_session.remove()
         return result
 
+    def get_page_index_by_event_id(self, event_id, channel_rules, limit=20):
+        session = self._scoped_session()
+        subquery = session.query(Event).filter(Event.event_id==event_id).subquery()
+        query = session.query(Event.id)
+        if len(channel_rules) > 0:
+            query = query.filter(Event.channel.in_(channel_rules))
+        result = query.filter(Event.id>=subquery.c.id).count()
+        return int(result/limit)
+
     def get_channel_list(self):
         session = self._scoped_session()
         result = session.query(Event.channel) \
