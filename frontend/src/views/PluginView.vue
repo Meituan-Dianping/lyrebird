@@ -4,17 +4,20 @@
     </div>
 </template>
 
-<script>   
+<script>
     export default {
         computed:{
             src() {
                 let src = this.$store.state.plugin.src
+                if(this.$route.params.query){
+                    src = src + '?' + this.$route.params.query
+                }
                 return src
             }
         },
         methods: {
             onLoad(event){
-                console.log('plugins view on load', this.src)
+                console.log('plugins view on load', this.src, this.$route)
             }
         }
     }
@@ -24,6 +27,6 @@
 .plugin-frame {
     position: relative;
     height: 100%;
-    width: 100%; 
+    width: 100%;
 }
 </style>

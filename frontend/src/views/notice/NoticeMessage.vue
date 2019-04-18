@@ -72,7 +72,7 @@ export default {
         }
       }
       this.$store.commit('plugin/setSrc', this.jumpToUrl)
-      this.$router.push({name:'plugin-view', params:{name:this.jumpToName}})
+      this.$router.push({name:'plugin-view', params:{name:this.jumpToName, query:'event_id='+this.notice.id}})
       this.$store.dispatch("createIssue", notice)
       this.$store.dispatch('deleteNotice', notice.key)
     },
@@ -95,4 +95,4 @@ export default {
   padding: 5px 5px 5px 8px;
   font-size: 12px;
 }
-</style> 
+</style>
