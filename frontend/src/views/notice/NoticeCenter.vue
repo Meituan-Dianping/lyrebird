@@ -57,6 +57,7 @@ export default {
     };
   },
   created(){
+    this.$bus.$on('toggleNotice', this.toggle)
     this.$io.on('alert', this.showNoticeAlert)
     this.$io.on('update', this.updateNotice)
     this.$store.dispatch('loadNoticeCenterData')
@@ -96,6 +97,9 @@ export default {
       else{
         return 'ivu-btn-unselected'
       }
+    },
+    toggle(){
+      this.drawerIsCollapsed = !this.drawerIsCollapsed
     }
   }
 };
@@ -127,7 +131,7 @@ export default {
   height: 14px !important;
 }
 .notice-empty{
-  position: absolute; 
+  position: absolute;
   top:40%;
   left:50%;
   transform:translate(-50%,-50%);
@@ -156,4 +160,4 @@ export default {
 .ivu-drawer-content > .ivu-drawer-body {
   padding: 0px;
 }
-</style> 
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <Card shadow @mouseover.native="isDisplayDate=false" @mouseout.native="isDisplayDate=true">
+  <Card shadow @mouseover.native="isDisplayDate=false" @mouseout.native="isDisplayDate=true" @click.native="jump(notice)" style="cursor:pointer">
     <p slot="title" style="line-height:16px">
       <Row>
         <Col span="20">
@@ -26,11 +26,11 @@
     <Row>
       <Col span="20">
         <p>
-          <b><a href="#" @click="jump(notice)">Create new issue</a></b>
+          <b><a href="#"> </a></b>
         </p>
       </Col>
-      <Col span="4" align="right">
-        <a href="#" @click="changeNoticeStatusToFalse(notice)" title="Don't remind again">
+      <Col span="24" align="right">
+        <a href="#" @click.stop="changeNoticeStatusToFalse(notice)" title="Don't remind again">
           <Icon type="ios-eye-off" style="font-size:16px"/>
         </a>
       </Col>
@@ -61,6 +61,7 @@ export default {
       this.$store.dispatch('deleteNotice', noticeKey)
     },
     jump(notice) {
+      this.$bus.$emit('toggleNotice')
       // TODO: support select manifest
       // store.state.manifest[0]: only one manifest are supported in v1.0
       for(const menuItem of this.$store.state.menu){
