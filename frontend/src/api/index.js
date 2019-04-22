@@ -161,13 +161,13 @@ export const updateNoticeStatus = (key, status) => {
     /**
     Publish new notification
     */
-export const publishEvent = (eventInfo) => {
-  return axios({
-    url: '/api/notice',
-    data: {eventInfo},
-    method: 'POST'
-  })
-}
+// export const publishEvent = (eventInfo) => {
+//   return axios({
+//     url: '/api/notice',
+//     data: {eventInfo},
+//     method: 'POST'
+//   })
+// }
 
 export const deleteData = (groupId, ids) => {
   return axios({

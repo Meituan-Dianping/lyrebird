@@ -8,7 +8,7 @@ from lyrebird.mock import context
 logger = log.get_logger()
 
 class NoticeCenter():
-    
+
     def __init__(self):
         self.HISTORY_NOTICE = None
         self.notice_hashmap = {}
@@ -43,7 +43,7 @@ class NoticeCenter():
         """
 
         emit data and update frontend
-        
+
         """
         self.notice_hashmap_to_list()
         context.application.socket_io.emit('update')
@@ -52,7 +52,7 @@ class NoticeCenter():
         """
 
         load history notice
-        
+
         """
         ROOT = application._cm.root
         DEFAULT_FILENAME = 'notice.json'
@@ -73,9 +73,9 @@ class NoticeCenter():
         display new notice
         msg: message dict
 
-        
+
         """
-        unique_key = msg.get('message')
+        unique_key = msg.get('title')
         if self.notice_hashmap.get(unique_key):
             self.notice_hashmap[unique_key]['noticeList'].append(msg)
             if self.notice_hashmap[unique_key].get('alert'):
@@ -100,12 +100,12 @@ class NoticeCenter():
         change notice alert status, disable notification alert when status is false
         unique_key: str, message unique key
         status: bool, message status
-        
+
 
         """
         target_notice = self.notice_hashmap.get(unique_key)
         target_notice['alert'] = status
-        
+
         self.update_frontend()
         self.storage_notice(self.notice_hashmap)
 
@@ -114,7 +114,7 @@ class NoticeCenter():
 
         drop notice group in notice hashmap
         unique_key: str, message unique key
-        
+
         """
         self.notice_hashmap.pop(unique_key)
         self.update_frontend()

@@ -96,20 +96,26 @@ class EventServer(ThreadServer):
         if state is true, message will be kept as state
 
         """
-        if isinstance(message, dict):
-            message['channel'] = channel
-            message['id'] = str(uuid.uuid4())
-            message['timestamp'] = round(time.time(), 3)
-            if not message.get('sender'):
-                stack = inspect.stack()
-                script_path = stack[2].filename
-                script_name = script_path[script_path.rfind('/') + 1:]
-                function_name = stack[2].function
-                sender_dict = {
-                    "file": script_name,
-                    "function": function_name
-                }
-                message['sender'] = sender_dict
+
+        # Make sure event is dict
+        if not isinstance(message, dict):
+            _msg = { 'content': message }
+            message = _msg
+
+        message['channel'] = channel
+        message['id'] = str(uuid.uuid4())
+        message['timestamp'] = round(time.time(), 3)
+
+        # Add event sender
+        stack = inspect.stack()
+        script_path = stack[2].filename
+        script_name = script_path[script_path.rfind('/') + 1:]
+        function_name = stack[2].function
+        sender_dict = {
+            "file": script_name,
+            "function": function_name
+        }
+        message['sender'] = sender_dict
 
         self.event_queue.put(Event(channel, message))
         if state:
@@ -178,26 +184,9 @@ class CustomEventReceiver:
     def publish(self, channel, message, *args, **kwargs):
         application.server['event'].publish(channel, message, *args, **kwargs)
 
-    def alert(self, channel, message, *args, **kwargs):
-        stack = inspect.stack()
-        script_name = stack[1].filename
-        script_name = script_name[script_name.rfind('/') + 1:]
-        function_name = stack[1].function
-        if isinstance(message, dict):
-            message['script_name'] = script_name
-            message['function_name'] = function_name
-        application.server['event'].publish(channel, message, *args, **kwargs)
-
-    def issue(self, message, issue_message=None, channel="issue"):
-        notice = {"message": message,
-                    "actions": [
-                        {
-                            "type": "carrier",
-                            "box": {
-                                "channel": channel,
-                                'message': issue_message,
-                                "state": True
-                            }
-                        }
-                    ]}
+    def issue(self, title, message):
+        notice = {
+            "title": title,
+            "message": message
+            }
         application.server['event'].publish('notice', notice)

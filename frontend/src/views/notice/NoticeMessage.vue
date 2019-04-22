@@ -22,7 +22,7 @@
         </Col>
       </Row>
     </p>
-    <p style="word-break:break-all">{{notice.message}}</p>
+    <p style="word-break:break-all">{{notice.title}}</p>
     <Row>
       <Col span="20">
         <p>
@@ -74,7 +74,7 @@ export default {
       }
       this.$store.commit('plugin/setSrc', this.jumpToUrl)
       this.$router.push({name:'plugin-view', params:{name:this.jumpToName, query:'event_id='+this.notice.id}})
-      this.$store.dispatch("createIssue", notice)
+      // this.$store.dispatch("createIssue", notice)
       this.$store.dispatch('deleteNotice', notice.key)
     },
     changeNoticeStatusToFalse(notice) {

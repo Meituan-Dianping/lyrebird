@@ -1,7 +1,7 @@
 <template>
     <div>
       <div style="padding-right:15px;word-break:break-all">
-          {{noticeInfo.message}}
+          {{noticeInfo.title}}
       </div>
       <p>
         <b><a href="#" @click="jump(noticeInfo)">Create new issue</a></b>
@@ -46,4 +46,3 @@
 
 <style>
 </style>
-    

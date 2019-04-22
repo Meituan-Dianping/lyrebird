@@ -93,7 +93,7 @@ class LyrebirdCheckerServer(ThreadServer):
                 "checker.info": {
                     'module': msg_sender.get('file'),
                     'method': msg_sender.get('function'),
-                    'message': msg.get('message')
+                    'message': msg.get('title')
                 }
             })
 
