@@ -45,9 +45,9 @@ class LyrebirdDatabaseServer(ThreadServer):
         # subscribe all channel
         application.server['event'].subscribe('any', self.event_receiver)
 
-    def event_receiver(self, event, channel=None):
+    def event_receiver(self, event, channel=None, event_id=None):
         content = json.dumps(event)
-        flow = Event(event_id=event['id'], channel=channel, content=content)
+        flow = Event(event_id=event_id, channel=channel, content=content)
         self.storage_queue.put(flow)
 
     def run(self):

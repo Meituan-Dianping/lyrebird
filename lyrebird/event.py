@@ -23,7 +23,8 @@ class Event:
     """
     Event bus inner class
     """
-    def __init__(self, channel, message):
+    def __init__(self, id, channel, message):
+        self.id = id
         self.channel = channel
         self.message = message
 
@@ -54,11 +55,16 @@ class EventServer(ThreadServer):
 
         # Append event content to args
         callback_args = []
-        callback_args.append(event.message)
+        if 'raw' in event.message:
+            callback_args.append(event.message['raw'])
+        else:
+            callback_args.append(event.message)
         # Add channel to kwargs
         callback_kwargs = {}
         if 'channel' in func_sig.parameters:
             callback_kwargs['channel'] = event.channel
+        if 'event_id' in func_sig.parameters:
+            callback_kwargs['event_id'] = event.id
         # Execute callback function
         try:
             callback_fn(*callback_args, **callback_kwargs)
@@ -96,14 +102,17 @@ class EventServer(ThreadServer):
         if state is true, message will be kept as state
 
         """
+        # Make event id
+        event_id = str(uuid.uuid4())
 
         # Make sure event is dict
         if not isinstance(message, dict):
-            _msg = { 'content': message }
+            # Plugins send a array list as message, then set this message to raw property
+            _msg = { 'raw': message }
             message = _msg
 
         message['channel'] = channel
-        message['id'] = str(uuid.uuid4())
+        message['id'] = event_id
         message['timestamp'] = round(time.time(), 3)
 
         # Add event sender
@@ -117,9 +126,14 @@ class EventServer(ThreadServer):
         }
         message['sender'] = sender_dict
 
-        self.event_queue.put(Event(channel, message))
+        self.event_queue.put(Event(event_id, channel, message))
+
+        # TODO Remove state and raw data
         if state:
-            self.state[channel] = message
+            if 'raw' in message:
+                self.state[channel] = message['raw']
+            else:
+                self.state[channel] = message
         logger.debug(f'channel={channel} state={state}\nmessage:\n-----------\n{message}\n-----------\n')
 
     def subscribe(self, channel, callback_fn, *args, **kwargs):
