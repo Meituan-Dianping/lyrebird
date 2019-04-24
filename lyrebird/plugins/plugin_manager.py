@@ -57,4 +57,4 @@ class PluginManager(StaticServer):
             for event_option in plugin.manifest.event:
                 channel = event_option[0]
                 callback_func = event_option[1]
-            event_service.subscribe(channel, callback_func)
+                event_service.subscribe(channel, callback_func)
