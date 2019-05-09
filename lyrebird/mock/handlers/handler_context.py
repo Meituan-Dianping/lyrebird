@@ -162,7 +162,7 @@ class HandlerContext:
         context.application.event_bus.publish('flow',
         dict(
             flow=self.flow,
-            message=f"URL:{self.flow['request']['url']}\nStatusCode:{self.flow['response']['code']}"
+            message=f"URL:{self.flow['request']['url']}\nStatusCode:{self.flow['response']['code']}\nDuration:{self.flow['duration']}\nSize:{self.flow['size']}"
             )
         )
 
