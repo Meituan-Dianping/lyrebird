@@ -168,7 +168,7 @@ class HandlerContext:
 
     def update_server_req_time(self):
         self.server_req_time = time.time()
-        # 消息总线 客户端请求事件，暂不使用
+        # 消息总线 向服务端转发请求事件，暂不使用
         # context.application.event_bus.publish('flow',
         #                                       dict(name='server.request',
         #                                       time=self.server_req_time,
@@ -177,7 +177,7 @@ class HandlerContext:
 
     def update_server_resp_time(self):
         self.server_resp_time = time.time()
-        # 消息总线 客户端请求事件，暂不使用
+        # 消息总线 服务端响应请求事件，暂不使用
         # context.application.event_bus.publish('flow',
         #                                       dict(name='server.response',
         #                                       time=self.server_resp_time,
