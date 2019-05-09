@@ -8,7 +8,7 @@ from lyrebird import log
 from lyrebird.base_server import ThreadServer
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine, func
+from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine
 
 """
 Database server

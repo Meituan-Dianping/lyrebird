@@ -23,8 +23,8 @@ class Event:
     """
     Event bus inner class
     """
-    def __init__(self, id, channel, message):
-        self.id = id
+    def __init__(self, event_id, channel, message):
+        self.id = event_id
         self.channel = channel
         self.message = message
 
