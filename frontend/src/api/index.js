@@ -158,16 +158,6 @@ export const updateNoticeStatus = (key, status) => {
 }
 
 //------Notice manager------
-    /**
-    Publish new notification
-    */
-export const publishEvent = (eventInfo) => {
-  return axios({
-    url: '/api/notice',
-    data: {eventInfo},
-    method: 'POST'
-  })
-}
 
 export const deleteData = (groupId, ids) => {
   return axios({
@@ -176,6 +166,7 @@ export const deleteData = (groupId, ids) => {
     method:'DELETE'
   })
 }
+
 /**
 Get mock data detail
 {
