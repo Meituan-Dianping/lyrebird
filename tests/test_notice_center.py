@@ -8,7 +8,6 @@ import pytest
 
 @pytest.fixture
 def notice_center(tmpdir):
-    application._cm = type('MockedContentManager', (), {'root':tmpdir})()
     def emit(*args, **kwargs):pass
     context.application.socket_io = type('MockedSocketIO', (), {'emit': emit})()
     return NoticeCenter()

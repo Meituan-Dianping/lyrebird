@@ -66,18 +66,19 @@ def duplicate_request(msg):
 
     # 3.check data
     if request_key in HISTORY_URL:
-        if request_time - HISTORY_URL[request_key]['time'] >= THRESHOLD_TIME:
-            return
+        
+        history_request_time = HISTORY_URL[request_key]['time']
+        if request_time - history_request_time < THRESHOLD_TIME:
 
-        url = HISTORY_URL[request_key]['url']
+            url = HISTORY_URL[request_key]['url']
 
-        description = f'Duplicated requests: {url}\n'
+            title = f'Duplicated requests: {url}\n'
 
-        event.issue(f'Duplicate request: {url}',
-            {
-                "summary": "[checker][duplicate_request]",
-                "description": description
-            })
+            description = f'Duplicated requests: {url}\n'
+            description += f'First at {history_request_time}\n'
+            description += f'Second at {request_time}\n'
+
+            event.issue(title, description)
 
     # 4.update storage data
     HISTORY_URL.update({
