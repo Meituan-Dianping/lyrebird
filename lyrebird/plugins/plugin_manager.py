@@ -2,6 +2,11 @@ from lyrebird.base_server import StaticServer
 from . import plugin_loader
 from lyrebird import application
 from flask import Blueprint, send_file
+from lyrebird.log import get_logger
+from types import FunctionType
+
+
+logger = get_logger()
 
 
 class PluginManager(StaticServer):
@@ -42,6 +47,9 @@ class PluginManager(StaticServer):
             for api in plugin.manifest.api:
                 rule = api[0]
                 view_func = api[1]
+                if not isinstance(view_func, FunctionType):
+                    logger.error(f'View func not callable. Skip API: {api}. Plugin: {p_name}')
+                    continue
                 if len(api) > 2:
                     methods = api[2]
                 else:
