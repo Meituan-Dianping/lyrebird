@@ -66,7 +66,7 @@ def duplicate_request(msg):
 
     # 3.check data
     if request_key in HISTORY_URL:
-        
+
         history_request_time = HISTORY_URL[request_key]['time']
         if request_time - history_request_time < THRESHOLD_TIME:
 
