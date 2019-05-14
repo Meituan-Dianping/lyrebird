@@ -5,9 +5,9 @@
         <Col span="20">
           <div :title="notice.sender.file">
             <span style="display:inline-block;max-width:270px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-              {{notice.sender.file}}&nbsp;
+              {{notice.sender.file}}
             </span>
-            <Badge v-if="notice.count > 1" :count="notice.count" class-name="notice-badge" ></Badge>
+            <Badge v-if="notice.count > 1" :count="notice.count" class-name="notice-badge" style="padding-left:5px"></Badge>
           </div>
         </Col>
         <Col span="4" align="right">
@@ -17,7 +17,7 @@
             </p>
           </div>
           <div v-else>
-            <a><Icon type="md-close" @click="deleteNotice(notice.key)"/></a>
+            <a><Icon type="md-close" @click.stop="deleteNotice(notice.key)"/></a>
           </div>
         </Col>
       </Row>

@@ -1,6 +1,8 @@
 import json
 import codecs
 import traceback
+import lyrebird
+from pathlib import Path
 from lyrebird import log
 from lyrebird import application
 from lyrebird.mock import context
@@ -54,7 +56,7 @@ class NoticeCenter():
         load history notice
 
         """
-        ROOT = application._cm.root
+        ROOT = Path(lyrebird.APPLICATION_CONF_DIR)
         DEFAULT_FILENAME = 'notice.json'
         self.HISTORY_NOTICE = ROOT/DEFAULT_FILENAME
         if self.HISTORY_NOTICE.exists() and self.HISTORY_NOTICE.is_file():
