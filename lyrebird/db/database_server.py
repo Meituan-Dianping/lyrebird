@@ -83,7 +83,9 @@ class LyrebirdDatabaseServer(ThreadServer):
         query = session.query(Event.id)
         if len(channel_rules) > 0:
             query = query.filter(Event.channel.in_(channel_rules))
-        result = query.filter(Event.id>=subquery.c.id).count()
+        # Fix bug: event_id in page end, return next page
+        # Wrong code: query.filter(Event.id>=subquery.c.id).count()
+        result = query.filter(Event.id>subquery.c.id).count()
         return int(result/limit)
 
     def get_channel_list(self):

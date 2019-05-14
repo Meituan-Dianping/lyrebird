@@ -1,4 +1,8 @@
 import re
+from lyrebird.log import get_logger
+
+
+logger = get_logger()
 
 
 class MockRouter:
@@ -22,9 +26,11 @@ class MockRouter:
     def get_mock_data(self, flow):
         for rule, data in self.data_map:
             if rule.match(flow):
+                logger.debug(f'Found mock data by rule {rule}')
                 return data
         for rule, data in self.parent_data_map:
             if rule.match(flow):
+                logger.debug(f'Found mock data by rule {rule} from parent')
                 return data
         # TODO none return
 
@@ -38,7 +44,7 @@ class MockRule:
         for rule_name in self.rule:
             pattern = self.rule[rule_name]
             target = self._get_target_content(rule_name, flow)
-            if not re.search(pattern, target):            
+            if not re.search(pattern, target):
                 return False
         return True
 
@@ -50,3 +56,6 @@ class MockRule:
             if not result:
                 return None
         return result
+
+    def __str__(self):
+        return f'MockRule: {self.rule}'

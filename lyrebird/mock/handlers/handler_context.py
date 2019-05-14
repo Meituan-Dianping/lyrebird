@@ -1,7 +1,7 @@
 from .. import context
 from lyrebird import application
 from lyrebird.log import get_logger
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 import urllib
 import uuid
 import time
@@ -77,12 +77,14 @@ class HandlerContext:
         url_prefix = self.request.url_root+self.request.blueprint+'/'
         raw_url = self.request.url[len(url_prefix):]
         parsed_path = urlparse(raw_url)
+        # urllib.unquote : fix bug - url contains ',' will be auto encoded by flask, that cause proxy not work.
+        # e.g /1.2,3 -> 1.2%2C3
         _request = dict(
-            url=raw_url,
+            url=unquote(raw_url),
             scheme=parsed_path.scheme,
             host=parsed_path.hostname,
             port=parsed_path.port if parsed_path.port else '80',
-            path=parsed_path.path
+            path=unquote(parsed_path.path)
             )
         return _request
 
