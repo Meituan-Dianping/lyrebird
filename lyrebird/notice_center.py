@@ -63,6 +63,7 @@ class NoticeCenter():
             with codecs.open(self.HISTORY_NOTICE, 'r', 'utf-8') as f:
                 try:
                     self.notice_hashmap = json.load(f)
+                    self.history_notice_transformer()
                     self.update_frontend()
                 except Exception:
                     self.notice_hashmap = {}
@@ -121,3 +122,11 @@ class NoticeCenter():
         self.notice_hashmap.pop(unique_key)
         self.update_frontend()
         self.storage_notice(self.notice_hashmap)
+
+    def history_notice_transformer(self):
+        # Adapt history notice before v1.6.7, transfer into new structure
+        for notice_key, notice_value in self.notice_hashmap.items():
+            for notice in notice_value.get('noticeList'):
+                if notice.get('title'):
+                    continue
+                notice['title'] = notice_key
