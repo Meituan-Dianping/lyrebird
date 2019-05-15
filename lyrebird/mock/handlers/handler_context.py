@@ -74,13 +74,15 @@ class HandlerContext:
         logger.debug(f'[On client request] {self.flow["request"]["url"]}')
 
     def _read_origin_request_info_from_url(self):
-        url_prefix = self.request.url_root+self.request.blueprint+'/'
-        raw_url = self.request.url[len(url_prefix):]
+        url_prefix = '/'+self.request.blueprint+'/'
+        raw_url = self.request.path[len(url_prefix):]
+        if self.request.query_string:
+            raw_url += '?' + self.request.query_string.decode()
         parsed_path = urlparse(raw_url)
         # urllib.unquote : fix bug - url contains ',' will be auto encoded by flask, that cause proxy not work.
         # e.g /1.2,3 -> 1.2%2C3
         _request = dict(
-            url=unquote(raw_url),
+            url=raw_url,
             scheme=parsed_path.scheme,
             host=parsed_path.hostname,
             port=parsed_path.port if parsed_path.port else '80',
