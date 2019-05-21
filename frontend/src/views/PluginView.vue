@@ -8,11 +8,7 @@
     export default {
         computed:{
             src() {
-                let src = this.$store.state.plugin.src
-                if(this.$route.params.query){
-                    src = src + '?' + this.$route.params.query
-                }
-                return src
+                return this.$store.state.plugin.src
             }
         },
         methods: {
