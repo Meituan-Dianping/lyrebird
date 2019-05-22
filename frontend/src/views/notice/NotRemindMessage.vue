@@ -67,14 +67,13 @@ export default {
       for(const menuItem of this.$store.state.menu){
         if (menuItem['params'] && this.$store.state.manifest[0] === menuItem['params']['name']){
           this.$store.commit('setActiveName', menuItem.title)
-          this.jumpToUrl = menuItem.params.src
+          this.jumpToUrl = menuItem.params.src + '?event_id=' + notice.id
           this.jumpToName = menuItem.params.name
           break
         }
       }
       this.$store.commit('plugin/setSrc', this.jumpToUrl)
       this.$router.push({name:'plugin-view', params:{name:this.jumpToName, query:'event_id='+this.notice.id}})
-      // this.$store.dispatch("createIssue", notice)
       this.$store.dispatch('deleteNotRemind', notice.key)
     },
     changeNoticeStatusToTrue(notice) {

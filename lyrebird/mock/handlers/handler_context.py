@@ -1,6 +1,7 @@
 from .. import context
 from lyrebird import application
 from lyrebird.log import get_logger
+from lyrebird import utils
 from urllib.parse import urlparse, unquote
 import urllib
 import uuid
@@ -163,10 +164,15 @@ class HandlerContext:
     def update_client_resp_time(self):
         self.client_resp_time = time.time()
         # 消息总线 客户端响应事件， 目前仅启用此事件
+        method = self.flow['request']['method']
+        url = self.flow['request']['url']
+        code = self.flow['response']['code']
+        duration = utils.convert_time(self.flow['duration'])
+        size = utils.convert_size(self.flow['size'])
         context.application.event_bus.publish('flow',
         dict(
             flow=self.flow,
-            message=f"URL: {self.flow['request']['url']}\nStatusCode: {self.flow['response']['code']}\nDuration: {self.flow['duration']}\nSize: {self.flow['size']}"
+            message=f"URL: {url}\nMethod: {method}\nStatusCode: {code}\nDuration: {duration}\nSize: {size}"
             )
         )
 

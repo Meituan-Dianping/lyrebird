@@ -67,7 +67,7 @@ export default {
       for(const menuItem of this.$store.state.menu){
         if (menuItem['params'] && this.$store.state.manifest[0] === menuItem['params']['name']){
           this.$store.commit('setActiveName', menuItem.title)
-          this.jumpToUrl = menuItem.params.src
+          this.jumpToUrl = menuItem.params.src + '?' + 'event_id=' + this.notice.id
           this.jumpToName = menuItem.params.name
           break
         }
