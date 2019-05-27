@@ -57,7 +57,7 @@ setup(
         "idna==2.8",
         "isort==4.3.16",
         "itsdangerous==1.1.0",
-        "Jinja2==2.10",
+        "Jinja2==2.10.1",
         "kaitaistruct==0.8",
         "lazy-object-proxy==1.3.1",
         "ldap3==2.5.2",
