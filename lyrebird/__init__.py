@@ -2,7 +2,6 @@ from .manager import main, run
 from .mock import context
 from .mock.plugin_manager import PluginView, caller_info
 from .mock.handlers.handler_context import HandlerContext
-from .mock.reporter.report_handler import report
 from .mock import plugin_manager
 from blinker import Signal
 import os
@@ -14,7 +13,7 @@ from lyrebird.log import get_logger
 APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
 
 
-event  = CustomEventReceiver()
+event = CustomEventReceiver()
 
 
 def start_background_task(target, *args, **kwargs):
@@ -92,6 +91,8 @@ def get_plugin_conf():
 """
 获取 Event server state
 """
+
+
 class StateProxy:
 
     def get(self, index):
@@ -100,4 +101,9 @@ class StateProxy:
     def __getitem__(self, index):
         return application.server['event'].state[index]
 
+
 state = StateProxy()
+
+
+def report(data):
+    application.reporter.report(data)

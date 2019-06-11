@@ -84,7 +84,7 @@
                 this.$store.commit('setFocusedFlow', null)
             },
             switchTab: function (name) {
-                this.currentTab = name;                
+                this.currentTab = name;
             },
             parseJsonData: function (data) {
                 this.codeType = 'json';

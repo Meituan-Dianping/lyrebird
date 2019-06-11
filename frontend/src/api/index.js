@@ -58,6 +58,12 @@ export const getGroups = () => {
   })
 }
 
+export const getDataMap = () => {
+  return axios({
+    url: '/api/group'
+  })
+}
+
 export const createGroup = (name, parent) => {
   return axios({
     url: '/api/mock',
@@ -189,9 +195,9 @@ Get mock data detail
     }
 }
 */
-export const getDataDetail = (groupId, dataId) => {
+export const getDataDetail = (dataId) => {
   return axios({
-    url: '/api/mock/' + groupId + '/data/' + dataId
+    url: '/api/data/' + dataId
   })
 }
 
@@ -200,6 +206,12 @@ export const updateDataDetail = (groupName, dataName, dataDetail) => {
     url: '/api/mock/' + groupName + '/data/' + dataName,
     method: 'PUT',
     data: dataDetail
+  })
+}
+
+export const getConflict = (dataId) => {
+  return axios({
+    url: '/api/conflict/id/' + dataId
   })
 }
 

@@ -1,0 +1,95 @@
+<template>
+  <div class="small-tab">
+    <tabs v-model="currentTab" :animated="false" size="small">
+      <tab-pane label="Information" name="information">
+        <DataDetailInfo class="data-detail" :information="dataInformation"/>
+      </tab-pane>
+      <tab-pane label="Conflict" name="conflict">
+        <div class="data-detail">
+          <Row style="padding-top:10px">
+            <Col span="9" offset="1" >
+              Result of data <b>{{nodeInfo.name}}</b>
+            </Col>
+            <Col span="11" align="right">
+              <Button size="small" :disabled="isLoadConflictInfo" @click="deleteConflictInfo">
+                <span>Clear</span>
+              </Button>
+            </Col>
+            <Col span="3" align="right">
+              <Button type="primary" size="small" :loading="isLoadConflictInfo" @click="getConflictInfo">
+                <span v-if="isLoadConflictInfo">Loading...</span>
+                <span v-else>Start checking</span>
+              </Button>
+            </Col>
+          </Row>
+          <DataDetailConflict :information="conflictInfo" />
+        </div>
+      </tab-pane>
+    </tabs>
+  </div>
+</template>
+
+<script>
+import DataDetailConflict from '@/views/datamanager/DataDetailConflict.vue'
+import DataDetailInfo from "@/views/datamanager/DataDetailInfo.vue"
+
+export default {
+  props: ["nodeInfo"],
+  components: {
+    DataDetailConflict,
+    DataDetailInfo
+  },
+  data() {
+    return {
+      currentTab: "information",
+      isLoadConflictInfo: false
+    }
+  },
+  computed: {
+    dataInformation() {
+      return this.$store.state.dataManager.focusNodeDetail.information
+    },
+    conflictInfo() {
+      if (this.$store.state.dataManager.conflictInfo) {
+        this.isLoadConflictInfo = false
+      }
+      console.log('conflictInfo',this.$store.state.dataManager.conflictInfo);
+      
+      return this.$store.state.dataManager.conflictInfo
+    }
+  },
+  methods: {
+    getConflictInfo() {
+      this.isLoadConflictInfo = true
+      this.$store.commit('clearConflictInfo')
+      this.$store.dispatch('loadConflict', this.nodeInfo.id)
+    },
+    deleteConflictInfo() {
+      this.$store.commit('clearConflictInfo')
+    }
+  }
+}
+</script>
+
+<style>
+.button-bar {
+  height: 27px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+.data-detail {
+  height: calc(100vh - 127px);
+  /* total:100vh
+  header: 38px
+  buttonBar: 24px
+  tab-header: 34px
+  buttonBar: 34px
+  padding: 10px
+  table
+  footer: 28px
+    */
+  overflow-y: auto;
+}
+</style>
