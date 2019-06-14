@@ -7,8 +7,8 @@ from ... import version
 from .. import plugin_manager
 from bs4 import BeautifulSoup
 import datetime
-from ..reporter import report_handler
 from pathlib import Path
+from lyrebird import application
 
 
 CLIENT_ROOT_DIR = Path(__file__).parent/'../../client/static'
@@ -42,5 +42,5 @@ def render_with_plugin(template_name_or_list, **context):
 
 @ui.route('/')
 def index():
-    report_handler.page_in('inspector')
+    application.reporter.page_in('inspector')
     return send_file(str(CLIENT_ROOT_DIR/'index.html'))

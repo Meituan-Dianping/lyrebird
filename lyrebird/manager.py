@@ -18,7 +18,7 @@ from lyrebird.db.database_server import LyrebirdDatabaseServer
 from lyrebird.plugins import PluginManager
 from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird import version
-
+from lyrebird.reporter import Reporter
 
 logger = log.get_logger()
 
@@ -57,8 +57,10 @@ def main():
     parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 4272')
     parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 9090')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
-    parser.add_argument('-b', '--no_browser', dest='no_browser', action='store_true', help='Start without open a browser')
-    parser.add_argument('-c', '--config', dest='config', help='Start with a config file. Default is "~/.lyrebird/conf.json"')
+    parser.add_argument('-b', '--no_browser', dest='no_browser',
+                        action='store_true', help='Start without open a browser')
+    parser.add_argument('-c', '--config', dest='config',
+                        help='Start with a config file. Default is "~/.lyrebird/conf.json"')
     parser.add_argument('--log', dest='log', help='Set output log file path')
     parser.add_argument('--script', action='append', help='Set a checker script path')
     parser.add_argument('--plugin', action='append', help='Set a plugin project path')
@@ -86,7 +88,7 @@ def main():
     # init file logger after config init
     application._cm.config['verbose'] = args.verbose
     log.init(args.log)
-    
+
     if args.mock:
         application._cm.config['mock.port'] = args.mock
     if args.proxy:
@@ -104,7 +106,7 @@ def main():
         run(args)
 
 
-def run(args:argparse.Namespace):
+def run(args: argparse.Namespace):
     # Check mock data group version. Update if is older than 1.x
     from . import mock_data_formater
     data_path = application._cm.config['mock.data']
@@ -117,7 +119,7 @@ def run(args:argparse.Namespace):
 
     # Main server
     application.server['event'] = EventServer()
-    
+
     application.server['task'] = BackgroundTaskServer()
     application.server['proxy'] = LyrebirdProxyServer()
     application.server['mock'] = LyrebirdMockServer()
@@ -126,6 +128,9 @@ def run(args:argparse.Namespace):
     application.server['checker'] = LyrebirdCheckerServer()
 
     application.start_server()
+
+    # int statistics reporter
+    application.reporter = Reporter()
 
     # activate notice center
     application.notice = NoticeCenter()

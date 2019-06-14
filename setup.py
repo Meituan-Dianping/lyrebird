@@ -47,6 +47,7 @@ setup(
         "Click==6.7",
         "colorama==0.4.1",
         "cryptography==2.3.1",
+        "elasticsearch==7.0.1",
         "Flask==1.0.2",
         "Flask-RESTful==0.3.7",
         "Flask-SocketIO==3.3.2",
