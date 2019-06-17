@@ -8,7 +8,6 @@ from .. import plugin_manager
 from bs4 import BeautifulSoup
 import datetime
 from pathlib import Path
-from lyrebird import application
 from lyrebird import reporter
 
 
