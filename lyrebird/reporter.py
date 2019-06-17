@@ -5,6 +5,7 @@ import imp
 import subprocess
 import sys
 import os
+import traceback
 import datetime
 import getpass
 from lyrebird.version import VERSION
@@ -24,21 +25,26 @@ class Reporter:
 
     def _read_reporter(self, workspace):
         target_dir = Path(workspace)
-        target_dir.stem
         if not target_dir.exists():
             logger.error('Reporter workspace not found')
         for report_script_file in target_dir.iterdir():
             if not report_script_file.is_file():
+                logger.warning(f'Skip report script: is not a file, {report_script_file}')
                 continue
             if report_script_file.suffix != '.py':
+                logger.warning(f'Skip report script: is not a python file, {report_script_file}')
                 continue
             try:
                 _script_module = imp.load_source('reporter_script', str(report_script_file))
             except Exception:
+                logger.warning(
+                    f'Skip report script: load script failed, {report_script_file}\n{traceback.format_exc()}')
                 continue
             if not hasattr(_script_module, 'report'):
+                logger.warning(f'Skip report script: not found a report method in script, {report_script_file}')
                 continue
             if not callable(_script_module.report):
+                logger.warning(f'Skip report script: report method not callable, {report_script_file}')
                 continue
             self.scripts.append(_script_module)
 
