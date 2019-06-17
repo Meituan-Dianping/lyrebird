@@ -109,7 +109,6 @@ class LyrebirdMockServer(ThreadServer):
     def run(self):
         server_ip = application.config.get('ip')
         _logger.warning(f'start on http://{server_ip}:{self.port}')
-        application.reporter.start()
         self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=self.debug, use_reloader=False)
 
     def stop(self):
@@ -122,5 +121,4 @@ class LyrebirdMockServer(ThreadServer):
             self.socket_io.stop()
         except Exception:
             pass
-        application.reporter.stop()
         _logger.warning('MockServer shutdown')

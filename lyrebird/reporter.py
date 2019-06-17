@@ -46,15 +46,18 @@ class Reporter:
             if not callable(_script_module.report):
                 logger.warning(f'Skip report script: report method not callable, {report_script_file}')
                 continue
-            self.scripts.append(_script_module)
+            self.scripts.append(_script_module.report)
 
     def report(self, data):
-        report_data = self.base_data.update(data)
+        data.update(self.base_data)
         task_manager = application.server.get('task')
 
         def send_report():
             for script in self.scripts:
-                script.report(report_data)
+                try:
+                    script(data)
+                except Exception:
+                    logger.error(f'Send report failed:\n{traceback.format_exc()}')
         task_manager.add_task('send-report', send_report)
 
     def _base_data(self):

@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import datetime
 from pathlib import Path
 from lyrebird import application
+from lyrebird import reporter
 
 
 CLIENT_ROOT_DIR = Path(__file__).parent/'../../client/static'
@@ -42,5 +43,5 @@ def render_with_plugin(template_name_or_list, **context):
 
 @ui.route('/')
 def index():
-    application.reporter.page_in('inspector')
+    reporter.page_in('inspector')
     return send_file(str(CLIENT_ROOT_DIR/'index.html'))

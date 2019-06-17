@@ -18,7 +18,8 @@ from lyrebird.db.database_server import LyrebirdDatabaseServer
 from lyrebird.plugins import PluginManager
 from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird import version
-from lyrebird.reporter import Reporter
+from lyrebird import reporter
+
 
 logger = log.get_logger()
 
@@ -130,8 +131,8 @@ def run(args: argparse.Namespace):
     application.start_server()
 
     # int statistics reporter
-    application.reporter = Reporter()
-
+    application.reporter = reporter.Reporter()
+    reporter.start()
     # activate notice center
     application.notice = NoticeCenter()
 
@@ -152,6 +153,7 @@ def run(args: argparse.Namespace):
 
     # stop event handler
     def signal_handler(signum, frame):
+        reporter.stop()
         application.stop_server()
         threading.Event().set()
         logger.warning('!!!Ctrl-C pressed. Lyrebird stop!!!')
