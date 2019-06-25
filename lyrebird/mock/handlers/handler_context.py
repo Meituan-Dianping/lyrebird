@@ -39,7 +39,6 @@ class HandlerContext:
         self.client_address = None
         self._parse_request()
 
-
     def _parse_request(self):
         # Read stream
         self.request.get_data()
@@ -47,16 +46,16 @@ class HandlerContext:
         request_info = self._read_origin_request_info_from_url()
         if not request_info['host']:
             request_info_from_header = self._read_origin_request_info_from_header()
-            if len(request_info_from_header)>0 :
+            if len(request_info_from_header) > 0:
                 request_info = request_info_from_header
 
-        headers = {k:v for k,v in self.request.headers}
+        headers = {k: v for k, v in self.request.headers}
         _request = dict(
             headers=headers,
             method=self.request.method,
             query=self.request.args,
             timestamp=round(time.time(), 3)
-            )
+        )
         _request.update(request_info)
 
         # handle request data
@@ -88,7 +87,7 @@ class HandlerContext:
             host=parsed_path.hostname,
             port=parsed_path.port if parsed_path.port else '80',
             path=unquote(parsed_path.path)
-            )
+        )
         return _request
 
     def _read_origin_request_info_from_header(self):
@@ -128,7 +127,7 @@ class HandlerContext:
 
         _response = dict(
             code=self._response.status_code,
-            headers={k:v for (k,v) in self._response.headers},
+            headers={k: v for (k, v) in self._response.headers},
             timestamp=round(time.time(), 3)
         )
 
@@ -143,10 +142,7 @@ class HandlerContext:
 
         if context.application.work_mode == context.Mode.RECORD:
             dm = context.application.data_manager
-            group = dm.groups.get(dm.activated_group_id)
-            if group:
-                data = group.create_data(flow=self.flow)
-                data.save()
+            dm.save_data(self.flow)
 
     def _read_response_info(self):
         self._response.headers.get('Content-Type')
@@ -170,11 +166,11 @@ class HandlerContext:
         duration = utils.convert_time(self.flow['duration'])
         size = utils.convert_size(self.flow['size'])
         context.application.event_bus.publish('flow',
-        dict(
-            flow=self.flow,
-            message=f"URL: {url}\nMethod: {method}\nStatusCode: {code}\nDuration: {duration}\nSize: {size}"
-            )
-        )
+                                              dict(
+                                                  flow=self.flow,
+                                                  message=f"URL: {url}\nMethod: {method}\nStatusCode: {code}\nDuration: {duration}\nSize: {size}"
+                                              )
+                                              )
 
     def update_server_req_time(self):
         self.server_req_time = time.time()
@@ -225,7 +221,7 @@ class RequestDataHelper(DataHelper):
 
             content_type = request.headers.get('Content-Type')
             if not content_type:
-                output['data'] =  RequestDataHelper.data2Str(request.data)
+                output['data'] = RequestDataHelper.data2Str(request.data)
                 return
 
             content_type = content_type.strip()
@@ -246,7 +242,7 @@ class RequestDataHelper(DataHelper):
                     output['data'] = request.data.decode('utf-8')
             else:
                 # TODO write bin data
-                output['data'] =  RequestDataHelper.data2Str(request.data)
+                output['data'] = RequestDataHelper.data2Str(request.data)
         except Exception as e:
             output['data'] = RequestDataHelper.data2Str(request.data)
             logger.warning(f'Convert request data fail. {e}')
@@ -273,8 +269,7 @@ class ResponseDataHelper(DataHelper):
                 output['data'] = response.data.decode('utf-8')
             else:
                 # TODO write bin data
-                output['data'] =  ResponseDataHelper.data2Str(response.data)
+                output['data'] = ResponseDataHelper.data2Str(response.data)
         except Exception as e:
             output['data'] = ResponseDataHelper.data2Str(response.data)
             logger.warning(f'Convert response failed. {e}')
-

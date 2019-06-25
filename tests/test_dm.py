@@ -51,21 +51,26 @@ dataD = {
 
 
 prop = {
+    'id': 'root',
+    'parent_id': None,
     'children': [
         {
             'id': 'groupA-UUID',
             'name': 'groupA',
             'type': 'group',
+            'parent_id': 'root',
             'children': [
                 {
                     'id': 'dataA-UUID',
                     'name': 'dataA',
-                    'type': 'data'
+                    'type': 'data',
+                    'parent_id': 'groupA-UUID'
                 },
                 {
                     'id': 'dataB-UUID',
                     'name': 'dataB',
-                    'type': 'data'
+                    'type': 'data',
+                    'parent_id': 'groupA-UUID'
                 },
             ]
         },
@@ -73,28 +78,34 @@ prop = {
             'id': 'groupB-UUID',
             'name': 'groupB',
             'type': 'group',
+            'parent_id': 'root',
             'children': [
                 {
                     'id': 'dataC-UUID',
                     'name': 'dataC',
-                    'type': 'data'
+                    'type': 'data',
+                    'parent_id': 'groupB-UUID'
                 },
             ]
         },
         {
             'id': 'groupC-UUID',
             'name': 'groupC',
-            'type': 'group'
+            'type': 'group',
+            'parent_id': 'root',
+            'children': []
         },
         {
             'id': 'groupD-UUID',
             'name': 'groupD',
             'type': 'group',
+            'parent_id': 'root',
             'children': [
                 {
                     'id': 'dataD-UUID',
                     'name': 'dataD',
-                    'type': 'data'
+                    'type': 'data',
+                    'parent_id': 'groupD-UUID'
                 }
             ]
         }
@@ -189,3 +200,63 @@ def test_conflict_checker(data_manager):
     data_manager.activate('groupD-UUID')
     conflict_rules = data_manager.check_conflict()
     assert len(conflict_rules) == 2
+
+
+def test_add_group(data_manager):
+    new_group_id = data_manager.add_group(None, 'root_group')
+    assert new_group_id in data_manager.id_map
+    found_new_group = False
+    for child in data_manager.root['children']:
+        if child['id'] == new_group_id:
+            found_new_group = True
+            break
+    assert found_new_group
+
+
+def test_add_data(data_manager):
+    data = {
+        'name': 'add_data_name',
+        'request': {},
+        'response': {}
+    }
+    new_data_id = data_manager.add_data('groupC-UUID', data)
+    _new_data = data_manager.id_map.get(new_data_id)
+    assert data == _new_data
+    group_c = data_manager.id_map.get('groupC-UUID')
+    found_new_data = False
+    for child in group_c['children']:
+        if child['id'] == new_data_id:
+            found_new_data = True
+            break
+    assert found_new_data
+    new_data_file = data_manager.root_path / new_data_id
+    assert new_data_file.exists()
+
+
+def test_delete(data_manager):
+    data_manager.delete('groupB-UUID')
+    assert 'groupB-UUID' not in data_manager.id_map
+    assert 'dataC-UUID' not in data_manager.id_map
+    data_file = data_manager.root_path / 'dataC-UUID'
+    assert not data_file.exists()
+
+
+def test_cut_and_paste(data_manager):
+    data_manager.cut('groupA-UUID')
+    data_manager.paste('groupC-UUID')
+    assert 'groupA-UUID' in data_manager.id_map
+    group_a = data_manager.id_map.get('groupA-UUID')
+    assert group_a['parent_id'] == 'groupC-UUID'
+    group_c = data_manager.id_map.get('groupC-UUID')
+    assert group_a in group_c['children']
+
+
+def test_copy_and_paste(data_manager):
+    data_manager.copy('groupA-UUID')
+    data_manager.paste('groupC-UUID')
+    assert 'groupA-UUID' in data_manager.id_map
+    group_c = data_manager.id_map.get('groupC-UUID')
+    assert len(group_c['children']) == 1
+    new_group = group_c['children'][0]
+    assert new_group['id'] != 'groupA-UUID'
+    assert new_group['name'] == 'groupA'
