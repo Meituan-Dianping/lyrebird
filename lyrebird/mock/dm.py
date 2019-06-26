@@ -293,14 +293,35 @@ class DataManager:
     Conflict checker
     """
 
-    def check_conflict(self):
+    def check_conflict(self, _id):
+        node = self.id_map.get(_id)
+        if not node:
+            raise IDNotFound(_id)
+        data_array = []
+
+        def _read_data(node):
+            if node.get('type') == 'data':
+                _data_file = self.root_path / node['id']
+                with codecs.open(_data_file, 'r') as f:
+                    data_array.append(
+                        json.load(f)
+                    )
+            elif node.get('type') == 'group':
+                for child in node['children']:
+                    _read_data(child)
+        _read_data(node)
+        return self.check_conflict_data(data_array)
+
+    def activated_data_check_conflict(self):
+        data_array = list(self.activated_data.values())
+        return self.check_conflict_data(data_array)
+
+    def check_conflict_data(self, data_array):
         conflict_rules = []
-        for data_id in self.activated_data:
-            _data = self.activated_data[data_id]
+        for _data in data_array:
             _rule = _data['rule']
             _hit_data = []
-            for data_id in self.activated_data:
-                _test_data = self.activated_data[data_id]
+            for _test_data in data_array:
                 if self._is_match_rule(_test_data, _rule):
                     _hit_data.append(_test_data)
             if len(_hit_data) > 1:

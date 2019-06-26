@@ -9,6 +9,7 @@ from .menu import Menu
 from .notice import Notice
 from .checker import Checker
 from .event import Event, Channel
+from .conflict_check import ConflictCheck, ActivatedDataConflictCheck
 from lyrebird.log import get_logger
 
 
@@ -35,6 +36,8 @@ api_source.add_resource(Flow, '/flow/<string:id>')
 api_source.add_resource(FlowList, '/flow')
 api_source.add_resource(MockGroup, '/group', '/group/<string:group_id>')
 api_source.add_resource(MockData, '/data/<string:_id>')
+api_source.add_resource(ConflictCheck, '/conflict/id/<string:group_id>')
+api_source.add_resource(ActivatedDataConflictCheck, '/conflict/activated')
 api_source.add_resource(ActivatedMockGroup, '/mock/activated', '/mock/<string:group_id>/<string:action>')
 api_source.add_resource(MockGroupByName, '/mock_by_name')
 api_source.add_resource(Conf, '/conf/<string:plugin_name>')
