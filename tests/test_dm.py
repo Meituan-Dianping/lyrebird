@@ -108,6 +108,26 @@ prop = {
                     'parent_id': 'groupD-UUID'
                 }
             ]
+        },
+        {
+            'id': 'groupE-UUID',
+            'name': 'groupE',
+            'type': 'group',
+            'parent_id': 'root',
+            'children': [
+                {
+                    'id': 'dataC-UUID',
+                    'name': 'dataC',
+                    'type': 'data',
+                    'parent_id': 'groupE-UUID'
+                },
+                {
+                    'id': 'dataD-UUID',
+                    'name': 'dataD',
+                    'type': 'data',
+                    'parent_id': 'groupE-UUID'
+                }
+            ]
         }
     ]
 }
@@ -194,11 +214,14 @@ def test_activate_groups(data_manager):
 
 def test_conflict_checker(data_manager):
     data_manager.activate('groupB-UUID')
-    conflict_rules = data_manager.check_conflict()
+    conflict_rules = data_manager.activated_data_check_conflict()
     assert len(conflict_rules) == 0
 
     data_manager.activate('groupD-UUID')
-    conflict_rules = data_manager.check_conflict()
+    conflict_rules = data_manager.activated_data_check_conflict()
+    assert len(conflict_rules) == 2
+
+    conflict_rules = data_manager.check_conflict('groupE-UUID')
     assert len(conflict_rules) == 2
 
 
