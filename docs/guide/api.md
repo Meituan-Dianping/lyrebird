@@ -2,6 +2,8 @@
 
 接口根目录为 /api    
 
+比如请求状态的接口，实际路径为 /api/status
+
 ## /status
 
 获取Lyrebird状态
@@ -62,6 +64,41 @@
 
 ## /mock/{string:group_id}/activatie
 
-通过mock-group-id激活mock数据
+通过group-id激活mock数据
+
+## /mock/activated
+
+查询已激活的group
 
 
+## /group
+
+获取数据关系树
+
+## /group/<string:group_id>
+
+获取指定节点下的数据关系树
+
+## /data/<string:data_id>
+
+获取数据详情
+
+## /cut/<string:_id>
+
+剪切指定ID的数据到剪切板
+
+## /copy/<string:_id>
+
+复制指定ID的数据到剪切板
+
+## /paste/<string:_id>
+
+从数据剪切板粘贴数据到指定ID的节点下
+
+## /conflict/id/<string:group_id>
+
+检查指定组过滤条件冲突情况
+
+## /conflict/activated
+
+检查已激活数据过滤条件冲突情况

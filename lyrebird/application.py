@@ -5,22 +5,23 @@ Lyrebird context
 
 """
 
+
 def make_ok_response(**kwargs):
     ok_resp = {
-            "code": 1000,
-            "message": "success"
-        }
+        "code": 1000,
+        "message": "success"
+    }
     ok_resp.update(kwargs)
     return jsonify(ok_resp)
 
 
-def make_fail_response(msg):
-    return jsonify(
-        {
-            "code": 3000,
-            "message": msg
-        }
-    )
+def make_fail_response(msg, **kwargs):
+    fail_resp = {
+        "code": 3000,
+        "message": msg
+    }
+    fail_resp.update(kwargs)
+    return jsonify(fail_resp)
 
 
 _cm = None
@@ -33,6 +34,7 @@ plugins = {}
 
 notice = None
 checkers = {}
+
 
 def start_server():
     for name in server:
@@ -48,7 +50,7 @@ class ConfigProxy:
 
     def get(self, k, default=None):
         return _cm.config.get(k, default)
-    
+
     def __setitem__(self, k, v):
         _cm.config[k] = v
 

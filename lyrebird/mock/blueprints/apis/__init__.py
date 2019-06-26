@@ -10,14 +10,18 @@ from .notice import Notice
 from .checker import Checker
 from .event import Event, Channel
 from .conflict_check import ConflictCheck, ActivatedDataConflictCheck
+from .mock_editor import Cut, Copy, Paste
 from lyrebird.log import get_logger
+from lyrebird import application
+from flask import got_request_exception
+import traceback
 
 
 logger = get_logger()
 
 
 api = Blueprint('api', __name__, url_prefix='/api')
-api_source = Api(api)
+api_source = Api(api, errors=Exception)
 
 
 @api.after_request
@@ -30,10 +34,18 @@ def after_request(response):
     return response
 
 
+@api.errorhandler(Exception)
+def on_500(error):
+    return application.make_fail_response(f'{error.__class__.__name__} {error}')
+
+
 api_source.add_resource(Status, '/status')
 api_source.add_resource(Manifest, '/manifest')
 api_source.add_resource(Flow, '/flow/<string:id>')
 api_source.add_resource(FlowList, '/flow')
+api_source.add_resource(Cut, '/cut/<string:_id>')
+api_source.add_resource(Copy, '/copy/<string:_id>')
+api_source.add_resource(Paste, '/paste/<string:_id>')
 api_source.add_resource(MockGroup, '/group', '/group/<string:group_id>')
 api_source.add_resource(MockData, '/data/<string:_id>')
 api_source.add_resource(ConflictCheck, '/conflict/id/<string:group_id>')
