@@ -1,10 +1,14 @@
 from flask import jsonify, stream_with_context, Response
 from . import cache
 from .filesystem import FileManager
-from .data_manager import DataManager
+from .dm import DataManager
 from flask_socketio import SocketIO
-import codecs, json, os
+import codecs
+import json
+import os
 from lyrebird import application as app
+from lyrebird.log import get_logger
+import traceback
 import time
 
 
@@ -13,16 +17,20 @@ Mock server context
 
 """
 
+logger = get_logger()
+
+
 class Mode:
     NORMAL = 'normal'
     RECORD = 'record'
 
     @staticmethod
     def contains(val):
-        if val==Mode.NORMAL or val==Mode.RECORD:
+        if val == Mode.NORMAL or val == Mode.RECORD:
             return True
         else:
-            return False 
+            return False
+
 
 class Application:
 
@@ -50,9 +58,11 @@ class Application:
     @conf.setter
     def conf(self, _conf):
         self._conf = _conf
-        # TODO 更新conf触发更新data_manager根目录
         if _conf.get('mock.data'):
-            self.data_manager.root = _conf.get('mock.data')
+            try:
+                self.data_manager.set_root(_conf.get('mock.data'))
+            except Exception:
+                logger.error(f'Set mock data root path failed.\n{traceback.format_exc()}')
 
     def save(self):
         DEFAULT_CONF = os.path.join(
@@ -76,18 +86,18 @@ application = Application()
 
 def make_ok_response(**kwargs):
     ok_resp = {
-            "code": 1000,
-            "message": "success"
-        }
+        "code": 1000,
+        "message": "success"
+    }
     ok_resp.update(kwargs)
     return jsonify(ok_resp)
 
 
 def make_fail_response(msg, code=3000, **kwargs):
     fail_resp = {
-            "code": code,
-            "message": msg
-        }
+        "code": code,
+        "message": msg
+    }
     fail_resp.update(kwargs)
     return jsonify(fail_resp)
 

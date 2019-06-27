@@ -5,16 +5,16 @@ import pytest
 
 
 conf = {
-  "version": "0.10.4",
-  "proxy.filters": ["kuxun","meituan","sankuai","dianping"],
-  "proxy.port": 4272,
-  "mock.port": 9090,
-  "mock.data": "data",
-  "mock.proxy_headers": {
-    "scheme": "MKScheme",
-    "host": "MKOriginHost",
-    "port": "MKOriginPort"
-  }
+    "version": "0.10.4",
+    "proxy.filters": ["kuxun", "meituan", "sankuai", "dianping"],
+    "proxy.port": 4272,
+    "mock.port": 9090,
+    "mock.data": "data",
+    "mock.proxy_headers": {
+        "scheme": "MKScheme",
+        "host": "MKOriginHost",
+        "port": "MKOriginPort"
+    }
 }
 
 
