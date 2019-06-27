@@ -366,10 +366,9 @@ class DataManager:
         self._save_prop()
 
 
-"""
-Exceptions
-"""
-
+# -----------------
+# Exceptions
+# -----------------
 
 class RootNotSet(Exception):
     pass

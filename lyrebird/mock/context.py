@@ -7,6 +7,8 @@ import codecs
 import json
 import os
 from lyrebird import application as app
+from lyrebird.log import get_logger
+import traceback
 import time
 
 
@@ -14,6 +16,8 @@ import time
 Mock server context
 
 """
+
+logger = get_logger()
 
 
 class Mode:
@@ -54,9 +58,11 @@ class Application:
     @conf.setter
     def conf(self, _conf):
         self._conf = _conf
-        # TODO 更新conf触发更新data_manager根目录
         if _conf.get('mock.data'):
-            self.data_manager.set_root(_conf.get('mock.data'))
+            try:
+                self.data_manager.set_root(_conf.get('mock.data'))
+            except Exception:
+                logger.error(f'Set mock data root path failed.\n{traceback.format_exc()}')
 
     def save(self):
         DEFAULT_CONF = os.path.join(

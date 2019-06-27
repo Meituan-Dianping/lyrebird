@@ -1,7 +1,6 @@
 import pytest
 import codecs
 import json
-from pathlib import Path
 from lyrebird.mock import dm
 
 dataA = {
