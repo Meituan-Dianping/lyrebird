@@ -20,8 +20,11 @@ class Reporter:
         self.scripts = []
         self.base_data = self._base_data()
         workspace = application.config.get('reporter.workspace')
-        self._read_reporter(workspace)
-        logger.debug(f'Load statistics scripts {self.scripts}')
+        if not workspace:
+            logger.debug(f'reporter.workspace not set.')
+        else:
+            self._read_reporter(workspace)
+            logger.debug(f'Load statistics scripts {self.scripts}')
 
     def _read_reporter(self, workspace):
         target_dir = Path(workspace)
