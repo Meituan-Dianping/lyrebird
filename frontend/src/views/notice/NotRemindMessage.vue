@@ -2,7 +2,7 @@
   <Card shadow @mouseover.native="isDisplayDate=false" @mouseout.native="isDisplayDate=true" @click.native="jump(notice)" style="cursor:pointer">
     <p slot="title" style="line-height:16px">
       <Row>
-        <Col span="20">
+        <Col span="16">
           <div :title="notice.sender.file">
             <span style="display:inline-block;max-width:270px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
               {{notice.sender.file}}
@@ -10,7 +10,7 @@
             <Badge v-if="notice.count > 1" :count="notice.count" class-name="notice-badge-gray" style="padding-left:5px"></Badge>
           </div>
         </Col>
-        <Col span="4" align="right">
+        <Col span="8" align="right">
           <div v-if="isDisplayDate">
             <p style="font-weight:400;font-size:12px">
               {{timestampToTime(notice.timestamp)}}
@@ -51,11 +51,13 @@ export default {
   },
   methods: {
     timestampToTime(timeStamp){
-      let date = new Date(timeStamp * 1000)
-      let hour = date.getHours() + ':'
-      let minute = (date.getMinutes() < 10 ? '0'+date.getMinutes() : date.getMinutes()) + ':'
-      let second = (date.getSeconds() < 10 ? '0'+date.getSeconds() : date.getSeconds())
-      return hour + minute + second
+      let dateObj = new Date(timeStamp * 1000)
+      let month = dateObj.getMonth()+1 + '/'
+      let day = dateObj.getDate() + ' '
+      let hour = dateObj.getHours() + ':'
+      let minute = (dateObj.getMinutes() < 10 ? '0'+dateObj.getMinutes() : dateObj.getMinutes()) + ':'
+      let second = (dateObj.getSeconds() < 10 ? '0'+dateObj.getSeconds() : dateObj.getSeconds())
+      return month + day + hour + minute + second
     },
     deleteNotice(noticeKey){
       this.$store.dispatch('deleteNotRemind', noticeKey)
