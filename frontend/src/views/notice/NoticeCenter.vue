@@ -1,7 +1,7 @@
 <template>
   <div class="main-header-notice" @click="drawerIsCollapsed=true">
     <a>
-      <Badge :count="noticeList.length" :offset="offset" class-name="notice-badge">
+      <Badge :count="noticeList.length" overflow-count="999" :offset="offset" class-name="notice-badge">
         <Icon type="ios-notifications" size="16" color="white" ></Icon>
       </Badge>
     </a>
@@ -49,7 +49,7 @@ export default {
   },
   data() {
     return {
-      offset: [15, 2],
+      offset: [15, 4],
       selectedTab : "Notifications",
       tabList : ["Notifications", "NotRemind"],
       count: 0,

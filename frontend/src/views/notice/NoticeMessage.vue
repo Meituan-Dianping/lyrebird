@@ -53,11 +53,11 @@ export default {
     timestampToTime(timeStamp){
       let dateObj = new Date(timeStamp * 1000)
       let month = dateObj.getMonth()+1 + '/'
-      let day = dateObj.getDate() + ' '
+      let date = dateObj.getDate() + ' '
       let hour = dateObj.getHours() + ':'
       let minute = (dateObj.getMinutes() < 10 ? '0'+dateObj.getMinutes() : dateObj.getMinutes()) + ':'
       let second = (dateObj.getSeconds() < 10 ? '0'+dateObj.getSeconds() : dateObj.getSeconds())
-      return month + day + hour + minute + second
+      return month + date + hour + minute + second
     },
     deleteNotice(noticeKey){
       this.$store.dispatch('deleteNotice', noticeKey)
