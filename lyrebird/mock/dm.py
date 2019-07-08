@@ -303,9 +303,9 @@ class DataManager:
             if node.get('type') == 'data':
                 _data_file = self.root_path / node['id']
                 with codecs.open(_data_file, 'r') as f:
-                    data_array.append(
-                        json.load(f)
-                    )
+                    _data = json.load(f)
+                    _data['parent_id'] = node['parent_id']
+                    data_array.append(_data)
             elif node.get('type') == 'group':
                 for child in node['children']:
                     _read_data(child)
@@ -318,16 +318,42 @@ class DataManager:
 
     def check_conflict_data(self, data_array):
         conflict_rules = []
+
         for _data in data_array:
             _rule = _data['rule']
             _hit_data = []
             for _test_data in data_array:
                 if self._is_match_rule(_test_data, _rule):
-                    _hit_data.append(_test_data)
+                    _target_node = {
+                        'id': _test_data['id'],
+                        'name': _test_data['name'],
+                        'url': _test_data['request']['url'],
+                        'abs_parent_path': self._get_abs_parent_path(_test_data)
+                    }
+                    _hit_data.append(_target_node)
             if len(_hit_data) > 1:
-                conflict_rules.append({'data': _data, 'conflict_data': _hit_data})
+                _src_node = {
+                    'id': _data['id'],
+                    'name': _data['name'],
+                    'rule': _data['rule'],
+                    'abs_parent_path': self._get_abs_parent_path(_data)
+                }
+                conflict_rules.append(
+                    {
+                        'data': _src_node,
+                        'conflict_data': _hit_data
+                    }
+                )
         return conflict_rules
 
+    def _get_abs_parent_path(self, node, path=''):
+        if 'parent_id' not in node:
+            return path
+        parent_node = self.id_map.get(node['parent_id'])
+        if not parent_node:
+            return path
+        current_path = '/' + node['name'] + path
+        return self._get_abs_parent_path(parent_node, path=current_path)
     """
     Record API
     """
