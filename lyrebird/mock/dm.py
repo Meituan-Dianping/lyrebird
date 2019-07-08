@@ -318,7 +318,6 @@ class DataManager:
 
     def check_conflict_data(self, data_array):
         conflict_rules = []
-
         for _data in data_array:
             _rule = _data['rule']
             _hit_data = []
