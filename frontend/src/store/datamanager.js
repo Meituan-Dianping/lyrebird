@@ -209,7 +209,6 @@ export default {
       api.getConflict(groupId).then(response => {
         if (response.data.code === 1000) {
           commit('setConflictInfo', response.data.data)
-          console.log('bus', bus);
           bus.$emit('msg.success', 'Get conflict reporter success')
         } else {
           bus.$emit('msg.error', 'Get conflict reporter error: ' + response.message)
