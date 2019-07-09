@@ -1,4 +1,5 @@
 import * as api from '../api'
+import { bus } from '@/eventbus'
 import {breadthFirstSearch} from 'tree-helper'
 
 export default {
@@ -100,7 +101,7 @@ export default {
         }
       }
       for (const key in dataDetail) {
-        if (state.unshowInfoKey.indexOf(key) === -1) {
+        if (state.unshowInfoKey.indexOf(key) === -1 && key.substring(0,1) !== '_') {
           state.focusNodeDetail.information[key] = dataDetail[key]
         }
       }
@@ -206,7 +207,12 @@ export default {
     },
     loadConflict({ commit }, groupId) {
       api.getConflict(groupId).then(response => {
-        commit('setConflictInfo', response.data.data)
+        if (response.data.code === 1000) {
+          commit('setConflictInfo', response.data.data)
+          bus.$emit('msg.success', 'Get conflict reporter success')
+        } else {
+          bus.$emit('msg.error', 'Get conflict reporter error: ' + response.message)
+        }
       })
     }
   }

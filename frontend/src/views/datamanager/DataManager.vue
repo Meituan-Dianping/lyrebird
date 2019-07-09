@@ -20,9 +20,37 @@ export default {
   mounted() {
     this.$store.dispatch('loadDataMap')
   },
+  created () {
+    this.$bus.$on('msg.success', this.successMessage)
+    this.$bus.$on('msg.info', this.infoMessage)
+    this.$bus.$on('msg.error', this.errorMessage)
+  },
   data() {
     return {
       split: 0.4
+    }
+  },
+  methods: {
+    successMessage (msg) {
+      this.$Message.success({
+        content: msg,
+        duration: 3,
+        closable: true
+      })
+    },
+    infoMessage (msg) {
+      this.$Message.info({
+        content: msg,
+        duration: 3,
+        closable: true
+      })
+    },
+    errorMessage (msg) {
+      this.$Message.error({
+        content: msg,
+        duration: 0,
+        closable: true
+      })
     }
   }
 }

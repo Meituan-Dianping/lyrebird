@@ -53,8 +53,6 @@ export default {
       if (this.$store.state.dataManager.conflictInfo) {
         this.isLoadConflictInfo = false
       }
-      console.log('conflictInfo',this.$store.state.dataManager.conflictInfo);
-      
       return this.$store.state.dataManager.conflictInfo
     }
   },
