@@ -1,8 +1,5 @@
 import * as api from '../api'
-<<<<<<< HEAD
 import { bus } from '@/eventbus'
-=======
->>>>>>> d79aa5095057397e4c27c19bc678171b4d44c721
 import {breadthFirstSearch} from 'tree-helper'
 
 export default {
@@ -210,7 +207,6 @@ export default {
     },
     loadConflict({ commit }, groupId) {
       api.getConflict(groupId).then(response => {
-<<<<<<< HEAD
         if (response.data.code === 1000) {
           commit('setConflictInfo', response.data.data)
           console.log('bus', bus);
@@ -218,9 +214,6 @@ export default {
         } else {
           bus.$emit('msg.error', 'Get conflict reporter error: ' + response.message)
         }
-=======
-        commit('setConflictInfo', response.data.data)
->>>>>>> d79aa5095057397e4c27c19bc678171b4d44c721
       })
     }
   }
