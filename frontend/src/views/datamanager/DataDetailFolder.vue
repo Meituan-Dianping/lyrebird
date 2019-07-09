@@ -41,7 +41,7 @@ export default {
   },
   data() {
     return {
-      currentTab: "conflict",
+      currentTab: "information",
       isLoadConflictInfo: false
     }
   },
