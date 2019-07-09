@@ -63,6 +63,9 @@ class ConfigProxy:
 
 config = ConfigProxy()
 
+# statistics reporter
+reporter = None
+
 
 def root_dir():
     if _cm:

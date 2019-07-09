@@ -1,76 +1,84 @@
 <template>
-    <div class="data-list">
-      <Table
-        highlight-row
-        class="data-table"
-        size="small"
-        ref="selection"
-        :columns="columns"
-        :data="dataItems"
-        @on-row-click="onClickRow"
-        @on-selection-change="onClickSelect"
-      ></Table>
-    </div>
+  <div>
+    <Row class="button-bar">
+      <Col span="12">
+        <Tooltip content="Add folder" placement="bottom-start" :delay="500">
+          <Icon class="button-bar-button" type="md-folder" size="16" color="#666" />
+        </Tooltip>
+        <Tooltip content="Add file" placement="bottom-start" :delay="500">
+          <Icon class="button-bar-button" type="md-document" size="16" color="#666" />
+        </Tooltip>
+      </Col>
+      <Col span="12" align="right">
+        <Tooltip content="Synchronize" placement="bottom" :delay="500">
+          <Icon class="button-bar-button-right" type="md-sync" size="16" color="#666" />
+        </Tooltip>
+      </Col>
+    </Row>
+    <DocumentTree :treeData="treeData" class="data-list"/>
+  </div>
 </template>
 
 <script>
+import DocumentTree from '@/components/DocumentTree.vue'
 export default {
-  data: function() {
-    return {
-      columns: [
-        {
-          type: "selection",
-          width: 50,
-          align: "center"
-        },
-        {
-          title: "Name",
-          key: "name"
-        }
-      ]
-    };
+  components: {
+    DocumentTree
+  },
+  created() {
+    this.$bus.$on('treeChange', this.setTreeData)
   },
   computed: {
-    dataItems() {
-      return this.$store.state.dataManager.dataList;
+    treeData() {
+      return this.$store.state.dataManager.groupList
     }
   },
   methods: {
-    onClickRow(data) {
-      this.$store.commit("setFoucsData", data.id);
-      this.$store.dispatch({
-        type: "loadDataDetail",
-        groupId: this.$store.state.dataManager.currentDataGroup,
-        dataId: data.id
-      });
+    setTreeData(payload) {
+      console.log('Moved:', payload.name, ', id:', payload.id)
+      let tree = payload
+      let parentsStr = ''
+      while (tree.parent.name) {
+        parentsStr += tree.parent.name
+        parentsStr += ' '
+        tree = tree.parent
+      }
+      console.log('New parents:', parentsStr)
+      console.log('Whole tree data', this.treeData)
+      // this.$store.commit('setDataList', payload)
     },
-    onClickSelect(data) {
-      this.$store.commit("setSelectedData", data);
-    }
+    // setSelectedTreeNode(payload) {
+    //   console.log('selected node:', payload.name, ', id:', payload.id)
+    // }
   }
-};
+}
 </script>
 
-<style>
+<style scoped>
 .data-list {
-  height: calc(100vh - 118px);
+  height: calc(100vh - 94px);
   /* total:100vh
-        header: 38px
-        padding: 5px + 5px
-        buttonBar: 48px
-        table
-        padding: 5px
-        footer: 28px
-         */
+    header: 38px
+    buttonBar: 28px
+    tree
+    footer: 28px
+  */
   overflow-y: auto;
   margin-right: 0;
 }
-.data-table th div {
-  padding-left: 5px;
-  padding-right: 5px;
+.button-bar {
+  height: 27px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  background-color: #f8f8f9;
 }
-.data-table td div {
-  padding-left: 5px;
-  padding-right: 5px;
+.button-bar-button {
+  padding: 5px 10px 5px 0px;
+  cursor: pointer;
+}
+.button-bar-button-right {
+  padding: 5px 0px 5px 10px;
+  cursor: pointer;
 }
 </style>

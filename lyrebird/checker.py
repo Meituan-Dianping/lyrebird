@@ -7,10 +7,10 @@ from lyrebird import application
 from lyrebird.mock import context
 from lyrebird.base_server import ThreadServer
 from lyrebird.event import CustomEventReceiver
-from lyrebird.mock.reporter.report_handler import report
 
 
 logger = log.get_logger()
+
 
 class LyrebirdCheckerServer(ThreadServer):
     def __init__(self):
@@ -26,7 +26,7 @@ class LyrebirdCheckerServer(ThreadServer):
 
         # subscribe all channel for ELK
         # TODO: should not subscribe in init
-        application.server['event'].subscribe('any', self.report_to_ELK)
+        application.server['event'].subscribe('any', self.send_report)
 
     def load_checkers(self):
         # set checkers status for update
@@ -85,10 +85,10 @@ class LyrebirdCheckerServer(ThreadServer):
             self.checkers[name] = checker
         self.checkers[name].update = True
 
-    def report_to_ELK(self, msg):
+    def send_report(self, msg):
         if isinstance(msg, dict) and msg.get('channel') == 'notice':
             msg_sender = msg.get('sender', {})
-            report({
+            application.reporter.report({
                 "action": "alert",
                 "checker.info": {
                     'module': msg_sender.get('file'),
@@ -111,6 +111,7 @@ class LyrebirdCheckerServer(ThreadServer):
 
     def stop(self):
         super().stop()
+
 
 class Checker:
 

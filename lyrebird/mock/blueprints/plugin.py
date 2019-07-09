@@ -1,7 +1,7 @@
 from flask import render_template, Blueprint
 from bs4 import BeautifulSoup
-from ..reporter import report_handler
 from .. import plugin_manager
+from lyrebird import reporter
 
 
 plugin = Blueprint('plugin', __name__, url_prefix='/plugin', template_folder='../templates', static_folder='../static')
@@ -9,7 +9,7 @@ plugin = Blueprint('plugin', __name__, url_prefix='/plugin', template_folder='..
 
 @plugin.route('/<string:name>')
 def plugin_base(name):
-    report_handler.page_in(name)
+    reporter.page_in(name)
     plugin = plugin_manager.plugins.get(name)
     if not plugin:
         return "Plugin not found"
@@ -27,8 +27,7 @@ def plugin_base(name):
     for css_tag in soup.find_all('link'):
         all_css.append(css_tag)
         css_tag.extract()
-    return render_template('plugin.html', 
-                            plugin_content=str(soup),
-                            plugin_javascript=all_scripts,
-                            plugin_css=all_css)
-
+    return render_template('plugin.html',
+                           plugin_content=str(soup),
+                           plugin_javascript=all_scripts,
+                           plugin_css=all_css)

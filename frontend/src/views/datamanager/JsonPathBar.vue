@@ -1,24 +1,18 @@
 <template>
-    <div>
-        <label v-if="jsonPath">
-            <strong>Json Path:</strong>
-            <span class="json-path-str">{{jsonPath}}</span>
-        </label>
-    </div>
+  <div>
+    <label v-if="jsonPath">
+      <b style="padding-right:5px">Json Path:</b>
+      <span>{{jsonPath}}</span>
+    </label>
+  </div>
 </template>
 
 <script>
 export default {
-    computed: {
-        jsonPath() {
-            return this.$store.state.dataManager.jsonPath
-        }
+  computed: {
+    jsonPath() {
+      return this.$store.state.dataManager.jsonPath
     }
-};
-</script>
-
-<style scoped>
-.json-path-str{
-    font-style: italic
+  }
 }
-</style>
+</script>
