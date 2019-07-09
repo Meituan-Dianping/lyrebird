@@ -125,38 +125,6 @@ export default {
         commit('setGroupList', response.data.data.children)
       })
     },
-    loadGroupList({ commit }) {
-      api.getGroups()
-        .then(response => {
-          // let data_mapping = response.data
-          breadthFirstSearch(data_mapping, node => {
-            if (node && node.type === 'data') {
-              node.droppable = false
-            }
-            node.open = false
-          })
-          commit('setGroupList', data_mapping)
-        })
-        .catch(error => console.log(error))
-    },
-    loadDataList({ commit }, groupId) {
-      api.getDataList(groupId)
-        .then(response => {
-          commit('setDataList', response.data.data_list)
-          commit('clearSelectedData')
-        })
-        .catch(error => console.log(error))
-    },
-    loadDataListForNewGroupForm({ commit }, groupId) {
-      api.getDataList(groupId)
-        .then(response => {
-          commit('setCreateGroupModal', {
-            parentGroupId: groupId,
-            parentDataList: response.data.data_list
-          })
-        })
-        .catch(error => console.log(error))
-    },
     loadDataDetail({ commit }, payload) {
       commit('setFocusNode', payload.id)
       api.getDataDetail(payload.id)
@@ -193,7 +161,7 @@ export default {
             parent: parentGroupId
           })
           commit('setCurrentDataGroup', groupId)
-          dispatch('loadDataList', groupId)
+          dispatch('loadDataMap', groupId)
         })
         .catch(error => {
           console.error('Create group failed')
@@ -211,20 +179,20 @@ export default {
             }
           }
           commit('setCurrentDataGroup', groupId)
-          dispatch('loadDataList', groupId)
+          dispatch('loadDataMap', groupId)
         })
     },
     deleteDataGroup({ commit, dispatch }, groupId) {
       api.deleteGroup(groupId)
         .then(response => {
           commit('setCurrentDataGroup', null)
-          dispatch('loadGroupList')
+          dispatch('loadDataMap')
         })
     },
     newData({ dispatch }, { groupId, name }) {
       api.createData(groupId, name)
         .then(response => {
-          dispatch('loadDataList', groupId)
+          dispatch('loadDataMap', groupId)
         })
     },
     deleteData({ state, dispatch }, groupId) {
@@ -233,7 +201,7 @@ export default {
         ids.push(data.id)
       }
       api.deleteData(groupId, ids).then(response => {
-        dispatch('loadDataList', groupId)
+        dispatch('loadDataMap', groupId)
       })
     },
     loadConflict({ commit }, groupId) {
