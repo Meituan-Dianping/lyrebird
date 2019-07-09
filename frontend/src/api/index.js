@@ -1,5 +1,22 @@
 import axios from 'axios'
 
+const successHandler = (response) => {
+  if (!response.data.hasOwnProperty('code')) {
+    return Promise.reject(response)
+  }
+  if (response.data.code != 1000) {
+    return Promise.reject(response)
+  }
+  return response
+}
+
+const errorHandler = (error) => {
+  return Promise.reject(error)
+}
+
+axios.interceptors.response.use(successHandler, errorHandler)
+
+
 export const getMenu = () => {
   return axios({
     url: '/api/menu'
@@ -39,22 +56,22 @@ export const getManifest = () => {
 
 export const getFlowDetail = (flowId) => {
   return axios({
-    url: '/api/flow/'+flowId
+    url: '/api/flow/' + flowId
   })
 }
 
 //------Mock data manager------
-    /**
-    Get group name list
-    return:
-    [
-        'GroupNameA',
-        'GroupNameB'
-    ]
-    */
+/**
+Get group name list
+return:
+[
+    'GroupNameA',
+    'GroupNameB'
+]
+*/
 export const getGroups = () => {
   return axios({
-    url: '/api/mock'
+    url: '/api/group'
   })
 }
 
@@ -68,7 +85,7 @@ export const createGroup = (name, parent) => {
   return axios({
     url: '/api/mock',
     method: 'POST',
-    data: {name, parent}
+    data: { name, parent }
   })
 }
 
@@ -76,13 +93,13 @@ export const updateGroup = (id, name, parent) => {
   return axios({
     url: '/api/mock',
     method: 'PUT',
-    data: {id, name, parent}
+    data: { id, name, parent }
   })
 }
 
 export const deleteGroup = (groupId) => {
   return axios({
-    url: '/api/mock/'+groupId,
+    url: '/api/mock/' + groupId,
     method: 'DELETE'
   })
 }
@@ -117,21 +134,21 @@ export const getDataList = (groupId) => {
 
 export const createData = (groupId, name) => {
   return axios({
-    url: '/api/mock/'+groupId+'/data',
-    data: {name},
+    url: '/api/mock/' + groupId + '/data',
+    data: { name },
     method: 'POST'
   })
 }
 
 //------Notice manager------
-    /**
-    Get notification list
-    return:
-    {
-      'noticeList': [],
-      'notRemindList': []
-    }
-    */
+/**
+Get notification list
+return:
+{
+  'noticeList': [],
+  'notRemindList': []
+}
+*/
 export const getNoticeList = () => {
   return axios({
     url: '/api/notice'
@@ -139,26 +156,26 @@ export const getNoticeList = () => {
 }
 
 //------Notice manager------
-    /**
-    Delete notification by key
-    */
+/**
+Delete notification by key
+*/
 export const deleteNotice = (key) => {
   return axios({
     url: '/api/notice',
-    data: {key},
+    data: { key },
     method: 'DELETE'
   })
 }
 
 //------Notice manager------
-    /**
-    Change notification status by key
-    return:
-    */
+/**
+Change notification status by key
+return:
+*/
 export const updateNoticeStatus = (key, status) => {
   return axios({
     url: '/api/notice',
-    data: {key, status},
+    data: { key, status },
     method: 'PUT'
   })
 }
@@ -167,9 +184,9 @@ export const updateNoticeStatus = (key, status) => {
 
 export const deleteData = (groupId, ids) => {
   return axios({
-    url:'/api/mock/'+groupId+'/data',
-    data: {ids},
-    method:'DELETE'
+    url: '/api/mock/' + groupId + '/data',
+    data: { ids },
+    method: 'DELETE'
   })
 }
 
@@ -242,9 +259,9 @@ export const deactivateGroup = () => {
 }
 
 //------Checker manager------
-    /**
-    Get checkers list
-    */
+/**
+Get checkers list
+*/
 export const getCheckers = () => {
   return axios({
     url: '/api/checker'
@@ -252,9 +269,9 @@ export const getCheckers = () => {
 }
 
 //------Checker manager------
-    /**
-    Get checkers content
-    */
+/**
+Get checkers content
+*/
 export const getCheckerDetail = (checkerId) => {
   return axios({
     url: '/api/checker/' + checkerId
@@ -262,13 +279,13 @@ export const getCheckerDetail = (checkerId) => {
 }
 
 //------Checker manager------
-    /**
-    Change checkers activate status by checker_id
-    */
+/**
+Change checkers activate status by checker_id
+*/
 export const updateCheckerStatus = (checkerId, status) => {
   return axios({
     url: '/api/checker/' + checkerId,
     method: 'PUT',
-    data: {status}
+    data: { status }
   })
 }
