@@ -3,7 +3,7 @@
     <DraggableTree :data="treeData" :draggable=true cross-tree="cross-tree" :space=0 @change="onTreeChange">
       <div slot-scope="{data, store}">
         <template v-if="!data.isDragPlaceHolder">
-          <DocumentTreeNode :data="data" :store="store"/>
+          <DocumentTreeNode :data="data" :treestore="store"/>
         </template>
       </div>
     </DraggableTree>
