@@ -35,7 +35,7 @@
     <label>
       <b style="padding-right:5px">Activated Mock Group:</b>
       <ButtonGroup>
-        <Button @click="togalMockDataSelector" size="small">{{activateBtnText}}</Button>
+        <Button @click="showMockDataSelector" size="small">{{activateBtnText}}</Button>
         <Button size="small" @click="resetActivatedData">
           <Icon type="ios-backspace-outline" color="red" />
         </Button>
@@ -143,7 +143,7 @@ export default {
     }
   },
   methods: {
-    togalMockDataSelector () {
+    showMockDataSelector () {
       this.$refs.dataSelector.toggal()
     },
     switchRecord: function () {
