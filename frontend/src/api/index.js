@@ -4,7 +4,7 @@ const successHandler = (response) => {
   if (!response.data.hasOwnProperty('code')) {
     return Promise.reject(response)
   }
-  if (response.data.code != 1000) {
+  if (response.data.code !== 1000) {
     return Promise.reject(response)
   }
   return response
