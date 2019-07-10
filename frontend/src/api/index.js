@@ -1,4 +1,7 @@
 import axios from 'axios'
+export * from '@/api/search.js'
+export * from '@/api/activate.js'
+
 
 const successHandler = (response) => {
   if (!response.data.hasOwnProperty('code')) {
@@ -229,32 +232,6 @@ export const updateDataDetail = (groupName, dataName, dataDetail) => {
 export const getConflict = (dataId) => {
   return axios({
     url: '/api/conflict/id/' + dataId
-  })
-}
-
-/**
-Get activated data group ID
-*/
-export const getActivatedGroup = () => {
-  return axios({
-    url: '/api/mock/activated'
-  })
-}
-
-/**
-Activate data group by ID
-*/
-export const activateGroup = (groupId) => {
-  return axios({
-    url: '/api/mock/' + groupId + '/activate',
-    method: 'PUT'
-  })
-}
-
-export const deactivateGroup = () => {
-  return axios({
-    url: '/api/mock/groups/deactivate',
-    method: 'PUT'
   })
 }
 

@@ -2,7 +2,7 @@ import * as api from '@/api'
 
 export default {
   state: {
-    activatedGroupId: null,
+    activatedGroup: null,
     showDataButtons: false,
     searchStr: '',
     selectedIds: [],
@@ -12,8 +12,8 @@ export default {
     groupTree: null
   },
   mutations: {
-    setActivitedGroupId (state, groupId) {
-      state.activatedGroupId = groupId
+    setActivitedGroup (state, group) {
+      state.activatedGroup = group
     },
     showDataButtons: function (state, val) {
       state.showDataButtons = val
@@ -38,7 +38,7 @@ export default {
     loadActivatedGroup ({ commit }) {
       api.getActivatedGroup()
         .then(response => {
-          commit('setActivitedGroupId', response.data.id)
+          commit('setActivitedGroup', response.data.data)
         })
         .catch(error => console.log(error))
     },

@@ -106,6 +106,7 @@ class DataManager:
         Clear activated data
         """
         self.activated_data = {}
+        self.activated_group = {}
 
     def get_matched_data(self, flow):
         """
