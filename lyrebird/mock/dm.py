@@ -196,6 +196,11 @@ class DataManager:
         return group_id
 
     def delete(self, _id):
+        self._delete(_id)
+        # Save prop
+        self._save_prop()
+
+    def _delete(self, _id):
         target_node = self.id_map.get(_id)
         if not target_node:
             raise IDNotFound(_id)
@@ -209,11 +214,9 @@ class DataManager:
         # Delete children
         if 'children' in target_node and len(target_node['children']) > 0:
             for child in target_node['children']:
-                self.delete(child['id'])
+                self._delete(child['id'])
         # Delete from ID mapping
         self.id_map.pop(_id)
-        # Save prop
-        self._save_prop()
         # Delete from file system
         if target_node['type'] == 'data':
             data_file_path = self.root_path / _id
