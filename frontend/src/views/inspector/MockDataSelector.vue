@@ -2,11 +2,11 @@
   <Modal v-model="shown" title="Mock data selector">
     <div v-if="activatedGroups">
       <label style="padding-right:5px">Activated Mock Group:</label>
-      <Tag v-for="group in activatedGroups">{{group.name}}</Tag>
+      <Tag v-for="group in activatedGroups" :key="group.id">{{group.name}}</Tag>
     </div>
     <Input search enter-button v-model="searchStr" @on-search="searchGroup"></Input>
     <div class="searchlist">
-      <div v-for="item in searchResults" class="searchitem">
+      <div v-for="item in searchResults" :key="item.id" class="searchitem">
         <Row type="flex" justify="center" align="middle">
           <Col span="20">
             <label class="searchitem-title">{{item.name}}</label>
@@ -34,6 +34,9 @@ export default {
       shown: false,
       searchResults: []
     }
+  },
+  created () {
+    this.searchGroup()
   },
   computed: {
     activatedGroups () {
