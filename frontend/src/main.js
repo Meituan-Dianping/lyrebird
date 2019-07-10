@@ -7,6 +7,7 @@ import VueResource from 'vue-resource'
 import 'iview/dist/styles/iview.css'
 import locale from 'iview/dist/locale/en-US'
 import io from 'socket.io-client'
+import { bus } from './eventbus'
 
 
 Vue.config.productionTip = false
@@ -14,7 +15,7 @@ Vue.use(iView, {locale})
 Vue.use(VueResource)
 
 Vue.prototype.$io = io()
-Vue.prototype.$bus = new Vue()
+Vue.prototype.$bus = bus
 
 new Vue({
   router,
