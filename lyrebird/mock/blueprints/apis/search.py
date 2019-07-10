@@ -5,11 +5,17 @@ from lyrebird import application
 
 class SearchMockDataByName(Resource):
 
-    def get(self, search_str):
+    def get(self, search_str=None):
         _matched_group = []
         for _id in context.application.data_manager.id_map:
             group = context.application.data_manager.id_map.get(_id)
-            if search_str in group.get('name', '') and group.get('type') == 'group':
+            if not search_str and group.get('name') and group.get('type') == 'group':
+                _matched_group.append({
+                    'id': group['id'],
+                    'name': group['name'],
+                    'parent_id': group['parent_id']
+                })
+            elif search_str and search_str in group.get('name', '') and group.get('type') == 'group':
                 _matched_group.append({
                     'id': group['id'],
                     'name': group['name'],
