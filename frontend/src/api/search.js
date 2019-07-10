@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const searchGroupByName = (name) => {
-    return new axios({
+    return axios({
         url: '/api/search/group/name/' + name
     })
 }
