@@ -60,7 +60,7 @@ export default {
     getConflictInfo() {
       this.isLoadConflictInfo = true
       this.$store.commit('clearConflictInfo')
-      this.$store.dispatch('loadConflict', this.nodeInfo.id)
+      this.$store.dispatch('loadConflict', this.nodeInfo)
     },
     deleteConflictInfo() {
       this.$store.commit('clearConflictInfo')

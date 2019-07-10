@@ -1,17 +1,14 @@
 <template>
   <Row :class="rowClass" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" @click.native="onTreeNodeClick(data)">
-    <Col :span="isMouseOver?19:24">
-      <b v-if="data.children && data.children.length" @click="store.toggleOpen(data)">
+    <Col :span="isMouseOver?21:24">
+      <b v-if="data.children && data.children.length" @click="onToggleStatusChange(data)">
         <Icon v-if="data.open" type="md-arrow-dropdown" class="tree-node-inner-button"/>
         <Icon v-else type="md-arrow-dropright" class="tree-node-inner-button"/>
       </b>
       <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
       <span class="tree-node-inner-text">{{data.name}}</span>
     </Col>
-    <Col :span="isMouseOver?4:0" align="right">
-      <Tooltip content="Activate this mock data" placement="bottom-end" :delay="500">
-        <Icon v-show="data.type === 'group'&&isMouseOver" class="tree-node-inner-button" type="md-play" color="#19be6b" @click="playButton(data)"/>
-      </Tooltip>
+    <Col :span="isMouseOver?2:0" align="right">
       <Tooltip content="Delete this mock data" placement="bottom-end" :delay="500">
         <Icon v-show="isMouseOver" type="md-trash" class="tree-node-inner-button" color="#ed4014" @click="deleteButton(data)"/>
       </Tooltip>
@@ -20,9 +17,8 @@
           <Icon type="ios-more" class="tree-node-inner-button"></Icon>
         </a>
         <DropdownMenu slot="list" style="min-width:60px">
-          <DropdownItem align="center">Add new</DropdownItem>
-          <DropdownItem align="center">Delete</DropdownItem>
-          <DropdownItem align="center">Rename</DropdownItem>
+          <DropdownItem align="center">Copy</DropdownItem>
+          <DropdownItem align="center" :disabled="true">Paste</DropdownItem>
         </DropdownMenu>
       </Dropdown>
     </Col>
@@ -31,7 +27,7 @@
 
 <script>
 export default {
-  props: ['data', 'store'],
+  props: ['data', 'treestore'],
   data() {
     return {
       isMouseOver: false,
@@ -51,6 +47,14 @@ export default {
     }
   },
   methods: {
+    onToggleStatusChange(payload) {
+      this.treestore.toggleOpen(payload)
+      if (payload.open === true) {
+        this.$store.commit('addGroupListOpenNode', payload.id)
+      } else {
+        this.$store.commit('deleteGroupListOpenNode', payload.id)
+      }
+    },
     onTreeChange(payload) {
       this.$bus.$emit('treeChange', payload)
     },
@@ -61,7 +65,11 @@ export default {
       console.log('play button click', payload.id, payload.name)
     },
     deleteButton(payload) {
-      console.log('delete button click', payload.id, payload.name)
+      if (payload.type === 'group') {
+        this.$store.dispatch('deleteGroup', payload)
+      } else if (payload.type === 'data') {
+        this.$store.dispatch('deleteData', payload)
+      } else {}
     }
   }
 }

@@ -78,9 +78,29 @@ export const getGroups = () => {
   })
 }
 
-export const getDataMap = () => {
+export const getGroupMap = () => {
   return axios({
     url: '/api/group'
+  })
+}
+
+export const deleteGroup = (groupId) => {
+  return axios({
+    url: '/api/group/' + groupId,
+    method: 'DELETE'
+  })
+}
+
+export const getDataDetail = (dataId) => {
+  return axios({
+    url: '/api/data/' + dataId
+  })
+}
+
+export const deleteData = (dataId) => {
+  return axios({
+    url: '/api/data/' + dataId,
+    method: 'DELETE'
   })
 }
 
@@ -100,12 +120,6 @@ export const updateGroup = (id, name, parent) => {
   })
 }
 
-export const deleteGroup = (groupId) => {
-  return axios({
-    url: '/api/mock/' + groupId,
-    method: 'DELETE'
-  })
-}
 
 /**
     Get data list by data group name
@@ -180,44 +194,6 @@ export const updateNoticeStatus = (key, status) => {
     url: '/api/notice',
     data: { key, status },
     method: 'PUT'
-  })
-}
-
-//------Notice manager------
-
-export const deleteData = (groupId, ids) => {
-  return axios({
-    url: '/api/mock/' + groupId + '/data',
-    data: { ids },
-    method: 'DELETE'
-  })
-}
-
-/**
-Get mock data detail
-{
-    "request": {
-        "data": null,
-        "headers": {
-        "Accept-Encoding": "gzip, deflate",
-        ...
-        },
-        "method": "POST",
-        "url": "http://host"
-    },
-    "response": {
-        "code": 200,
-        "data": null,
-        "headers": {
-        "Cache-Control": "no-cache",
-        ...
-        }
-    }
-}
-*/
-export const getDataDetail = (dataId) => {
-  return axios({
-    url: '/api/data/' + dataId
   })
 }
 
