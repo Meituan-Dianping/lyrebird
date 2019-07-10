@@ -32,20 +32,18 @@
       <Divider type="vertical"></Divider>
     </div>
 
-    <label style="padding-right:5px">
-      <b @click="togalMockDataSelector">Activated Data:</b>
+    <label>
+      <b style="padding-right:5px">Activated Mock Group:</b>
+      <ButtonGroup>
+        <Button @click="togalMockDataSelector" size="small">{{activateBtnText}}</Button>
+        <Button size="small" @click="resetActivatedData">
+          <Icon type="ios-backspace-outline" color="red" />
+        </Button>
+      </ButtonGroup>
     </label>
 
-    <div class="inline">
-      <Select v-model="activatedGroupId" filterable clearable style="width: 15vw">
-        <OptionGroup label="DataGroup">
-          <Option v-for="item in dataGroups" :key="item.id" :value="item.id">{{item.name}}</Option>
-        </OptionGroup>
-      </Select>
-    </div>
-
     <div class="inline inspector-searchbox">
-      <Input search clearable v-model="searchStr"></Input>
+      <Input search clearable size="small" v-model="searchStr"></Input>
     </div>
 
     <Modal
@@ -111,17 +109,22 @@ export default {
     dataGroups () {
       return this.$store.state.inspector.groupList
     },
-    activatedGroupId: {
-      get () {
-        return this.$store.state.inspector.activatedGroupId
-      },
-      set (groupId) {
-        if (groupId) {
-          this.$store.dispatch('activateGroup', groupId)
-        } else {
-          this.$store.dispatch('deactivateGroup')
-        }
+    activatedGroups () {
+      return this.$store.state.inspector.activatedGroup
+    },
+    activateBtnText () {
+      const activatedGroups = this.$store.state.inspector.activatedGroup
+      if (activatedGroups === null) {
+        return 'None'
       }
+      if (Object.keys(activatedGroups).length === 0) {
+        return 'None'
+      }
+      let text = ''
+      for (const groupId in activatedGroups) {
+        text = text + activatedGroups[groupId].name
+      }
+      return text
     },
     searchStr: {
       get () {
@@ -141,7 +144,7 @@ export default {
   },
   methods: {
     togalMockDataSelector () {
-      this.$refs.dataSelector.togal()
+      this.$refs.dataSelector.toggal()
     },
     switchRecord: function () {
       if (this.recordingBtn.recording) {
@@ -189,13 +192,7 @@ export default {
       this.selectedFlow = null;
     },
     resetActivatedData: function () {
-      this.$http.put("/api/mock/group/deactivate").then(
-        response => {
-          console.log("reset group");
-          this.updateActivatedDataGroup();
-        },
-        errpr => { }
-      );
+      this.$store.dispatch('deactivateGroup')
     },
     filterMethod: function (value, option) {
       return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;

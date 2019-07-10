@@ -86,7 +86,7 @@ class MockGroupByName(Resource):
         group_name = request.json.get('group_name')
         action = request.json.get('action', 'activate')
         for _id in context.application.data_manager.id_map:
-            group = context.application.data_manager.id_map(_id)
+            group = context.application.data_manager.id_map.get(_id)
             if group['name'] == group_name:
                 if action == 'activate':
                     context.application.data_manager.deactivate()

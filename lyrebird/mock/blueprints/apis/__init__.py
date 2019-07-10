@@ -11,6 +11,7 @@ from .checker import Checker
 from .event import Event, Channel
 from .conflict_check import ConflictCheck, ActivatedDataConflictCheck
 from .mock_editor import Cut, Copy, Paste
+from .search import SearchMockDataByName
 from lyrebird.log import get_logger
 from lyrebird import application
 from flask import got_request_exception
@@ -48,6 +49,7 @@ api_source.add_resource(Copy, '/copy/<string:_id>')
 api_source.add_resource(Paste, '/paste/<string:_id>')
 api_source.add_resource(MockGroup, '/group', '/group/<string:group_id>')
 api_source.add_resource(MockData, '/data/<string:_id>')
+api_source.add_resource(SearchMockDataByName, '/search/group/name/<string:search_str>')
 api_source.add_resource(ConflictCheck, '/conflict/id/<string:group_id>')
 api_source.add_resource(ActivatedDataConflictCheck, '/conflict/activated')
 api_source.add_resource(ActivatedMockGroup, '/mock/activated', '/mock/<string:group_id>/<string:action>')
