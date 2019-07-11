@@ -6,14 +6,12 @@ from .mock import plugin_manager
 from blinker import Signal
 import os
 from .event import CustomEventReceiver
+from .checker import event
 from lyrebird import application
 from lyrebird.log import get_logger
 
 
 APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
-
-
-event = CustomEventReceiver()
 
 
 def start_background_task(target, *args, **kwargs):
