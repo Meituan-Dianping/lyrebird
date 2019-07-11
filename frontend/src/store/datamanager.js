@@ -24,8 +24,7 @@ export default {
     jsonPath: null,
     unshowInfoKey: ['request', 'response', 'children'],
     conflictInfo: null,
-    // TODO: delete below
-    groupListOpenNode: new Set(['9cfe9830-bf85-4db5-95d4-9b020a785aec', '0c845846-fd58-4d25-99c8-f1953ac467c7', 'ebde89bc-0f28-40d5-b025-781ab475e7e4']),
+    groupListOpenNode: new Set(),
     dataDetail: {},
     groupDetail: {},
     focusNodeInfo: {}
