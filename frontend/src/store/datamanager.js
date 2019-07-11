@@ -8,7 +8,6 @@ export default {
     currentDataGroup: null,
     dataList: [],
     foucsData: null,
-    dataDetail: null,
     selectedData: [],
     editorCache: {
       rule: '',
@@ -23,13 +22,13 @@ export default {
       selectedDataIdList: []
     },
     jsonPath: null,
-    focusNode: null,
-    focusNodeDetail: {
-      information: {}
-    },
     unshowInfoKey: ['request', 'response', 'children'],
     conflictInfo: null,
-    groupListOpenNode: new Set()
+    // TODO: delete below
+    groupListOpenNode: new Set(['9cfe9830-bf85-4db5-95d4-9b020a785aec', '0c845846-fd58-4d25-99c8-f1953ac467c7', 'ebde89bc-0f28-40d5-b025-781ab475e7e4']),
+    dataDetail: {},
+    groupDetail: {},
+    focusNodeInfo: {}
   },
   mutations: {
     setGroupList(state, groupList) {
@@ -40,9 +39,6 @@ export default {
     },
     setDataList(state, dataList) {
       state.dataList = dataList
-    },
-    setDataDetail(state, dataDetail) {
-      state.dataDetail = dataDetail
     },
     setFoucsData(state, dataId) {
       state.foucsData = dataId
@@ -77,36 +73,6 @@ export default {
     setJsonPath(state, jsonPath) {
       state.jsonPath = jsonPath
     },
-    setFocusNode(state, focusNode) {
-      state.focusNode = focusNode
-    },
-    setFocusNodeDetail(state, dataDetail) {
-      if (dataDetail.type !== 'group') {
-        state.focusNodeDetail = {
-          information : {},
-          request: {
-            code: dataDetail.request.code,
-            headers: dataDetail.request.headers
-          },
-          requestData: dataDetail.request.data,
-          response: {
-            code: dataDetail.response.code,
-            headers: dataDetail.response.headers
-          },
-          responseData: dataDetail.response.data
-        }
-      }
-      else {
-        state.focusNodeDetail = {
-          information : {}
-        }
-      }
-      for (const key in dataDetail) {
-        if (state.unshowInfoKey.indexOf(key) === -1 && key.substring(0,1) !== '_') {
-          state.focusNodeDetail.information[key] = dataDetail[key]
-        }
-      }
-    },
     setConflictInfo(state, conflictInfo) {
       state.conflictInfo = conflictInfo
     },
@@ -118,6 +84,15 @@ export default {
     },
     deleteGroupListOpenNode(state, groupId) {
       state.groupListOpenNode.delete(groupId)
+    },
+    setDataDetail(state, dataDetail) {
+      state.dataDetail = dataDetail
+    },
+    setGroupDetail(state, groupDetail) {
+      state.groupDetail = groupDetail
+    },
+    setFocusNodeInfo(state, focusNodeInfo) {
+      state.focusNodeInfo = focusNodeInfo
     }
   },
   actions: {
@@ -138,18 +113,21 @@ export default {
       })
     },
     loadDataDetail({ commit }, payload) {
-      commit('setFocusNode', payload.id)
       api.getDataDetail(payload.id)
         .then(response => {
-          if (response.data.hasOwnProperty('code') && response.data.code != 1000) {
-            console.log('Load detail Failed', response.data)
-          } else {
-            commit('setDataDetail', response.data.data)
-            commit('setFocusNodeDetail', response.data.data)
-          }
+          commit('setDataDetail', response.data.data)
         })
         .catch(error => {
-          console.log('Load detail failed', error)
+          bus.$emit('msg.error', 'Load data ' + payload.name + ' error: ' + error)
+        })
+    },
+    loadGroupDetail({ commit }, payload) {
+      api.getGroupDetail(payload.id)
+        .then(response => {
+          commit('setGroupDetail', response.data.data)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error)
         })
     },
     saveDataDetail({ state, dispatch }, dataDetail) {
@@ -198,7 +176,7 @@ export default {
       api.deleteGroup(payload.id).then(response => {
         dispatch('loadDataMap')
         commit('deleteGroupListOpenNode', payload.id)
-        commit('setFocusNode', null)
+        commit('setFocusNodeInfo', null)
         bus.$emit('msg.success', 'Delete Group ' + payload.name)
       })
       .catch(error => {
@@ -214,7 +192,7 @@ export default {
     deleteData({ commit, dispatch }, payload) {
       api.deleteData(payload.id).then(response => {
         dispatch('loadDataMap', payload.id)
-        commit('setFocusNode', null)
+        commit('setFocusNodeInfo', null)
         bus.$emit('msg.success', 'Delete Data ' + payload.name)
       })
       .catch(error => {
