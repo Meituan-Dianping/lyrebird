@@ -78,7 +78,7 @@ export default {
     },
     loadFlowDetail ({ commit }, flowId) {
       api.getFlowDetail(flowId).then(response => {
-        commit('setFocusedFlowDetail', response.data)
+        commit('setFocusedFlowDetail', response.data.data)
       })
     },
     focusFlow ({ commit, dispatch }, flow) {

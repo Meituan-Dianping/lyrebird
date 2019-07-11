@@ -1,15 +1,18 @@
 <template>
   <div class="inspector-button-bar">
     <Tooltip :content="recordBtnTooltip" placement="bottom-start" :delay="500">
-      <Button class="inspector-button" @click="switchRecord">
-        <Icon :type="recordingBtn.type" :color="recordingBtn.color" />
-      </Button>
+      <Icon
+        class="inspector-button"
+        :type="recordingBtn.type"
+        :color="recordingBtn.color"
+        @click="switchRecord"
+        style="margin-right:3px"
+        size="18"
+      />
     </Tooltip>
-    <div class="inline">
-      <Divider type="vertical"></Divider>
-    </div>
+
     <Tooltip content="Clear" :delay="500">
-      <Button class="inspector-button" @click="showClearModal=true" icon="ios-trash"></Button>
+      <Icon class="inspector-button" @click="showClearModal=true" type="md-refresh" size="18" />
     </Tooltip>
 
     <div class="inline" v-if="showDataButtons">
@@ -18,13 +21,13 @@
       </div>
 
       <Tooltip content="Save" :delay="500">
-        <Button @click="saveSelectedFlow">
-          <Icon type="md-archive"></Icon>
-        </Button>
+        <div class="inspector-button ivu-icon">
+          <svg-icon class="ivu-icon" name="md-save" scale="4" @click="saveSelectedFlow"></svg-icon>
+        </div>
       </Tooltip>
 
       <Tooltip content="Delete" :delay="500">
-        <Button @click="deleteSelectedFlow" icon="md-trash"></Button>
+        <Icon class="inspector-button" @click="deleteSelectedFlow" type="md-trash" size="18" />
       </Tooltip>
     </div>
 
@@ -69,6 +72,7 @@
 
 <script>
 import MockDataSelector from '@/views/inspector/MockDataSelector.vue'
+import Icon from 'vue-svg-icon/Icon.vue'
 
 let stopedStatus = {
   recording: false,
@@ -87,7 +91,8 @@ let recordingStatus = {
 export default {
   name: 'buttonBar',
   components: {
-    MockDataSelector
+    MockDataSelector,
+    'svg-icon': Icon
   },
   data: function () {
     return {
@@ -250,8 +255,9 @@ export default {
   flex-grow: 1;
 }
 .inspector-button {
-  padding: 1px 6px 1px !important;
-  font-size: 14px !important;
+  padding: 3px 10px 3px;
+  font-size: 14px;
+  cursor: pointer;
 }
 .inspector-searchbox {
   width: 30vw;

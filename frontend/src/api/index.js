@@ -1,6 +1,7 @@
 import axios from 'axios'
 export * from '@/api/search.js'
 export * from '@/api/activate.js'
+export * from '@/api/flow.js'
 
 
 const successHandler = (response) => {
@@ -55,13 +56,6 @@ export const getManifest = () => {
   })
 }
 
-//-------Flow----------------
-
-export const getFlowDetail = (flowId) => {
-  return axios({
-    url: '/api/flow/' + flowId
-  })
-}
 
 //------Mock data manager------
 /**
