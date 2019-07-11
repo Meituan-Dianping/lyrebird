@@ -8,7 +8,6 @@ export default {
     currentDataGroup: null,
     dataList: [],
     foucsData: null,
-    dataDetail: null,
     selectedData: [],
     editorCache: {
       rule: '',
@@ -23,12 +22,12 @@ export default {
       selectedDataIdList: []
     },
     jsonPath: null,
-    focusNode: null,
-    focusNodeDetail: {
-      information: {}
-    },
     unshowInfoKey: ['request', 'response', 'children'],
-    conflictInfo : null
+    conflictInfo: null,
+    groupListOpenNode: new Set(),
+    dataDetail: {},
+    groupDetail: {},
+    focusNodeInfo: {}
   },
   mutations: {
     setGroupList(state, groupList) {
@@ -39,9 +38,6 @@ export default {
     },
     setDataList(state, dataList) {
       state.dataList = dataList
-    },
-    setDataDetail(state, dataDetail) {
-      state.dataDetail = dataDetail
     },
     setFoucsData(state, dataId) {
       state.foucsData = dataId
@@ -76,69 +72,61 @@ export default {
     setJsonPath(state, jsonPath) {
       state.jsonPath = jsonPath
     },
-    setFocusNode(state, focusNode) {
-      state.focusNode = focusNode
-    },
-    setFocusNodeDetail(state, dataDetail) {
-      if (dataDetail.type !== 'group') {
-        state.focusNodeDetail = {
-          information : {},
-          request: {
-            code: dataDetail.request.code,
-            headers: dataDetail.request.headers
-          },
-          requestData: dataDetail.request.data,
-          response: {
-            code: dataDetail.response.code,
-            headers: dataDetail.response.headers
-          },
-          responseData: dataDetail.response.data
-        }
-      }
-      else {
-        state.focusNodeDetail = {
-          information : {}
-        }
-      }
-      for (const key in dataDetail) {
-        if (state.unshowInfoKey.indexOf(key) === -1 && key.substring(0,1) !== '_') {
-          state.focusNodeDetail.information[key] = dataDetail[key]
-        }
-      }
-    },
     setConflictInfo(state, conflictInfo) {
       state.conflictInfo = conflictInfo
     },
     clearConflictInfo(state) {
       state.conflictInfo = null
+    },
+    addGroupListOpenNode(state, groupId) {
+      state.groupListOpenNode.add(groupId)
+    },
+    deleteGroupListOpenNode(state, groupId) {
+      state.groupListOpenNode.delete(groupId)
+    },
+    setDataDetail(state, dataDetail) {
+      state.dataDetail = dataDetail
+    },
+    setGroupDetail(state, groupDetail) {
+      state.groupDetail = groupDetail
+    },
+    setFocusNodeInfo(state, focusNodeInfo) {
+      state.focusNodeInfo = focusNodeInfo
     }
   },
   actions: {
-    loadDataMap({ commit }) {
-      api.getDataMap()
+    loadDataMap({ state, commit }) {
+      api.getGroupMap()
       .then(response => {
         breadthFirstSearch(response.data.data.children, node => {
           if (node && node.type === 'data') {
             node.droppable = false
           }
-          node.open = false
+          if (state.groupListOpenNode.has(node.id)) {
+            node.open = true
+          } else {
+            node.open = false
+          }
         })
         commit('setGroupList', response.data.data.children)
       })
     },
     loadDataDetail({ commit }, payload) {
-      commit('setFocusNode', payload.id)
       api.getDataDetail(payload.id)
         .then(response => {
-          if (response.data.hasOwnProperty('code') && response.data.code != 1000) {
-            console.log('Load detail Failed', response.data)
-          } else {
-            commit('setDataDetail', response.data.data)
-            commit('setFocusNodeDetail', response.data.data)
-          }
+          commit('setDataDetail', response.data.data)
         })
         .catch(error => {
-          console.log('Load detail failed', error)
+          bus.$emit('msg.error', 'Load data ' + payload.name + ' error: ' + error)
+        })
+    },
+    loadGroupDetail({ commit }, payload) {
+      api.getGroupDetail(payload.id)
+        .then(response => {
+          commit('setGroupDetail', response.data.data)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error)
         })
     },
     saveDataDetail({ state, dispatch }, dataDetail) {
@@ -183,12 +171,16 @@ export default {
           dispatch('loadDataMap', groupId)
         })
     },
-    deleteDataGroup({ commit, dispatch }, groupId) {
-      api.deleteGroup(groupId)
-        .then(response => {
-          commit('setCurrentDataGroup', null)
-          dispatch('loadDataMap')
-        })
+    deleteGroup({ commit, dispatch }, payload) {
+      api.deleteGroup(payload.id).then(response => {
+        dispatch('loadDataMap')
+        commit('deleteGroupListOpenNode', payload.id)
+        commit('setFocusNodeInfo', null)
+        bus.$emit('msg.success', 'Delete Group ' + payload.name)
+      })
+      .catch(error => {
+        bus.$emit('msg.error', 'Delete group ' + payload.name + ' error: ' + error)
+      })
     },
     newData({ dispatch }, { groupId, name }) {
       api.createData(groupId, name)
@@ -196,23 +188,27 @@ export default {
           dispatch('loadDataMap', groupId)
         })
     },
-    deleteData({ state, dispatch }, groupId) {
-      let ids = []
-      for (const data of state.selectedData) {
-        ids.push(data.id)
-      }
-      api.deleteData(groupId, ids).then(response => {
-        dispatch('loadDataMap', groupId)
+    deleteData({ commit, dispatch }, payload) {
+      api.deleteData(payload.id).then(response => {
+        dispatch('loadDataMap', payload.id)
+        commit('setFocusNodeInfo', null)
+        bus.$emit('msg.success', 'Delete Data ' + payload.name)
+      })
+      .catch(error => {
+        bus.$emit('msg.error', 'Delete data ' + payload.name + ' error: ' + error)
       })
     },
-    loadConflict({ commit }, groupId) {
-      api.getConflict(groupId).then(response => {
-        if (response.data.code === 1000) {
-          commit('setConflictInfo', response.data.data)
-          bus.$emit('msg.success', 'Get conflict reporter success')
-        } else {
-          bus.$emit('msg.error', 'Get conflict reporter error: ' + response.message)
+    loadConflict({ commit }, payload) {
+      api.getConflict(payload.id).then(response => {
+        commit('setConflictInfo', response.data.data)
+        if (response.data.data.length === 0) {
+          bus.$emit('msg.success', 'Group ' + payload.name+' has no conflict')
+        } else if (response.data.data.length > 0) {
+          bus.$emit('msg.error', 'Group ' + payload.name + ' has ' + response.data.data.length + ' conflicts')
         }
+      })
+      .catch(error => {
+        bus.$emit('msg.error', 'Get group ' + payload.name + ' conflicts error: ' + error)
       })
     }
   }

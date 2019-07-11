@@ -2,7 +2,7 @@
   <div class="small-tab">
     <tabs v-model="currentTab" :animated="false" size="small">
       <tab-pane label="Information" name="information">
-        <DataDetailInfo class="data-detail" :information="dataInformation"/>
+        <DataDetailInfo class="data-detail" :information="displayGroupInfo"/>
       </tab-pane>
       <tab-pane label="Conflict" name="conflict">
         <div class="data-detail">
@@ -34,7 +34,6 @@ import DataDetailConflict from '@/views/datamanager/DataDetailConflict.vue'
 import DataDetailInfo from "@/views/datamanager/DataDetailInfo.vue"
 
 export default {
-  props: ["nodeInfo"],
   components: {
     DataDetailConflict,
     DataDetailInfo
@@ -42,12 +41,25 @@ export default {
   data() {
     return {
       currentTab: "information",
-      isLoadConflictInfo: false
+      isLoadConflictInfo: false,
+      unshowInfoKey: ['children']
     }
   },
   computed: {
-    dataInformation() {
-      return this.$store.state.dataManager.focusNodeDetail.information
+    nodeInfo() {
+      return this.$store.state.dataManager.focusNodeInfo
+    },
+    groupInfo() {
+      return this.$store.state.dataManager.groupDetail
+    },
+    displayGroupInfo() {
+      let res = {}
+      for (const key in this.groupInfo) {
+        if (this.unshowInfoKey.indexOf(key) === -1 && key.substring(0,1) !== '_') {
+          res[key] = this.groupInfo[key]
+        }
+      }
+      return res
     },
     conflictInfo() {
       if (this.$store.state.dataManager.conflictInfo) {
@@ -60,7 +72,7 @@ export default {
     getConflictInfo() {
       this.isLoadConflictInfo = true
       this.$store.commit('clearConflictInfo')
-      this.$store.dispatch('loadConflict', this.nodeInfo.id)
+      this.$store.dispatch('loadConflict', this.nodeInfo)
     },
     deleteConflictInfo() {
       this.$store.commit('clearConflictInfo')
