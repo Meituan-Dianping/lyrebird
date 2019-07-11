@@ -9,7 +9,7 @@
         <JsonPathBar class="json-path-bar"></JsonPathBar>
       </Col>
     </Row>
-    <component v-if="nodeInfo.type" :is="getComponentByType(nodeInfo)" :nodeInfo="nodeInfo" />
+    <component v-if="nodeInfo.type" :is="getComponentByType(nodeInfo)" />
     <div v-else class="data-detail-empty">
       No selected data
     </div>
@@ -31,23 +31,18 @@ export default {
   },
   data() {
     return {
-      currentTab: 'detail',
-      nodeInfo: {}
+      currentTab: 'detail'
     }
-  },
-  created() {
-    this.$bus.$on('treeNodeClick', this.onNodeClick)
   },
   computed: {
     dataDetail() {
-      return this.$store.state.dataManager.focusNodeDetail
-      }
+      return this.$store.state.dataManager.dataDetail
     },
+    nodeInfo() {
+      return this.$store.state.dataManager.focusNodeInfo
+    }
+  },
   methods: {
-    onNodeClick(payload) {
-      this.nodeInfo = payload
-      this.$store.dispatch('loadDataDetail', payload)
-    },
     getComponentByType(payload) {
       if (payload.type === 'data') {
         return 'DataDetailRequest'

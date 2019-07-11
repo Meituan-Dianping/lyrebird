@@ -10,15 +10,15 @@
     </Col>
     <Col :span="isMouseOver?2:0" align="right">
       <Tooltip content="Delete this mock data" placement="bottom-end" :delay="500">
-        <Icon v-show="isMouseOver" type="md-trash" class="tree-node-inner-button" color="#ed4014" @click="deleteButton(data)"/>
+        <Icon v-show="isMouseOver" type="md-trash" class="tree-node-inner-button" color="#ed4014" @click="onTreeNodeDelete(data)"/>
       </Tooltip>
       <Dropdown v-show="isMouseOver" placement="bottom-end">
         <a href="javascript:void(0)">
           <Icon type="ios-more" class="tree-node-inner-button"></Icon>
         </a>
         <DropdownMenu slot="list" style="min-width:60px">
-          <DropdownItem align="center">Copy</DropdownItem>
-          <DropdownItem align="center" :disabled="true">Paste</DropdownItem>
+          <DropdownItem align="center" @click="onTreeNodeCopy(data)">Copy</DropdownItem>
+          <DropdownItem align="center" @click="onTreeNodePaste(data)" :disabled="true">Paste</DropdownItem>
         </DropdownMenu>
       </Dropdown>
     </Col>
@@ -37,7 +37,7 @@ export default {
   },
   computed: {
     rowClass(){
-      if (this.data.id === this.$store.state.dataManager.focusNode) {
+      if (this.data.id === this.$store.state.dataManager.focusNodeInfo.id) {
         return ["tree-node-inner-row", "tree-node-inner-row-select"]
       }
       else if (this.isMouseOver) {
@@ -59,17 +59,25 @@ export default {
       this.$bus.$emit('treeChange', payload)
     },
     onTreeNodeClick(payload) {
-      this.$bus.$emit('treeNodeClick', payload)
+      this.$store.commit('setFocusNodeInfo', payload)
+      if (payload.type === 'group') {
+        this.$store.dispatch('loadGroupDetail', payload)
+      } else if (payload.type === 'data') {
+        this.$store.dispatch('loadDataDetail', payload)
+      } else {}
     },
-    playButton(payload) {
-      console.log('play button click', payload.id, payload.name)
-    },
-    deleteButton(payload) {
+    onTreeNodeDelete(payload) {
       if (payload.type === 'group') {
         this.$store.dispatch('deleteGroup', payload)
       } else if (payload.type === 'data') {
         this.$store.dispatch('deleteData', payload)
       } else {}
+    },
+    onTreeNodeCopy(payload) {
+
+    },
+    onTreeNodePaste(payload) {
+
     }
   }
 }

@@ -2,16 +2,17 @@
   <div>
     <div class="small-tab">
       <tabs v-model="currentTab" :animated="false" size="small">
-        <tab-pane v-if="tabs" v-for="(tab, index) in tabs" :label="tab.name" :key="tab.key" :name="tab.key">
-          <component
-            class="data-detail"
-            :is="getComponentByType(tab)"
-            :information="tab.value"
-            :language="code.type" 
-            v-model="content" 
-            v-on:on-jsonpath-change="onJsonPathChange"
-          />
+        <tab-pane label="Information" name="information">
+          <DataDetailInfo class="data-detail" :information="displayDataInfo"/>
         </tab-pane>
+        <tab-pane v-for="(tab, index) in tabs" :label="tab.name" :key="tab.key" :name="tab.key" />
+        <code-editor
+          class="data-detail"
+          v-if="currentTab !== 'information'"
+          :language="code.type"
+          v-model="content"
+          v-on:on-jsonpath-change="onJsonPathChange"
+        />
       </tabs>
       <div class="save-btn" v-if="dataDetail">
         <Tooltip content="Save" placement="top" :delay="500">
@@ -38,45 +39,61 @@ export default {
   data() {
     return {
       currentTab: 'information',
+      unshowInfoKey: ['request', 'requestData', 'response', 'responseData', 'children'],
     }
   },
   computed: {
     tabs() {
       return [
         {
-          name: 'Information',
-          key: 'information',
-          type: 'info',
-          value: this.$store.state.dataManager.focusNodeDetail.information
-        },
-        {
           name: 'Request',
-          key: 'req',
-          type: 'code',
-          value: ''
+          key: 'req'
         },
         {
           name: 'RequestData',
-          key: 'resp',
-          type: 'code',
-          value: ''
+          key: 'req-body'
         },
         {
           name: 'Response',
-          key: 'req-body',
-          type: 'code',
-          value: ''
+          key: 'resp'
         },
         {
           name: 'ResponseData',
-          key: 'resp-body',
-          type: 'code',
-          value: ''
+          key: 'resp-body'
         }
       ]
     },
+    originalDataDetail() {
+      // data detail from api /api/data/<dataId>
+      return this.$store.state.dataManager.dataDetail
+    },
     dataDetail() {
-      return this.$store.state.dataManager.focusNodeDetail
+      // display in frontend tab
+      let displayDataDetail = {
+        request: null,
+        response: null
+      }
+      if (this.originalDataDetail.request && this.originalDataDetail.response) {
+        displayDataDetail.request = this.originalDataDetail.request
+        displayDataDetail.response = this.originalDataDetail.response
+        if (this.originalDataDetail.request.hasOwnProperty('data')) {
+          displayDataDetail.requestData = this.originalDataDetail.request.data
+        }
+        if (this.originalDataDetail.response.hasOwnProperty('data')) {
+          displayDataDetail.responseData = this.originalDataDetail.response.data
+        }
+      } else { }
+      return displayDataDetail
+    },
+    displayDataInfo() {
+      // display in information
+      let res = {}
+      for (const key in this.originalDataDetail) {
+        if (this.unshowInfoKey.indexOf(key) === -1 && key.substring(0,1) !== '_') {
+          res[key] = this.originalDataDetail[key]
+        }
+      }
+      return res
     },
     code() {
       let codeObj = {
@@ -158,15 +175,6 @@ export default {
     },
     onJsonPathChange(payload) {
       this.$store.commit('setJsonPath', payload.jsonPath)
-    },
-    getComponentByType(payload) {
-      if (payload.type === 'info') {
-        return 'DataDetailInfo'
-      } else if (payload.type === 'code') {
-        return 'CodeEditor'
-      } else {
-        return 'DataDetailInfo'
-      }
     }
   }
 }

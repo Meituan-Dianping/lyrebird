@@ -84,6 +84,12 @@ export const getGroupMap = () => {
   })
 }
 
+export const getGroupDetail = (groupId) => {
+  return axios({
+    url: '/api/data/' + groupId
+  })
+}
+
 export const deleteGroup = (groupId) => {
   return axios({
     url: '/api/group/' + groupId,
