@@ -162,7 +162,7 @@ class DataManager:
             # Update parent node
             parent_node['children'].append({
                 'id': data_id,
-                'name': data['name'],
+                'name': data.get('name', data['request']['path']),
                 'type': 'data',
                 'paren_id': parent_id
             })
@@ -362,8 +362,10 @@ class DataManager:
     """
 
     def save_data(self, data):
-        if self.save_to_group_id:
-            self.add_data(self.save_to_group_id, data)
+        if len(self.activated_group) > 0:
+            # TODO use self.save_to_group_id
+            target_group_id = list(self.activated_group.keys())[0]
+            self.add_data(target_group_id, data)
         else:
             self.add_data('tmp_group', data)
 

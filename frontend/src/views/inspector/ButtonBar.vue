@@ -12,7 +12,9 @@
     </Tooltip>
 
     <Tooltip content="Clear" :delay="500">
-      <Icon class="inspector-button" @click="showClearModal=true" type="md-refresh" size="18" />
+      <div class="inspector-button ivu-icon" @click="showClearModal=true">
+        <svg-icon class="ivu-icon" name="short-broom" color="#666" scale="5"></svg-icon>
+      </div>
     </Tooltip>
 
     <div class="inline" v-if="showDataButtons">
@@ -21,13 +23,19 @@
       </div>
 
       <Tooltip content="Save" :delay="500">
-        <div class="inspector-button ivu-icon">
-          <svg-icon class="ivu-icon" name="md-save" scale="4" @click="saveSelectedFlow"></svg-icon>
+        <div class="inspector-button ivu-icon" @click="saveSelectedFlow">
+          <svg-icon class="ivu-icon" name="md-save" color="#666" scale="4"></svg-icon>
         </div>
       </Tooltip>
 
       <Tooltip content="Delete" :delay="500">
-        <Icon class="inspector-button" @click="deleteSelectedFlow" type="md-trash" size="18" />
+        <Icon
+          class="inspector-button"
+          @click="deleteSelectedFlow"
+          type="md-trash"
+          color="#666"
+          size="18"
+        />
       </Tooltip>
     </div>
 
@@ -56,14 +64,6 @@
       @on-cancel="showClearModal=false"
     >
       <p>Clear flow list?</p>
-    </Modal>
-
-    <Modal
-      v-model="showCreateGroupModal"
-      title="Create mock group"
-      @on-ok="createAndActivateGroupOk"
-    >
-      <Input v-model="newDataGroupName" placeholder="Data group name"></Input>
     </Modal>
 
     <MockDataSelector ref="dataSelector"></MockDataSelector>
@@ -97,8 +97,6 @@ export default {
   data: function () {
     return {
       showClearModal: false,
-      showCreateGroupModal: false,
-      newDataGroupName: '',
       recordingBtn: stopedStatus
     };
   },
@@ -203,8 +201,8 @@ export default {
       return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
     },
     saveSelectedFlow: function () {
-      if (!this.activatedGroupId) {
-        this.showCreateGroupModal = true;
+      if (Object.keys(this.activatedGroups).length <= 0) {
+        this.$Message.warning('Please activate a mock group before you click save button.')
         return
       }
       this.$http.post('/api/flow',
@@ -255,7 +253,7 @@ export default {
   flex-grow: 1;
 }
 .inspector-button {
-  padding: 3px 10px 3px;
+  padding: 3px 8px 3px;
   font-size: 14px;
   cursor: pointer;
 }
