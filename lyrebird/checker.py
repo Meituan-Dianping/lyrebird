@@ -17,7 +17,7 @@ registered_func_array = []
 
 class CheckerEventHandler:
 
-    def __call__(self, channel, object=False, *args, **kw):
+    def __call__(self, channel, *args, **kw):
         def func(origin_func):
             registered_func_array.append([channel, origin_func])
             return origin_func
