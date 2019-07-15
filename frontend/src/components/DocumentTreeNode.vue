@@ -21,12 +21,37 @@
             <DropdownItem align="center" name="delete">Delete</DropdownItem>
             <DropdownItem align="center" name="copy">Copy</DropdownItem>
             <DropdownItem align="center" name="paste" :disabled="hasCopyTarget">Paste</DropdownItem>
-            <DropdownItem align="center" name="addGroup">Add group</DropdownItem>
-            <DropdownItem align="center" name="addData">Add data</DropdownItem>
+            <DropdownItem align="center" name="addGroup" :disabled="data.type === 'data'">Add group</DropdownItem>
+            <DropdownItem align="center" name="addData" :disabled="data.type === 'data'">Add data</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </span>
     </Col>
+    <Modal
+      v-model="shownCreateModal"
+      title="Create"
+      ok-text="OK"
+      cancel-text="Cancel"
+      @on-ok="onCreate"
+      @on-cancel="createName = null"
+    >
+      <Row>
+        <Col span="3" align="right">
+          <span>Parent:</span>
+        </Col>
+        <Col span="18" offset="1">
+          <span>{{data.name}}</span>
+        </Col>
+      </Row>
+      <Row style="padding-top:10px">
+        <Col span="3" align="right">
+          <span>Name:</span>
+        </Col>
+        <Col span="18" offset="1">
+          <Input v-model="createName" size="small" />
+        </Col>
+      </Row>
+    </Modal>
   </Row>
 </template>
 
@@ -36,8 +61,9 @@ export default {
   data() {
     return {
       isMouseOver: false,
-      contextMenuLeft: null,
-      contextMenuTop: null
+      shownCreateModal: false,
+      createName: null,
+      createType: null
     }
   },
   computed: {
@@ -63,9 +89,11 @@ export default {
       } else if (payload === 'paste') {
         this.onTreeNodePaste()
       } else if (payload === 'addGroup') {
-        this.onCreateGroup()
+        this.createType = 'group'
+        this.shownCreateModal = true
       } else if (payload === 'addData') {
-        this.onCreateData()
+        this.createType = 'data'
+        this.shownCreateModal = true
       } else {}
     },
     onToggleStatusChange() {
@@ -106,11 +134,17 @@ export default {
       //     parentId: this.data.id})
       // } else {}
     },
-    onCreateGroup() {
-
-    },
-    onCreateData() {
-
+    onCreate() {
+      this.$store.commit('addGroupListOpenNode', this.data.id)
+      if (this.createType === 'group') {
+        this.$store.dispatch('createGroup', {
+        groupName: this.createName,
+        parentId: this.data.id})
+      } else if (this.createType === 'data') {
+        this.$store.dispatch('createData', {
+        dataName: this.createName,
+        parentId: this.data.id})
+      } else {}
     }
   }
 }

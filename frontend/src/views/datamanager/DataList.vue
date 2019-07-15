@@ -1,18 +1,8 @@
 <template>
   <div>
     <Row class="button-bar">
-      <Col span="12">
-        <Tooltip content="Add folder" placement="bottom-start" :delay="500">
-          <Icon class="button-bar-button" type="md-folder" size="16" color="#666" />
-        </Tooltip>
-        <Tooltip content="Add file" placement="bottom-start" :delay="500">
-          <Icon class="button-bar-button" type="md-document" size="16" color="#666" />
-        </Tooltip>
-      </Col>
-      <Col span="12" align="right">
-        <Tooltip content="Synchronize" placement="bottom" :delay="500">
-          <Icon class="button-bar-button-right" type="md-sync" size="16" color="#666" />
-        </Tooltip>
+      <Col span="24">
+        <b style="padding-left:5px">Document tree</b>
       </Col>
     </Row>
     <DocumentTree :treeData="treeData" class="data-list"/>
@@ -25,17 +15,9 @@ export default {
   components: {
     DocumentTree
   },
-  created() {
-    this.$bus.$on('treeChange', this.setTreeData)
-  },
   computed: {
     treeData() {
       return this.$store.state.dataManager.groupList
-    }
-  },
-  methods: {
-    setTreeData(payload) {
-
     }
   }
 }
