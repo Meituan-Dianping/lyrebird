@@ -2,7 +2,7 @@
   <div>
     <Row class="button-bar">
       <Col span="24">
-        <b style="padding-left:5px">Document tree</b>
+        <b style="padding-left:5px">Mock Data Tree</b>
       </Col>
     </Row>
     <DocumentTree :treeData="treeData" class="data-list"/>

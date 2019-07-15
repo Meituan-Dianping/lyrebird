@@ -101,9 +101,12 @@ export default {
     loadDataMap({ state, commit }) {
       api.getGroupMap()
       .then(response => {
-        breadthFirstSearch(response.data.data.children, node => {
+        breadthFirstSearch([response.data.data], node => {
           if (node && node.type === 'data') {
             node.droppable = false
+          }
+          if (node.parent_id === null) {
+            commit('addGroupListOpenNode', node.id)
           }
           if (state.groupListOpenNode.has(node.id)) {
             node.open = true
@@ -111,7 +114,7 @@ export default {
             node.open = false
           }
         })
-        commit('setGroupList', response.data.data.children)
+        commit('setGroupList', [response.data.data])
       })
     },
     loadGroupDetail({ commit }, payload) {

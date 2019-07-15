@@ -2,15 +2,15 @@
   <Row :class="rowClass" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" @click.native="onTreeNodeClick">
     <Col :span="isMouseOver?21:24">
       <b v-if="data.children && data.children.length" @click="onToggleStatusChange">
-        <Icon v-if="data.open" type="md-arrow-dropdown" class="tree-node-inner-button"/>
-        <Icon v-else type="md-arrow-dropright" class="tree-node-inner-button"/>
+        <Icon v-if="data.open" type="md-arrow-dropdown" class="tree-node-inner-button" size="14"/>
+        <Icon v-else type="md-arrow-dropright" class="tree-node-inner-button" size="14"/>
       </b>
       <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
       <span class="tree-node-inner-text">{{data.name}}</span>
     </Col>
     <Col :span="isMouseOver?2:0" align="right">
-      <Tooltip content="Delete this mock data" placement="bottom-end" :delay="500">
-        <Icon v-show="isMouseOver" type="md-trash" class="tree-node-inner-button" color="#ed4014" @click.stop="onTreeNodeDelete"/>
+      <Tooltip content="Delete" placement="bottom-end" :delay="500">
+        <Icon v-show="isMouseOver" type="md-trash" class="tree-node-inner-button" color="#ed4014" @click.stop="shownDeleteModal = true"/>
       </Tooltip>
       <span @click.stop="">
         <Dropdown v-show="isMouseOver" placement="bottom-end" @on-click="onDropdownMenuClick" >
@@ -18,11 +18,11 @@
             <Icon type="ios-more" class="tree-node-inner-button"></Icon>
           </a>
           <DropdownMenu slot="list" style="min-width:60px">
-            <DropdownItem align="center" name="delete">Delete</DropdownItem>
-            <DropdownItem align="center" name="copy">Copy</DropdownItem>
-            <DropdownItem align="center" name="paste" :disabled="hasCopyTarget">Paste</DropdownItem>
-            <DropdownItem align="center" name="addGroup" :disabled="data.type === 'data'">Add group</DropdownItem>
-            <DropdownItem align="center" name="addData" :disabled="data.type === 'data'">Add data</DropdownItem>
+            <DropdownItem align="left" name="delete">Delete</DropdownItem>
+            <DropdownItem align="left" name="copy">Copy</DropdownItem>
+            <DropdownItem align="left" name="paste" :disabled="hasCopyTarget">Paste</DropdownItem>
+            <DropdownItem align="left" name="addGroup" :disabled="data.type === 'data'">Add group</DropdownItem>
+            <DropdownItem align="left" name="addData" :disabled="data.type === 'data'">Add data</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </span>
@@ -52,6 +52,18 @@
         </Col>
       </Row>
     </Modal>
+    <Modal v-model="shownDeleteModal">
+      <p slot="header" style="color:#f60;text-align:center">
+        <Icon type="ios-information-circle"></Icon>
+        <span>Delete confirmation</span>
+      </p>
+      <div style="text-align:center">
+        <span style="font-size:14px">Are you sure you want to delete {{data.type}} <b>{{data.name}}</b></span>
+      </div>
+      <div slot="footer">
+        <Button type="error" size="large" long @click="onTreeNodeDelete">Delete</Button>
+      </div>
+    </Modal>
   </Row>
 </template>
 
@@ -61,6 +73,7 @@ export default {
   data() {
     return {
       isMouseOver: false,
+      shownDeleteModal: false,
       shownCreateModal: false,
       createName: null,
       createType: null
@@ -83,7 +96,7 @@ export default {
   methods: {
     onDropdownMenuClick(payload) {
       if (payload === 'delete') {
-        this.onTreeNodeDelete()
+        this.shownDeleteModal = true
       } else if (payload === 'copy') {
         this.onTreeNodeCopy()
       } else if (payload === 'paste') {
