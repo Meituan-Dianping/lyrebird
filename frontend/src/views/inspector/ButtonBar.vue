@@ -48,7 +48,9 @@
       <ButtonGroup>
         <Button @click="showMockDataSelector" size="small">{{activateBtnText}}</Button>
         <Button size="small" @click="resetActivatedData">
-          <Icon type="ios-backspace-outline" color="red" />
+          <Tooltip content="deactivate group" :delay="500">
+            <Icon type="ios-backspace-outline" color="red" size="16" />
+          </Tooltip>
         </Button>
       </ButtonGroup>
     </label>
@@ -202,7 +204,7 @@ export default {
     },
     saveSelectedFlow: function () {
       if (Object.keys(this.activatedGroups).length <= 0) {
-        this.$Message.warning('Please activate a mock group before you click save button.')
+        this.$Message.warning('Please activate a mock group before save.')
         return
       }
       this.$http.post('/api/flow',
@@ -215,14 +217,14 @@ export default {
           if (resp.data.code === 1000) {
             this.$Notice.success(
               {
-                title: 'Flow saved',
+                title: 'Http flow saved',
                 desc: resp.data.message
               }
             )
           } else {
             this.$Notice.error(
               {
-                title: 'Save flow failed',
+                title: 'Save http flow failed',
                 desc: resp.data.message,
                 duration: 0
               }

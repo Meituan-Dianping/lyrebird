@@ -10,42 +10,40 @@
       </Col>
     </Row>
     <component v-if="nodeInfo.type" :is="getComponentByType(nodeInfo)" />
-    <div v-else class="data-detail-empty">
-      No selected data
-    </div>
+    <div v-else class="data-detail-empty">No selected data</div>
   </div>
 </template>
 
 <script>
-import DataDetailRequest from '@/views/datamanager/DataDetailRequest.vue'
+import DataDetailHttpData from '@/views/datamanager/DataDetailHttpData.vue'
 import DataDetailFolder from '@/views/datamanager/DataDetailFolder.vue'
 import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
 import Icon from 'vue-svg-icon/Icon.vue'
 
 export default {
   components: {
-    DataDetailRequest,
+    DataDetailHttpData,
     DataDetailFolder,
     JsonPathBar,
     Icon
   },
-  data() {
+  data () {
     return {
       currentTab: 'detail'
     }
   },
   computed: {
-    dataDetail() {
+    dataDetail () {
       return this.$store.state.dataManager.dataDetail
     },
-    nodeInfo() {
+    nodeInfo () {
       return this.$store.state.dataManager.focusNodeInfo
     }
   },
   methods: {
-    getComponentByType(payload) {
+    getComponentByType (payload) {
       if (payload.type === 'data') {
-        return 'DataDetailRequest'
+        return 'DataDetailHttpData'
       } else if (payload.type === 'group') {
         return 'DataDetailFolder'
       } else {
@@ -87,10 +85,10 @@ export default {
   border-color: #0fccbf;
 }
 .data-detail-empty {
-  position: absolute; 
-  top:40%;
-  left:50%;
-  transform:translate(-50%,-50%);
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
 }
 </style>

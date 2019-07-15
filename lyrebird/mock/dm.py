@@ -164,7 +164,7 @@ class DataManager:
                 'id': data_id,
                 'name': data.get('name', data['request']['path']),
                 'type': 'data',
-                'paren_id': parent_id
+                'parent_id': parent_id
             })
             # Update ID mapping
             self.id_map[data_id] = data
