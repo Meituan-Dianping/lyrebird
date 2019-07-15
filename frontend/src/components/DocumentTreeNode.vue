@@ -54,9 +54,6 @@ export default {
         return ["tree-node-inner-row"]
       }
     },
-    buttonClass() {
-
-    },
     hasCopyTarget() {
       return this.$store.state.dataManager.copyTarget === null
     }
