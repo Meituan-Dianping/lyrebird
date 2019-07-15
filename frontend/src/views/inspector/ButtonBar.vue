@@ -217,14 +217,14 @@ export default {
           if (resp.data.code === 1000) {
             this.$Notice.success(
               {
-                title: 'Http flow saved',
+                title: 'HTTP flow saved',
                 desc: resp.data.message
               }
             )
           } else {
             this.$Notice.error(
               {
-                title: 'Save http flow failed',
+                title: 'Save HTTP flow failed',
                 desc: resp.data.message,
                 duration: 0
               }

@@ -3,12 +3,24 @@
     <tabs v-model="currentTab" :animated="false" size="small">
       <tab-pane label="Information" name="info" />
       <tab-pane label="Request" name="req" />
-      <tab-pane label="RequestData" name="reqdata" />
+      <tab-pane label="RequestData" name="reqData" />
       <tab-pane label="Response" name="resp" />
-      <tab-pane label="ResponseData" name="repdata" />
+      <tab-pane label="ResponseData" name="respData" />
     </tabs>
     <div>
-      <component :is="getDetailComponentNameByCurrentTab"></component>
+      <CodeEditor
+        class="data-detail"
+        :language="currentTabContentType"
+        v-model="editorContent"
+        v-on:on-jsonpath-change="onJsonPathChange"
+      ></CodeEditor>
+    </div>
+    <div class="save-btn" v-if="dataDetail">
+      <Tooltip content="Save" placement="top" :delay="500">
+        <Button type="primary" shape="circle" @click="save">
+          <svg-icon name="md-save" scale="4"></svg-icon>
+        </Button>
+      </Tooltip>
     </div>
   </div>
 </template>
@@ -26,16 +38,69 @@ export default {
   },
   data () {
     return {
-      currentTab: 'info'
+      currentTab: 'info',
+      editorCache: {
+        info: null,
+        req: null,
+        reqData: null,
+        resp: null,
+        respData: null
+      }
     }
   },
   computed: {
-    getDetailComponentNameByCurrentTab () {
-      if (this.currentTab === 'info') {
-        return 'DataDetailInfo'
+    currentTabContentType () {
+      if (this.currentTab === 'info' || this.currentTab === 'req' || this.currentTab === 'resp') {
+        return 'json'
       } else {
-        return 'CodeEditor'
+        return 'json'
       }
+    },
+    dataDetail () {
+      return this.$store.state.dataManager.dataDetail
+    },
+    editorContent: {
+      get () {
+        const content = this.editorCache[this.currentTab]
+        if (!content) {
+          return ''
+        }
+        return content
+      },
+      set (val) {
+        this.editorCache[this.currentTab] = val
+      }
+    }
+  },
+  watch: {
+    dataDetail (val) {
+      if (val === null) {
+        return
+      }
+      this.editorCache.info = JSON.stringify({
+        id: val.id,
+        name: val.name,
+        rule: val.rule
+      })
+      this.editorCache.req = JSON.stringify({
+        url: val.request.url,
+        headers: val.request.headers,
+        method: val.request.method
+      })
+      this.editorCache.reqData = val.request.data
+      this.editorCache.resp = JSON.stringify({
+        code: val.response.code,
+        headers: val.response.headers
+      })
+      this.editorCache.respData = val.response.data
+    }
+  },
+  methods: {
+    save () {
+
+    },
+    onJsonPathChange (payload) {
+      this.$store.commit('setJsonPath', payload.jsonPath)
     }
   },
 }

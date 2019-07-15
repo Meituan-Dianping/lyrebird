@@ -155,12 +155,17 @@ class DataManager:
                 raise DataObjectCannotContainAnyOtherObject
         data_id = str(uuid.uuid4())
         data['id'] = data_id
+        data['name'] = data['request']['path']
+        data['rule'] = {
+            'request.url': f'(?=.*{data["request"]["path"]})'
+        }
         data_path = self.root_path / data_id
         with codecs.open(data_path, 'w') as f:
             # Save data file
             json.dump(data, f, ensure_ascii=False)
             # Update parent node
-            parent_node['children'].append({
+            # New data added in the head of child list
+            parent_node['children'].insert(0, {
                 'id': data_id,
                 'name': data.get('name', data['request']['path']),
                 'type': 'data',
@@ -189,7 +194,8 @@ class DataManager:
             'parent_id': parent_id,
             'children': []
         }
-        parent_node['children'].append(new_group)
+        # New group added in the head of child list
+        parent_node['children'].insert(0, new_group)
         # Register ID
         self.id_map[group_id] = new_group
         # Save prop
