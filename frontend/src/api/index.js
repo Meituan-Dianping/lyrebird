@@ -90,6 +90,14 @@ export const getGroupDetail = (groupId) => {
   })
 }
 
+export const createGroup = (name, parentId) => {
+  return axios({
+    url: '/api/group',
+    method: 'POST',
+    data: { name, 'parent_id': parentId }
+  })
+}
+
 export const deleteGroup = (groupId) => {
   return axios({
     url: '/api/group/' + groupId,
@@ -103,18 +111,18 @@ export const getDataDetail = (dataId) => {
   })
 }
 
+export const createData = (parentId, data) => {
+  return axios({
+    url: '/api/data',
+    method: 'POST',
+    data: { data, 'parent_id': parentId }
+  })
+}
+
 export const deleteData = (dataId) => {
   return axios({
     url: '/api/data/' + dataId,
     method: 'DELETE'
-  })
-}
-
-export const createGroup = (name, parent) => {
-  return axios({
-    url: '/api/mock',
-    method: 'POST',
-    data: { name, parent }
   })
 }
 
@@ -155,13 +163,6 @@ export const getDataList = (groupId) => {
   })
 }
 
-export const createData = (groupId, name) => {
-  return axios({
-    url: '/api/mock/' + groupId + '/data',
-    data: { name },
-    method: 'POST'
-  })
-}
 
 //------Notice manager------
 /**

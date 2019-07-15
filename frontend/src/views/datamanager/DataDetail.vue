@@ -2,8 +2,10 @@
   <div>
     <Row class="button-bar">
       <Col span="12">
-        <b>Data:</b>
-        <span>{{nodeInfo.name}}</span>
+        <span v-for="(value, index) in nodeParents" :key="value.id">
+          {{value.name}}
+          {{index === nodeParents.length-1 ? '' : ' - '}}
+        </span>
       </Col>
       <Col span="12" align="right">
         <JsonPathBar class="json-path-bar"></JsonPathBar>
@@ -29,17 +31,28 @@ export default {
     JsonPathBar,
     Icon
   },
-  data() {
-    return {
-      currentTab: 'detail'
-    }
-  },
   computed: {
     dataDetail() {
       return this.$store.state.dataManager.dataDetail
     },
     nodeInfo() {
       return this.$store.state.dataManager.focusNodeInfo
+    },
+    nodeParents() {
+      if (this.nodeInfo && this.nodeInfo.id) {
+        let parents = []
+        let tree = this.nodeInfo
+        while(tree.id) {
+          parents.push({
+            id: tree.id,
+            name: tree.name
+          })
+          tree = tree.parent
+        }
+        return parents.reverse()
+      } else {
+        return []
+      }
     }
   },
   methods: {

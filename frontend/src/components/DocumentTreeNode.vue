@@ -1,7 +1,7 @@
 <template>
-  <Row :class="rowClass" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" @click.native="onTreeNodeClick(data)">
+  <Row :class="rowClass" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" @click.native="onTreeNodeClick">
     <Col :span="isMouseOver?21:24">
-      <b v-if="data.children && data.children.length" @click="onToggleStatusChange(data)">
+      <b v-if="data.children && data.children.length" @click="onToggleStatusChange">
         <Icon v-if="data.open" type="md-arrow-dropdown" class="tree-node-inner-button"/>
         <Icon v-else type="md-arrow-dropright" class="tree-node-inner-button"/>
       </b>
@@ -10,17 +10,22 @@
     </Col>
     <Col :span="isMouseOver?2:0" align="right">
       <Tooltip content="Delete this mock data" placement="bottom-end" :delay="500">
-        <Icon v-show="isMouseOver" type="md-trash" class="tree-node-inner-button" color="#ed4014" @click="onTreeNodeDelete(data)"/>
+        <Icon v-show="isMouseOver" type="md-trash" class="tree-node-inner-button" color="#ed4014" @click.stop="onTreeNodeDelete"/>
       </Tooltip>
-      <Dropdown v-show="isMouseOver" placement="bottom-end">
-        <a href="javascript:void(0)">
-          <Icon type="ios-more" class="tree-node-inner-button"></Icon>
-        </a>
-        <DropdownMenu slot="list" style="min-width:60px">
-          <DropdownItem align="center" @click="onTreeNodeCopy(data)">Copy</DropdownItem>
-          <DropdownItem align="center" @click="onTreeNodePaste(data)" :disabled="true">Paste</DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
+      <span @click.stop="">
+        <Dropdown v-show="isMouseOver" placement="bottom-end" @on-click="onDropdownMenuClick" >
+          <a href="javascript:void(0)">
+            <Icon type="ios-more" class="tree-node-inner-button"></Icon>
+          </a>
+          <DropdownMenu slot="list" style="min-width:60px">
+            <DropdownItem align="center" name="delete">Delete</DropdownItem>
+            <DropdownItem align="center" name="copy">Copy</DropdownItem>
+            <DropdownItem align="center" name="paste" :disabled="hasCopyTarget">Paste</DropdownItem>
+            <DropdownItem align="center" name="addGroup">Add group</DropdownItem>
+            <DropdownItem align="center" name="addData">Add data</DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </span>
     </Col>
   </Row>
 </template>
@@ -36,47 +41,75 @@ export default {
     }
   },
   computed: {
-    rowClass(){
-      if (this.data.id === this.$store.state.dataManager.focusNodeInfo.id) {
+    rowClass() {
+      if (this.$store.state.dataManager.focusNodeInfo && this.data.id === this.$store.state.dataManager.focusNodeInfo.id) {
         return ["tree-node-inner-row", "tree-node-inner-row-select"]
-      }
-      else if (this.isMouseOver) {
+      } else if (this.isMouseOver) {
         return ["tree-node-inner-row", "tree-node-inner-row-foucs"]
+      } else {
+        return ["tree-node-inner-row"]
       }
-      return ["tree-node-inner-row"]
+    },
+    hasCopyTarget() {
+      return this.$store.state.dataManager.copyTarget === null
     }
   },
   methods: {
-    onToggleStatusChange(payload) {
-      this.treestore.toggleOpen(payload)
-      if (payload.open === true) {
-        this.$store.commit('addGroupListOpenNode', payload.id)
+    onDropdownMenuClick(payload) {
+      if (payload === 'delete') {
+        this.onTreeNodeDelete()
+      } else if (payload === 'copy') {
+        this.onTreeNodeCopy()
+      } else if (payload === 'paste') {
+        this.onTreeNodePaste()
+      } else if (payload === 'addGroup') {
+        this.onCreateGroup()
+      } else if (payload === 'addData') {
+        this.onCreateData()
+      } else {}
+    },
+    onToggleStatusChange() {
+      this.treestore.toggleOpen(this.data)
+      if (this.data.open === true) {
+        this.$store.commit('addGroupListOpenNode', this.data.id)
       } else {
-        this.$store.commit('deleteGroupListOpenNode', payload.id)
+        this.$store.commit('deleteGroupListOpenNode', this.data.id)
       }
     },
-    onTreeChange(payload) {
-      this.$bus.$emit('treeChange', payload)
-    },
-    onTreeNodeClick(payload) {
-      this.$store.commit('setFocusNodeInfo', payload)
-      if (payload.type === 'group') {
-        this.$store.dispatch('loadGroupDetail', payload)
-      } else if (payload.type === 'data') {
-        this.$store.dispatch('loadDataDetail', payload)
+    onTreeNodeClick() {
+      this.$store.commit('setFocusNodeInfo', this.data)
+      if (this.data.type === 'group') {
+        this.$store.dispatch('loadGroupDetail', this.data)
+      } else if (this.data.type === 'data') {
+        this.$store.dispatch('loadDataDetail', this.data)
       } else {}
     },
-    onTreeNodeDelete(payload) {
-      if (payload.type === 'group') {
-        this.$store.dispatch('deleteGroup', payload)
-      } else if (payload.type === 'data') {
-        this.$store.dispatch('deleteData', payload)
+    onTreeNodeDelete() {
+      if (this.data.type === 'group') {
+        this.$store.dispatch('deleteGroup', this.data)
+      } else if (this.data.type === 'data') {
+        this.$store.dispatch('deleteData', this.data)
       } else {}
     },
-    onTreeNodeCopy(payload) {
+    onTreeNodeCopy() {
+      // this.$store.commit('setCopyTarget', this.data)
+    },
+    onTreeNodePaste() {
+      // let copyObj = this.$store.state.dataManager.copyTarget
+      // if (copyObj.type === 'group') {
+      //   this.$store.dispatch('createGroup', {
+      //     groupName: copyObj.name,
+      //     parentId: this.data.id})
+      // } else if (copyObj.type === 'data') {
+      //   this.$store.dispatch('createData', {
+      //     dataName: copyObj.name,
+      //     parentId: this.data.id})
+      // } else {}
+    },
+    onCreateGroup() {
 
     },
-    onTreeNodePaste(payload) {
+    onCreateData() {
 
     }
   }
