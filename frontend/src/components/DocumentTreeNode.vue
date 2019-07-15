@@ -99,13 +99,11 @@ export default {
       // if (copyObj.type === 'group') {
       //   this.$store.dispatch('createGroup', {
       //     groupName: copyObj.name,
-      //     parentId: this.data.id,
-      //     source: copyObj.id})
+      //     parentId: this.data.id})
       // } else if (copyObj.type === 'data') {
       //   this.$store.dispatch('createData', {
       //     dataName: copyObj.name,
-      //     parentId: this.data.id,
-      //     source: copyObj.id})
+      //     parentId: this.data.id})
       // } else {}
     },
     onCreateGroup() {

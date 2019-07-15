@@ -90,11 +90,11 @@ export const getGroupDetail = (groupId) => {
   })
 }
 
-export const createGroup = (name, parentId, source) => {
+export const createGroup = (name, parentId) => {
   return axios({
     url: '/api/group',
     method: 'POST',
-    data: { name: name, source: source, parent_id: parentId }
+    data: { name: name, parent_id: parentId }
   })
 }
 

@@ -23,7 +23,7 @@ export default {
     },
     jsonPath: null,
     conflictInfo: null,
-    groupListOpenNode: new Set(['1c43e48a-3d5f-4989-877a-654a5194d823','9cfe9830-bf85-4db5-95d4-9b020a785aec','0c845846-fd58-4d25-99c8-f1953ac467c7','cf92e8ab-be9d-4e53-afbe-a44d622b641f']),
+    groupListOpenNode: new Set(),
     dataDetail: {},
     groupDetail: {},
     focusNodeInfo: {},
@@ -134,8 +134,8 @@ export default {
           console.log('Update detail failed', error)
         })
     },
-    createGroup({ dispatch }, { groupName, parentId, source }) {
-      api.createGroup(groupName, parentId, source)
+    createGroup({ dispatch }, { groupName, parentId }) {
+      api.createGroup(groupName, parentId)
         .then(response => {
           dispatch('loadDataMap')
           bus.$emit('msg.success', 'Group ' + groupName+' created!')
@@ -173,10 +173,9 @@ export default {
         bus.$emit('msg.error', 'Delete group ' + payload.name + ' error: ' + error)
       })
     },
-    createData({ dispatch }, { dataName, parentId, source }) {
+    createData({ dispatch }, { dataName, parentId }) {
       api.createData(parentId, {
-        name: dataName,
-        source: source
+        name: dataName
       })
         .then(response => {
           dispatch('loadDataMap')
