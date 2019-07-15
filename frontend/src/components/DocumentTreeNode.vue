@@ -1,13 +1,13 @@
 <template>
   <Row :class="rowClass" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" @click.native="onTreeNodeClick">
     <Col :span="isMouseOver?21:24">
-      <span v-show="data.type === 'group' && data.children.length" @click="onToggleStatusChange">
-        <Icon v-if="data.open" type="md-arrow-dropdown" class="tree-node-inner-button"/>
-        <Icon v-else type="md-arrow-dropright" class="tree-node-inner-button"/>
+      <span v-show="data.type === 'group' && data.children.length" class="tree-node-inner-button" @click="onToggleStatusChange">
+        <Icon v-if="data.open" type="md-arrow-dropdown"/>
+        <Icon v-else type="md-arrow-dropright"/>
       </span>
-      <span v-show="data.type === 'group' && !data.children.length" @click="onToggleStatusChange">
-        <Icon v-if="data.open" type="md-arrow-dropdown" class="tree-node-inner-button-empty"/>
-        <Icon v-else type="md-arrow-dropright" class="tree-node-inner-button-empty"/>
+      <span v-show="data.type === 'group' && !data.children.length" class="tree-node-inner-button-empty" @click="onToggleStatusChange">
+        <Icon v-if="data.open" type="md-arrow-dropdown" />
+        <Icon v-else type="md-arrow-dropright"/>
       </span>
       <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
       <span class="tree-node-inner-text">{{data.name}}</span>
