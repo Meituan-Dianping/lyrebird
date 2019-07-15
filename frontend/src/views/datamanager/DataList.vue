@@ -35,21 +35,8 @@ export default {
   },
   methods: {
     setTreeData(payload) {
-      console.log('Moved:', payload.name, ', id:', payload.id)
-      let tree = payload
-      let parentsStr = ''
-      while (tree.parent.name) {
-        parentsStr += tree.parent.name
-        parentsStr += ' '
-        tree = tree.parent
-      }
-      console.log('New parents:', parentsStr)
-      console.log('Whole tree data', this.treeData)
-      // this.$store.commit('setDataList', payload)
-    },
-    // setSelectedTreeNode(payload) {
-    //   console.log('selected node:', payload.name, ', id:', payload.id)
-    // }
+
+    }
   }
 }
 </script>
