@@ -22,12 +22,12 @@ export default {
       selectedDataIdList: []
     },
     jsonPath: null,
-    unshowInfoKey: ['request', 'response', 'children'],
     conflictInfo: null,
     groupListOpenNode: new Set(),
     dataDetail: {},
     groupDetail: {},
-    focusNodeInfo: {}
+    focusNodeInfo: {},
+    copyTarget: null
   },
   mutations: {
     setGroupList(state, groupList) {
@@ -92,6 +92,9 @@ export default {
     },
     setFocusNodeInfo(state, focusNodeInfo) {
       state.focusNodeInfo = focusNodeInfo
+    },
+    setCopyTarget(state, copyTarget) {
+      state.copyTarget = copyTarget
     }
   },
   actions: {
@@ -110,15 +113,6 @@ export default {
         })
         commit('setGroupList', response.data.data.children)
       })
-    },
-    loadDataDetail({ commit }, payload) {
-      api.getDataDetail(payload.id)
-        .then(response => {
-          commit('setDataDetail', response.data.data)
-        })
-        .catch(error => {
-          bus.$emit('msg.error', 'Load data ' + payload.name + ' error: ' + error)
-        })
     },
     loadGroupDetail({ commit }, payload) {
       api.getGroupDetail(payload.id)
@@ -140,20 +134,14 @@ export default {
           console.log('Update detail failed', error)
         })
     },
-    newDataGroup({ state, commit, dispatch }, { groupName, parentGroupId }) {
-      api.createGroup(groupName, parentGroupId)
+    createGroup({ dispatch }, { groupName, parentId }) {
+      api.createGroup(groupName, parentId)
         .then(response => {
-          const groupId = response.data.group_id
-          state.groupList.push({
-            id: groupId,
-            name: groupName,
-            parent: parentGroupId
-          })
-          commit('setCurrentDataGroup', groupId)
-          dispatch('loadDataMap', groupId)
+          dispatch('loadDataMap')
+          bus.$emit('msg.success', 'Group ' + groupName+' created!')
         })
         .catch(error => {
-          console.error('Create group failed')
+          bus.$emit('msg.error', 'Group ' + groupName + ' created error: ' + error)
         })
     },
     updateDataGroup({ state, commit, dispatch }, { groupId, groupName, parentGroupId }) {
@@ -171,27 +159,48 @@ export default {
           dispatch('loadDataMap', groupId)
         })
     },
-    deleteGroup({ commit, dispatch }, payload) {
+    deleteGroup({ state, commit, dispatch }, payload) {
       api.deleteGroup(payload.id).then(response => {
         dispatch('loadDataMap')
         commit('deleteGroupListOpenNode', payload.id)
-        commit('setFocusNodeInfo', null)
+        commit('setFocusNodeInfo', {})
+        if (state.copyTarget && payload.id === state.copyTarget.id) {
+          commit('setCopyTarget', null)
+        }
         bus.$emit('msg.success', 'Delete Group ' + payload.name)
       })
       .catch(error => {
         bus.$emit('msg.error', 'Delete group ' + payload.name + ' error: ' + error)
       })
     },
-    newData({ dispatch }, { groupId, name }) {
-      api.createData(groupId, name)
+    createData({ dispatch }, { dataName, parentId }) {
+      api.createData(parentId, {
+        name: dataName
+      })
         .then(response => {
-          dispatch('loadDataMap', groupId)
+          dispatch('loadDataMap')
+          bus.$emit('msg.success', 'Group ' + dataName+' created!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Group ' + dataName + ' created error: ' + error)
         })
     },
-    deleteData({ commit, dispatch }, payload) {
+    loadDataDetail({ commit }, payload) {
+      api.getDataDetail(payload.id)
+        .then(response => {
+          commit('setDataDetail', response.data.data)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load data ' + payload.name + ' error: ' + error)
+        })
+    },
+    deleteData({ state, commit, dispatch }, payload) {
       api.deleteData(payload.id).then(response => {
         dispatch('loadDataMap', payload.id)
-        commit('setFocusNodeInfo', null)
+        commit('setFocusNodeInfo', {})
+        if (state.copyTarget && payload.id === state.copyTarget.id) {
+          commit('setCopyTarget', null)
+        }
         bus.$emit('msg.success', 'Delete Data ' + payload.name)
       })
       .catch(error => {

@@ -82,13 +82,6 @@ export default {
 </script>
 
 <style>
-.button-bar {
-  height: 27px;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
 .data-detail {
   height: calc(100vh - 127px);
   /* total:100vh
@@ -101,5 +94,6 @@ export default {
   footer: 28px
     */
   overflow-y: auto;
+  font-size: 14px;
 }
 </style>

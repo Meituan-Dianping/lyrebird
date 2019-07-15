@@ -5,7 +5,8 @@
         <span contenteditable="true">{{key}}</span>
       </Col>
       <Col span="20">
-        <span>{{value}}</span>
+        <Input v-if="readOnly.indexOf(key) === -1" v-model="information[key]" :placeholder="value" size="small" />
+        <span v-else>{{value}}</span>
       </Col>
     </Row>
   </div>
@@ -13,6 +14,12 @@
 
 <script>
 export default {
-  props: ['information']
+  props: ['information'],
+  data() {
+    return {
+      // RULE should not be read only, support Object later
+      readOnly: ['id', 'parent_id', 'type', 'rule']
+    }
+  }
 }
 </script>
