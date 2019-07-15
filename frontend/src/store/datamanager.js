@@ -102,9 +102,6 @@ export default {
       api.getGroupMap()
       .then(response => {
         breadthFirstSearch([response.data.data], node => {
-          if (node && node.type === 'data') {
-            node.droppable = false
-          }
           if (node.parent_id === null) {
             commit('addGroupListOpenNode', node.id)
           }
