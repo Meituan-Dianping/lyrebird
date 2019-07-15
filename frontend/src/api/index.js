@@ -94,7 +94,7 @@ export const createGroup = (name, parentId) => {
   return axios({
     url: '/api/group',
     method: 'POST',
-    data: { name: name, 'parent_id': parentId }
+    data: { name, 'parent_id': parentId }
   })
 }
 
@@ -115,7 +115,7 @@ export const createData = (parentId, data) => {
   return axios({
     url: '/api/data',
     method: 'POST',
-    data: { data: data, 'parent_id': parentId }
+    data: { data, 'parent_id': parentId }
   })
 }
 
