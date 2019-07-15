@@ -1,10 +1,14 @@
 <template>
   <Row :class="rowClass" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" @click.native="onTreeNodeClick">
     <Col :span="isMouseOver?21:24">
-      <b v-if="data.children && data.children.length" @click="onToggleStatusChange">
+      <span v-show="data.type === 'group' && data.children.length" @click="onToggleStatusChange">
         <Icon v-if="data.open" type="md-arrow-dropdown" class="tree-node-inner-button"/>
         <Icon v-else type="md-arrow-dropright" class="tree-node-inner-button"/>
-      </b>
+      </span>
+      <span v-show="data.type === 'group' && !data.children.length" @click="onToggleStatusChange">
+        <Icon v-if="data.open" type="md-arrow-dropdown" class="tree-node-inner-button-empty"/>
+        <Icon v-else type="md-arrow-dropright" class="tree-node-inner-button-empty"/>
+      </span>
       <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
       <span class="tree-node-inner-text">{{data.name}}</span>
     </Col>
@@ -49,6 +53,9 @@ export default {
       } else {
         return ["tree-node-inner-row"]
       }
+    },
+    buttonClass() {
+
     },
     hasCopyTarget() {
       return this.$store.state.dataManager.copyTarget === null
@@ -123,6 +130,11 @@ export default {
 .tree-node-inner-button {
   padding-left: 5px;
   cursor: pointer;
+}
+.tree-node-inner-button-empty {
+  padding-left: 5px;
+  cursor: pointer;
+  color: #c5c8ce;
 }
 .tree-node-inner-text {
   padding-left: 3px;
