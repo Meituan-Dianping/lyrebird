@@ -1,14 +1,7 @@
 <template>
   <Row :class="rowClass" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" @click.native="onTreeNodeClick">
     <Col :span="isMouseOver?21:24">
-      <span v-show="data.type === 'group' && data.children.length" class="tree-node-inner-button" @click="onToggleStatusChange">
-        <Icon v-if="data.open" type="md-arrow-dropdown"/>
-        <Icon v-else type="md-arrow-dropright"/>
-      </span>
-      <span v-show="data.type === 'group' && !data.children.length" class="tree-node-inner-button-empty" @click="onToggleStatusChange">
-        <Icon v-if="data.open" type="md-arrow-dropdown" />
-        <Icon v-else type="md-arrow-dropright"/>
-      </span>
+      <Icon v-show="data.type === 'group'" :class="toggleClass" size="14" @click="onToggleStatusChange" />
       <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
       <span class="tree-node-inner-text">{{data.name}}</span>
     </Col>
@@ -86,12 +79,26 @@ export default {
   computed: {
     rowClass() {
       if (this.$store.state.dataManager.focusNodeInfo && this.data.id === this.$store.state.dataManager.focusNodeInfo.id) {
-        return ["tree-node-inner-row", "tree-node-inner-row-select"]
+        return ['tree-node-inner-row', 'tree-node-inner-row-select']
       } else if (this.isMouseOver) {
-        return ["tree-node-inner-row", "tree-node-inner-row-foucs"]
+        return ['tree-node-inner-row', 'tree-node-inner-row-foucs']
       } else {
-        return ["tree-node-inner-row"]
+        return ['tree-node-inner-row']
       }
+    },
+    toggleClass() {
+      let toggleClassObj = []
+      if (this.data.open) {
+        toggleClassObj.push('ivu-icon ivu-icon-md-arrow-dropdown')
+      } else {
+        toggleClassObj.push('ivu-icon ivu-icon-md-arrow-dropright')
+      }
+      if (this.data.children.length) {
+        toggleClassObj.push('tree-node-inner-button')
+      } else {
+        toggleClassObj.push('tree-node-inner-button-empty')
+      }
+      return toggleClassObj
     },
     hasCopyTarget() {
       return this.$store.state.dataManager.copyTarget === null
