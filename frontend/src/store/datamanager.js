@@ -120,7 +120,7 @@ export default {
           commit('setGroupDetail', response.data.data)
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error)
+          bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error.data.message)
         })
     },
     saveDataDetail ({ state, dispatch }, dataDetail) {
@@ -140,7 +140,7 @@ export default {
             bus.$emit('msg.success', 'Group ' + groupName + ' created!')
           })
           .catch(error => {
-            bus.$emit('msg.error', 'Group ' + groupName + ' created error: ' + error)
+            bus.$emit('msg.error', 'Group ' + groupName + ' created error: ' + error.data.message)
           })
       } else {
         bus.$emit('msg.error', 'Create group ' + groupName + ' error: ' + 'Group name is required!')
@@ -172,7 +172,7 @@ export default {
         bus.$emit('msg.success', 'Delete Group ' + payload.name)
       })
         .catch(error => {
-          bus.$emit('msg.error', 'Delete group ' + payload.name + ' error: ' + error)
+          bus.$emit('msg.error', 'Delete group ' + payload.name + ' error: ' + error.data.message)
         })
     },
     createData ({ dispatch }, { dataName, parentId }) {
@@ -185,7 +185,7 @@ export default {
             bus.$emit('msg.success', 'Data ' + dataName + ' created!')
           })
           .catch(error => {
-            bus.$emit('msg.error', 'Data ' + dataName + ' created error: ' + error)
+            bus.$emit('msg.error', 'Data ' + dataName + ' created error: ' + error.data.message)
           })
       } else {
         bus.$emit('msg.error', 'Create data ' + dataName + ' error: ' + 'Data name is required!')
@@ -197,7 +197,7 @@ export default {
           commit('setDataDetail', response.data.data)
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Load data ' + payload.name + ' error: ' + error)
+          bus.$emit('msg.error', 'Load data ' + payload.name + ' error: ' + error.data.message)
         })
     },
     deleteData ({ state, commit, dispatch }, payload) {
@@ -210,7 +210,7 @@ export default {
         bus.$emit('msg.success', 'Delete Data ' + payload.name)
       })
         .catch(error => {
-          bus.$emit('msg.error', 'Delete data ' + payload.name + ' error: ' + error)
+          bus.$emit('msg.error', 'Delete data ' + payload.name + ' error: ' + error.data.message)
         })
     },
     loadConflict ({ commit }, payload) {
@@ -223,7 +223,28 @@ export default {
         }
       })
         .catch(error => {
-          bus.$emit('msg.error', 'Get group ' + payload.name + ' conflicts error: ' + error)
+          bus.$emit('msg.error', 'Get group ' + payload.name + ' conflicts error: ' + error.data.message)
+        })
+    },
+    copyGroupOrData ({ commit }, payload) {
+      api.copyGroupOrData(payload.id)
+        .then(response => {
+          commit('setCopyTarget', payload)
+          bus.$emit('msg.success', payload.type + ' ' + payload.name + ' is waiting for paste')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', payload.type + ' ' + payload.name + ' copy error: ' + error.data.message)
+        })
+    },
+    pasteGroupOrData ({ commit, dispatch }, payload) {
+      api.pasteGroupOrData(payload.id)
+        .then(response => {
+          commit('addGroupListOpenNode', payload.id)
+          dispatch('loadDataMap')
+          bus.$emit('msg.success', payload.type + ' ' + payload.name + ' paste success')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', payload.type + ' ' + payload.name + ' paste error: ' + error.data.message)
         })
     }
   }
