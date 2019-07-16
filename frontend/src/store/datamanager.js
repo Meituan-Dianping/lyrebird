@@ -101,9 +101,9 @@ export default {
     loadDataMap({ state, commit }) {
       api.getGroupMap()
       .then(response => {
-        breadthFirstSearch(response.data.data.children, node => {
-          if (node && node.type === 'data') {
-            node.droppable = false
+        breadthFirstSearch([response.data.data], node => {
+          if (node.parent_id === null) {
+            commit('addGroupListOpenNode', node.id)
           }
           if (state.groupListOpenNode.has(node.id)) {
             node.open = true
@@ -111,7 +111,7 @@ export default {
             node.open = false
           }
         })
-        commit('setGroupList', response.data.data.children)
+        commit('setGroupList', [response.data.data])
       })
     },
     loadGroupDetail({ commit }, payload) {
@@ -135,14 +135,18 @@ export default {
         })
     },
     createGroup({ dispatch }, { groupName, parentId }) {
-      api.createGroup(groupName, parentId)
-        .then(response => {
-          dispatch('loadDataMap')
-          bus.$emit('msg.success', 'Group ' + groupName+' created!')
-        })
-        .catch(error => {
-          bus.$emit('msg.error', 'Group ' + groupName + ' created error: ' + error)
-        })
+      if (groupName) {
+        api.createGroup(groupName, parentId)
+          .then(response => {
+            dispatch('loadDataMap')
+            bus.$emit('msg.success', 'Group ' + groupName+' created!')
+          })
+          .catch(error => {
+            bus.$emit('msg.error', 'Group ' + groupName + ' created error: ' + error)
+          })
+      } else {
+        bus.$emit('msg.error', 'Create group ' + groupName + ' error: ' + 'Group name is required!')
+      }
     },
     updateDataGroup({ state, commit, dispatch }, { groupId, groupName, parentGroupId }) {
       api.updateGroup(groupId, groupName, parentGroupId)
@@ -174,16 +178,20 @@ export default {
       })
     },
     createData({ dispatch }, { dataName, parentId }) {
-      api.createData(parentId, {
-        name: dataName
-      })
-        .then(response => {
-          dispatch('loadDataMap')
-          bus.$emit('msg.success', 'Group ' + dataName+' created!')
+      if (dataName) {
+        api.createData(parentId, {
+          name: dataName
         })
-        .catch(error => {
-          bus.$emit('msg.error', 'Group ' + dataName + ' created error: ' + error)
-        })
+          .then(response => {
+            dispatch('loadDataMap')
+            bus.$emit('msg.success', 'Data ' + dataName+' created!')
+          })
+          .catch(error => {
+            bus.$emit('msg.error', 'Data ' + dataName + ' created error: ' + error)
+          })
+      } else {
+        bus.$emit('msg.error', 'Create data ' + dataName + ' error: ' + 'Data name is required!')
+      }
     },
     loadDataDetail({ commit }, payload) {
       api.getDataDetail(payload.id)
