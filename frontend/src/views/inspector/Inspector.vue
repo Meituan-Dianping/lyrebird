@@ -19,15 +19,15 @@
 <script>
 let stopedStatus = {
   recording: false,
-  type: "record",
-  color: "red",
-  text: "Start recording"
+  type: 'record',
+  color: 'red',
+  text: 'Start recording'
 };
 let recordingStatus = {
   recording: true,
-  type: "stop",
-  color: "black",
-  text: "Stop recording"
+  type: 'stop',
+  color: 'black',
+  text: 'Stop recording'
 };
 import FlowList from '@/views/inspector/FlowList.vue'
 import FlowDetail from '@/views/inspector/FlowDetail.vue'
@@ -38,7 +38,7 @@ export default {
   data: function () {
     return {
       activatedData: null,
-      selectedDataGroup: "",
+      selectedDataGroup: '',
     };
   },
   components: {
@@ -49,16 +49,16 @@ export default {
   computed: {
     listSpan () {
       if (this.focusedFlow) {
-        return "12"
+        return '12'
       } else {
-        return "24"
+        return '24'
       }
     },
     focusedFlow () {
       return this.$store.state.inspector.focusedFlow
     }
   }
-};
+}
 </script>
 
 <style scoped>
