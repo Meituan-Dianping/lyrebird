@@ -30,6 +30,9 @@ class CheckerEventHandler:
         }
         application.server['event'].publish('notice', notice)
 
+    def publish(self, channel, message, *args, **kwargs):
+        application.server['event'].publish(channel, message, *args, **kwargs)
+
 
 event = CheckerEventHandler()
 
@@ -123,8 +126,14 @@ class LyrebirdCheckerServer(ThreadServer):
         for path in scripts:
             try:
                 class_module = imp.load_source('checker', path)
-                for event in class_module.event.listeners:
-                    application.server['event'].subscribe(event['channel'], event['func'])
+                if isinstance(class_module.event, CustomEventReceiver):
+                    for event in class_module.event.listeners:
+                        application.server['event'].subscribe(event['channel'], event['func'])
+                elif isinstance(class_module.event, CheckerEventHandler):
+                    global registered_func_array
+                    for registered_func in registered_func_array:
+                        application.server['event'].subscribe(registered_func[0], registered_func[1])
+                    registered_func_array = []
             except ValueError:
                 logger.error(f'{path} failed to load. Only python file is allowed.')
 
