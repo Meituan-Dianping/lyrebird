@@ -4,6 +4,7 @@ import os
 import re
 import uuid
 from pathlib import Path
+from urllib.parse import urlparse
 
 PROP_FILE_NAME = '.lyrebird_prop'
 
@@ -142,6 +143,15 @@ class DataManager:
     Data tree operations
     """
 
+    def _get_request_path(self, request):
+        path = request.get('path')
+        if not path:
+            if not request.get('url'):
+                return ''
+            parsed_url = urlparse(request['url'])
+            path = parsed_url.path
+        return path
+
     def add_data(self, parent_id, data):
         if not isinstance(data, dict):
             raise DataObjectSouldBeADict
@@ -155,9 +165,9 @@ class DataManager:
                 raise DataObjectCannotContainAnyOtherObject
         data_id = str(uuid.uuid4())
         data['id'] = data_id
-        data['name'] = data['request']['path']
+        data['name'] = self._get_request_path(data['request'])
         data['rule'] = {
-            'request.url': f'(?=.*{data["request"]["path"]})'
+            'request.url': f'(?=.*{self._get_request_path(data["request"])})'
         }
         data_path = self.root_path / data_id
         with codecs.open(data_path, 'w') as f:
@@ -167,7 +177,7 @@ class DataManager:
             # New data added in the head of child list
             parent_node['children'].insert(0, {
                 'id': data_id,
-                'name': data.get('name', data['request']['path']),
+                'name': data.get('name', self._get_request_path(data["request"])),
                 'type': 'data',
                 'parent_id': parent_id
             })
