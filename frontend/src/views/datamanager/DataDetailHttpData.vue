@@ -97,7 +97,19 @@ export default {
   },
   methods: {
     save () {
-
+      const newData = {}
+      Object.assign(newData, JSON.parse(this.editorCache.info))
+      // Add request
+      const newReq = {}
+      Object.assign(newReq, JSON.parse(this.editorCache.req))
+      newReq['data'] = this.editorCache.reqData
+      newData['request'] = newReq
+      // Add response
+      const newResp = {}
+      Object.assign(newResp, JSON.parse(this.editorCache.resp))
+      newResp['data'] = this.editorCache.respData
+      newData['response'] = newResp
+      this.$store.dispatch('saveDataDetail', newData)
     },
     onJsonPathChange (payload) {
       this.$store.commit('setJsonPath', payload.jsonPath)

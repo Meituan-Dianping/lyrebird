@@ -71,10 +71,10 @@ export const updateGroup = (id, name, parent) => {
     })
 }
 
-export const updateDataDetail = (groupName, dataName, dataDetail) => {
+export const updateData = (data) => {
     return axios({
-        url: '/api/mock/' + groupName + '/data/' + dataName,
+        url: '/api/data',
         method: 'PUT',
-        data: dataDetail
+        data: data
     })
 }

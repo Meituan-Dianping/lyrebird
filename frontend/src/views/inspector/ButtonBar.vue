@@ -48,7 +48,7 @@
       <ButtonGroup>
         <Button @click="showMockDataSelector" size="small">{{activateBtnText}}</Button>
         <Button size="small" @click="resetActivatedData">
-          <Tooltip content="deactivate group" :delay="500">
+          <Tooltip content="Deactivate mock group" :delay="500">
             <Icon type="ios-backspace-outline" color="red" size="16" />
           </Tooltip>
         </Button>
