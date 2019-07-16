@@ -6,19 +6,20 @@
       </tab-pane>
       <tab-pane label="Conflict" name="conflict">
         <div class="data-detail">
-          <Row style="padding-top:10px">
-            <Col span="9" offset="1" >
-              Result of data <b>{{nodeInfo.name}}</b>
+          <Row type="flex" justify="end" style="padding-top:10px">
+            <Col span="18" style="padding:0px 5px 0px 10px">
+              <b v-if="conflictInfo">
+                <Icon type="md-information-circle" />
+                Group {{conflictCheckNode.name}} has {{conflictInfo.length}} conflicts
+              </b>
             </Col>
-            <Col span="11" align="right">
+            <Col span="6" align="right" style="padding:0px 5px 0px 5px">
+              <Button type="primary" size="small" :loading="isLoadConflictInfo" @click="getConflictInfo" style="margin-right:5px">
+                <span v-if="isLoadConflictInfo">Loading</span>
+                <span v-else>Start check</span>
+              </Button>
               <Button size="small" :disabled="isLoadConflictInfo" @click="deleteConflictInfo">
                 <span>Clear</span>
-              </Button>
-            </Col>
-            <Col span="3" align="right">
-              <Button type="primary" size="small" :loading="isLoadConflictInfo" @click="getConflictInfo">
-                <span v-if="isLoadConflictInfo">Loading...</span>
-                <span v-else>Start checking</span>
               </Button>
             </Col>
           </Row>
@@ -42,6 +43,7 @@ export default {
     return {
       currentTab: "information",
       isLoadConflictInfo: false,
+      conflictCheckNode: {},
       unshowInfoKey: ['children']
     }
   },
@@ -70,6 +72,7 @@ export default {
   },
   methods: {
     getConflictInfo() {
+      this.conflictCheckNode = this.nodeInfo
       this.isLoadConflictInfo = true
       this.$store.commit('clearConflictInfo')
       this.$store.dispatch('loadConflict', this.nodeInfo)

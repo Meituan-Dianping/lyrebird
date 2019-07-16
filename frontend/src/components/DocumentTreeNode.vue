@@ -16,8 +16,8 @@
           </a>
           <DropdownMenu slot="list" style="min-width:60px">
             <DropdownItem align="left" name="delete">Delete</DropdownItem>
-            <DropdownItem align="left" name="copy">Copy</DropdownItem>
-            <DropdownItem align="left" name="paste" :disabled="hasCopyTarget">Paste</DropdownItem>
+            <DropdownItem align="left" name="copy" :disabled="true">Copy</DropdownItem>
+            <DropdownItem align="left" name="paste" :disabled="true">Paste</DropdownItem>
             <DropdownItem align="left" name="addGroup" :disabled="data.type === 'data'">Add group</DropdownItem>
             <DropdownItem align="left" name="addData" :disabled="data.type === 'data'">Add data</DropdownItem>
           </DropdownMenu>
