@@ -1,14 +1,14 @@
 <template>
   <div>
     <Row class="button-bar">
-      <Col span="12">
+      <Col span="15" class="button-bar-line">
         <span v-for="(value, index) in nodeParents" :key="value.id">
           {{value.name}}
           {{index === nodeParents.length-1 ? '' : ' - '}}
         </span>
       </Col>
-      <Col span="12" align="right">
-        <JsonPathBar class="json-path-bar"></JsonPathBar>
+      <Col span="8" offset="1" align="right" class="button-bar-line">
+        <JsonPathBar class="button-bar-line"/>
       </Col>
     </Row>
     <component v-if="nodeInfo.type" :is="getComponentByType(nodeInfo)" />
@@ -75,6 +75,12 @@ export default {
   padding: 10px;
   border-bottom: 1px solid #ddd;
   background-color: #f8f8f9;
+}
+.button-bar-line {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .small-tab > .ivu-tabs > .ivu-tabs-bar {
   margin-bottom: 0;
