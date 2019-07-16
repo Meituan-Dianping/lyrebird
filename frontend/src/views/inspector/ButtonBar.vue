@@ -1,15 +1,20 @@
 <template>
   <div class="inspector-button-bar">
     <Tooltip :content="recordBtnTooltip" placement="bottom-start" :delay="500">
-      <Button class="inspector-button" @click="switchRecord">
-        <Icon :type="recordingBtn.type" :color="recordingBtn.color" />
-      </Button>
+      <Icon
+        class="inspector-button"
+        :type="recordingBtn.type"
+        :color="recordingBtn.color"
+        @click="switchRecord"
+        style="margin-right:3px"
+        size="18"
+      />
     </Tooltip>
-    <div class="inline">
-      <Divider type="vertical"></Divider>
-    </div>
+
     <Tooltip content="Clear" :delay="500">
-      <Button class="inspector-button" @click="showClearModal=true" icon="ios-trash"></Button>
+      <div class="inspector-button ivu-icon" @click="showClearModal=true">
+        <svg-icon class="ivu-icon" name="short-broom" color="#666" scale="5"></svg-icon>
+      </div>
     </Tooltip>
 
     <div class="inline" v-if="showDataButtons">
@@ -18,13 +23,19 @@
       </div>
 
       <Tooltip content="Save" :delay="500">
-        <Button @click="saveSelectedFlow">
-          <Icon type="md-archive"></Icon>
-        </Button>
+        <div class="inspector-button ivu-icon" @click="saveSelectedFlow">
+          <svg-icon class="ivu-icon" name="md-save" color="#666" scale="4"></svg-icon>
+        </div>
       </Tooltip>
 
       <Tooltip content="Delete" :delay="500">
-        <Button @click="deleteSelectedFlow" icon="md-trash"></Button>
+        <Icon
+          class="inspector-button"
+          @click="deleteSelectedFlow"
+          type="md-trash"
+          color="#666"
+          size="18"
+        />
       </Tooltip>
     </div>
 
@@ -37,7 +48,9 @@
       <ButtonGroup>
         <Button @click="showMockDataSelector" size="small">{{activateBtnText}}</Button>
         <Button size="small" @click="resetActivatedData">
-          <Icon type="ios-backspace-outline" color="red" />
+          <Tooltip content="Deactivate mock group" :delay="500">
+            <Icon type="ios-backspace-outline" color="red" size="16" />
+          </Tooltip>
         </Button>
       </ButtonGroup>
     </label>
@@ -55,20 +68,13 @@
       <p>Clear flow list?</p>
     </Modal>
 
-    <Modal
-      v-model="showCreateGroupModal"
-      title="Create mock group"
-      @on-ok="createAndActivateGroupOk"
-    >
-      <Input v-model="newDataGroupName" placeholder="Data group name"></Input>
-    </Modal>
-
     <MockDataSelector ref="dataSelector"></MockDataSelector>
   </div>
 </template>
 
 <script>
 import MockDataSelector from '@/views/inspector/MockDataSelector.vue'
+import Icon from 'vue-svg-icon/Icon.vue'
 
 let stopedStatus = {
   recording: false,
@@ -87,13 +93,12 @@ let recordingStatus = {
 export default {
   name: 'buttonBar',
   components: {
-    MockDataSelector
+    MockDataSelector,
+    'svg-icon': Icon
   },
   data: function () {
     return {
       showClearModal: false,
-      showCreateGroupModal: false,
-      newDataGroupName: '',
       recordingBtn: stopedStatus
     };
   },
@@ -198,8 +203,8 @@ export default {
       return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
     },
     saveSelectedFlow: function () {
-      if (!this.activatedGroupId) {
-        this.showCreateGroupModal = true;
+      if (Object.keys(this.activatedGroups).length <= 0) {
+        this.$Message.warning('Please activate a mock group before save.')
         return
       }
       this.$http.post('/api/flow',
@@ -212,14 +217,14 @@ export default {
           if (resp.data.code === 1000) {
             this.$Notice.success(
               {
-                title: 'Flow saved',
+                title: 'HTTP flow saved',
                 desc: resp.data.message
               }
             )
           } else {
             this.$Notice.error(
               {
-                title: 'Save flow failed',
+                title: 'Save HTTP flow failed',
                 desc: resp.data.message,
                 duration: 0
               }
@@ -250,8 +255,9 @@ export default {
   flex-grow: 1;
 }
 .inspector-button {
-  padding: 1px 6px 1px !important;
-  font-size: 14px !important;
+  padding: 3px 8px 3px;
+  font-size: 14px;
+  cursor: pointer;
 }
 .inspector-searchbox {
   width: 30vw;

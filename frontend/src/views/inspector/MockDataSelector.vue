@@ -13,9 +13,13 @@
             <p class="searchitem-path">{{item.abs_parent_path}}</p>
           </Col>
           <Col span="4">
-            <Button style="float: right" @click="onActivateClick(item.id)">
-              <Icon type="ios-play" color="green" />
-            </Button>
+            <Icon
+              type="ios-play"
+              color="green"
+              size="22"
+              class="data-selector-activate-btn"
+              @click="onActivateClick(item.id)"
+            />
           </Col>
         </Row>
       </div>
@@ -85,5 +89,10 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.data-selector-activate-btn {
+  float: right;
+  padding-right: 10px;
+  cursor: pointer;
 }
 </style>

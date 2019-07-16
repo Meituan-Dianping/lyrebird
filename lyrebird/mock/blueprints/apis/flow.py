@@ -1,5 +1,6 @@
 from flask_restful import Resource
 from lyrebird.mock import context
+from lyrebird import application
 from flask import request, jsonify, abort, stream_with_context
 import json
 import time
@@ -13,7 +14,7 @@ class Flow(Resource):
     def get(self, id):
         for item in context.application.cache.items():
             if item['id'] == id:
-                return jsonify(item)
+                return application.make_ok_response(data=item)
         return abort(400, 'Request not found')
 
 

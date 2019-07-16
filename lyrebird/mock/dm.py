@@ -4,6 +4,7 @@ import os
 import re
 import uuid
 from pathlib import Path
+from urllib.parse import urlparse
 
 PROP_FILE_NAME = '.lyrebird_prop'
 
@@ -142,6 +143,15 @@ class DataManager:
     Data tree operations
     """
 
+    def _get_request_path(self, request):
+        path = request.get('path')
+        if not path:
+            if not request.get('url'):
+                return ''
+            parsed_url = urlparse(request['url'])
+            path = parsed_url.path
+        return path
+
     def add_data(self, parent_id, data):
         if not isinstance(data, dict):
             raise DataObjectSouldBeADict
@@ -155,16 +165,21 @@ class DataManager:
                 raise DataObjectCannotContainAnyOtherObject
         data_id = str(uuid.uuid4())
         data['id'] = data_id
+        data['name'] = self._get_request_path(data['request'])
+        data['rule'] = {
+            'request.url': f'(?=.*{self._get_request_path(data["request"])})'
+        }
         data_path = self.root_path / data_id
         with codecs.open(data_path, 'w') as f:
             # Save data file
             json.dump(data, f, ensure_ascii=False)
             # Update parent node
-            parent_node['children'].append({
+            # New data added in the head of child list
+            parent_node['children'].insert(0, {
                 'id': data_id,
-                'name': data['name'],
+                'name': data.get('name', self._get_request_path(data["request"])),
                 'type': 'data',
-                'paren_id': parent_id
+                'parent_id': parent_id
             })
             # Update ID mapping
             self.id_map[data_id] = data
@@ -189,7 +204,8 @@ class DataManager:
             'parent_id': parent_id,
             'children': []
         }
-        parent_node['children'].append(new_group)
+        # New group added in the head of child list
+        parent_node['children'].insert(0, new_group)
         # Register ID
         self.id_map[group_id] = new_group
         # Save prop
@@ -362,8 +378,10 @@ class DataManager:
     """
 
     def save_data(self, data):
-        if self.save_to_group_id:
-            self.add_data(self.save_to_group_id, data)
+        if len(self.activated_group) > 0:
+            # TODO use self.save_to_group_id
+            target_group_id = list(self.activated_group.keys())[0]
+            self.add_data(target_group_id, data)
         else:
             self.add_data('tmp_group', data)
 

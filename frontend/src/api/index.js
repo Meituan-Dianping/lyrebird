@@ -1,6 +1,10 @@
 import axios from 'axios'
 export * from '@/api/search.js'
 export * from '@/api/activate.js'
+export * from '@/api/flow.js'
+export * from '@/api/datamanager.js'
+export * from '@/api/checker.js'
+export * from '@/api/notice.js'
 
 
 const successHandler = (response) => {
@@ -55,85 +59,6 @@ export const getManifest = () => {
   })
 }
 
-//-------Flow----------------
-
-export const getFlowDetail = (flowId) => {
-  return axios({
-    url: '/api/flow/' + flowId
-  })
-}
-
-//------Mock data manager------
-/**
-Get group name list
-return:
-[
-    'GroupNameA',
-    'GroupNameB'
-]
-*/
-export const getGroups = () => {
-  return axios({
-    url: '/api/group'
-  })
-}
-
-export const getGroupMap = () => {
-  return axios({
-    url: '/api/group'
-  })
-}
-
-export const getGroupDetail = (groupId) => {
-  return axios({
-    url: '/api/data/' + groupId
-  })
-}
-
-export const createGroup = (name, parentId) => {
-  return axios({
-    url: '/api/group',
-    method: 'POST',
-    data: { name, 'parent_id': parentId }
-  })
-}
-
-export const deleteGroup = (groupId) => {
-  return axios({
-    url: '/api/group/' + groupId,
-    method: 'DELETE'
-  })
-}
-
-export const getDataDetail = (dataId) => {
-  return axios({
-    url: '/api/data/' + dataId
-  })
-}
-
-export const createData = (parentId, data) => {
-  return axios({
-    url: '/api/data',
-    method: 'POST',
-    data: { data, 'parent_id': parentId }
-  })
-}
-
-export const deleteData = (dataId) => {
-  return axios({
-    url: '/api/data/' + dataId,
-    method: 'DELETE'
-  })
-}
-
-export const updateGroup = (id, name, parent) => {
-  return axios({
-    url: '/api/mock',
-    method: 'PUT',
-    data: { id, name, parent }
-  })
-}
-
 
 /**
     Get data list by data group name
@@ -164,88 +89,10 @@ export const getDataList = (groupId) => {
 }
 
 
-//------Notice manager------
-/**
-Get notification list
-return:
-{
-  'noticeList': [],
-  'notRemindList': []
-}
-*/
-export const getNoticeList = () => {
-  return axios({
-    url: '/api/notice'
-  })
-}
-
-//------Notice manager------
-/**
-Delete notification by key
-*/
-export const deleteNotice = (key) => {
-  return axios({
-    url: '/api/notice',
-    data: { key },
-    method: 'DELETE'
-  })
-}
-
-//------Notice manager------
-/**
-Change notification status by key
-return:
-*/
-export const updateNoticeStatus = (key, status) => {
-  return axios({
-    url: '/api/notice',
-    data: { key, status },
-    method: 'PUT'
-  })
-}
-
-export const updateDataDetail = (groupName, dataName, dataDetail) => {
-  return axios({
-    url: '/api/mock/' + groupName + '/data/' + dataName,
-    method: 'PUT',
-    data: dataDetail
-  })
-}
-
 export const getConflict = (dataId) => {
   return axios({
     url: '/api/conflict/id/' + dataId
   })
 }
 
-//------Checker manager------
-/**
-Get checkers list
-*/
-export const getCheckers = () => {
-  return axios({
-    url: '/api/checker'
-  })
-}
 
-//------Checker manager------
-/**
-Get checkers content
-*/
-export const getCheckerDetail = (checkerId) => {
-  return axios({
-    url: '/api/checker/' + checkerId
-  })
-}
-
-//------Checker manager------
-/**
-Change checkers activate status by checker_id
-*/
-export const updateCheckerStatus = (checkerId, status) => {
-  return axios({
-    url: '/api/checker/' + checkerId,
-    method: 'PUT',
-    data: { status }
-  })
-}
