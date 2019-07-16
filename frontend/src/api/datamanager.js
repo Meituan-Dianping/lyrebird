@@ -75,6 +75,6 @@ export const updateData = (data) => {
     return axios({
         url: '/api/data',
         method: 'PUT',
-        data: data
+        data
     })
 }
