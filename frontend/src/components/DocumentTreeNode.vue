@@ -16,8 +16,8 @@
           </a>
           <DropdownMenu slot="list" style="min-width:60px">
             <DropdownItem align="left" name="delete">Delete</DropdownItem>
-            <DropdownItem align="left" name="copy" :disabled="true">Copy</DropdownItem>
-            <DropdownItem align="left" name="paste" :disabled="true">Paste</DropdownItem>
+            <DropdownItem align="left" name="copy">Copy</DropdownItem>
+            <DropdownItem align="left" name="paste" :disabled="data.type === 'data' || hasCopyTarget">Paste</DropdownItem>
             <DropdownItem align="left" name="addGroup" :disabled="data.type === 'data'">Add group</DropdownItem>
             <DropdownItem align="left" name="addData" :disabled="data.type === 'data'">Add data</DropdownItem>
           </DropdownMenu>
@@ -144,19 +144,10 @@ export default {
       } else {}
     },
     onTreeNodeCopy() {
-      // this.$store.commit('setCopyTarget', this.data)
+      this.$store.dispatch('copyGroupOrData', this.data)
     },
     onTreeNodePaste() {
-      // let copyObj = this.$store.state.dataManager.copyTarget
-      // if (copyObj.type === 'group') {
-      //   this.$store.dispatch('createGroup', {
-      //     groupName: copyObj.name,
-      //     parentId: this.data.id})
-      // } else if (copyObj.type === 'data') {
-      //   this.$store.dispatch('createData', {
-      //     dataName: copyObj.name,
-      //     parentId: this.data.id})
-      // } else {}
+      this.$store.dispatch('pasteGroupOrData', this.data)
     },
     onCreate() {
       this.$store.commit('addGroupListOpenNode', this.data.id)

@@ -78,3 +78,17 @@ export const updateData = (data) => {
         data
     })
 }
+
+export const copyGroupOrData = (id) => {
+    return axios({
+        url: '/api/copy/' + id,
+        method: 'PUT'
+    })
+}
+
+export const pasteGroupOrData = (id) => {
+    return axios({
+        url: '/api/paste/' + id,
+        method: 'PUT'
+    })
+}
