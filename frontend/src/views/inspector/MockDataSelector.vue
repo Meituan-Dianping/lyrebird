@@ -6,7 +6,12 @@
     </div>
     <Input search enter-button v-model="searchStr" @on-search="searchGroup"></Input>
     <div class="searchlist">
-      <div v-for="item in searchResults" :key="item.id" class="searchitem">
+      <div
+        v-for="item in searchResults"
+        :key="item.id"
+        class="searchitem"
+        @click="onActivateClick(item.id)"
+      >
         <Row type="flex" justify="center" align="middle">
           <Col span="20">
             <label class="searchitem-title">{{item.name}}</label>
@@ -76,6 +81,7 @@ export default {
   border-radius: 3px;
   padding: 1px 5px 1px;
   margin: 1px 0px 1px;
+  cursor: pointer;
 }
 .searchitem-title {
   font-size: 14px;
