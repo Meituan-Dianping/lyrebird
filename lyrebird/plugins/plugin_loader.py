@@ -82,29 +82,32 @@ def load_all_from_ep():
 
 def load_plugin_from_ep(ep):
     global manifest_cache
-    manifest_cache=[]
+    manifest_cache = []
 
     ep_instance = ep.load()
 
     # There can only be one manifest in each plugin
-    if len(manifest_cache)>1:
+    if len(manifest_cache) > 1:
         raise ManifestError('More than one manifest in this plugin')
-    if len(manifest_cache)==0:
+    if len(manifest_cache) == 0:
         raise ManifestError('Not found manifest in plugin')
 
     # TODO
     manifest = manifest_cache[0][0]
     plugin = Plugin(
-            manifest['id'],
-            entry_point_name=ep.name,
-            version=ep.dist.version,
-            location=str(Path(ep_instance.__file__).parent),
-            **manifest)
+        manifest['id'],
+        entry_point_name=ep.name,
+        version=ep.dist.version,
+        location=str(Path(ep_instance.__file__).parent),
+        **manifest)
 
     return plugin
 
 
 def load_from_path(plugin_path):
+    global manifest_cache
+    manifest_cache = []
+
     packages = setuptools.find_packages(plugin_path)
     for pkg in packages:
         manifest_file = Path(plugin_path)/pkg/'manifest.py'
