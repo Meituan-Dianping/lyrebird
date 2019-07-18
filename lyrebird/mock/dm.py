@@ -169,18 +169,21 @@ class DataManager:
         data['rule'] = {
             'request.url': f'(?=.*{self._get_request_path(data["request"])})'
         }
+        data_node = {}
+        data_node['id'] = data_id
+        data_node['name'] = self._get_request_path(data['request'])
+        data_node['type'] = 'data'
+        data_node['parent_id'] = parent_id
+
         data_path = self.root_path / data_id
         with codecs.open(data_path, 'w') as f:
             # Save data file
             json.dump(data, f, ensure_ascii=False)
+            print(f'*** Write file {data_path}')
             # Update parent node
             # New data added in the head of child list
-            parent_node['children'].insert(0, {
-                'id': data_id,
-                'name': data.get('name', self._get_request_path(data["request"])),
-                'type': 'data',
-                'parent_id': parent_id
-            })
+            parent_node['children'].insert(0, data_node)
+            print(f'*** Add to node {data_node}')
             # Update ID mapping
             self.id_map[data_id] = data
         self._save_prop()
@@ -275,13 +278,13 @@ class DataManager:
             self._copy_node(_parent_node, _node)
         self._save_prop()
 
-    def _copy_node(self, target_node, node):
+    def _copy_node(self, parent_node, node):
         new_node = {}
         new_node.update(node)
         new_node['id'] = str(uuid.uuid4())
-        new_node['parent_id'] = target_node['id']
+        new_node['parent_id'] = parent_node['id']
         # Add to target node
-        target_node['children'].append(new_node)
+        parent_node['children'].append(new_node)
         # Register ID
         self.id_map[new_node['id']] = new_node
         if new_node['type'] == 'group':
@@ -289,12 +292,12 @@ class DataManager:
             for child in node['children']:
                 self._copy_node(new_node, child)
         elif new_node['type'] == 'data':
-            self._copy_file(node)
+            self._copy_file(new_node, node)
 
-    def _copy_file(self, data_node):
+    def _copy_file(self, target_data_node, data_node):
         _id = data_node['id']
         origin_file_path = self.root_path / _id
-        new_file_id = str(uuid.uuid4())
+        new_file_id = target_data_node['id']
         new_file_path = self.root_path / new_file_id
         with codecs.open(origin_file_path, 'r') as inputfile, codecs.open(new_file_path, 'w') as outputfile:
             origin_text = inputfile.read()

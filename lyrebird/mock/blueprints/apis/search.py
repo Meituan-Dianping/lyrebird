@@ -10,6 +10,9 @@ class SearchMockDataByName(Resource):
         for _id in context.application.data_manager.id_map:
             group = context.application.data_manager.id_map.get(_id)
             if not search_str and group.get('name') and group.get('type') == 'group':
+                if group.get('name') == '$':
+                    # skip root node
+                    continue
                 _matched_group.append({
                     'id': group['id'],
                     'name': group['name'],
