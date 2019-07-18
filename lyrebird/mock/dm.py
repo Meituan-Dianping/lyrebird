@@ -16,6 +16,7 @@ class DataManager:
         self.id_map = {}
         self.activated_data = {}
         self.activated_group = {}
+        self.secondary_activated_data = {}
         self.clipboard = None
         self.save_to_group_id = None
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'children': []}
@@ -83,17 +84,26 @@ class DataManager:
             self._activate(_node)
         else:
             raise DataNotFound(f'ID:{_id}')
+        if _node.get('secondary_search_id'):
+            _secondary_search_node_id = _node.get('secondary_search_id')
+            _secondary_search_node = self.get(_secondary_search_node_id)
+            if not _secondary_search_node:
+                raise DataNotFound(f'Secondary search node ID: {_secondary_search_node_id}')
+            self._activate(_secondary_search_node, secondary_search=True)
         self.activated_group[_id] = _node
 
-    def _activate(self, node):
+    def _activate(self, node, secondary_search=False):
         if node.get('type', '') == 'data':
             _mock_data = self._load_data(node['id'])
             if _mock_data:
-                self.activated_data[node['id']] = _mock_data
+                if not secondary_search:
+                    self.activated_data[node['id']] = _mock_data
+                else:
+                    self.secondary_activated_data[node['id']] = _mock_data
         elif node.get('type', '') == 'group':
             if 'children' in node:
                 for child in node['children']:
-                    self._activate(child)
+                    self._activate(child, secondary_search=secondary_search)
 
     def _load_data(self, data_id):
         _data_file = self.root_path / data_id
@@ -108,6 +118,7 @@ class DataManager:
         """
         self.activated_data = {}
         self.activated_group = {}
+        self.secondary_activated_data = {}
 
     def get_matched_data(self, flow):
         """
@@ -118,6 +129,11 @@ class DataManager:
             _data = self.activated_data[_data_id]
             if self._is_match_rule(flow, _data.get('rule')):
                 _matched_data.append(_data)
+        if len(_matched_data) <= 0:
+            for _data_id in self.secondary_activated_data:
+                _data = self.secondary_activated_data[_data_id]
+                if self._is_match_rule(flow, _data.get('rule')):
+                    _matched_data.append(_data)
         return _matched_data
 
     def _is_match_rule(self, flow, rules):
