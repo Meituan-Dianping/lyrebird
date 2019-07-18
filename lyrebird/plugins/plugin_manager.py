@@ -39,9 +39,8 @@ class PluginManager(StaticServer):
 
             # Add plugin main view to flask blueprint
             _view = plugin.manifest.view
-            def view_func():
-                return send_file(f"{plugin.location}/{view_static_folder_name}/{view_entry_file}")
-            _bp.add_url_rule('/', view_func=view_func)
+            _index_file_path = f"{plugin.location}/{view_static_folder_name}/{view_entry_file}"
+            _bp.add_url_rule('/', view_func=IndexPageViewFunc(p_name, _index_file_path))
 
             # Add API to blureprint
             for api in plugin.manifest.api:
@@ -66,3 +65,13 @@ class PluginManager(StaticServer):
                 channel = event_option[0]
                 callback_func = event_option[1]
                 event_service.subscribe(channel, callback_func)
+
+
+class IndexPageViewFunc:
+
+    def __init__(self, name, index_file_path):
+        self.__name__ = name
+        self.index_file_path = index_file_path
+
+    def __call__(self):
+        return send_file(self.index_file_path)
