@@ -23,6 +23,7 @@ class Event:
     """
     Event bus inner class
     """
+
     def __init__(self, event_id, channel, message):
         self.id = event_id
         self.channel = channel
@@ -40,7 +41,6 @@ class EventServer(ThreadServer):
         self.any_channel = []
         self.broadcast_executor = ThreadPoolExecutor(thread_name_prefix='event-broadcast-')
 
-
     def broadcast_handler(self, callback_fn, event, args, kwargs):
         """
 
@@ -49,7 +49,7 @@ class EventServer(ThreadServer):
         # Check
         func_sig = inspect.signature(callback_fn)
         func_parameters = list(func_sig.parameters.values())
-        if len(func_parameters)<1 or func_parameters[0].default!=inspect._empty:
+        if len(func_parameters) < 1 or func_parameters[0].default != inspect._empty:
             logger.error(f'Event callback function [{callback_fn.__name__}] need a argument for receiving event object')
             return
 
@@ -108,7 +108,7 @@ class EventServer(ThreadServer):
         # Make sure event is dict
         if not isinstance(message, dict):
             # Plugins send a array list as message, then set this message to raw property
-            _msg = { 'raw': message }
+            _msg = {'raw': message}
             message = _msg
 
         message['channel'] = channel
@@ -150,7 +150,6 @@ class EventServer(ThreadServer):
             callback_fn_list = self.pubsub_channels.setdefault(channel, [])
             callback_fn_list.append([callback_fn, args, kwargs])
 
-
     def unsubscribe(self, channel, target_callback_fn, *args, **kwargs):
         """
         Unsubscribe callback function from channel
@@ -178,6 +177,7 @@ class CustomEventReceiver:
         def on_message(data):
             pass
     """
+
     def __init__(self):
         self.listeners = []
 
@@ -202,5 +202,5 @@ class CustomEventReceiver:
         notice = {
             "title": title,
             "message": message
-            }
+        }
         application.server['event'].publish('notice', notice)

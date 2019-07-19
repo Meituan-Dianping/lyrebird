@@ -12,6 +12,31 @@ from lyrebird.event import CustomEventReceiver
 logger = log.get_logger()
 
 
+registered_func_array = []
+
+
+class CheckerEventHandler:
+
+    def __call__(self, channel, *args, **kw):
+        def func(origin_func):
+            registered_func_array.append([channel, origin_func])
+            return origin_func
+        return func
+
+    def issue(self, title, message):
+        notice = {
+            "title": title,
+            "message": message
+        }
+        application.server['event'].publish('notice', notice)
+
+    def publish(self, channel, message, *args, **kwargs):
+        application.server['event'].publish(channel, message, *args, **kwargs)
+
+
+event = CheckerEventHandler()
+
+
 class LyrebirdCheckerServer(ThreadServer):
     def __init__(self):
         super().__init__()
@@ -101,8 +126,14 @@ class LyrebirdCheckerServer(ThreadServer):
         for path in scripts:
             try:
                 class_module = imp.load_source('checker', path)
-                for event in class_module.event.listeners:
-                    application.server['event'].subscribe(event['channel'], event['func'])
+                if isinstance(class_module.event, CustomEventReceiver):
+                    for event in class_module.event.listeners:
+                        application.server['event'].subscribe(event['channel'], event['func'])
+                elif isinstance(class_module.event, CheckerEventHandler):
+                    global registered_func_array
+                    for registered_func in registered_func_array:
+                        application.server['event'].subscribe(registered_func[0], registered_func[1])
+                    registered_func_array = []
             except ValueError:
                 logger.error(f'{path} failed to load. Only python file is allowed.')
 
@@ -133,11 +164,18 @@ class Checker:
         self._update = val
 
     def activate(self):
+        global registered_func_array
         self._module = script_module = self.load_class(self.path)
         event_proxy = getattr(script_module, 'event')
         if isinstance(event_proxy, CustomEventReceiver):
             self._event_receiver = event_proxy
             event_proxy.register(context.application.event_bus)
+        elif isinstance(event_proxy, CheckerEventHandler):
+            self._event_receiver = CustomEventReceiver()
+            for registered_func in registered_func_array:
+                self._event_receiver.listeners.append(dict(channel=registered_func[0], func=registered_func[1]))
+            self._event_receiver.register(context.application.event_bus)
+            registered_func_array = []
         self.activated = True
 
     def deactivate(self):
