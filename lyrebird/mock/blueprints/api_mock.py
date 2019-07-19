@@ -28,7 +28,6 @@ def index(path=''):
 
     for handler_name in plugin_manager.inner_handler:
         handler = plugin_manager.inner_handler[handler_name]
-        logger.debug(f'Call inner handler {handler_name}')
         try:
             handler.handle(req_context)
             if req_context.response:

@@ -115,6 +115,7 @@ def run(args: argparse.Namespace):
     mock_data_formater.check_data_dir(data_dir)
 
     # show current config contents
+    print_lyrebird_info()
     config_str = json.dumps(application._cm.config, ensure_ascii=False, indent=4)
     logger.warning(f'Lyrebird start with config:\n{config_str}')
 
@@ -178,3 +179,25 @@ def _get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('bing.com', 80))
     return s.getsockname()[0]
+
+
+def print_lyrebird_info():
+    logo = [
+        "",
+        "",
+        "     _                    _     _         _ ",
+        "    | |                  | |   (_)       | |",
+        "    | |    _   _ _ __ ___| |__  _ _ __ __| |",
+        "    | |   | | | | '__/ _ \ '_ \| | '__/ _' |",
+        "    | |___| |_| | | |  __/ |_) | | | | (_| |",
+        "    \_____/\__, |_|  \___|_.__/|_|_|  \__,_|",
+        "            __/ |                           ",
+        "           |___/                            ",
+        "",
+        f"                   v{version.VERSION}",
+        "",
+        ""
+    ]
+    logo_str = '\n'.join(logo)
+    # Custom log level 60  : NOTICE
+    logger.log(60, logo_str)

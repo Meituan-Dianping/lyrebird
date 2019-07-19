@@ -16,7 +16,7 @@ Default port 4272
 """
 
 CURRENT_PATH = Path(__file__).parent
-FLOW_PATH = CURRENT_PATH/'proxy_flow.py'
+FLOW_PATH = CURRENT_PATH/'mitm.py'
 
 
 logger = get_logger()

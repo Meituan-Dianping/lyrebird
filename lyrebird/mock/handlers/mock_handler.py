@@ -16,8 +16,13 @@ class MockHandler:
 
     def handle(self, handler_context):
         data = context.application.data_manager.get_matched_data(handler_context.flow)
-        if len(data) > 0:
-            handler_context.response = self.data2response(data[0])
+        if len(data) <= 0:
+            return
+        handler_context.response = self.data2response(data[0])
+        activated_groups = context.application.data_manager.activated_group
+        activated_group = list(activated_groups.values())[0]
+        logger.info(
+            f'<Mock> Hit Group:{activated_group.get("name")} - Data:{data[0]["name"]} \nURL: {handler_context.flow["request"]["url"]}\nGroupID:{activated_group["id"]} DataID:{data[0]["id"]}')
 
     def data2response(self, data):
         response = data['response']
