@@ -196,6 +196,7 @@ def print_lyrebird_info():
         "",
         f"                   v{version.VERSION}",
         "",
+        "",
         ""
     ]
     logo_str = '\n'.join(logo)

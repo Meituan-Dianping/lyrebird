@@ -18,7 +18,7 @@ def get_logger() -> logging.Logger:
 Color = namedtuple('Color', ['fore', 'style', 'back'])
 
 COLORS = dict(
-    NOTICE=Color(fore=Fore.WHITE, style=Style.NORMAL, back=Back.GREEN),
+    NOTICE=Color(fore=Fore.GREEN, style=Style.NORMAL, back=Back.RESET),
     CRITICAL=Color(fore=Fore.WHITE, style=Style.BRIGHT, back=Back.RED),
     ERROR=Color(fore=Fore.RED, style=Style.NORMAL, back=Back.RESET),
     WARNING=Color(fore=Fore.YELLOW, style=Style.NORMAL, back=Back.RESET),
