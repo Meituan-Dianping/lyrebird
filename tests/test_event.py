@@ -2,8 +2,8 @@ import time
 import pytest
 import lyrebird
 from lyrebird import reporter
-from lyrebird import CustomEventReceiver
 from lyrebird.event import EventServer
+from lyrebird import CustomEventReceiver
 from lyrebird.task import BackgroundTaskServer
 
 
