@@ -134,6 +134,13 @@ class EventServer(ThreadServer):
                 self.state[channel] = message['raw']
             else:
                 self.state[channel] = message
+
+        application.reporter.report({
+            'action': 'event',
+            'channel': channel,
+            'event': message
+        })
+
         logger.debug(f'channel={channel} state={state}\nmessage:\n-----------\n{message}\n-----------\n')
 
     def subscribe(self, channel, callback_fn, *args, **kwargs):
