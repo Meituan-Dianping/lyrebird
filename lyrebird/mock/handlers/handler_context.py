@@ -153,17 +153,19 @@ class HandlerContext:
 
     def update_client_req_time(self):
         self.client_req_time = time.time()
-        # 消息总线 客户端请求事件，暂不使用
-        # context.application.event_bus.publish('flow',
-        #                                       dict(name='client.request',
-        #                                       time=self.client_req_time,
-        #                                       id=self.id,
-        #                                       flow=self.flow
-        #                                       ))
+        # 消息总线 客户端请求事件，启用此事件
+        method = self.flow['request']['method']
+        url = self.flow['request']['url']
+        context.application.event_bus.publish('flow.request',
+        dict(
+            flow=self.flow,
+            message=f"URL: {url}\nMethod: {method}\n"
+            )
+        )
 
     def update_client_resp_time(self):
         self.client_resp_time = time.time()
-        # 消息总线 客户端响应事件， 目前仅启用此事件
+        # 消息总线 客户端响应事件，启用此事件
         method = self.flow['request']['method']
         url = self.flow['request']['url']
         code = self.flow['response']['code']
