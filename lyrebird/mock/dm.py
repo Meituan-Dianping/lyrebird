@@ -6,7 +6,11 @@ import uuid
 from pathlib import Path
 from urllib.parse import urlparse
 
+from lyrebird.log import get_logger
+
 PROP_FILE_NAME = '.lyrebird_prop'
+
+logger = get_logger()
 
 
 class DataManager:
@@ -179,15 +183,23 @@ class DataManager:
                 raise IDNotFound(parent_id)
             if parent_node['type'] == 'data':
                 raise DataObjectCannotContainAnyOtherObject
+
         data_id = str(uuid.uuid4())
         data['id'] = data_id
-        data['name'] = self._get_request_path(data['request'])
-        data['rule'] = {
-            'request.url': f'(?=.*{self._get_request_path(data["request"])})'
-        }
+        if 'request' in data:
+            _data_name = self._get_request_path(data['request'])
+            _data_rule = {
+                'request.url': f'(?=.*{self._get_request_path(data["request"])})'
+            }
+        else:
+            _data_name = data.get('name')
+            _data_rule = {'request.url': '(?=.*YOUR-REQUEST-PATH)(?=.*PARAMS)'}
+        data['name'] = _data_name
+        data['rule'] = _data_rule
+
         data_node = {}
         data_node['id'] = data_id
-        data_node['name'] = self._get_request_path(data['request'])
+        data_node['name'] = _data_name
         data_node['type'] = 'data'
         data_node['parent_id'] = parent_id
 
@@ -195,13 +207,13 @@ class DataManager:
         with codecs.open(data_path, 'w') as f:
             # Save data file
             json.dump(data, f, ensure_ascii=False)
-            print(f'*** Write file {data_path}')
+            logger.debug(f'*** Write file {data_path}')
             # Update parent node
             # New data added in the head of child list
             parent_node['children'].insert(0, data_node)
-            print(f'*** Add to node {data_node}')
+            logger.debug(f'*** Add to node {data_node}')
             # Update ID mapping
-            self.id_map[data_id] = data
+            self.id_map[data_id] = data_node
         self._save_prop()
         return data_id
 

@@ -242,8 +242,11 @@ def test_add_data(data_manager):
         'response': {}
     }
     new_data_id = data_manager.add_data('groupC-UUID', data)
-    _new_data = data_manager.id_map.get(new_data_id)
-    assert data == _new_data
+    _new_data_node = data_manager.id_map.get(new_data_id)
+    assert data['name'] == _new_data_node['name']
+    _new_data = data_manager.get(new_data_id)
+    assert data['name'] == _new_data['name']
+    assert data['request'] == _new_data['request']
     group_c = data_manager.id_map.get('groupC-UUID')
     found_new_data = False
     for child in group_c['children']:
