@@ -1,20 +1,5 @@
 import axios from 'axios'
 
-//------Mock data manager------
-/**
-Get group name list
-return:
-[
-    'GroupNameA',
-    'GroupNameB'
-]
-*/
-export const getGroups = () => {
-    return axios({
-        url: '/api/group'
-    })
-}
-
 export const getGroupMap = () => {
     return axios({
         url: '/api/group'
@@ -90,5 +75,11 @@ export const pasteGroupOrData = (id) => {
     return axios({
         url: '/api/paste/' + id,
         method: 'PUT'
+    })
+}
+
+export const getConflict = (dataId) => {
+    return axios({
+      url: '/api/conflict/id/' + dataId
     })
 }
