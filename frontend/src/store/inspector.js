@@ -1,4 +1,5 @@
 import * as api from '@/api'
+import { bus } from '@/eventbus'
 
 export default {
   state: {
@@ -6,7 +7,6 @@ export default {
     showDataButtons: false,
     searchStr: '',
     selectedIds: [],
-    groupList: [],
     focusedFlow: null,
     focusedFlowDetail: null,
     groupTree: null
@@ -40,14 +40,18 @@ export default {
         .then(response => {
           commit('setActivitedGroup', response.data.data)
         })
-        .catch(error => console.log(error))
+        .catch(error => {
+          bus.$emit('msg.error', 'Load activate Group error: ' + error.data.message)
+        })
     },
     activateGroup ({ dispatch }, groupId) {
       api.activateGroup(groupId)
         .then(response => {
           dispatch('loadActivatedGroup')
         })
-        .catch(error => console.log(error))
+        .catch(error => {
+          bus.$emit('msg.error', 'Activate Group ' + groupId + ' error: ' + error.data.message)
+        })
     },
     deactivateGroup ({ dispatch }) {
       api.deactivateGroup()
@@ -55,31 +59,17 @@ export default {
           dispatch('loadActivatedGroup')
         })
         .catch(error => {
-        })
-    },
-    iLoadGroupList ({ state }) {
-      api.getGroups()
-        .then(response => {
-          state.groupList = response.data
-        })
-        .catch(error => console.log(error))
-    },
-    createAndActivateGroup ({ state, commit, dispatch }, groupName) {
-      api.createGroup(groupName)
-        .then(response => {
-          const groupId = response.data.group_id
-          state.groupList.push({
-            id: groupId,
-            name: groupName,
-            parent: null
-          })
-          dispatch('activateGroup', groupId)
+          bus.$emit('msg.error', 'Deactivate Group error: ' + error.data.message)
         })
     },
     loadFlowDetail ({ commit }, flowId) {
-      api.getFlowDetail(flowId).then(response => {
-        commit('setFocusedFlowDetail', response.data.data)
-      })
+      api.getFlowDetail(flowId)
+        .then(response => {
+          commit('setFocusedFlowDetail', response.data.data)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load flow ' + flowId + ' error: ' + error.data.message)
+        })
     },
     focusFlow ({ commit, dispatch }, flow) {
       commit('setFocusedFlow', flow)
@@ -87,4 +77,3 @@ export default {
     }
   }
 }
-

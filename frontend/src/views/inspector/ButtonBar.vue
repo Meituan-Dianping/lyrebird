@@ -103,16 +103,12 @@ export default {
     };
   },
   mounted () {
-    this.$store.dispatch('iLoadGroupList')
     this.$store.dispatch('loadActivatedGroup')
-    this.getRecordStatus();
+    this.getRecordStatus()
   },
   computed: {
     showDataButtons () {
-      return this.$store.state.inspector.showDataButtons;
-    },
-    dataGroups () {
-      return this.$store.state.inspector.groupList
+      return this.$store.state.inspector.showDataButtons
     },
     activatedGroups () {
       return this.$store.state.inspector.activatedGroup
@@ -239,12 +235,9 @@ export default {
           console.log('DEL flow', this.$store.state.inspector.selectedIds, resp);
           this.$store.commit('clearSelectedId')
         })
-    },
-    createAndActivateGroupOk () {
-      this.$store.dispatch('createAndActivateGroup', this.newDataGroupName)
     }
   }
-};
+}
 </script>
 
 <style>
