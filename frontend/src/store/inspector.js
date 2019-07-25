@@ -59,7 +59,7 @@ export default {
           dispatch('loadActivatedGroup')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Deactivate Group ' + groupId + ' error: ' + error.data.message)
+          bus.$emit('msg.error', 'Deactivate Group error: ' + error.data.message)
         })
     },
     loadFlowDetail ({ commit }, flowId) {
