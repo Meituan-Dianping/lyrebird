@@ -162,15 +162,17 @@ export default {
         })
     },
     deleteGroup ({ state, commit, dispatch }, payload) {
-      api.deleteGroup(payload.id).then(response => {
-        dispatch('loadDataMap')
-        commit('deleteGroupListOpenNode', payload.id)
-        commit('setFocusNodeInfo', {})
-        if (state.copyTarget && payload.id === state.copyTarget.id) {
-          commit('setCopyTarget', null)
-        }
-        bus.$emit('msg.success', 'Delete Group ' + payload.name)
-      })
+      bus.$emit('msg.info', 'Deleting group ' + payload.name + ' ...')
+      api.deleteGroup(payload.id)
+        .then(response => {
+          dispatch('loadDataMap')
+          commit('deleteGroupListOpenNode', payload.id)
+          commit('setFocusNodeInfo', {})
+          if (state.copyTarget && payload.id === state.copyTarget.id) {
+            commit('setCopyTarget', null)
+          }
+          bus.$emit('msg.success', 'Delete Group ' + payload.name + ' success!')
+        })
         .catch(error => {
           bus.$emit('msg.error', 'Delete group ' + payload.name + ' error: ' + error.data.message)
         })
@@ -201,14 +203,16 @@ export default {
         })
     },
     deleteData ({ state, commit, dispatch }, payload) {
-      api.deleteData(payload.id).then(response => {
-        dispatch('loadDataMap', payload.id)
-        commit('setFocusNodeInfo', {})
-        if (state.copyTarget && payload.id === state.copyTarget.id) {
-          commit('setCopyTarget', null)
-        }
-        bus.$emit('msg.success', 'Delete Data ' + payload.name)
-      })
+      bus.$emit('msg.info', 'Deleting data ' + payload.name + ' ...')
+      api.deleteData(payload.id)
+        .then(response => {
+          dispatch('loadDataMap', payload.id)
+          commit('setFocusNodeInfo', {})
+          if (state.copyTarget && payload.id === state.copyTarget.id) {
+            commit('setCopyTarget', null)
+          }
+          bus.$emit('msg.success', 'Delete Data ' + payload.name + ' success!')
+        })
         .catch(error => {
           bus.$emit('msg.error', 'Delete data ' + payload.name + ' error: ' + error.data.message)
         })
