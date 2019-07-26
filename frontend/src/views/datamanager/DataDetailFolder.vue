@@ -2,16 +2,16 @@
   <div class="small-tab">
     <tabs v-model="currentTab" :animated="false" size="small">
       <tab-pane label="Information" name="information">
-        <DataDetailInfo class="data-detail" :information="displayGroupInfo"/>
+        <DataDetailInfo class="data-detail" :information="groupInfo"/>
       </tab-pane>
       <tab-pane label="Conflict" name="conflict">
         <div class="data-detail">
           <Row type="flex" justify="end" style="padding-top:10px">
             <Col span="18" style="padding:0px 5px 0px 10px">
-              <b v-if="conflictInfo">
+              <p v-if="conflictInfo">
                 <Icon type="md-information-circle" />
-                Group {{conflictCheckNode.name}} has {{conflictInfo.length}} conflicts
-              </b>
+                Group <b>{{conflictCheckNode.name}}</b> has {{conflictInfo.length}} conflicts
+              </p>
             </Col>
             <Col span="6" align="right" style="padding:0px 5px 0px 5px">
               <Button type="primary" size="small" :loading="isLoadConflictInfo" @click="getConflictInfo" style="margin-right:5px">
@@ -43,8 +43,7 @@ export default {
     return {
       currentTab: "information",
       isLoadConflictInfo: false,
-      conflictCheckNode: {},
-      unshowInfoKey: ['children']
+      conflictCheckNode: {}
     }
   },
   computed: {
@@ -53,15 +52,6 @@ export default {
     },
     groupInfo() {
       return this.$store.state.dataManager.groupDetail
-    },
-    displayGroupInfo() {
-      let res = {}
-      for (const key in this.groupInfo) {
-        if (this.unshowInfoKey.indexOf(key) === -1 && key.substring(0,1) !== '_') {
-          res[key] = this.groupInfo[key]
-        }
-      }
-      return res
     },
     conflictInfo() {
       if (this.$store.state.dataManager.conflictInfo) {

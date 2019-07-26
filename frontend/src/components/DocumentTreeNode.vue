@@ -142,6 +142,7 @@ export default {
       } else if (this.data.type === 'data') {
         this.$store.dispatch('deleteData', this.data)
       } else {}
+      this.shownDeleteModal = false
     },
     onTreeNodeCopy() {
       this.$store.dispatch('copyGroupOrData', this.data)
