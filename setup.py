@@ -78,7 +78,7 @@ setup(
         "pyparsing==2.2.2",
         "pyperclip==1.6.5",
         "pytest==3.9.3",
-        "python-engineio==3.5.0",
+        "python-engineio==3.8.2.post1",
         "python-socketio==3.1.2",
         "pytz==2018.9",
         "requests==2.21.0",
