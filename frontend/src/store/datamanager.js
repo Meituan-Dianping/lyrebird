@@ -23,12 +23,13 @@ export default {
     },
     jsonPath: null,
     conflictInfo: null,
+    isLoadingConflictInfo: false,
     groupListOpenNode: new Set(['f6dbefcc-8c02-45be-8182-1e6497fc0994', 'db459355-7dc1-458f-bde5-4641bf7f096d']),
     dataDetail: {},
     groupDetail: {},
     focusNodeInfo: {},
     copyTarget: null,
-    isGroupDetailChanged: true
+    isGroupDetailChanged: false
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -78,6 +79,9 @@ export default {
     },
     clearConflictInfo (state) {
       state.conflictInfo = null
+    },
+    setIsLoadingConflictInfo (state, isLoadingConflictInfo) {
+      state.isLoadingConflictInfo = isLoadingConflictInfo
     },
     addGroupListOpenNode (state, groupId) {
       state.groupListOpenNode.add(groupId)

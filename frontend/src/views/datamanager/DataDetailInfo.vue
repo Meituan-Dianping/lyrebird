@@ -28,14 +28,14 @@ export default {
       },
       set (val) {
         this.$store.commit('setGroupDetailItem', { key: this.infoKey, value: val })
-        this.$store.commit('setIsGroupDetailChanged', false)
+        this.$store.commit('setIsGroupDetailChanged', true)
       }
     }
   },
   methods: {
     deleteInfoKey() {
       this.$store.commit('deleteGroupDetailItem', this.infoKey)
-      this.$store.commit('setIsGroupDetailChanged', false)
+      this.$store.commit('setIsGroupDetailChanged', true)
     }
   },
 }

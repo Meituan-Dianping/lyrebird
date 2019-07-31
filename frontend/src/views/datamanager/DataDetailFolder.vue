@@ -9,10 +9,10 @@
               Information of Group <b>{{groupInfo.id}}</b>
             </Col>
             <Col span="6" align="right">
-              <Button type="primary" size="small" :disabled="isGroupDetailChanged" @click="saveGroupDetail" style="margin-right:5px">
+              <Button type="primary" size="small" :disabled="!isGroupDetailChanged" @click="saveGroupDetail" style="margin-right:5px">
                 <span>Save</span>
               </Button>
-              <Button size="small" :disabled="isGroupDetailChanged" @click="loadGroupDetail" style="margin-right:5px">
+              <Button size="small" :disabled="!isGroupDetailChanged" @click="loadGroupDetail" style="margin-right:5px">
                 <span>Cancel</span>
               </Button>
             </Col>
@@ -97,9 +97,9 @@ export default {
   watch: {
     newPropKey () {
       if (this.newPropKey) {
-        this.$store.commit('setIsGroupDetailChanged', false)
-      } else {
         this.$store.commit('setIsGroupDetailChanged', true)
+      } else {
+        this.$store.commit('setIsGroupDetailChanged', false)
       }
     }
   },
@@ -119,7 +119,7 @@ export default {
       } else {
         this.$store.dispatch('saveGroupDetail', this.groupInfo)
       }
-      this.$store.commit('setIsGroupDetailChanged', true)
+      this.$store.commit('setIsGroupDetailChanged', false)
     },
     getConflictInfo() {
       this.conflictCheckNode = this.nodeInfo
@@ -134,7 +134,7 @@ export default {
       this.$store.dispatch('loadGroupDetail', this.groupInfo)
       this.newPropKey = ''
       this.newPropValue = ''
-      this.$store.commit('setIsGroupDetailChanged', true)
+      this.$store.commit('setIsGroupDetailChanged', false)
     }
   }
 }
