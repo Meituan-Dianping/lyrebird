@@ -23,11 +23,12 @@ export default {
     },
     jsonPath: null,
     conflictInfo: null,
-    groupListOpenNode: new Set(),
+    groupListOpenNode: new Set(['f6dbefcc-8c02-45be-8182-1e6497fc0994', 'db459355-7dc1-458f-bde5-4641bf7f096d']),
     dataDetail: {},
     groupDetail: {},
     focusNodeInfo: {},
-    copyTarget: null
+    copyTarget: null,
+    isGroupDetailChanged: true
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -90,11 +91,21 @@ export default {
     setGroupDetail (state, groupDetail) {
       state.groupDetail = groupDetail
     },
+    setGroupDetailItem (state, groupDetailItem) {
+      state.groupDetail[groupDetailItem.key] = groupDetailItem.value
+    },
+    deleteGroupDetailItem (state, key) {
+      state.groupDetail[key] = ''
+      delete state.groupDetail[key]
+    },
     setFocusNodeInfo (state, focusNodeInfo) {
       state.focusNodeInfo = focusNodeInfo
     },
     setCopyTarget (state, copyTarget) {
       state.copyTarget = copyTarget
+    },
+    setIsGroupDetailChanged (state, isGroupDetailChanged) {
+      state.isGroupDetailChanged = isGroupDetailChanged
     }
   },
   actions: {
@@ -146,19 +157,15 @@ export default {
         bus.$emit('msg.error', 'Create group ' + groupName + ' error: ' + 'Group name is required!')
       }
     },
-    updateDataGroup ({ state, commit, dispatch }, { groupId, groupName, parentGroupId }) {
-      api.updateGroup(groupId, groupName, parentGroupId)
+    saveGroupDetail ({ state, commit, dispatch }, payload) {
+      bus.$emit('msg.info', 'Updating group ' + payload.name + ' ...')
+      api.updateGroup(payload.id, payload)
         .then(response => {
-          const groupId = response.data.group_id
-          for (const group of state.groupList) {
-            if (groupId === group.id) {
-              group.name = groupName
-              group.parent = parentGroupId
-              break
-            }
-          }
-          commit('setCurrentDataGroup', groupId)
-          dispatch('loadDataMap', groupId)
+          dispatch('loadDataMap')
+          bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Group ' + payload.name + ' update error: ' + error)
         })
     },
     deleteGroup ({ state, commit, dispatch }, payload) {

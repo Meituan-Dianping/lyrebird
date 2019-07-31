@@ -422,11 +422,16 @@ class DataManager:
 
     def update_group(self, _id, data):
         ignore_keys = ['id', 'parent_id', 'type', 'children']
-        update_data = {k: data[k] for k in data if k not in ignore_keys}
         node = self.id_map.get(_id)
         if not node:
             raise IDNotFound(_id)
+
+        update_data = {k: data[k] for k in data if k not in ignore_keys}
         node.update(update_data)
+
+        delete_keys = [k for k in node if k not in data and k not in ignore_keys]
+        for key in delete_keys:
+            node.pop(key)
         self._save_prop()
 
     def update_data(self, _id, data):
