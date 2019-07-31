@@ -23,7 +23,7 @@ export default {
     },
     jsonPath: null,
     conflictInfo: null,
-    isLoadingConflictInfo: false,
+    isLoadConflictInfo: false,
     groupListOpenNode: new Set(['f6dbefcc-8c02-45be-8182-1e6497fc0994', 'db459355-7dc1-458f-bde5-4641bf7f096d']),
     dataDetail: {},
     groupDetail: {},
@@ -80,8 +80,8 @@ export default {
     clearConflictInfo (state) {
       state.conflictInfo = null
     },
-    setIsLoadingConflictInfo (state, isLoadingConflictInfo) {
-      state.isLoadingConflictInfo = isLoadingConflictInfo
+    setIsLoadConflictInfo (state, isLoadConflictInfo) {
+      state.isLoadConflictInfo = isLoadConflictInfo
     },
     addGroupListOpenNode (state, groupId) {
       state.groupListOpenNode.add(groupId)

@@ -71,7 +71,6 @@ export default {
     return {
       currentTab: "information",
       undisplayedInfoKey: ['children', 'type', 'parent_id'],
-      isLoadConflictInfo: false,
       conflictCheckNode: {},
       newPropKey: '',
       newPropValue: ''
@@ -89,9 +88,12 @@ export default {
     },
     conflictInfo() {
       if (this.$store.state.dataManager.conflictInfo) {
-        this.isLoadConflictInfo = false
+        this.$store.commit('setIsLoadConflictInfo', false)
       }
       return this.$store.state.dataManager.conflictInfo
+    },
+    isLoadConflictInfo() {
+      return this.$store.state.dataManager.isLoadConflictInfo
     }
   },
   watch: {
@@ -123,7 +125,7 @@ export default {
     },
     getConflictInfo() {
       this.conflictCheckNode = this.nodeInfo
-      this.isLoadConflictInfo = true
+      this.$store.commit('setIsLoadConflictInfo', true)
       this.$store.commit('clearConflictInfo')
       this.$store.dispatch('loadConflict', this.nodeInfo)
     },
