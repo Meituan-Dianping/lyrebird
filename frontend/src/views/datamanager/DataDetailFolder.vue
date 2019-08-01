@@ -26,7 +26,12 @@
                 <Input v-model="newPropKey" placeholder="Input new property" size="small"/>
               </Col>
               <Col span="18" style="padding:0px 0px 0px 10px">
-                <Input v-model="newPropValue" :disabled="!newPropKey" :placeholder="newPropKey?'Input value':'Input KEY first to enable value input'" size="small"/>
+                <Input 
+                  size="small"
+                  v-model="newPropValue" 
+                  :disabled="!newPropKey" 
+                  :placeholder="newPropKey?'Input value':'Input KEY first to enable value input'" 
+                />
               </Col>
             </Row>
           </div>

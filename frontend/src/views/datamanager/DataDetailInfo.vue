@@ -2,7 +2,13 @@
   <Row type="flex" justify="center" align="middle" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" style="margin-bottom:10px;word-break:break-all;">
     <Col span="6" align="right" style="padding:0px 10px">
       <Tooltip :content="this.readOnly.indexOf(this.infoKey)===-1 ? 'Delete': 'Undeletable key'" :delay="500">
-        <Icon type="md-remove-circle" :class="buttonClass" v-show="isMouseOver" @click.native="deleteInfoKey" style="padding:0px 10px"/>
+        <Icon 
+          type="md-remove-circle" 
+          :class="buttonClass" 
+          v-show="isMouseOver" 
+          @click.native="deleteInfoKey" 
+          style="padding:0px 10px"
+        />
       </Tooltip>
       <span>{{this.infoKey}}</span>
     </Col>
@@ -45,7 +51,7 @@ export default {
       this.$store.commit('deleteGroupDetailItem', this.infoKey)
       this.$store.commit('setIsGroupDetailChanged', true)
     }
-  },
+  }
 }
 </script>
 
