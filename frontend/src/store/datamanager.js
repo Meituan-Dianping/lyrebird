@@ -24,7 +24,7 @@ export default {
     jsonPath: null,
     conflictInfo: null,
     isLoadConflictInfo: false,
-    groupListOpenNode: new Set(['f6dbefcc-8c02-45be-8182-1e6497fc0994', 'db459355-7dc1-458f-bde5-4641bf7f096d']),
+    groupListOpenNode: new Set(),
     dataDetail: {},
     groupDetail: {},
     focusNodeInfo: {},
