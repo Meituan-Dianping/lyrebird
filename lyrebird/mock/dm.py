@@ -300,7 +300,7 @@ class DataManager:
         if self.clipboard['type'] == 'cut':
             _origin_parent = self.id_map.get(_node['parent_id'])
             _origin_parent['children'].remove(_node)
-            _parent_node['children'].append(_node)
+            _parent_node['children'].insert(0, _node)
             _node['parent_id'] = parent_id
         elif self.clipboard['type'] == 'copy':
             self._copy_node(_parent_node, _node)
@@ -312,7 +312,7 @@ class DataManager:
         new_node['id'] = str(uuid.uuid4())
         new_node['parent_id'] = parent_node['id']
         # Add to target node
-        parent_node['children'].append(new_node)
+        parent_node['children'].insert(0, new_node)
         # Register ID
         self.id_map[new_node['id']] = new_node
         if new_node['type'] == 'group':

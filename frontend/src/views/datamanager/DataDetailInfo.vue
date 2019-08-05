@@ -1,7 +1,7 @@
 <template>
   <Row type="flex" justify="center" align="middle" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" style="margin-bottom:10px;word-break:break-all;">
     <Col span="6" align="right" style="padding:0px 10px">
-      <Tooltip :content="this.readOnly.indexOf(this.infoKey)===-1 ? 'Delete': 'Undeletable key'" :delay="500">
+      <Tooltip :content="this.undeletable.indexOf(this.infoKey)===-1 ? 'Delete': 'Undeletable key'" :delay="500">
         <Icon 
           type="md-remove-circle" 
           :class="buttonClass" 
@@ -25,6 +25,7 @@ export default {
   data() {
     return {
       readOnly: ['id', 'rule', 'secondary_search_id'],
+      undeletable: ['id', 'rule', 'secondary_search_id', 'name'],
       isMouseOver: false
     }
   },
@@ -35,11 +36,10 @@ export default {
       },
       set (val) {
         this.$store.commit('setGroupDetailItem', { key: this.infoKey, value: val })
-        this.$store.commit('setIsGroupDetailChanged', true)
       }
     },
     buttonClass() {
-      if (this.readOnly.indexOf(this.infoKey) === -1) {
+      if (this.undeletable.indexOf(this.infoKey) === -1) {
         return ['enable-button']
       } else {
         return ['disable-button']
@@ -49,7 +49,6 @@ export default {
   methods: {
     deleteInfoKey() {
       this.$store.commit('deleteGroupDetailItem', this.infoKey)
-      this.$store.commit('setIsGroupDetailChanged', true)
     }
   }
 }

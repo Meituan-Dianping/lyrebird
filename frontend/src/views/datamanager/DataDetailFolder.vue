@@ -9,11 +9,8 @@
               Information of Group <b>{{groupInfo.id}}</b>
             </Col>
             <Col span="6" align="right">
-              <Button type="primary" size="small" :disabled="!isGroupDetailChanged" @click="saveGroupDetail" style="margin-right:5px">
+              <Button type="primary" size="small" @click="saveGroupDetail" style="margin-right:5px">
                 <span>Save</span>
-              </Button>
-              <Button size="small" :disabled="!isGroupDetailChanged" @click="loadGroupDetail" style="margin-right:5px">
-                <span>Cancel</span>
               </Button>
             </Col>
           </Row>
@@ -48,8 +45,7 @@
             </Col>
             <Col span="6" align="right" style="padding:0px 5px 0px 5px">
               <Button type="primary" size="small" :loading="isLoadConflictInfo" @click="getConflictInfo" style="margin-right:5px">
-                <span v-if="isLoadConflictInfo">Loading</span>
-                <span v-else>Start check</span>
+                <span>{{isLoadConflictInfo ? 'Loading' : 'Start check'}}</span>
               </Button>
               <Button size="small" :disabled="isLoadConflictInfo" @click="deleteConflictInfo">
                 <span>Clear</span>
@@ -88,26 +84,11 @@ export default {
     groupInfo() {
       return this.$store.state.dataManager.groupDetail
     },
-    isGroupDetailChanged() {
-      return this.$store.state.dataManager.isGroupDetailChanged
-    },
     conflictInfo() {
-      if (this.$store.state.dataManager.conflictInfo) {
-        this.$store.commit('setIsLoadConflictInfo', false)
-      }
       return this.$store.state.dataManager.conflictInfo
     },
     isLoadConflictInfo() {
       return this.$store.state.dataManager.isLoadConflictInfo
-    }
-  },
-  watch: {
-    newPropKey () {
-      if (this.newPropKey) {
-        this.$store.commit('setIsGroupDetailChanged', true)
-      } else {
-        this.$store.commit('setIsGroupDetailChanged', false)
-      }
     }
   },
   methods: {
@@ -126,7 +107,6 @@ export default {
       } else {
         this.$store.dispatch('saveGroupDetail', this.groupInfo)
       }
-      this.$store.commit('setIsGroupDetailChanged', false)
     },
     getConflictInfo() {
       this.conflictCheckNode = this.nodeInfo
@@ -136,12 +116,6 @@ export default {
     },
     deleteConflictInfo() {
       this.$store.commit('clearConflictInfo')
-    },
-    loadGroupDetail() {
-      this.$store.dispatch('loadGroupDetail', this.groupInfo)
-      this.newPropKey = ''
-      this.newPropValue = ''
-      this.$store.commit('setIsGroupDetailChanged', false)
     }
   }
 }

@@ -28,8 +28,7 @@ export default {
     dataDetail: {},
     groupDetail: {},
     focusNodeInfo: {},
-    copyTarget: null,
-    isGroupDetailChanged: false
+    copyTarget: null
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -98,7 +97,8 @@ export default {
     setGroupDetailItem (state, groupDetailItem) {
       state.groupDetail[groupDetailItem.key] = groupDetailItem.value
     },
-    deleteGroupDetailItem (state, deleteKey) {
+    deleteGroupDetailItem (state, key) {
+      // trigger object groupDetail's set method 
       state.groupDetail[key] = ''
       delete state.groupDetail[key]
     },
@@ -107,9 +107,6 @@ export default {
     },
     setCopyTarget (state, copyTarget) {
       state.copyTarget = copyTarget
-    },
-    setIsGroupDetailChanged (state, isGroupDetailChanged) {
-      state.isGroupDetailChanged = isGroupDetailChanged
     }
   },
   actions: {
@@ -229,8 +226,11 @@ export default {
         })
     },
     loadConflict ({ commit }, payload) {
+      commit('setIsLoadConflictInfo', true)
+      commit('clearConflictInfo')
       api.getConflict(payload.id).then(response => {
         commit('setConflictInfo', response.data.data)
+        commit('setIsLoadConflictInfo', false)
         if (response.data.data.length === 0) {
           bus.$emit('msg.success', 'Group ' + payload.name + ' has no conflict')
         } else if (response.data.data.length > 0) {
