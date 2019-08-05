@@ -98,7 +98,7 @@ export default {
       state.groupDetail[groupDetailItem.key] = groupDetailItem.value
     },
     deleteGroupDetailItem (state, key) {
-      // trigger object groupDetail's set method 
+      // Trigger object groupDetail's set method 
       state.groupDetail[key] = ''
       delete state.groupDetail[key]
     },
