@@ -99,13 +99,8 @@ export default {
       state.groupDetail[groupDetailItem.key] = groupDetailItem.value
     },
     deleteGroupDetailItem (state, deleteKey) {
-      let newGroupDetail = {}
-      for (const key in state.groupDetail) {
-        if (key !== deleteKey) {
-          newGroupDetail[key] = state.groupDetail[key]
-        }
-      }
-      state.groupDetail = newGroupDetail
+      state.groupDetail[key] = ''
+      delete state.groupDetail[key]
     },
     setFocusNodeInfo (state, focusNodeInfo) {
       state.focusNodeInfo = focusNodeInfo
