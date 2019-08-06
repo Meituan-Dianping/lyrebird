@@ -191,9 +191,16 @@ class DataManager:
             _data_rule = {
                 'request.url': f'(?=.*{self._get_request_path(data["request"])})'
             }
+            if 'data' in data['request']:
+                data['request']['data'] = self._flow_data_2_str(data['request']['data'])
         else:
             _data_name = data.get('name')
             _data_rule = {'request.url': '(?=.*YOUR-REQUEST-PATH)(?=.*PARAMS)'}
+        
+        if 'response' in data:
+            if 'data' in data['response']:
+                data['response']['data'] = self._flow_data_2_str(data['response']['data'])
+
         data['name'] = _data_name
         data['rule'] = _data_rule
 
@@ -216,6 +223,12 @@ class DataManager:
             self.id_map[data_id] = data_node
         self._save_prop()
         return data_id
+    
+    def _flow_data_2_str(self, data):
+        if isinstance(data, str):
+            return data
+        return json.dumps(data)
+
 
     def add_group(self, parent_id, name):
         if parent_id == None:
