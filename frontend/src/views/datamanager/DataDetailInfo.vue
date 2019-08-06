@@ -48,7 +48,9 @@ export default {
   },
   methods: {
     deleteInfoKey() {
-      this.$store.commit('deleteGroupDetailItem', this.infoKey)
+      if (this.undeletable.indexOf(this.infoKey) === -1) {
+        this.$store.commit('deleteGroupDetailItem', this.infoKey)
+      }
     }
   }
 }

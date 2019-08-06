@@ -159,10 +159,10 @@ export default {
       }
     },
     saveGroupDetail ({ state, commit, dispatch }, payload) {
-      bus.$emit('msg.info', 'Updating group ' + payload.name + ' ...')
       api.updateGroup(payload.id, payload)
         .then(response => {
           dispatch('loadDataMap')
+          dispatch('loadGroupDetail', payload)
           bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
         })
         .catch(error => {
