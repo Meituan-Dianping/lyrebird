@@ -23,6 +23,7 @@ export default {
     },
     jsonPath: null,
     conflictInfo: null,
+    isLoadConflictInfo: false,
     groupListOpenNode: new Set(),
     dataDetail: {},
     groupDetail: {},
@@ -78,6 +79,9 @@ export default {
     clearConflictInfo (state) {
       state.conflictInfo = null
     },
+    setIsLoadConflictInfo (state, isLoadConflictInfo) {
+      state.isLoadConflictInfo = isLoadConflictInfo
+    },
     addGroupListOpenNode (state, groupId) {
       state.groupListOpenNode.add(groupId)
     },
@@ -89,6 +93,14 @@ export default {
     },
     setGroupDetail (state, groupDetail) {
       state.groupDetail = groupDetail
+    },
+    setGroupDetailItem (state, groupDetailItem) {
+      state.groupDetail[groupDetailItem.key] = groupDetailItem.value
+    },
+    deleteGroupDetailItem (state, key) {
+      // Trigger object groupDetail's set method 
+      state.groupDetail[key] = ''
+      delete state.groupDetail[key]
     },
     setFocusNodeInfo (state, focusNodeInfo) {
       state.focusNodeInfo = focusNodeInfo
@@ -146,19 +158,15 @@ export default {
         bus.$emit('msg.error', 'Create group ' + groupName + ' error: ' + 'Group name is required!')
       }
     },
-    updateDataGroup ({ state, commit, dispatch }, { groupId, groupName, parentGroupId }) {
-      api.updateGroup(groupId, groupName, parentGroupId)
+    saveGroupDetail ({ state, commit, dispatch }, payload) {
+      api.updateGroup(payload.id, payload)
         .then(response => {
-          const groupId = response.data.group_id
-          for (const group of state.groupList) {
-            if (groupId === group.id) {
-              group.name = groupName
-              group.parent = parentGroupId
-              break
-            }
-          }
-          commit('setCurrentDataGroup', groupId)
-          dispatch('loadDataMap', groupId)
+          dispatch('loadDataMap')
+          dispatch('loadGroupDetail', payload)
+          bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Group ' + payload.name + ' update error: ' + error)
         })
     },
     deleteGroup ({ state, commit, dispatch }, payload) {
@@ -218,8 +226,11 @@ export default {
         })
     },
     loadConflict ({ commit }, payload) {
+      commit('setIsLoadConflictInfo', true)
+      commit('clearConflictInfo')
       api.getConflict(payload.id).then(response => {
         commit('setConflictInfo', response.data.data)
+        commit('setIsLoadConflictInfo', false)
         if (response.data.data.length === 0) {
           bus.$emit('msg.success', 'Group ' + payload.name + ' has no conflict')
         } else if (response.data.data.length > 0) {

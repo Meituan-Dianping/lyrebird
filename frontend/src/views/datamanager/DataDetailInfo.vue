@@ -1,36 +1,66 @@
 <template>
-  <div>
-    <Row v-for="(value, key) in displayInformation" :key="key" style="padding-top:10px">
-      <Col span="5" offset="1">
-        <span>{{key}}</span>
-      </Col>
-      <Col span="18">
-        <Input v-if="readOnly.indexOf(key) === -1" v-model="displayInformation[key]" :placeholder="value" size="small" />
-        <span v-else>{{value}}</span>
-      </Col>
-    </Row>
-  </div>
+  <Row type="flex" justify="center" align="middle" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" style="margin-bottom:10px;word-break:break-all;">
+    <Col span="6" align="right" style="padding:0px 10px">
+      <Tooltip :content="this.undeletable.indexOf(this.infoKey)===-1 ? 'Delete': 'Undeletable key'" :delay="500">
+        <Icon 
+          type="md-remove-circle" 
+          :class="buttonClass" 
+          v-show="isMouseOver" 
+          @click.native="deleteInfoKey" 
+          style="padding:0px 10px"
+        />
+      </Tooltip>
+      <span>{{this.infoKey}}</span>
+    </Col>
+    <Col span="18" style="padding:0px 0px 0px 10px">
+      <span v-if="readOnly.indexOf(this.infoKey) > -1">{{this.infoValue}}</span>
+      <Input v-else v-model="inputvalue" type="textarea" :autosize="{ minRows: 1 }" size="small"/>
+    </Col>
+  </Row>
 </template>
 
 <script>
 export default {
-  props: ['information'],
+  props: ['infoValue', 'infoKey'],
   data() {
     return {
-      unshowInfoKey: ['children', 'type', 'parent_id'],
-      readOnly: ['id', 'rule']
+      readOnly: ['id', 'rule', 'secondary_search_id'],
+      undeletable: ['id', 'rule', 'secondary_search_id', 'name'],
+      isMouseOver: false
     }
   },
   computed: {
-    displayInformation() {
-      let res = {}
-      for (const key in this.information) {
-        if (this.unshowInfoKey.indexOf(key) === -1 && key.substring(0,1) !== '_') {
-          res[key] = this.information[key]
-        }
+    inputvalue: {
+      get () {
+        return this.$store.state.dataManager.groupDetail[this.infoKey]
+      },
+      set (val) {
+        this.$store.commit('setGroupDetailItem', { key: this.infoKey, value: val })
       }
-      return res
+    },
+    buttonClass() {
+      if (this.undeletable.indexOf(this.infoKey) === -1) {
+        return ['enable-button']
+      } else {
+        return ['disable-button']
+      }
+    }
+  },
+  methods: {
+    deleteInfoKey() {
+      if (this.undeletable.indexOf(this.infoKey) === -1) {
+        this.$store.commit('deleteGroupDetailItem', this.infoKey)
+      }
     }
   }
 }
 </script>
+
+<style>
+.enable-button {
+  cursor: pointer;
+}
+.disable-button {
+  color: #c5c8ce;
+}
+</style>

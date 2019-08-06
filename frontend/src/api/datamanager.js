@@ -48,13 +48,13 @@ export const deleteData = (dataId) => {
     })
 }
 
-export const updateGroup = (id, name, parent) => {
+export const updateGroup = (id, data) => {
     return axios({
-        url: '/api/mock',
-        method: 'PUT',
-        data: { id, name, parent }
+      url: '/api/group',
+      method: 'PUT',
+      data: { id, data }
     })
-}
+  }
 
 export const updateData = (data) => {
     return axios({

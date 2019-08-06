@@ -300,7 +300,7 @@ class DataManager:
         if self.clipboard['type'] == 'cut':
             _origin_parent = self.id_map.get(_node['parent_id'])
             _origin_parent['children'].remove(_node)
-            _parent_node['children'].append(_node)
+            _parent_node['children'].insert(0, _node)
             _node['parent_id'] = parent_id
         elif self.clipboard['type'] == 'copy':
             self._copy_node(_parent_node, _node)
@@ -312,7 +312,7 @@ class DataManager:
         new_node['id'] = str(uuid.uuid4())
         new_node['parent_id'] = parent_node['id']
         # Add to target node
-        parent_node['children'].append(new_node)
+        parent_node['children'].insert(0, new_node)
         # Register ID
         self.id_map[new_node['id']] = new_node
         if new_node['type'] == 'group':
@@ -422,11 +422,16 @@ class DataManager:
 
     def update_group(self, _id, data):
         ignore_keys = ['id', 'parent_id', 'type', 'children']
-        update_data = {k: data[k] for k in data if k not in ignore_keys}
         node = self.id_map.get(_id)
         if not node:
             raise IDNotFound(_id)
+
+        update_data = {k: data[k] for k in data if k not in ignore_keys}
         node.update(update_data)
+
+        delete_keys = [k for k in node if k not in data and k not in ignore_keys]
+        for key in delete_keys:
+            node.pop(key)
         self._save_prop()
 
     def update_data(self, _id, data):

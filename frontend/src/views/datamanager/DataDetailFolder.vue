@@ -2,7 +2,37 @@
   <div class="small-tab">
     <tabs v-model="currentTab" :animated="false" size="small">
       <tab-pane label="Information" name="information">
-        <DataDetailInfo class="data-detail" :information="groupInfo"/>
+        <div class="data-detail">
+          <Row style="padding-top:10px">
+            <Col span="18" style="padding:0px 5px 0px 10px">
+              <Icon type="md-information-circle" />
+              Information of Group <b>{{groupInfo.id}}</b>
+            </Col>
+            <Col span="6" align="right">
+              <Button type="primary" size="small" @click="saveGroupDetail" style="margin-right:5px">
+                <span>Save</span>
+              </Button>
+            </Col>
+          </Row>
+          <div style="margin:10px 5px 0px 10px">
+            <div v-for="(value, key) in groupInfo" :key="key">
+              <DataDetailInfo v-if="undisplayedInfoKey.indexOf(key) === -1 && key.substring(0,1) !== '_'" :infoValue="value" :infoKey="key"/>
+            </div>
+            <Row style="padding-top:10px">
+              <Col span="5" offset="1" align="right" style="padding:0px 10px 0px 10px">
+                <Input v-model="newPropKey" placeholder="Input new property" size="small"/>
+              </Col>
+              <Col span="18" style="padding:0px 0px 0px 10px">
+                <Input 
+                  size="small"
+                  v-model="newPropValue" 
+                  :disabled="!newPropKey" 
+                  :placeholder="newPropKey?'Input value':'Input KEY first to enable value input'" 
+                />
+              </Col>
+            </Row>
+          </div>
+        </div>
       </tab-pane>
       <tab-pane label="Conflict" name="conflict">
         <div class="data-detail">
@@ -15,8 +45,7 @@
             </Col>
             <Col span="6" align="right" style="padding:0px 5px 0px 5px">
               <Button type="primary" size="small" :loading="isLoadConflictInfo" @click="getConflictInfo" style="margin-right:5px">
-                <span v-if="isLoadConflictInfo">Loading</span>
-                <span v-else>Start check</span>
+                <span>{{isLoadConflictInfo ? 'Loading' : 'Start check'}}</span>
               </Button>
               <Button size="small" :disabled="isLoadConflictInfo" @click="deleteConflictInfo">
                 <span>Clear</span>
@@ -42,8 +71,10 @@ export default {
   data() {
     return {
       currentTab: "information",
-      isLoadConflictInfo: false,
-      conflictCheckNode: {}
+      undisplayedInfoKey: ['children', 'type', 'parent_id'],
+      conflictCheckNode: {},
+      newPropKey: '',
+      newPropValue: ''
     }
   },
   computed: {
@@ -54,16 +85,32 @@ export default {
       return this.$store.state.dataManager.groupDetail
     },
     conflictInfo() {
-      if (this.$store.state.dataManager.conflictInfo) {
-        this.isLoadConflictInfo = false
-      }
       return this.$store.state.dataManager.conflictInfo
+    },
+    isLoadConflictInfo() {
+      return this.$store.state.dataManager.isLoadConflictInfo
     }
   },
   methods: {
+    saveGroupDetail() {
+      if (this.newPropKey) {
+        if (this.newPropKey.match(/^[ ]+$/)) {
+          this.$bus.$emit('msg.error', 'Group property key illegal: ' + 'All space')
+        } else if (this.$store.state.dataManager.groupDetail.hasOwnProperty(this.newPropKey)) {
+          this.$bus.$emit('msg.error', 'Group property key illegal: Property ' + this.newPropKey + ' exists!')
+        } else {
+          this.$store.commit('setGroupDetailItem', { key: this.newPropKey, value: this.newPropValue })
+          this.$store.dispatch('saveGroupDetail', this.groupInfo)
+          this.newPropKey = ''
+          this.newPropValue = ''
+        }
+      } else {
+        this.$store.dispatch('saveGroupDetail', this.groupInfo)
+      }
+    },
     getConflictInfo() {
       this.conflictCheckNode = this.nodeInfo
-      this.isLoadConflictInfo = true
+      this.$store.commit('setIsLoadConflictInfo', true)
       this.$store.commit('clearConflictInfo')
       this.$store.dispatch('loadConflict', this.nodeInfo)
     },
