@@ -127,8 +127,10 @@ ENV/
 
 #mock
 mock/record/
+lyrebird/client/static/
 data/
 tmp/
 
 .vscode/
 .pytest_cache/
+output/

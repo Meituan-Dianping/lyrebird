@@ -2,6 +2,9 @@ import requests
 from flask import Response, stream_with_context
 from requests.packages import urllib3
 from .. import context
+import urllib
+from lyrebird import application
+
 
 # 关闭ssl警告
 urllib3.disable_warnings()
@@ -23,6 +26,13 @@ class ProxyHandler:
         if not origin_url:
             return
 
+        parsed_url = urllib.parse.urlparse(origin_url)
+        if not parsed_url.hostname:
+            return
+        elif parsed_url.hostname in ['localhost', '127.0.0.1', ] and parsed_url.port == application.config["mock.port"]:
+            handler_context.response = Response(response='Duplicate request path\n', status=400)
+            return
+        
         method = request.method
         data = request.get_data() or request.form or None
         headers = dict()
@@ -48,9 +58,9 @@ class ProxyHandler:
             resp_headers.append((name, value))
         
         handler_context.request.url = origin_url
+        
         # After huangyuanzhen test, we use 2048byte buffer :D
         handler_context.response = Response(
             stream_with_context(r.iter_content(chunk_size=2048)),
             status=r.status_code,
             headers=resp_headers)
-        handler_context.update_server_resp_time()

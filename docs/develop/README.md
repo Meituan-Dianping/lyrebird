@@ -1,61 +1,100 @@
-# 开发者指南
+# 开发环境配置
 
 ## 开发环境
 
-### macOS
+* macOS OR Linux
 
-目前支持macOS系统
+* Python3
 
-### Python3
+* NodeJS
 
-**建议使用brew安装python3，可以避免很多问题**
+* vscode(推荐)
 
-```bash
-brew install python3
-```
+* Chrome(推荐)
+
 
 ## 配置Lyrebird工程
 
 ```bash
 # clone 代码
-git clone https://github.com/meituan/lyrebird.git
+git clone https://github.com/Meituan-Dianping/lyrebird.git
 
 # 进入工程目录
 cd lyrebird
 
-# 初始化开发环境
+# 初始化后端开发环境
 sh dev.sh
 
-# 使用IDE打开工程（推荐Pycharm或vscode）
+# 初始化前端开发环境
+cd frontend
+npm install
+cd ..
 
-# 在IDE中执行debug.py即可开始调试
+# 使用IDE打开工程（推荐vscode）
+code .
 ```
 
+## 调试代码
 
-## 创建自己插件
-
-### 通过Lyrebird插件模板创建插件工程
-* 准备环境
-
+Vscode debug 配置
+```JSON
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "backend",
+            "type": "python",
+            "request": "launch",
+            "module": "lyrebird",
+            "console": "integratedTerminal",
+            "args": [
+                "-vvv"
+            ]
+        },
+        {
+            "name": "frontend",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080/ui/static/",
+            "webRoot": "${workspaceFolder}/frontend/src/",
+            "breakOnLoad": true,
+            "sourceMapPathOverrides": {
+              "webpack:///src/*": "${webRoot}/*"
+            }
+        }
+    ]
+}
 ```
-# 创建工程目录
-mkdir my_plugin_project
-cd my_plugin_project
-# 创建python虚拟环境
-python3 -m venv venv
-source venv/bin/activate
-```
-* 安装lyrebird
 
-```
-pip3 install lyrebird
+### 后端代码
+
+1. 激活python虚拟环境
+    
+    > 执行过dev.sh后会在项目根目录下创建一个venv目录，这里是一个安装好依赖的python虚拟环境
+
+    > 通过 ```source venv/bin/activate``` 来激活该环境
+
+    > 以Vscode为例，不需要上面的激活操作，我们只需在Vscode下方的python环境选择器中选择对应的环境即可
+    ![](../img/vscode-python-venv.png)
+
+2. 通过Debug功能启动
+
+按照上面 debug配置中 python:Lyrebrid配置启动即可
+
+### 前端代码
+
+1. 启动node server
+
+```bash
+# 进入前端目录
+cd frontend
+
+# 启动前端node serve
+npm run serve
 ```
 
-* 生成模板工程
+2. 通过Debug功能启动浏览器
 
-```
-lyrebird-plugin build .
-```
+按照上面 debug配置中 vuejs: chrome 配置启动即可
 
-* 使用Pycharm等打开此目录即可开始插件开发
-* 请注意修改setup.py中的name,packages,entry_points. 尽量避免重名.
+> 注意: vscode 需要安装chrome debug插件

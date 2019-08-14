@@ -4,7 +4,10 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 import traceback
 from lyrebird import application
+from lyrebird.log import get_logger
 
+
+logger = get_logger()
 
 
 class Task:
@@ -21,26 +24,15 @@ class Task:
     def run(self):
         self.status = Task.RUNNING
         try:
-            result = self.func()
+            self.func()
             self.status = Task.FINISH
-            application.server['event'].publish('task', 
-            {
-                'status': 'finish',
-                'code': '1000',
-                'result': result
-            })
         except Exception:
             self.status = Task.ERROR
-            application.server['event'].publish('task', 
-            {
-                'status': 'error',
-                'code': '3000',
-                'message': traceback.format_exc()
-            })
+            logger.error(f'Exec task catch a exception:\n {traceback.format_exc()}')
 
 
 class BackgroundTaskServer(ThreadServer):
-    
+
     def __init__(self):
         super().__init__()
         self.tasks = []
@@ -59,7 +51,6 @@ class BackgroundTaskServer(ThreadServer):
                         dead_tasks.append(task)
                 for dead_task in dead_tasks:
                     self.tasks.remove(dead_task)
-
 
     def add_task(self, name, func):
         task = Task(name, func)

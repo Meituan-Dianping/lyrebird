@@ -1,9 +1,12 @@
-from flask import jsonify
+from flask import jsonify, stream_with_context, Response
 from . import cache
 from .filesystem import FileManager
+from .data_manager import DataManager
 from flask_socketio import SocketIO
 import codecs, json, os
 from lyrebird import application as app
+import time
+
 
 """
 Mock server context
@@ -29,7 +32,8 @@ class Application:
         self.cache = cache.get_cache()
         self.work_mode = Mode.NORMAL
         # todo 使用文件系统存储mock数据，应可支持切换redis，mysql
-        self.data_manager = FileManager()
+        # self.data_manager = FileManager()
+        self.data_manager = DataManager()
         # SocketIO
         self.socket_io: SocketIO = None
         self.conf_manager = None
@@ -48,7 +52,7 @@ class Application:
         self._conf = _conf
         # TODO 更新conf触发更新data_manager根目录
         if _conf.get('mock.data'):
-            self.data_manager.set_root(_conf.get('mock.data'))
+            self.data_manager.root = _conf.get('mock.data')
 
     def save(self):
         DEFAULT_CONF = os.path.join(
@@ -58,8 +62,17 @@ class Application:
             f.write(json.dumps(self._conf, ensure_ascii=False, indent=4))
 
 
+"""
+SocketIO emit interval
+Because of iview table has render preformance problem
+We need to limit render time
+"""
+EMIT_INTERVAL = 0.4
+last_emit_time = {}
+
+
 application = Application()
-db = None
+
 
 def make_ok_response(**kwargs):
     ok_resp = {
@@ -70,10 +83,22 @@ def make_ok_response(**kwargs):
     return jsonify(ok_resp)
 
 
-def make_fail_response(msg):
-    return jsonify(
-        {
-            "code": 3000,
+def make_fail_response(msg, code=3000, **kwargs):
+    fail_resp = {
+            "code": code,
             "message": msg
         }
-    )
+    fail_resp.update(kwargs)
+    return jsonify(fail_resp)
+
+
+def make_streamed_response(generator, code=200, mimetype='application/json'):
+    return Response(stream_with_context(generator()), mimetype=mimetype, status=code)
+
+
+def emit(event, *args, **kwargs):
+    now = time.time()
+    last_push_time = last_emit_time.get(event, 0)
+    if (now - last_push_time) > EMIT_INTERVAL:
+        application.socket_io.emit(event, *args, **kwargs)
+        last_emit_time[event] = now

@@ -1,11 +1,11 @@
 import argparse
 import webbrowser
 import json
-import traceback
 import socket
 import threading
 import signal
 import os
+from pathlib import Path
 from lyrebird import log
 from lyrebird import application
 from lyrebird.config import Rescource, ConfigManager
@@ -13,6 +13,12 @@ from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
+from lyrebird.notice_center import NoticeCenter
+from lyrebird.db.database_server import LyrebirdDatabaseServer
+from lyrebird.plugins import PluginManager
+from lyrebird.checker import LyrebirdCheckerServer
+from lyrebird import version
+from lyrebird import reporter
 
 
 logger = log.get_logger()
@@ -47,26 +53,32 @@ def main():
     """
     parser = argparse.ArgumentParser(prog='lyrebird')
 
-    parser.add_argument('-v', dest='verbose', action='store_true', help='Show verbose log')
+    parser.add_argument('-V', '--version', dest='version', action='store_true', help='show lyrebird version')
+    parser.add_argument('-v', dest='verbose', action='count', default=0, help='Show verbose log')
     parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 4272')
     parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 9090')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
-    parser.add_argument('-b', '--no_browser', dest='no_browser', action='store_true', help='Start without open a browser')
-    parser.add_argument('-c', '--config', dest='config', help='Start with a config file. Default is "~/.lyrebird/conf.json"')
+    parser.add_argument('-b', '--no_browser', dest='no_browser',
+                        action='store_true', help='Start without open a browser')
+    parser.add_argument('-c', '--config', dest='config',
+                        help='Start with a config file. Default is "~/.lyrebird/conf.json"')
     parser.add_argument('--log', dest='log', help='Set output log file path')
+    parser.add_argument('--script', action='append', help='Set a checker script path')
+    parser.add_argument('--plugin', action='append', help='Set a plugin project path')
 
     subparser = parser.add_subparsers(dest='sub_command')
-    src_parser = subparser.add_parser('src')
-    src_parser.add_argument('uri')
-    subparser.add_parser('plugin')
+    subparser.add_parser('gen')
 
     args = parser.parse_args()
+
+    if args.version:
+        print(version.LYREBIRD)
+        return
 
     if args.config:
         application._cm = ConfigManager(conf_path=args.config)
     else:
         application._cm = ConfigManager()
-    application._src = Rescource()
 
     # set current ip to config
     try:
@@ -74,12 +86,10 @@ def main():
     except socket.gaierror as e:
         logger.error('Failed to get local IP address, error occurs on %s' % e)
 
-    if args.verbose:
-        application._cm.config['verbose'] = True
-
     # init file logger after config init
+    application._cm.config['verbose'] = args.verbose
     log.init(args.log)
-    
+
     if args.mock:
         application._cm.config['mock.port'] = args.mock
     if args.proxy:
@@ -89,28 +99,53 @@ def main():
 
     logger.debug(f'Read args: {args}')
 
-    if args.sub_command == 'src':
-        logger.debug('EXEC SUBCMD:SRC')
-        src(args)
-    elif args.sub_command == 'plugin':
-        logger.debug('EXEC SUBCMD:PLUGIN')
-        plugin(args)
+    if args.sub_command == 'gen':
+        logger.debug('EXEC: Plugin project generator')
+        gen(args)
     else:
-        logger.debug('EXEC LYREBIRD START')
+        logger.debug('EXEC: LYREBIRD START')
         run(args)
 
 
-def run(args:argparse.Namespace):
+def run(args: argparse.Namespace):
+    # Check mock data group version. Update if is older than 1.x
+    from . import mock_data_formater
+    data_path = application._cm.config['mock.data']
+    data_dir = Path(data_path)
+    mock_data_formater.check_data_dir(data_dir)
+
     # show current config contents
     config_str = json.dumps(application._cm.config, ensure_ascii=False, indent=4)
     logger.warning(f'Lyrebird start with config:\n{config_str}')
-        
+
+    # Main server
     application.server['event'] = EventServer()
+
     application.server['task'] = BackgroundTaskServer()
-    application.server['proxy'] = LyrebirdProxyServer()   
+    application.server['proxy'] = LyrebirdProxyServer()
     application.server['mock'] = LyrebirdMockServer()
+    application.server['db'] = LyrebirdDatabaseServer()
+    application.server['plugin'] = PluginManager()
+    application.server['checker'] = LyrebirdCheckerServer()
 
     application.start_server()
+
+    # int statistics reporter
+    application.reporter = reporter.Reporter()
+    reporter.start()
+    # activate notice center
+    application.notice = NoticeCenter()
+
+    # load debug plugin
+    # TODO
+    plugin_manager = application.server['plugin']
+    if args.plugin:
+        plugin_manager.plugin_path_list += args.plugin
+    plugin_manager.reload()
+
+    # load debug script
+    if args.script:
+        application.server['checker'].load_scripts(args.script)
 
     # auto open web browser
     if not args.no_browser:
@@ -118,6 +153,7 @@ def run(args:argparse.Namespace):
 
     # stop event handler
     def signal_handler(signum, frame):
+        reporter.stop()
         application.stop_server()
         threading.Event().set()
         logger.warning('!!!Ctrl-C pressed. Lyrebird stop!!!')
@@ -126,26 +162,11 @@ def run(args:argparse.Namespace):
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-
-def debug():
-    # use lyrebird.debug to start plugin in debug mode
-    # can pass args by sys.args
-    main()
-    # main thread loop
-    import asyncio
-    loop = asyncio.get_event_loop()
-    loop.run_forever()
+    threading.Event().wait()
 
 
-def plugin(args:argparse.Namespace):
+def gen(args):
     pass
-
-
-def src(args:argparse.Namespace):
-    from threading import Thread
-    def worker():
-        application._src.download(args.uri)
-    Thread(target=worker).start()
 
 
 def _get_ip():
@@ -155,5 +176,5 @@ def _get_ip():
     :return: IP Addr string
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('meituan.com', 80))
+    s.connect(('bing.com', 80))
     return s.getsockname()[0]

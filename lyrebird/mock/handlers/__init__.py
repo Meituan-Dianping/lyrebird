@@ -1,4 +1,4 @@
-from . import cache_handler, mock_handler, path_not_found_handler, proxy_handler
+from . import mock_handler, path_not_found_handler, proxy_handler
 from collections import OrderedDict
 
 
@@ -7,7 +7,6 @@ def get_inner_handlers():
         {
             'mock': mock_handler.MockHandler(),
             'proxy': proxy_handler.ProxyHandler(),
-            '404': path_not_found_handler.RequestPathNotFound(),
-            'cache': cache_handler.CacheHandler()
+            '404': path_not_found_handler.RequestPathNotFound()
         }
     )

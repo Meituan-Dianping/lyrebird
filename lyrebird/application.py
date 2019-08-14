@@ -5,11 +5,12 @@ Lyrebird context
 
 """
 
+
 def make_ok_response(**kwargs):
     ok_resp = {
-            "code": 1000,
-            "message": "success"
-        }
+        "code": 1000,
+        "message": "success"
+    }
     ok_resp.update(kwargs)
     return jsonify(ok_resp)
 
@@ -31,6 +32,10 @@ server = {}
 plugins = {}
 
 
+notice = None
+checkers = {}
+
+
 def start_server():
     for name in server:
         server[name].start()
@@ -45,18 +50,21 @@ class ConfigProxy:
 
     def get(self, k, default=None):
         return _cm.config.get(k, default)
-    
+
     def __setitem__(self, k, v):
         _cm.config[k] = v
 
     def __getitem__(self, k):
         return _cm.config[k]
-    
+
     def raw(self):
         return _cm.config
 
 
 config = ConfigProxy()
+
+# statistics reporter
+reporter = None
 
 
 def root_dir():

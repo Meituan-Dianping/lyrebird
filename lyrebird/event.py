@@ -8,41 +8,68 @@ from queue import Queue
 from concurrent.futures import ThreadPoolExecutor
 import traceback
 import inspect
+import uuid
+import time
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
+from lyrebird.mock import context
+from lyrebird.log import get_logger
+
+
+logger = get_logger()
 
 
 class Event:
     """
     Event bus inner class
     """
-    def __init__(self, channel, message):
-        self.channel = channel 
+
+    def __init__(self, event_id, channel, message):
+        self.id = event_id
+        self.channel = channel
         self.message = message
-        if isinstance(message, dict):
-            message['channel'] = channel
 
 
 class EventServer(ThreadServer):
-    
+
     def __init__(self):
         super().__init__()
         self.event_queue = Queue()
         self.state = {}
         self.pubsub_channels = {}
-        # channel name is 'any'. For linstening all channel's message
+        # channel name is 'any'. Linstening on all channel
         self.any_channel = []
-        self.broadcast_executor = ThreadPoolExecutor(max_workers=10, thread_name_prefix='event-broadcast')
+        self.broadcast_executor = ThreadPoolExecutor(thread_name_prefix='event-broadcast-')
 
     def broadcast_handler(self, callback_fn, event, args, kwargs):
+        """
+
+        """
+
+        # Check
+        func_sig = inspect.signature(callback_fn)
+        func_parameters = list(func_sig.parameters.values())
+        if len(func_parameters) < 1 or func_parameters[0].default != inspect._empty:
+            logger.error(f'Event callback function [{callback_fn.__name__}] need a argument for receiving event object')
+            return
+
+        # Append event content to args
+        callback_args = []
+        if 'raw' in event.message:
+            callback_args.append(event.message['raw'])
+        else:
+            callback_args.append(event.message)
+        # Add channel to kwargs
+        callback_kwargs = {}
+        if 'channel' in func_sig.parameters:
+            callback_kwargs['channel'] = event.channel
+        if 'event_id' in func_sig.parameters:
+            callback_kwargs['event_id'] = event.id
+        # Execute callback function
         try:
-            if kwargs.get('event', False):
-                callback_fn(event)
-            else:
-                callback_fn(event.message)
+            callback_fn(*callback_args, **callback_kwargs)
         except Exception:
-            # TODO handle exceptioins and send to event bus
-            traceback.print_exc()
+            logger.error(f'Event callback function [{callback_fn.__name__}] error. {traceback.format_exc()}')
 
     def run(self):
         while self.running:
@@ -60,34 +87,75 @@ class EventServer(ThreadServer):
 
     def stop(self):
         super().stop()
-        self.publish('any', 'stop')
+        self.publish('system', {'name': 'event.stop'})
 
     def publish(self, channel, message, state=False, *args, **kwargs):
         """
         publish message
-        if state is true, message will be keep as state
+
+        if type of message is dict, set default event information:
+            - channel
+            - id
+            - timestamp
+            - sender: if was cantained in message, do not update
+
+        if state is true, message will be kept as state
 
         """
-        self.event_queue.put(Event(channel, message))
-        if state:
-            self.state[channel] = message
+        # Make event id
+        event_id = str(uuid.uuid4())
 
+        # Make sure event is dict
+        if not isinstance(message, dict):
+            # Plugins send a array list as message, then set this message to raw property
+            _msg = {'raw': message}
+            message = _msg
+
+        message['channel'] = channel
+        message['id'] = event_id
+        message['timestamp'] = round(time.time(), 3)
+
+        # Add event sender
+        stack = inspect.stack()
+        script_path = stack[2].filename
+        script_name = script_path[script_path.rfind('/') + 1:]
+        function_name = stack[2].function
+        sender_dict = {
+            "file": script_name,
+            "function": function_name
+        }
+        message['sender'] = sender_dict
+
+        self.event_queue.put(Event(event_id, channel, message))
+
+        # TODO Remove state and raw data
+        if state:
+            if 'raw' in message:
+                self.state[channel] = message['raw']
+            else:
+                self.state[channel] = message
+
+        application.reporter.report({
+            'action': 'event',
+            'channel': channel,
+            'event': message
+        })
+
+        logger.debug(f'channel={channel} state={state}\nmessage:\n-----------\n{message}\n-----------\n')
 
     def subscribe(self, channel, callback_fn, *args, **kwargs):
         """
         Subscribe channel with a callback function
         That function will be called when a new message was published into it's channel
 
-        kwargs:
-            event=False receiver gets a message dict
-            event=True receiver gets an Event object
+        callback function kwargs:
+            channel=None receive channel name
         """
         if channel == 'any':
             self.any_channel.append([callback_fn, args, kwargs])
         else:
             callback_fn_list = self.pubsub_channels.setdefault(channel, [])
             callback_fn_list.append([callback_fn, args, kwargs])
-
 
     def unsubscribe(self, channel, target_callback_fn, *args, **kwargs):
         """
@@ -109,13 +177,14 @@ class CustomEventReceiver:
     Event Receiver
 
     Decorator for plugin developer
-    useaeg:
+    Usage:
         event = CustomEventReceiver()
 
         @event('flow')
         def on_message(data):
             pass
     """
+
     def __init__(self):
         self.listeners = []
 
@@ -136,12 +205,9 @@ class CustomEventReceiver:
     def publish(self, channel, message, *args, **kwargs):
         application.server['event'].publish(channel, message, *args, **kwargs)
 
-    def alert(self, channel, message, *args, **kwargs):
-        stack = inspect.stack()
-        script_name = stack[1].filename
-        script_name = script_name[script_name.rfind('/') + 1:]
-        function_name = stack[1].function
-        if isinstance(message, dict):
-            message['script_name'] = script_name
-            message['function_name'] = function_name
-        application.server['event'].publish(channel, message, *args, **kwargs)
+    def issue(self, title, message):
+        notice = {
+            "title": title,
+            "message": message
+        }
+        application.server['event'].publish('notice', notice)

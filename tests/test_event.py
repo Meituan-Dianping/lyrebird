@@ -1,12 +1,14 @@
-from lyrebird import event
 import time
 import pytest
 import lyrebird
+from lyrebird import reporter
+from lyrebird.event import EventServer
 from lyrebird import CustomEventReceiver
+from lyrebird.task import BackgroundTaskServer
 
 
 class CallbackTester:
-    
+
     def __init__(self):
         self.history = []
 
@@ -19,14 +21,22 @@ def callback_tester():
 
 @pytest.fixture
 def event_server():
-    server = event.EventServer()
+    server = EventServer()
     server.start()
     lyrebird.application.server['event'] = server
     yield server
     server.stop()
 
+@pytest.fixture
+def task_server():
+    lyrebird.application.reporter = reporter.Reporter()
+    server = BackgroundTaskServer()
+    server.start()
+    lyrebird.application.server['task'] = server
+    yield server
+    server.stop()
 
-def test_event(callback_tester, event_server):
+def test_event(callback_tester, event_server, task_server):
 
     cb_tester = CallbackTester()
 
@@ -34,24 +44,61 @@ def test_event(callback_tester, event_server):
 
     assert event_server.pubsub_channels.get('Test')
 
-    event_server.publish('Test', 'Hello')
+    for _ in range(1000):
+        event_server.publish('Test', 'Hello')
 
     for _ in range(5):
         time.sleep(0.2)
         if len(cb_tester.history) > 0:
             break
 
-    assert len(cb_tester.history) == 1
+    assert len(cb_tester.history) == 1000
     assert cb_tester.history[0] == 'Hello'
 
 
-def test_state(event_server):
+def test_event_default_information(callback_tester, event_server, task_server):
+
+    cb_tester = CallbackTester()
+
+    event_server.subscribe('Test', cb_tester.callback)
+
+    assert event_server.pubsub_channels.get('Test')
+
+    test = {
+                'message': 'test',
+            }
+
+    event_server.publish('Test', test)
+    time.sleep(0.2)
+    resent_history = cb_tester.history[0]
+    assert resent_history.get('message') == 'test'
+    assert resent_history.get('channel') == 'Test'
+
+
+def test_event_default_information_with_sender(callback_tester, event_server, task_server):
+
+    cb_tester = CallbackTester()
+
+    event_server.subscribe('Test', cb_tester.callback)
+
+    assert event_server.pubsub_channels.get('Test')
+
+    test = {}
+
+    event_server.publish('Test', test)
+    time.sleep(0.2)
+    resent_history = cb_tester.history[-1]
+    assert resent_history.get('message') == None
+    assert resent_history.get('channel') == 'Test'
+
+
+def test_state(event_server, task_server):
     event_server.publish('Test', 'NewActivity', state=True)
 
     assert event_server.state.get('Test') == 'NewActivity'
 
 
-def test_state_getter(event_server):
+def test_state_getter(event_server, task_server):
     test_state = lyrebird.state.get('Test')
     assert test_state == None
     lyrebird.publish('Test', 'TestMessage', state=True)
@@ -59,27 +106,15 @@ def test_state_getter(event_server):
     assert test_state == 'TestMessage'
 
 
-def test_customer_event_alert(event_server):
+def test_customer_event_issue(event_server):
     custom_event = CustomEventReceiver()
-    custom_event.alert('alert',
-                {
-                    'message': 'test',
-                    'issue': True,
-                    'plugin': 'perf.cpu'
-                })
+    issue_message = {
+                        'message': 'test'
+                    }
+    custom_event.issue('issue_string', issue_message)
 
     def msg_receiver(msg):
-        assert msg.get('script_name') == 'test_event.py'
-        assert msg.get('function_name') == 'test_customer_event_alert'
+        assert msg.get('sender') == 'test_event.py'
+        assert msg.get('message') == 'issue_string'
 
-    lyrebird.subscribe('alert', msg_receiver)
-
-
-def test_customer_event_alert_not_dict(event_server):
-    custom_event = CustomEventReceiver()
-    custom_event.alert('alert', 'a_string')
-
-    def msg_receiver(msg):
-        assert msg == 'a_string'
-
-    lyrebird.subscribe('alert', msg_receiver)
+    lyrebird.subscribe('notice', msg_receiver)

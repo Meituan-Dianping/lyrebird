@@ -4,39 +4,58 @@ module.exports = {
         '/': {
             lang: 'zh-CN',
             title: 'Lyrebird',
-            description: '客户端测试工作台'
+            description: '面向移动应用的插件式测试工作台'
         }
     },
     themeConfig: {
         nav: [
-            { text: '首页', link: '/' },
-            { text: '使用指南', link: '/guide/' },
+            { text: '指南', link: '/guide/' },
+            { text: '检查器', link: '/checker/'},
+            { text: '插件', link: '/plugins/'},
+            { text: '高级', link: '/advance/'},
             { text: '开发者指南', link: '/develop/' },
-            {
-                text: 'RELEASE', link: '/releases/'
-            },
             {
                 text: '代码仓库',
                 items: [
-                    { text: 'Lyrebird', link: 'https://github.com/meituan/lyrebird' },
-                    { text: 'iOS', link: 'https://github.com/meituan/lyrebird-ios' },
-                    { text: 'Android', link: 'https://github.com/meituan/lyrebird-android' },
-                    { text: 'ApiCoverage', link: 'https://github.com/meituan/lyrebird-api-coverage' }
+                    { text: 'Lyrebird', link: 'https://github.com/Meituan-Dianping/lyrebird' },
+                    { text: 'iOS', link: 'https://github.com/Meituan-Dianping/lyrebird-ios' },
+                    { text: 'Android', link: 'https://github.com/Meituan-Dianping/lyrebird-android' },
+                    { text: 'ApiCoverage', link: 'https://github.com/Meituan-Dianping/lyrebird-api-coverage' },
+                    { text: 'Tracking', link: 'https://github.com/Meituan-Dianping/lyrebird-tracking'}
                 ]
             }
         ],
         sidebar: {
             '/guide/': [
-                'quickstart',
                 '',
+                'mockdata',
+                'checker',
+                'plugin',
+                'command-line',
+                'api',
                 'faq'
             ],
-            '/develop/': [
-                ''
-            ],
-            '/releases/': [
+            '/checker/': [
                 '',
-                'history'
+                'dev_debug',
+                'examples'
+            ],
+            '/plugins/': [
+                '',
+                'android',
+                'ios',
+                'tracking',
+                'api-coverage'
+            ],
+            '/advance/': [
+                '',
+                'eventbus',
+                'ci',
+                'elk'
+            ],
+            '/develop/': [
+                '',
+                'plugin'
             ],
             '/aboutus/': [
                 ''

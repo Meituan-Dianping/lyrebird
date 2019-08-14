@@ -2,7 +2,6 @@ import codecs
 import json
 import os
 import traceback
-import genson
 from types import FunctionType
 from flask import Blueprint, request, abort
 
@@ -18,21 +17,18 @@ logger = log.get_logger()
 api_mock = Blueprint('mock', __name__, url_prefix='/mock')
 
 
-@api_mock.route('/')
+@api_mock.route('/', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 @api_mock.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 def index(path=''):
-    # todo add request handlers
+    logger.debug(f'Mock handler on request {request.url}')
+
     resp = None
-    req_context = HandlerContext()
-
-    # 预处理request data， 避免因为支付接口上传base64 form导致data解析错误。
-    request.get_data()
-
-    req_context.request = request
+    req_context = HandlerContext(request)
     req_context.update_client_req_time()
 
     for handler_name in plugin_manager.inner_handler:
         handler = plugin_manager.inner_handler[handler_name]
+        logger.debug(f'Call inner handler {handler_name}')
         try:
             handler.handle(req_context)
             if req_context.response:
@@ -56,18 +52,9 @@ def index(path=''):
 
     if not resp:
         resp = abort(404, 'Not handle this request')
+
+    req_context.update_client_resp_time()
+
+    context.emit('action', 'add flow log')
+
     return resp
-
-
-def create_json_schema(response_json_file_path):
-    json_obj = json.loads(codecs.open(response_json_file_path, 'r', 'utf-8').read())
-    schema = genson.Schema()
-    schema.add_object(json_obj)
-    schema_file_path = os.path.join(os.path.dirname(response_json_file_path), 'schema.json')
-    schema_file = codecs.open(schema_file_path, 'w', 'utf-8')
-    schema_file.write(schema.to_json(ensure_ascii=False, indent=4))
-    schema_file.close()
-
-
-
-

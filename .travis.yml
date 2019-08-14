@@ -13,18 +13,29 @@ jobs:
       script: pytest
 
     - stage: release to pypi
-      if: type = push
+      if: type = push AND tag IS present
       language: python
-      catch: pip
+      catch:
+        - pip
+        - npm
       python:
         - "3.6"
+      node_js:
+        - "10"
+      install:
+        - cd frontend
+        - npm install
+        - npm run build
+        - cd ..
       script:
-        - echo "Skipping tests"
+        - echo "No script for pypi release"
       deploy:
         provider: pypi
+        skip_existing: true
+        skip-cleanup: true
         user: meituanqa
         password:
-          secure: "BDziC3zSwJtftkB0nn04laZymaPP9T13F81ffplkhMltUJc/zUcghjABM3HOPGk7jjpibsoYyXa6B3rg+KJhXGM3A50WX2iiYExSdgRMmV3beKlO8RYTXzqw2hkeS/atF4++564HTzRC+0NAsj8N7/T6KZNHCfFcajlk0bsHSRYtgzjPsB7YjIuSivVwwqxfve7iUClePGHH0Z5pxvO2LRRLOJZz3TScgQGBSryJjQmL4wnDjYzPUb37REi7PaDWzAUKzRwqISHXs/KQqb4AySU/p/gg7WgOan1dfDhYMEMXsBJgvUKi9itVcVZKuPSqf/pqVVIqn0mxBED7/K0EE5APDFFHG/IsVQSB/qL25AT+F4O+k8lwWvBvcE5AlvYWE6KPDM7xj9mDQ6LRNAKW95Jh/xmOSVCYoRsybdxw2QxfAqmEiG8vXwsyU49ChwXOOUpXKhBnZ65Fse/faipUPWn982pGeUZ39JdcE3WaEJhs5ssyqhObkhOAtSRa+qNzXocwF2JmR3K7tqcpVktD/HPFNwY0VKqB1T5ytOtSu4k/vKo1tLVhUfx5R49GQ96dV4g5x41xUdJYLueOvpG2i16inDHDGA7rlbn2GMqg53w002UOnTBSihE4k1nzDFlLIaP1OAi62CxR7okKZH5yLbgssw+gFqxj1VrwL82h0YM="
+          secure: "RNTnPDcdO7BRcN6kllUoaGEH+C1WGvuG2TP0iD+AV6F0U380XERIBqQI70gqPIV7HMlHN0FcDSoXYImZameVHvrSAcVN4LcGZwLmHHVBAZMf05ohP2pWJ+AS4C8OkAh1bHfpm6hZVTg8jw+mKYbQkMPoWwMYdGgTrmnSFwy+gdjJIxXZAkX6Kzd2AS4HSeW5u5Ie/UPoY+ksGI3q7ldGcAN09GYy5QB5Zx0LRPI+0kxUEmzyBzx6XQThWOVqakMkoZBSO8ioHkQp2ZKKFu+8CHEufTRQ+QyxeIJUK0rWc5kXF2S0/I0uACaF0QGgz/mtOC1PnxSehbNPtatn88c0IS86EUE6UU8MnOjD1lVmKzUtgnwAiSQ2ppG/fG5L/7dxC5X5/yhCzvHVGUuhG0MdliU/Hh7i8sUjwAyaNka4P4cO12qRPRIl90F9OaJFBrchS7POALPe66yze2LuaTsnPLf6UbPTM2jUJ04dV3pgy1x7QJjsHwxMLuheYbx4T+Jmqf3Hufh9y7eAaBM0jXft71jwZJNOSlRsvhkLkGz3JeP7CYn900KkX/3BXqQjF4BVAiMlpzkHrR/6/1l1cTnpdvvMs8YyTf1kgux0u3r67qJlinfufpUKFiu8NgriDHr/OnXnLV9SgSFKizMgJNVFIZ1IOGVJzJrNVVkh/0GAl8I="
         on:
           tags: true
 
@@ -38,9 +49,8 @@ jobs:
         directories: node_modules
       install:
         - yarn global add vuepress
-        - vuepress build docs
       script:
-        - echo "Skipping tests"
+        - vuepress build docs
       deploy:
         provider: pages
         skip-cleanup: true
