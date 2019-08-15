@@ -60,6 +60,10 @@ class PluginManager(StaticServer):
             mock_service = application.server['mock']
             mock_service.app.register_blueprint(_bp)
 
+            # Load background task
+            for task in plugin.manifest.background:
+                application.server['task'].add_task(task[0], task[1])
+
             # Subscribe event linstener
             event_service = application.server['event']
             for event_option in plugin.manifest.event:
