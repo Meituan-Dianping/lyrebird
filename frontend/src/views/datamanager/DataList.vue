@@ -1,11 +1,23 @@
 <template>
   <div>
     <Row class="button-bar">
-      <Col span="24">
+      <Col span="23">
         <b style="padding-left:5px">Mock Data Tree</b>
       </Col>
+      <Col span="1">
+        <Dropdown v-show="false">
+          <a href="javascript:void(0)">
+            <Icon type="ios-more-outline" />
+          </a>
+          <DropdownMenu slot="list">
+            <DropdownItem>Import...</DropdownItem>
+            <DropdownItem>Export...</DropdownItem>
+            <DropdownItem>Reload</DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </Col>
     </Row>
-    <DocumentTree :treeData="treeData" class="data-list"/>
+    <DocumentTree :treeData="treeData" class="data-list" />
   </div>
 </template>
 
@@ -16,7 +28,7 @@ export default {
     DocumentTree
   },
   computed: {
-    treeData() {
+    treeData () {
       return this.$store.state.dataManager.groupList
     }
   }
@@ -49,5 +61,8 @@ export default {
 .button-bar-button-right {
   padding: 5px 0px 5px 10px;
   cursor: pointer;
+}
+.button-bar-btn img {
+  width: 18px;
 }
 </style>

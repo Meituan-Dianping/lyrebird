@@ -196,7 +196,7 @@ class DataManager:
         else:
             _data_name = data.get('name')
             _data_rule = {'request.url': '(?=.*YOUR-REQUEST-PATH)(?=.*PARAMS)'}
-        
+
         if 'response' in data:
             if 'data' in data['response']:
                 data['response']['data'] = self._flow_data_2_str(data['response']['data'])
@@ -223,12 +223,11 @@ class DataManager:
             self.id_map[data_id] = data_node
         self._save_prop()
         return data_id
-    
+
     def _flow_data_2_str(self, data):
         if isinstance(data, str):
             return data
-        return json.dumps(data)
-
+        return json.dumps(data, ensure_ascii=False)
 
     def add_group(self, parent_id, name):
         if parent_id == None:
@@ -257,11 +256,6 @@ class DataManager:
         return group_id
 
     def delete(self, _id):
-        self._delete(_id)
-        # Save prop
-        self._save_prop()
-
-    def _delete(self, _id):
         target_node = self.id_map.get(_id)
         if not target_node:
             raise IDNotFound(_id)
@@ -272,7 +266,14 @@ class DataManager:
             parent['children'].remove(target_node)
         else:
             self.root['children'].remove(target_node)
-        # Delete children
+        self._delete(_id)
+        # Save prop
+        self._save_prop()
+
+    def _delete(self, _id):
+        target_node = self.id_map.get(_id)
+        if not target_node:
+            raise IDNotFound(_id)
         if 'children' in target_node and len(target_node['children']) > 0:
             for child in target_node['children']:
                 self._delete(child['id'])
@@ -351,7 +352,7 @@ class DataManager:
         # Save prop
         prop_file = self.root_path / PROP_FILE_NAME
         with codecs.open(prop_file, 'w') as f:
-            json.dump(self.root, f, ensure_ascii=False)
+            json.dump(self.root, f, ensure_ascii=False, indent=4)
 
     """
     Conflict checker
