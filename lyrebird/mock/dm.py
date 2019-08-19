@@ -14,6 +14,7 @@ logger = get_logger()
 
 
 class DataManager:
+
     def __init__(self):
         self.root_path: Path = None
         self.root = None
@@ -352,7 +353,8 @@ class DataManager:
         # Save prop
         prop_file = self.root_path / PROP_FILE_NAME
         with codecs.open(prop_file, 'w') as f:
-            json.dump(self.root, f, ensure_ascii=False, indent=4)
+            prop_str = json.dumps(self.root, ensure_ascii=False, indent=4)
+            f.write(prop_str)
 
     """
     Conflict checker
