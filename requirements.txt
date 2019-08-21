@@ -56,6 +56,6 @@ tornado==5.1.1
 typed-ast==1.3.1
 urllib3==1.24.2
 urwid==2.0.1
-Werkzeug==0.15.1
+Werkzeug==0.15.3
 wrapt==1.11.1
 wsproto==0.11.0
