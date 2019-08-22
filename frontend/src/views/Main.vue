@@ -10,10 +10,10 @@
         v-model="isCollapsed"
       >
         <div class="logo">
-          <img src="@/assets/lyrebird.logo.png">
+          <img src="@/assets/lyrebird.logo.png" />
           <span>{{logo}}</span>
         </div>
-        <Divider class="sider-bar-divider"/>
+        <Divider class="sider-bar-divider" />
         <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName">
           <MenuItem
             v-for="(menuItem, index) in menu"
@@ -38,45 +38,50 @@
           </div>
         </Content>
         <Footer class="main-footer">
-          <span class="main-footer-copyright">
-            <strong style="color:#f8f8f9">
-              Copyright &copy; 2018-present
-              <a
-                href="https://meituan-dianping.github.io/lyrebird"
-                target="_blank"
-              >Meituan</a>. All rights reserved.
-            </strong>
+          <span class="main-footer-mock-status">
+            <b v-if="activatedGroupName">Activated mock group: {{activatedGroupName}}</b>
           </span>
-          <a
-            href="https://github.com/Meituan-Dianping/lyrebird/issues/new?assignees=&labels=&template=bug_report.md&title="
-            target="_blank"
-            class="main-footer-status"
-          >
-            <Icon type="ios-bug" color="white"/>
-          </a>
-          <Poptip
-            v-if="status"
-            content="content"
-            placement="top-end"
-            class="main-footer-status"
-            width="220"
-          >
-            <a>
-              <Icon type="ios-arrow-up" style="color:#f8f8f9"/>
-              <b style="color:#f8f8f9">&nbsp;&nbsp;Version {{status.version}}</b>
+          <span class="main-footer-right">
+            <span class="main-footer-copyright">
+              <strong style="color:#f8f8f9">
+                Copyright &copy; 2018-present
+                <a
+                  href="https://meituan-dianping.github.io/lyrebird"
+                  target="_blank"
+                >Meituan</a>. All rights reserved.
+              </strong>
+            </span>
+            <Poptip
+              v-if="status"
+              content="content"
+              placement="top-end"
+              class="main-footer-status"
+              width="220"
+            >
+              <a>
+                <Icon type="ios-arrow-up" style="color:#f8f8f9" />
+                <b style="color:#f8f8f9">&nbsp;&nbsp;Version {{status.version}}</b>
+              </a>
+              <div slot="title">
+                <b>💡Status</b>
+              </div>
+              <div slot="content">
+                <Row v-for="key in showedStatus" :key="key">
+                  <i-col span="11">
+                    <b style="float: right">{{key.toUpperCase()}}</b>
+                  </i-col>
+                  <i-col span="12" offset="1">{{status[key]}}</i-col>
+                </Row>
+              </div>
+            </Poptip>
+            <a
+              href="https://github.com/Meituan-Dianping/lyrebird/issues/new?assignees=&labels=&template=bug_report.md&title="
+              target="_blank"
+              class="main-footer-status"
+            >
+              <Icon type="ios-bug" color="white" />
             </a>
-            <div slot="title">
-              <b>💡Status</b>
-            </div>
-            <div slot="content">
-              <Row v-for="key in showedStatus" :key="key">
-                <i-col span="11">
-                  <b style="float: right">{{key.toUpperCase()}}</b>
-                </i-col>
-                <i-col span="12" offset="1">{{status[key]}}</i-col>
-              </Row>
-            </div>
-          </Poptip>
+          </span>
         </Footer>
       </Layout>
     </Layout>
@@ -101,6 +106,7 @@ export default {
     this.$store.dispatch('loadMenu')
     this.$store.dispatch('loadStatus')
     this.$store.dispatch('loadManifest')
+    this.$store.dispatch('loadActivatedGroup')
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
@@ -129,6 +135,20 @@ export default {
     },
     activeName () {
       return this.$store.state.activeName
+    },
+    activatedGroupName () {
+      const activatedGroups = this.$store.state.inspector.activatedGroup
+      if (activatedGroups === null) {
+        return null
+      }
+      if (Object.keys(activatedGroups) === 0) {
+        return null
+      }
+      let text = ''
+      for (const groupId in activatedGroups) {
+        text = text + activatedGroups[groupId].name + ' '
+      }
+      return text
     }
   },
   methods: {
@@ -220,14 +240,23 @@ export default {
   /* background-color: #fec142; */
   background-color: #0fccbf;
 }
+.main-footer-mock-status {
+  margin-left: 15px;
+  font-size: 12px;
+  color: #f8f8f8;
+}
 .main-footer-copyright {
   font-size: 12px;
-  margin-left: 15px;
+  margin-left: 10px;
+  margin-right: 10px;
   color: #f8f8f9;
 }
 .main-footer-status {
-  float: right;
   font-size: 11px;
+  margin-right: 10px;
+}
+.main-footer-right {
+  float: right;
   margin-right: 10px;
 }
 .collapsed-menu span {

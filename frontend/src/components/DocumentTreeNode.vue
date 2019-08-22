@@ -1,29 +1,58 @@
 <template>
-  <Row :class="rowClass" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" @click.native="onTreeNodeClick">
-    <Col :span="isMouseOver?21:24">
-      <Icon v-show="data.type === 'group'" :class="toggleClass" size="14" @click="onToggleStatusChange" />
+  <Row
+    :class="rowClass"
+    @mouseover.native="isMouseOver=true"
+    @mouseout.native="isMouseOver=false"
+    @click.native="onTreeNodeClick"
+  >
+    <span>
+      <Icon
+        v-show="data.type === 'group'"
+        :class="toggleClass"
+        size="14"
+        @click="onToggleStatusChange"
+      />
       <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
       <span class="tree-node-inner-text">{{data.name}}</span>
-    </Col>
-    <Col :span="isMouseOver?2:0" align="right">
-      <Tooltip content="Delete" placement="bottom-end" :delay="500">
-        <Icon v-show="isMouseOver" type="md-trash" class="tree-node-inner-button" color="#ed4014" @click.stop="shownDeleteModal = true"/>
+    </span>
+
+    <span class="tree-node-inner-button-bar-right" v-show="isMouseOver">
+      <Tooltip content="Activate" placement="bottom-end" :delay="500">
+        <Icon
+          type="ios-play"
+          color="green"
+          class="tree-node-inner-button"
+          @click="onActivateClick(data.id)"
+        />
       </Tooltip>
-      <span @click.stop="">
-        <Dropdown v-show="isMouseOver" placement="bottom-end" @on-click="onDropdownMenuClick" >
+      <Tooltip content="Delete" placement="bottom-end" :delay="500">
+        <Icon
+          type="md-trash"
+          class="tree-node-inner-button"
+          color="#ed4014"
+          @click.stop="shownDeleteModal = true"
+        />
+      </Tooltip>
+      <span @click.stop>
+        <Dropdown placement="bottom-end" @on-click="onDropdownMenuClick">
           <a href="javascript:void(0)">
             <Icon type="ios-more" class="tree-node-inner-button"></Icon>
           </a>
           <DropdownMenu slot="list" style="min-width:60px">
+            <DropdownItem align="left" name="activate">Activate</DropdownItem>
             <DropdownItem align="left" name="delete">Delete</DropdownItem>
             <DropdownItem align="left" name="copy">Copy</DropdownItem>
-            <DropdownItem align="left" name="paste" :disabled="data.type === 'data' || hasCopyTarget">Paste</DropdownItem>
+            <DropdownItem
+              align="left"
+              name="paste"
+              :disabled="data.type === 'data' || hasCopyTarget"
+            >Paste</DropdownItem>
             <DropdownItem align="left" name="addGroup" :disabled="data.type === 'data'">Add group</DropdownItem>
             <DropdownItem align="left" name="addData" :disabled="data.type === 'data'">Add data</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </span>
-    </Col>
+    </span>
     <Modal
       v-model="shownCreateModal"
       title="Create"
@@ -55,7 +84,10 @@
         <span>Delete confirmation</span>
       </p>
       <div style="text-align:center">
-        <span style="font-size:14px">Are you sure you want to delete {{data.type}} <b>{{data.name}}</b></span>
+        <span style="font-size:14px">
+          Are you sure you want to delete {{data.type}}
+          <b>{{data.name}}</b>
+        </span>
       </div>
       <div slot="footer">
         <Button type="error" size="large" long @click="onTreeNodeDelete">Delete</Button>
@@ -67,7 +99,7 @@
 <script>
 export default {
   props: ['data', 'treestore'],
-  data() {
+  data () {
     return {
       isMouseOver: false,
       shownDeleteModal: false,
@@ -77,7 +109,7 @@ export default {
     }
   },
   computed: {
-    rowClass() {
+    rowClass () {
       if (this.$store.state.dataManager.focusNodeInfo && this.data.id === this.$store.state.dataManager.focusNodeInfo.id) {
         return ['tree-node-inner-row', 'tree-node-inner-row-select']
       } else if (this.isMouseOver) {
@@ -86,7 +118,7 @@ export default {
         return ['tree-node-inner-row']
       }
     },
-    toggleClass() {
+    toggleClass () {
       let toggleClassObj = []
       if (this.data.open) {
         toggleClassObj.push('ivu-icon ivu-icon-md-arrow-dropdown')
@@ -100,13 +132,16 @@ export default {
       }
       return toggleClassObj
     },
-    hasCopyTarget() {
+    hasCopyTarget () {
       return this.$store.state.dataManager.copyTarget === null
     }
   },
   methods: {
-    onDropdownMenuClick(payload) {
-      if (payload === 'delete') {
+    onDropdownMenuClick (payload) {
+      if (payload === 'activate') {
+        this.onActivateClick(this.data.id)
+      }
+      else if (payload === 'delete') {
         this.shownDeleteModal = true
       } else if (payload === 'copy') {
         this.onTreeNodeCopy()
@@ -118,9 +153,9 @@ export default {
       } else if (payload === 'addData') {
         this.createType = 'data'
         this.shownCreateModal = true
-      } else {}
+      } else { }
     },
-    onToggleStatusChange() {
+    onToggleStatusChange () {
       this.treestore.toggleOpen(this.data)
       if (this.data.open === true) {
         this.$store.commit('addGroupListOpenNode', this.data.id)
@@ -128,39 +163,42 @@ export default {
         this.$store.commit('deleteGroupListOpenNode', this.data.id)
       }
     },
-    onTreeNodeClick() {
+    onTreeNodeClick () {
       this.$store.commit('setFocusNodeInfo', this.data)
       if (this.data.type === 'group') {
         this.$store.dispatch('loadGroupDetail', this.data)
       } else if (this.data.type === 'data') {
         this.$store.dispatch('loadDataDetail', this.data)
-      } else {}
+      } else { }
     },
-    onTreeNodeDelete() {
+    onTreeNodeDelete () {
       if (this.data.type === 'group') {
         this.$store.dispatch('deleteGroup', this.data)
       } else if (this.data.type === 'data') {
         this.$store.dispatch('deleteData', this.data)
-      } else {}
+      } else { }
       this.shownDeleteModal = false
     },
-    onTreeNodeCopy() {
+    onTreeNodeCopy () {
       this.$store.dispatch('copyGroupOrData', this.data)
     },
-    onTreeNodePaste() {
+    onTreeNodePaste () {
       this.$store.dispatch('pasteGroupOrData', this.data)
     },
-    onCreate() {
+    onCreate () {
       this.$store.commit('addGroupListOpenNode', this.data.id)
       if (this.createType === 'group') {
         this.$store.dispatch('createGroup', {
-        groupName: this.createName,
-        parentId: this.data.id})
+          groupName: this.createName,
+          parentId: this.data.id        })
       } else if (this.createType === 'data') {
         this.$store.dispatch('createData', {
-        dataName: this.createName,
-        parentId: this.data.id})
-      } else {}
+          dataName: this.createName,
+          parentId: this.data.id        })
+      } else { }
+    },
+    onActivateClick (groupId) {
+      this.$store.dispatch('activateGroup', groupId)
     }
   }
 }
@@ -169,6 +207,10 @@ export default {
 <style>
 .tree-node-inner-row {
   padding: 4px 0px 4px 0px;
+}
+.tree-node-inner-button-bar-right {
+  float: right;
+  margin-right: 5px;
 }
 .tree-node-inner-button {
   padding-left: 5px;
@@ -186,12 +228,12 @@ export default {
   word-break: break-all;
 }
 .tree-node-inner-row-select {
-  background-color: #ebf7ff
+  background-color: #ebf7ff;
 }
-.tree-node-inner-row-foucs{
-  background-color: #f8f8f9
+.tree-node-inner-row-foucs {
+  background-color: #f8f8f9;
 }
 .ivu-dropdown > .ivu-select-dropdown {
-  margin:0px 0px
+  margin: 0px 0px;
 }
 </style>

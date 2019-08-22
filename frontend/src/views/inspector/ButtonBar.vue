@@ -103,7 +103,6 @@ export default {
     };
   },
   mounted () {
-    this.$store.dispatch('loadActivatedGroup')
     this.getRecordStatus()
   },
   computed: {
@@ -123,7 +122,7 @@ export default {
       }
       let text = ''
       for (const groupId in activatedGroups) {
-        text = text + activatedGroups[groupId].name
+        text = text + activatedGroups[groupId].name + ' '
       }
       return text
     },
