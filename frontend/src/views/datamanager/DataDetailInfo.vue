@@ -24,7 +24,7 @@ export default {
   props: ['infoValue', 'infoKey'],
   data() {
     return {
-      readOnly: ['id', 'rule', 'secondary_search_id'],
+      readOnly: ['id', 'rule'],
       undeletable: ['id', 'rule', 'secondary_search_id', 'name'],
       isMouseOver: false
     }
