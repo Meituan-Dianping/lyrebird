@@ -103,7 +103,6 @@ export default {
     };
   },
   mounted () {
-    this.$store.dispatch('loadActivatedGroup')
     this.getRecordStatus()
   },
   computed: {

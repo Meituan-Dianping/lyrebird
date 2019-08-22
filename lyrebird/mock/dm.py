@@ -52,6 +52,7 @@ class DataManager:
             self.root = _root_prop
             self.id_map = {}
             self._read_node(self.root)
+            self._sort_children_by_name()
 
     def _read_node(self, node):
         if 'id' in node:
@@ -355,6 +356,13 @@ class DataManager:
         with codecs.open(prop_file, 'w') as f:
             prop_str = json.dumps(self.root, ensure_ascii=False, indent=4)
             f.write(prop_str)
+
+    def _sort_children_by_name(self):
+        for node_id in self.id_map:
+            node = self.id_map[node_id]
+            if 'children' not in node:
+                continue
+            node['children'] = sorted(node['children'], key=lambda sub_node: sub_node['name'])
 
     """
     Conflict checker
