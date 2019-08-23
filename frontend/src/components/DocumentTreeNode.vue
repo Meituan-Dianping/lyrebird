@@ -17,7 +17,7 @@
     </span>
 
     <span class="tree-node-inner-button-bar-right" v-show="isMouseOver">
-      <Tooltip content="Activate" placement="bottom-end" :delay="500">
+      <Tooltip content="Activate" placement="bottom-end" :delay="500" v-show="showActivateButton">
         <Icon
           type="ios-play"
           color="green"
@@ -39,7 +39,7 @@
             <Icon type="ios-more" class="tree-node-inner-button"></Icon>
           </a>
           <DropdownMenu slot="list" style="min-width:60px">
-            <DropdownItem align="left" name="activate">Activate</DropdownItem>
+            <DropdownItem align="left" name="activate" v-show="showActivateButton">Activate</DropdownItem>
             <DropdownItem align="left" name="delete">Delete</DropdownItem>
             <DropdownItem align="left" name="copy">Copy</DropdownItem>
             <DropdownItem
@@ -134,6 +134,9 @@ export default {
     },
     hasCopyTarget () {
       return this.$store.state.dataManager.copyTarget === null
+    },
+    showActivateButton () {
+      return this.isMouseOver && (this.data.type === 'group')
     }
   },
   methods: {
@@ -210,7 +213,7 @@ export default {
 }
 .tree-node-inner-button-bar-right {
   float: right;
-  margin-right: 5px;
+  margin-right: 15px;
 }
 .tree-node-inner-button {
   padding-left: 5px;
