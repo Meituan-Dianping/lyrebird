@@ -14,7 +14,7 @@ source ./venv/bin/activate
 pip install --upgrade pip
 
 # install from requirements.txt
-pip3 install -r ./requirements.txt
+pip install -r requirements.txt
 
 # create data dir for debug
 if [ ! -e "./data/" ]; then
