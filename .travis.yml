@@ -17,7 +17,7 @@ jobs:
         - pip install .
       # command to run tests & execute Sonar analysis
       script: 
-        - sonar-scanner
+        - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sonar-scanner; fi' # sonar only on non-PRs
         - pytest
 
     - stage: release to pypi
