@@ -5,12 +5,20 @@ jobs:
       catch: pip
       python:
         - "3.6"
+      dist: trusty
+      addons:
+        sonarcloud:
+          organization: "meituan-dianping"
+          token:
+            secure: "Bm1OlcA3pmlvzN8r85DgcsG1lGn6Xh3OXbw9vZq0gcO461dXDcuj5RcOAOCVSUVQ0ERZW5nssPRf4ZzQMKXxk4iG4r9ZBxOed3yUGuXVLjqzCmxZlH4P00RYrH9WDG4qYWmp5pC1VVm5QUzmllPJnMtoG2G/b62EjDtNE4tJEdMaHEqh1ZDOB/FNmvu/7TbWRqu7l7UZxxpg+k1ELdznxlg1L7dZP99Obaxa4kb9l5MDi1LqifDjXcOMzbrwvBjTEeqKGPsssPlWxisOri6hUPvLF67t/HvtDwOLaYpr0AFsawiua9kJB502X8SUVc4s2ZrDw1HVx1EnIGMfRkCG21OxA02y7FTn0S4UAT6iniVLSdDhcbjIz3+Ngvjoo63bsaa/wWpodlkRO+T3Q63VaNGIYV5h7HPxTAXMR62HAuhpD1oq3YXJEOy55S3nMuHGoN/9VV8NARk5kJC+3QsatFaU9uW7UHDIxzAtl3size78Ip4yR/iYKeAurrKc0SjP9vHujrgBQGz1Tb/vrdclRfxB/3gciJRTaolot71oRGrOgt9REjnlaYdZnRc9/9QQYeHxtb3ivWguGM79ebcfSizEzDIbzoEQ9bPEP66vYt5jmEjRwQ5SYANdGmJnk8GzaouemDnHEfgKoKTRiqmB4IAz/vK0tWRbyj2GsxfyLYs="
       # command to install dependencies
       install:
         - pip install -r requirements.txt
         - pip install .
-      # command to run tests
-      script: pytest
+      # command to run tests & execute Sonar analysis
+      script: 
+        - sonar-scanner
+        - pytest
 
     - stage: release to pypi
       if: type = push AND tag IS present
