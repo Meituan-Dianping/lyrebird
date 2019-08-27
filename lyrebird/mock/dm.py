@@ -211,6 +211,7 @@ class DataManager:
         data_node['name'] = _data_name
         data_node['type'] = 'data'
         data_node['parent_id'] = parent_id
+        data_node['secondary_search_id'] = None
 
         data_path = self.root_path / data_id
         with codecs.open(data_path, 'w') as f:
@@ -351,6 +352,7 @@ class DataManager:
             outputfile.write(new_prop_text)
 
     def _save_prop(self):
+        self._sort_children_by_name()
         # Save prop
         prop_file = self.root_path / PROP_FILE_NAME
         with codecs.open(prop_file, 'w') as f:

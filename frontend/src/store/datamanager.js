@@ -125,6 +125,9 @@ export default {
           })
           commit('setGroupList', [response.data.data])
         })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load data failed: ' + error.data.message)
+        })
     },
     loadGroupDetail ({ commit }, payload) {
       api.getGroupDetail(payload.id)

@@ -45,7 +45,7 @@
             <DropdownItem
               align="left"
               name="paste"
-              :disabled="data.type === 'data' || hasCopyTarget"
+              :disabled="data.type === 'data' || !pasteButtonEnable"
             >Paste</DropdownItem>
             <DropdownItem align="left" name="addGroup" v-show="data.type==='group'">Add group</DropdownItem>
             <DropdownItem align="left" name="addData" v-show="data.type==='group'">Add data</DropdownItem>
@@ -132,14 +132,30 @@ export default {
       }
       return toggleClassObj
     },
-    hasCopyTarget () {
-      return this.$store.state.dataManager.copyTarget === null
+    pasteButtonEnable () {
+      const copyTarget = this.$store.state.dataManager.copyTarget
+      if (copyTarget === null) {
+        return false
+      } else {
+        // Paste target should not be it self or it's children
+        return !this.containsCopyTarget(copyTarget, this.data)
+      }
     },
     showActivateButton () {
       return this.isMouseOver && (this.data.type === 'group')
     }
   },
   methods: {
+    containsCopyTarget (target, node) {
+      if (node.id === target.id) {
+        return true
+      }
+      if (node.parent) {
+        return this.containsCopyTarget(target, node.parent)
+      } else {
+        return false
+      }
+    },
     onDropdownMenuClick (payload) {
       if (payload === 'activate') {
         this.onActivateClick(this.data.id)
