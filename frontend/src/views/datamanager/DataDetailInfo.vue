@@ -1,7 +1,7 @@
 <template>
   <Row type="flex" justify="center" align="middle" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" style="margin-bottom:10px;word-break:break-all;">
-    <Col span="6" align="right" style="padding:0px 10px">
-      <Tooltip :content="this.undeletable.indexOf(this.infoKey)===-1 ? 'Delete': 'Undeletable key'" :delay="500">
+    <Col span="5" align="right" style="padding:0px 10px 0px 0px">
+      <Tooltip :content="deletable ? 'Delete': 'Undeletable key'" :delay="500" placement="bottom-start">
         <Icon 
           type="md-remove-circle" 
           :class="buttonClass" 
@@ -10,22 +10,20 @@
           style="padding:0px 10px"
         />
       </Tooltip>
-      <span>{{this.infoKey}}</span>
+      <span>{{infoKey}}</span>
     </Col>
-    <Col span="18" style="padding:0px 0px 0px 10px">
-      <span v-if="readOnly.indexOf(this.infoKey) > -1">{{this.infoValue}}</span>
-      <Input v-else v-model="inputvalue" type="textarea" :autosize="{ minRows: 1 }" size="small"/>
+    <Col span="19" style="padding:0px 0px 0px 10px">
+      <Input v-if="editable" v-model="inputvalue" type="textarea" :autosize="{ minRows: 1 }" size="small"/>
+      <span v-else>{{infoValue}}</span>
     </Col>
   </Row>
 </template>
 
 <script>
 export default {
-  props: ['infoValue', 'infoKey'],
+  props: ['infoValue', 'infoKey', 'editable', 'deletable'],
   data() {
     return {
-      readOnly: ['id', 'rule'],
-      undeletable: ['id', 'rule', 'secondary_search_id', 'name'],
       isMouseOver: false
     }
   },
@@ -39,7 +37,7 @@ export default {
       }
     },
     buttonClass() {
-      if (this.undeletable.indexOf(this.infoKey) === -1) {
+      if (this.deletable) {
         return ['enable-button']
       } else {
         return ['disable-button']
@@ -48,7 +46,7 @@ export default {
   },
   methods: {
     deleteInfoKey() {
-      if (this.undeletable.indexOf(this.infoKey) === -1) {
+      if (this.deletable) {
         this.$store.commit('deleteGroupDetailItem', this.infoKey)
       }
     }

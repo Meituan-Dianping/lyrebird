@@ -14,15 +14,28 @@
               </Button>
             </Col>
           </Row>
-          <div style="margin:10px 5px 0px 10px">
-            <div v-for="(value, key) in groupInfo" :key="key">
-              <DataDetailInfo v-if="undisplayedInfoKey.indexOf(key) === -1 && key.substring(0,1) !== '_'" :infoValue="value" :infoKey="key"/>
+          <div style="margin:10px 5px 10px 10px">
+            <div v-for="(value, key) in groupInfoStickyTop" :key="key">
+              <DataDetailInfo
+                :infoValue="value"
+                :infoKey="key"
+                :editable="!uneditableKey.includes(key)"
+                :deletable="!undeletableKey.includes(key)"
+              />
             </div>
-            <Row style="padding-top:10px">
-              <Col span="5" offset="1" align="right" style="padding:0px 10px 0px 10px">
+            <div v-for="(value, key) in groupInfoNormal" :key="key">
+              <DataDetailInfo
+                :infoValue="value"
+                :infoKey="key"
+                :editable="!uneditableKey.includes(key)"
+                :deletable="!undeletableKey.includes(key)"
+              />
+            </div>
+            <Row>
+              <Col span="5" offset="0" align="right" style="padding:0px 10px">
                 <Input v-model="newPropKey" placeholder="Input new property" size="small"/>
               </Col>
-              <Col span="18" style="padding:0px 0px 0px 10px">
+              <Col span="19" style="padding:0px 0px 0px 10px">
                 <Input 
                   size="small"
                   v-model="newPropValue" 
@@ -71,7 +84,10 @@ export default {
   data() {
     return {
       currentTab: "information",
-      undisplayedInfoKey: ['children', 'type', 'parent_id'],
+      undisplayedKey: ['children', 'type', 'parent_id'],
+      undeletableKey: ['id', 'rule', 'super_id', 'name'],
+      uneditableKey: ['id', 'rule'],
+      stickyTopKey: ['id', 'rule', 'super_id', 'name'],
       conflictCheckNode: {},
       newPropKey: '',
       newPropValue: ''
@@ -83,6 +99,26 @@ export default {
     },
     groupInfo() {
       return this.$store.state.dataManager.groupDetail
+    },
+    groupInfoStickyTop () {
+      const groupInfo = this.$store.state.dataManager.groupDetail
+      let stickyTopInfo = {}
+      for (const key in groupInfo) {
+        if (this.stickyTopKey.includes(key)) {
+          stickyTopInfo[key] = groupInfo[key]
+        }
+      }
+      return stickyTopInfo
+    },
+    groupInfoNormal () {
+      const groupInfo = this.$store.state.dataManager.groupDetail
+      let notStickyTopInfo = {}
+      for (const key in groupInfo) {
+        if (!this.stickyTopKey.includes(key) && !this.undisplayedKey.includes(key) && key.substring(0,1) !== '_') {
+          notStickyTopInfo[key] = groupInfo[key]
+        }
+      }
+      return notStickyTopInfo
     },
     conflictInfo() {
       return this.$store.state.dataManager.conflictInfo

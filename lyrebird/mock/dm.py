@@ -90,8 +90,8 @@ class DataManager:
             self._activate(_node)
         else:
             raise DataNotFound(f'ID:{_id}')
-        if _node.get('secondary_search_id'):
-            _secondary_search_node_id = _node.get('secondary_search_id')
+        if _node.get('super_id'):
+            _secondary_search_node_id = _node.get('super_id')
             _secondary_search_node = self.get(_secondary_search_node_id)
             if not _secondary_search_node:
                 raise DataNotFound(f'Secondary search node ID: {_secondary_search_node_id}')
@@ -174,8 +174,8 @@ class DataManager:
             path = parsed_url.path
         return path
 
-    def add_data(self, parent_id, data):
-        if not isinstance(data, dict):
+    def add_data(self, parent_id, raw_data):
+        if not isinstance(raw_data, dict):
             raise DataObjectSouldBeADict
         if parent_id == 'tmp_group':
             parent_node = self.tmp_group
@@ -186,6 +186,7 @@ class DataManager:
             if parent_node['type'] == 'data':
                 raise DataObjectCannotContainAnyOtherObject
 
+        data = dict(raw_data)
         data_id = str(uuid.uuid4())
         data['id'] = data_id
         if 'request' in data:
@@ -211,7 +212,6 @@ class DataManager:
         data_node['name'] = _data_name
         data_node['type'] = 'data'
         data_node['parent_id'] = parent_id
-        data_node['secondary_search_id'] = None
 
         data_path = self.root_path / data_id
         with codecs.open(data_path, 'w') as f:
@@ -248,7 +248,8 @@ class DataManager:
             'name': name,
             'type': 'group',
             'parent_id': parent_id,
-            'children': []
+            'children': [],
+            'super_id': None
         }
         # New group added in the head of child list
         parent_node['children'].insert(0, new_group)

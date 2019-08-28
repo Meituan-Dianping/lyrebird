@@ -138,13 +138,14 @@ export default {
           bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error.data.message)
         })
     },
-    saveDataDetail ({ state, dispatch }, dataDetail) {
-      api.updateData(dataDetail)
+    saveDataDetail ({ dispatch }, payload) {
+      api.updateData(payload)
         .then(response => {
-          dispatch('loadDataDetail', dataDetail)
+          dispatch('loadDataDetail', payload)
+          bus.$emit('msg.success', 'Data ' + payload.name + ' update!')
         })
         .catch(error => {
-          console.log('Update detail failed', error)
+          bus.$emit('msg.error', 'Data ' + payload.name + ' update error: ' + error)
         })
     },
     createGroup ({ dispatch }, { groupName, parentId }) {
