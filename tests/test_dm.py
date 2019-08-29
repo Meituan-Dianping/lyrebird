@@ -1,6 +1,7 @@
 import pytest
 import codecs
 import json
+from urllib.parse import urlparse
 from lyrebird.mock import dm
 
 dataA = {
@@ -235,18 +236,43 @@ def test_add_group(data_manager):
     assert found_new_group
 
 
-def test_add_data(data_manager):
+def test_add_data_contain_request(data_manager):
     data = {
         'name': 'add_data_name',
-        'request': {},
+        'request': {
+            'url': 'http://hostname.com/pathA/pathB?param=1'
+        },
         'response': {}
+    }
+    parsed_url = urlparse(data['request']['url'])
+    parsed_url_path = parsed_url.path
+
+    new_data_id = data_manager.add_data('groupC-UUID', data)
+    _new_data_node = data_manager.id_map.get(new_data_id)
+    assert parsed_url_path == _new_data_node['name']
+    _new_data = data_manager.get(new_data_id)
+    assert parsed_url_path == _new_data['name']
+    assert data['request'] == _new_data['request']
+    group_c = data_manager.id_map.get('groupC-UUID')
+    found_new_data = False
+    for child in group_c['children']:
+        if child['id'] == new_data_id:
+            found_new_data = True
+            break
+    assert found_new_data
+    new_data_file = data_manager.root_path / new_data_id
+    assert new_data_file.exists()
+
+
+def test_add_data_no_request(data_manager):
+    data = {
+        'name': 'add_data_name'
     }
     new_data_id = data_manager.add_data('groupC-UUID', data)
     _new_data_node = data_manager.id_map.get(new_data_id)
     assert data['name'] == _new_data_node['name']
     _new_data = data_manager.get(new_data_id)
     assert data['name'] == _new_data['name']
-    assert data['request'] == _new_data['request']
     group_c = data_manager.id_map.get('groupC-UUID')
     found_new_data = False
     for child in group_c['children']:
