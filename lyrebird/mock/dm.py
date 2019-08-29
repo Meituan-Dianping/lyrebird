@@ -356,8 +356,29 @@ class DataManager:
         # Save prop
         prop_file = self.root_path / PROP_FILE_NAME
         with codecs.open(prop_file, 'w') as f:
-            prop_str = json.dumps(self.root, ensure_ascii=False, indent=4)
-            f.write(prop_str)
+            prop_str = json.dumps(self.root, ensure_ascii=False)
+            formated_str = self._prop_json_str_format(prop_str)
+            f.write(formated_str)
+
+    def _prop_json_str_format(self, jsonstr):
+        # Add new line for every node
+        jsonstr_with_newline = jsonstr.replace('[{', '[\n{').replace('}]', '}\n]').replace('},', '},\n')
+        # Add indent
+        lines = jsonstr_with_newline.splitlines()
+        newlines = []
+        _indent_tag = '  '
+        _indent_count = 0
+        for line in lines:
+            line = line.strip()
+            if line[-1] == '[':
+                newlines.append(_indent_tag*_indent_count + line)
+                _indent_count += 1
+            elif line[0] == ']':
+                _indent_count -= 1
+                newlines.append(_indent_tag * _indent_count + line)
+            else:
+                newlines.append(_indent_tag * _indent_count + line)
+        return '\n'.join(newlines)
 
     def _sort_children_by_name(self):
         for node_id in self.id_map:
