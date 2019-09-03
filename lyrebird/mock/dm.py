@@ -17,7 +17,13 @@ class DataManager:
 
     def __init__(self):
         self.root_path: Path = None
-        self.root = None
+        self.root = {
+            "id": str(uuid.uuid4()),
+            "name": "$",
+            "type": "group",
+            "parent_id": None,
+            "children": []
+        }
         self.id_map = {}
         self.activated_data = {}
         self.activated_group = {}
@@ -33,13 +39,11 @@ class DataManager:
         DataManager will reload all data from this new root dir.
         And all activited data will be removed from DataManager.
         """
-        _root_path = Path(root_path)
+        _root_path = Path(root_path).expanduser()
         if not _root_path.exists():
             raise RootPathNotExists(root_path)
         if not _root_path.is_dir():
             raise RootPathIsNotDir(root_path)
-        if not (_root_path / PROP_FILE_NAME).exists():
-            raise LyrebirdPropNotExists((_root_path / PROP_FILE_NAME))
         self.root_path = _root_path
         self.reload()
 
@@ -47,6 +51,8 @@ class DataManager:
         if not self.root_path:
             raise RootNotSet
         _root_prop_path = self.root_path / PROP_FILE_NAME
+        if not _root_prop_path.exists():
+            self._save_prop()
         with codecs.open(_root_prop_path) as f:
             _root_prop = json.load(f)
             self.root = _root_prop
