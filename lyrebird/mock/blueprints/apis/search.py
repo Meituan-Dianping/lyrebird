@@ -25,8 +25,7 @@ class SearchMockDataByName(Resource):
                             'parent_id': group['parent_id']
                         })
         else:
-            for _id in context.application.data_manager.id_map:
-                group = context.application.data_manager.id_map.get(_id)
+            for _id, group in context.application.data_manager.id_map.items():
                 if group.get('type') == 'group' and group.get('name') and group.get('name') != '$':
                     _matched_group.append({
                         'id': group['id'],
