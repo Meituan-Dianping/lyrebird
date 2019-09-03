@@ -119,10 +119,9 @@ def run(args: argparse.Namespace):
     data_path = application._cm.config['mock.data']
     res = mock_data_tools.check_data_version(data_path)
     mockdata_version = vparse(res)
-    if mockdata_version >= MOCK_DATA_V_1_7_0:
-        logger.log(60, 'Mock data not need to update')
-    elif MOCK_DATA_V_1_0_0 <= mockdata_version < MOCK_DATA_V_1_7_0:
-        logger.log(60, 'Mock data need to update')
+
+    if MOCK_DATA_V_1_0_0 <= mockdata_version < MOCK_DATA_V_1_7_0:
+        logger.log(60, 'Mock data need update')
         mock_data_tools.update(data_path)
     else:
         logger.error('Can not update this mock data')

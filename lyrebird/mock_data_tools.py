@@ -158,7 +158,7 @@ def _backup(data_dir):
     _backup_dir = str(data_dir)+'_bak'
     os.rename(str(data_dir), str(data_dir)+'_bak')
     os.mkdir(data_dir)
-    logger.warning(f'\n----------------\nBack up mock data save to {_backup_dir}\n----------------\n')
+    logger.warning(f'\n----------------\nMock data backup was saved to {_backup_dir}\n----------------\n')
     return _backup_dir
 
 
