@@ -1,76 +1,68 @@
 <template>
-    <div class="data-list">
-      <Table
-        highlight-row
-        class="data-table"
-        size="small"
-        ref="selection"
-        :columns="columns"
-        :data="dataItems"
-        @on-row-click="onClickRow"
-        @on-selection-change="onClickSelect"
-      ></Table>
-    </div>
+  <div>
+    <Row class="button-bar">
+      <Col span="23">
+        <b style="padding-left:5px">Mock Data Tree</b>
+      </Col>
+      <Col span="1">
+        <Dropdown v-show="false">
+          <a href="javascript:void(0)">
+            <Icon type="ios-more-outline" />
+          </a>
+          <DropdownMenu slot="list">
+            <DropdownItem>Import...</DropdownItem>
+            <DropdownItem>Export...</DropdownItem>
+            <DropdownItem>Reload</DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </Col>
+    </Row>
+    <DocumentTree :treeData="treeData" class="data-list" />
+  </div>
 </template>
 
 <script>
+import DocumentTree from '@/components/DocumentTree.vue'
 export default {
-  data: function() {
-    return {
-      columns: [
-        {
-          type: "selection",
-          width: 50,
-          align: "center"
-        },
-        {
-          title: "Name",
-          key: "name"
-        }
-      ]
-    };
+  components: {
+    DocumentTree
   },
   computed: {
-    dataItems() {
-      return this.$store.state.dataManager.dataList;
-    }
-  },
-  methods: {
-    onClickRow(data) {
-      this.$store.commit("setFoucsData", data.id);
-      this.$store.dispatch({
-        type: "loadDataDetail",
-        groupId: this.$store.state.dataManager.currentDataGroup,
-        dataId: data.id
-      });
-    },
-    onClickSelect(data) {
-      this.$store.commit("setSelectedData", data);
+    treeData () {
+      return this.$store.state.dataManager.groupList
     }
   }
-};
+}
 </script>
 
-<style>
+<style scoped>
 .data-list {
-  height: calc(100vh - 118px);
+  height: calc(100vh - 94px);
   /* total:100vh
-        header: 38px
-        padding: 5px + 5px
-        buttonBar: 48px
-        table
-        padding: 5px
-        footer: 28px
-         */
+    header: 38px
+    buttonBar: 28px
+    tree
+    footer: 28px
+  */
   overflow-y: auto;
   margin-right: 0;
 }
-.data-table th div {
-  padding-left: 5px;
-  padding-right: 5px;
+.button-bar {
+  height: 27px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  background-color: #f8f8f9;
 }
-.data-table td div {
-  padding-left: 5px;
-  padding-right: 5px;
+.button-bar-button {
+  padding: 5px 10px 5px 0px;
+  cursor: pointer;
+}
+.button-bar-button-right {
+  padding: 5px 0px 5px 10px;
+  cursor: pointer;
+}
+.button-bar-btn img {
+  width: 18px;
 }
 </style>

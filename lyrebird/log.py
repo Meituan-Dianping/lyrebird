@@ -7,7 +7,7 @@ from lyrebird import application
 _stream_logger_inited = False
 
 
-def get_logger()->logging.Logger:
+def get_logger() -> logging.Logger:
     global _stream_logger_inited
     if not _stream_logger_inited:
         _init_stream_logger()
@@ -18,12 +18,14 @@ def get_logger()->logging.Logger:
 Color = namedtuple('Color', ['fore', 'style', 'back'])
 
 COLORS = dict(
+    NOTICE=Color(fore=Fore.GREEN, style=Style.NORMAL, back=Back.RESET),
     CRITICAL=Color(fore=Fore.WHITE, style=Style.BRIGHT, back=Back.RED),
     ERROR=Color(fore=Fore.RED, style=Style.NORMAL, back=Back.RESET),
     WARNING=Color(fore=Fore.YELLOW, style=Style.NORMAL, back=Back.RESET),
     INFO=Color(fore=Fore.WHITE, style=Style.NORMAL, back=Back.RESET),
     DEBUG=Color(fore=Fore.GREEN, style=Style.NORMAL, back=Back.RESET)
 )
+
 
 def colorit(message, levelname):
     color = COLORS.get(levelname)
@@ -35,7 +37,7 @@ def colorit(message, levelname):
 
 class ColorFormater(logging.Formatter):
 
-    def format(self, record:logging.LogRecord):
+    def format(self, record: logging.LogRecord):
         module = f'{colorit(record.module, record.levelname)}'
         msg = f'{colorit(record.msg, record.levelname)}'
         levelname = f'{colorit(record.levelname, record.levelname)}'
@@ -43,7 +45,7 @@ class ColorFormater(logging.Formatter):
 
 
 def _init_stream_logger():
-    logger:logging.Logger = logging.getLogger('lyrebird')
+    logger: logging.Logger = logging.getLogger('lyrebird')
 
     color_formater = ColorFormater(fmt='%(levelname)s [%(module)s] %(message)s')
     stream_handler = logging.StreamHandler()
@@ -63,7 +65,7 @@ def _init_file_logger(custom_log_path=None):
     file_handler = logging.handlers.TimedRotatingFileHandler(log_file, backupCount=1, encoding='utf-8', when='midnight')
     file_handler.setFormatter(file_formater)
 
-    logger:logging.Logger = logging.getLogger('lyrebird')
+    logger: logging.Logger = logging.getLogger('lyrebird')
     logger.addHandler(file_handler)
 
 
@@ -84,16 +86,18 @@ def _setup_3rd_loggers():
 
 
 def init(custom_log_path=None):
+    logging.addLevelName(60, 'NOTICE')
+
     _init_file_logger(custom_log_path=custom_log_path)
     _setup_3rd_loggers()
 
-    logger:logging.Logger = logging.getLogger('lyrebird')
+    logger: logging.Logger = logging.getLogger('lyrebird')
     verbose = application.config.get('verbose', 0)
     if verbose == 0:
         logger.setLevel(logging.ERROR)
     elif verbose == 1:
-        logger.setLevel(logging.WARNING)
-    elif verbose == 2:
         logger.setLevel(logging.INFO)
-    elif verbose >= 3:
+    elif verbose == 2:
         logger.setLevel(logging.DEBUG)
+    elif verbose >= 3:
+        logger.setLevel(logging.NOTSET)

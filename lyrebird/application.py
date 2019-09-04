@@ -15,13 +15,13 @@ def make_ok_response(**kwargs):
     return jsonify(ok_resp)
 
 
-def make_fail_response(msg):
-    return jsonify(
-        {
-            "code": 3000,
-            "message": msg
-        }
-    )
+def make_fail_response(msg, **kwargs):
+    fail_resp = {
+        "code": 3000,
+        "message": msg
+    }
+    fail_resp.update(kwargs)
+    return jsonify(fail_resp)
 
 
 _cm = None

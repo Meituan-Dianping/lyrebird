@@ -1,7 +1,6 @@
 from lyrebird.mock import context
 from lyrebird.log import get_logger
 from flask import Response, stream_with_context
-import json
 
 
 logger = get_logger()
@@ -13,17 +12,23 @@ class MockHandler:
     如果没有找到匹配的数据则交由下一个处理器处理。
 
     """
+
     def handle(self, handler_context):
-        data = context.application.data_manager.router.get_mock_data(handler_context.flow)
-        if data:
-            handler_context.response = self.data2response(data)
+        data = context.application.data_manager.get_matched_data(handler_context.flow)
+        if len(data) <= 0:
+            return
+        handler_context.response = self.data2response(data[0])
+        activated_groups = context.application.data_manager.activated_group
+        activated_group = list(activated_groups.values())[0]
+        logger.info(
+            f'<Mock> Hit Group:{activated_group.get("name")} - Data:{data[0]["name"]} \nURL: {handler_context.flow["request"]["url"]}\nGroupID:{activated_group["id"]} DataID:{data[0]["id"]}')
 
     def data2response(self, data):
-        resp_info = json.loads(data.response.content)
-        code = resp_info['code']
-        headers = resp_info['headers']
+        response = data['response']
+        code = response['code']
+        headers = response['headers']
         headers['lyrebird'] = 'mock'
-        resp_data = data.response_data.content
+        resp_data = response['data']
 
         if resp_data:
             if type(resp_data) == str:

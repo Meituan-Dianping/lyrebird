@@ -5,7 +5,6 @@ import socket
 import threading
 import signal
 import os
-from pathlib import Path
 from lyrebird import log
 from lyrebird import application
 from lyrebird.config import Rescource, ConfigManager
@@ -19,9 +18,15 @@ from lyrebird.plugins import PluginManager
 from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird import version
 from lyrebird import reporter
+from lyrebird import mock_data_tools
+from packaging.version import parse as vparse
 
 
 logger = log.get_logger()
+
+MOCK_DATA_V_1_7_0 = vparse('1.7.0')
+MOCK_DATA_V_1_0_0 = vparse('1.0.0')
+MOCK_DATA_V_0_15_0 = vparse('0.15.0')
 
 
 def main():
@@ -67,7 +72,9 @@ def main():
     parser.add_argument('--plugin', action='append', help='Set a plugin project path')
 
     subparser = parser.add_subparsers(dest='sub_command')
-    subparser.add_parser('gen')
+
+    gen_parser = subparser.add_parser('gen')
+    gen_parser.add_argument('path', help='Create plugin project')
 
     args = parser.parse_args()
 
@@ -109,12 +116,18 @@ def main():
 
 def run(args: argparse.Namespace):
     # Check mock data group version. Update if is older than 1.x
-    from . import mock_data_formater
     data_path = application._cm.config['mock.data']
-    data_dir = Path(data_path)
-    mock_data_formater.check_data_dir(data_dir)
+    res = mock_data_tools.check_data_version(data_path)
+    mockdata_version = vparse(res)
+
+    if MOCK_DATA_V_1_0_0 <= mockdata_version < MOCK_DATA_V_1_7_0:
+        logger.log(60, 'Mock data need update')
+        mock_data_tools.update(data_path)
+    elif mockdata_version < MOCK_DATA_V_1_0_0:
+        logger.error('Can not update this mock data')
 
     # show current config contents
+    print_lyrebird_info()
     config_str = json.dumps(application._cm.config, ensure_ascii=False, indent=4)
     logger.warning(f'Lyrebird start with config:\n{config_str}')
 
@@ -178,3 +191,26 @@ def _get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('bing.com', 80))
     return s.getsockname()[0]
+
+
+def print_lyrebird_info():
+    logo = [
+        "",
+        "",
+        "     _                    _     _         _ ",
+        "    | |                  | |   (_)       | |",
+        "    | |    _   _ _ __ ___| |__  _ _ __ __| |",
+        "    | |   | | | | '__/ _ \\ '_ \\| | '__/ _' |",
+        "    | |___| |_| | | |  __/ |_) | | | | (_| |",
+        "    \\_____/\\__, |_|  \\___|_.__/|_|_|  \\__,_|",
+        "            __/ |                           ",
+        "           |___/                            ",
+        "",
+        f"                   v{version.VERSION}",
+        "",
+        "",
+        ""
+    ]
+    logo_str = '\n'.join(logo)
+    # Custom log level 60  : NOTICE
+    logger.log(60, logo_str)

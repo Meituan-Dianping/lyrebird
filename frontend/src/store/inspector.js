@@ -1,18 +1,19 @@
-import * as api from '@/api' 
+import * as api from '@/api'
+import { bus } from '@/eventbus'
 
 export default {
   state: {
-    activatedGroupId: null,
+    activatedGroup: null,
     showDataButtons: false,
     searchStr: '',
     selectedIds: [],
-    groupList: [],
     focusedFlow: null,
-    focusedFlowDetail: null
+    focusedFlowDetail: null,
+    groupTree: null
   },
   mutations: {
-    setActivitedGroupId(state, groupId) {
-      state.activatedGroupId = groupId
+    setActivitedGroup (state, group) {
+      state.activatedGroup = group
     },
     showDataButtons: function (state, val) {
       state.showDataButtons = val
@@ -20,70 +21,59 @@ export default {
     search: function (state, val) {
       state.searchStr = val
     },
-    setSelectedId: function(state, val) {
+    setSelectedId: function (state, val) {
       state.selectedIds = val
     },
     clearSelectedId: function (state) {
       state.selectedIds = []
     },
-    setFocusedFlow(state, flow){
+    setFocusedFlow (state, flow) {
       state.focusedFlow = flow
     },
-    setFocusedFlowDetail(state, flowDetail){
+    setFocusedFlowDetail (state, flowDetail) {
       state.focusedFlowDetail = flowDetail
     }
   },
   actions: {
-    loadActivatedGroup({commit}) {
+    loadActivatedGroup ({ commit }) {
       api.getActivatedGroup()
         .then(response => {
-          commit('setActivitedGroupId', response.data.id)
+          commit('setActivitedGroup', response.data.data)
         })
-        .catch(error => console.log(error))
+        .catch(error => {
+          bus.$emit('msg.error', 'Load activate Group error: ' + error.data.message)
+        })
     },
-    activateGroup({dispatch}, groupId) {
+    activateGroup ({ dispatch }, groupId) {
       api.activateGroup(groupId)
         .then(response => {
           dispatch('loadActivatedGroup')
         })
-        .catch(error => console.log(error))
-    },
-    deactivateGroup({dispatch}){
-      api.deactivateGroup()
-      .then(response=>{
-        dispatch('loadActivatedGroup')
-      })
-      .catch(error=>{
-      })
-    },
-    iLoadGroupList({state}){
-      api.getGroups()
-      .then(response=>{
-        state.groupList = response.data
-      })
-      .catch(error=>console.log(error))
-    },
-    createAndActivateGroup({state, commit, dispatch}, groupName){
-      api.createGroup(groupName)
-      .then(response=>{
-        const groupId = response.data.group_id
-        state.groupList.push({
-          id: groupId,
-          name: groupName,
-          parent: null           
+        .catch(error => {
+          bus.$emit('msg.error', 'Activate Group ' + groupId + ' error: ' + error.data.message)
         })
-        dispatch('activateGroup', groupId)
-      })
     },
-    loadFlowDetail({commit}, flowId){
-      api.getFlowDetail(flowId).then(response=>{
-        commit('setFocusedFlowDetail', response.data)
-      })
+    deactivateGroup ({ dispatch }) {
+      api.deactivateGroup()
+        .then(response => {
+          dispatch('loadActivatedGroup')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Deactivate Group error: ' + error.data.message)
+        })
     },
-    focusFlow({commit, dispatch}, flow){
+    loadFlowDetail ({ commit }, flowId) {
+      api.getFlowDetail(flowId)
+        .then(response => {
+          commit('setFocusedFlowDetail', response.data.data)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load flow ' + flowId + ' error: ' + error.data.message)
+        })
+    },
+    focusFlow ({ commit, dispatch }, flow) {
       commit('setFocusedFlow', flow)
       dispatch('loadFlowDetail', flow.id)
     }
   }
 }
-

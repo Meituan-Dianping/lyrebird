@@ -1,5 +1,5 @@
 import codecs
-from flask import request, jsonify
+from flask import request
 from flask_restful import Resource
 from lyrebird import application
 from lyrebird.mock import context
@@ -9,7 +9,8 @@ class Checker(Resource):
     def get(self, checker_id=None):
         if not checker_id:
             checkers = application.checkers
-            return jsonify([checkers[checker_name].json() for checker_name in checkers])
+            script_info_list = [checkers[checker_name].json() for checker_name in checkers]
+            return application.make_ok_response(data=script_info_list)
 
         _checker = application.checkers.get(checker_id)
         if not _checker:
@@ -18,7 +19,7 @@ class Checker(Resource):
         checker = application.checkers[checker_id]
         with codecs.open(checker.path, 'r', 'utf-8') as f:
             content = f.read()
-            return jsonify(content)
+            return application.make_ok_response(data=content)
 
     def put(self, checker_id):
         _checker = application.checkers.get(checker_id)
