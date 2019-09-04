@@ -31,11 +31,8 @@ class Reporter:
         if not target_dir.exists():
             logger.error('Reporter workspace not found')
         for report_script_file in target_dir.iterdir():
-<<<<<<< HEAD
             if report_script_file.name.startswith('_'):
                 continue
-=======
->>>>>>> upstream/master
             if not report_script_file.is_file():
                 logger.warning(f'Skip report script: is not a file, {report_script_file}')
                 continue
