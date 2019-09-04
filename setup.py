@@ -45,7 +45,7 @@ setup(
         "requests==2.21.0",
         "SQLAlchemy==1.3.1",
         "click==6.7",
-        "urllib3==1.24.1"
+        "urllib3==1.24.2"
     ],
     extras_require={
         'dev': [
