@@ -35,14 +35,8 @@ setup(
     install_requires=[
         "beautifulsoup4==4.7.1",
         "colorama==0.4.1",
-<<<<<<< HEAD
         "elasticsearch==7.0.1",
         "Flask==1.1.1",
-=======
-        "cryptography==2.3.1",
-        "elasticsearch==7.0.1",
-        "Flask==1.0.2",
->>>>>>> upstream/master
         "Flask-RESTful==0.3.7",
         "Flask-SocketIO==4.2.1",
         "mitmproxy==4.0.4",

@@ -19,11 +19,8 @@ from lyrebird.plugins import PluginManager
 from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird import version
 from lyrebird import reporter
-<<<<<<< HEAD
 from lyrebird import mock_data_tools
 from packaging.version import parse as vparse
-=======
->>>>>>> upstream/master
 
 
 logger = log.get_logger()
@@ -126,7 +123,7 @@ def run(args: argparse.Namespace):
     if MOCK_DATA_V_1_0_0 <= mockdata_version < MOCK_DATA_V_1_7_0:
         logger.log(60, 'Mock data need update')
         mock_data_tools.update(data_path)
-    else:
+    elif mockdata_version < MOCK_DATA_V_1_0_0:
         logger.error('Can not update this mock data')
 
     # show current config contents
