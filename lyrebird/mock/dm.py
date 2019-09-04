@@ -81,9 +81,9 @@ class DataManager:
         elif node.get('type') == 'data':
             return self._load_data(_id)
 
-    """
-    Mock operations
-    """
+    # -----
+    # Mock operations
+    # -----
 
     def activate(self, _id):
         """
@@ -167,9 +167,9 @@ class DataManager:
                 return None
         return result
 
-    """
-    Data tree operations
-    """
+    # -----
+    # Data tree operations
+    # -----
 
     def _get_request_path(self, request):
         path = request.get('path')
@@ -394,9 +394,9 @@ class DataManager:
                 continue
             node['children'] = sorted(node['children'], key=lambda sub_node: sub_node['name'])
 
-    """
-    Conflict checker
-    """
+    # -----
+    # Conflict checker
+    # -----
 
     def check_conflict(self, _id):
         node = self.id_map.get(_id)
@@ -458,9 +458,10 @@ class DataManager:
             return path
         current_path = '/' + node['name'] + path
         return self._get_abs_parent_path(parent_node, path=current_path)
-    """
-    Record API
-    """
+
+    # -----
+    # Record API
+    # -----
 
     def save_data(self, data):
         if len(self.activated_group) > 0:
@@ -470,9 +471,9 @@ class DataManager:
         else:
             self.add_data('tmp_group', data)
 
-    """
-    Editor
-    """
+    # -----
+    # Editor
+    # -----
 
     def update_group(self, _id, data):
         ignore_keys = ['id', 'parent_id', 'type', 'children']

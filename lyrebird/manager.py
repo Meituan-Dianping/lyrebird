@@ -5,7 +5,6 @@ import socket
 import threading
 import signal
 import os
-from pathlib import Path
 from lyrebird import log
 from lyrebird import application
 from lyrebird.config import Rescource, ConfigManager
@@ -75,6 +74,7 @@ def main():
     subparser = parser.add_subparsers(dest='sub_command')
 
     gen_parser = subparser.add_parser('gen')
+    gen_parser.add_argument('path', help='Create plugin project')
 
     args = parser.parse_args()
 

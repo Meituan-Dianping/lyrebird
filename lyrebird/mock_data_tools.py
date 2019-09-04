@@ -2,7 +2,6 @@ import codecs
 import json
 from pathlib import Path
 import os
-import shutil
 from lyrebird.log import get_logger
 import uuid
 
@@ -130,8 +129,8 @@ def _load_mock_data(data_dir, parent_id):
     return data_prop
 
 
-def _save_data_to_file(dir, dist, _id=None):
-    data_root = Path(dir)
+def _save_data_to_file(data_dir, dist, _id=None):
+    data_root = Path(data_dir)
     _prop = data_root / '.lyrebird_prop'
     _req = data_root / 'request'
     _req_data = data_root / 'request_data'

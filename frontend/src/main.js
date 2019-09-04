@@ -11,7 +11,7 @@ import { bus } from './eventbus'
 
 
 Vue.config.productionTip = false
-Vue.use(iView, {locale})
+Vue.use(iView, { locale })
 Vue.use(VueResource)
 
 Vue.prototype.$io = io()
