@@ -5,6 +5,7 @@ import socket
 import threading
 import signal
 import os
+from pathlib import Path
 from lyrebird import log
 from lyrebird import application
 from lyrebird.config import Rescource, ConfigManager
@@ -117,6 +118,7 @@ def main():
 def run(args: argparse.Namespace):
     # Check mock data group version. Update if is older than 1.x
     data_path = application._cm.config['mock.data']
+    Path(data_path).mkdir(parents=True, exist_ok=True)
     res = mock_data_tools.check_data_version(data_path)
     mockdata_version = vparse(res)
 
