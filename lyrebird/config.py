@@ -17,16 +17,16 @@ logger = nlog.get_logger()
 
 
 config_template = {
-  "version": "0.10.5",
-  "proxy.filters": [],
-  "proxy.port": 4272,
-  "mock.port": 9090,
-  "mock.data": "data",
-  "mock.proxy_headers": {
-    "scheme": "MKScheme",
-    "host": "MKOriginHost",
-    "port": "MKOriginPort"
-  }
+    "version": "0.10.5",
+    "proxy.filters": [],
+    "proxy.port": 4272,
+    "mock.port": 9090,
+    "mock.data": "{{current_dir}}/mock_data/personal",
+    "mock.proxy_headers": {
+        "scheme": "MKScheme",
+        "host": "MKOriginHost",
+        "port": "MKOriginPort"
+    }
 }
 
 
@@ -44,10 +44,10 @@ class ConfigManager():
             self.update_conf(conf_path)
         self.config = self.read_base_config()
         if conf_path:
-            self.read()        
+            self.read()
 
     def update_conf(self, path):
-        input_path:Path = Path(path).expanduser().absolute()
+        input_path: Path = Path(path).expanduser().absolute()
         if input_path.is_dir():
             self.root = input_path
             self.conf_file = input_path / self.DEFAULT_FILENAME
@@ -68,7 +68,7 @@ class ConfigManager():
     def save(self):
         with codecs.open(self.conf_file, 'w', 'utf-8') as f:
             f.write(json.dumps(self.config, ensure_ascii=False, indent=4))
-    
+
     def update_base_config(self):
         if self.BASE_CONFIG.exists() and self.BASE_CONFIG.is_file():
             with codecs.open(self.BASE_CONFIG, 'r', 'utf-8') as f:
@@ -142,16 +142,16 @@ class Rescource:
             self._git()
         else:
             raise RescourceException(f'Unknown scheme {self.cache}')
-        
+
     def _git(self):
         git_url = self.cache.get('uri')[4:]
         p = subprocess.run(f'git clone {git_url} {self.download_dir.absolute()}', shell=True)
         p.check_returncode()
         logger.warning(f'Source downloaded to {str(self.download_dir.absolute())}')
-    
+
     def _http(self):
         # resp = requests.get(self.cache.get('uri'), allow_redirects=True)
-        # TODO support http download 
+        # TODO support http download
         # 1. download gzip file and unzip it
         # 2. download from git repo
         pass
