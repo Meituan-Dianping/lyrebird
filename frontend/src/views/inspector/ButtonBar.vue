@@ -1,15 +1,20 @@
 <template>
-  <div class="button-bar">
+  <div class="inspector-button-bar">
     <Tooltip :content="recordBtnTooltip" placement="bottom-start" :delay="500">
-      <Button @click="switchRecord">
-        <Icon :type="recordingBtn.type" :color="recordingBtn.color" />
-      </Button>
+      <Icon
+        class="inspector-button"
+        :type="recordingBtn.type"
+        :color="recordingBtn.color"
+        @click="switchRecord"
+        style="margin-right:3px"
+        size="18"
+      />
     </Tooltip>
-    <div class="inline">
-      <Divider type="vertical"></Divider>
-    </div>
+
     <Tooltip content="Clear" :delay="500">
-      <Button @click="showClearModal=true" icon="md-refresh"></Button>
+      <div class="inspector-button ivu-icon" @click="showClearModal=true">
+        <svg-icon class="ivu-icon" name="short-broom" color="#666" scale="5"></svg-icon>
+      </div>
     </Tooltip>
 
     <div class="inline" v-if="showDataButtons">
@@ -18,13 +23,19 @@
       </div>
 
       <Tooltip content="Save" :delay="500">
-        <Button @click="saveSelectedFlow">
-          <Icon type="md-archive"></Icon>
-        </Button>
+        <div class="inspector-button ivu-icon" @click="saveSelectedFlow">
+          <svg-icon class="ivu-icon" name="md-save" color="#666" scale="4"></svg-icon>
+        </div>
       </Tooltip>
 
       <Tooltip content="Delete" :delay="500">
-        <Button @click="deleteSelectedFlow" icon="md-trash"></Button>
+        <Icon
+          class="inspector-button"
+          @click="deleteSelectedFlow"
+          type="md-trash"
+          color="#666"
+          size="18"
+        />
       </Tooltip>
     </div>
 
@@ -32,204 +43,217 @@
       <Divider type="vertical"></Divider>
     </div>
 
-    <label style="padding-right:5px"><b>Activated Data:</b></label>
+    <label>
+      <b style="padding-right:5px">Activated Mock Group:</b>
+      <ButtonGroup>
+        <Button @click="showMockDataSelector" size="small">{{activateBtnText}}</Button>
+        <Button size="small" @click="resetActivatedData">
+          <Tooltip content="Deactivate mock group" :delay="500">
+            <Icon type="ios-backspace-outline" color="red" size="16" />
+          </Tooltip>
+        </Button>
+      </ButtonGroup>
+    </label>
 
-    <div class="inline">
-      <Select v-model="activatedGroupId" filterable clearable style="width: 15vw">
-        <OptionGroup label="DataGroup">
-          <Option v-for="item in dataGroups" :key="item.id" :value="item.id">{{item.name}}</Option>
-        </OptionGroup>
-      </Select>
+    <div class="inline inspector-searchbox">
+      <Input search clearable size="small" v-model="searchStr"></Input>
     </div>
 
-    <div class="inline" style="margin-left:auto">
-      <Input search clearable style="width:30vw" v-model="searchStr"></Input>
-    </div>
-
-    <Modal v-model="showClearModal" title="Alert" @on-ok="clearModalOk" @on-cancel="showClearModal=false">
+    <Modal
+      v-model="showClearModal"
+      title="Alert"
+      @on-ok="clearModalOk"
+      @on-cancel="showClearModal=false"
+    >
       <p>Clear flow list?</p>
     </Modal>
 
-    <Modal v-model="showCreateGroupModal" title="Create mock group" @on-ok="createAndActivateGroupOk">
-      <Input v-model="newDataGroupName" placeholder="Data group name"></Input>
-    </Modal>
+    <MockDataSelector ref="dataSelector"></MockDataSelector>
   </div>
 </template>
 
 <script>
-  let stopedStatus = {
-    recording: false,
-    type: "md-radio-button-on",
-    color: "red",
-    text: "Start recording"
-  };
+import MockDataSelector from '@/views/inspector/MockDataSelector.vue'
+import Icon from 'vue-svg-icon/Icon.vue'
 
-  let recordingStatus = {
-    recording: true,
-    type: "md-square",
-    color: "black",
-    text: "Stop recording"
-  };
+let stopedStatus = {
+  recording: false,
+  type: "md-radio-button-on",
+  color: "red",
+  text: "Start recording"
+};
 
- export default {
-    name: 'buttonBar',
-    components: {},
-    data: function () {
-      return {
-        showClearModal: false,
-        showCreateGroupModal: false,
-        newDataGroupName: '',
-        recordingBtn: stopedStatus
-      };
+let recordingStatus = {
+  recording: true,
+  type: "md-square",
+  color: "black",
+  text: "Stop recording"
+};
+
+export default {
+  name: 'buttonBar',
+  components: {
+    MockDataSelector,
+    'svg-icon': Icon
+  },
+  data: function () {
+    return {
+      showClearModal: false,
+      recordingBtn: stopedStatus
+    };
+  },
+  mounted () {
+    this.getRecordStatus()
+  },
+  computed: {
+    showDataButtons () {
+      return this.$store.state.inspector.showDataButtons
     },
-    mounted() {
-      this.$store.dispatch('iLoadGroupList')
-      this.$store.dispatch('loadActivatedGroup')
-      this.getRecordStatus(); 
+    activatedGroups () {
+      return this.$store.state.inspector.activatedGroup
     },
-    computed: {
-      showDataButtons() {
-        return this.$store.state.inspector.showDataButtons;
+    activateBtnText () {
+      const activatedGroups = this.$store.state.inspector.activatedGroup
+      if (activatedGroups === null) {
+        return 'None'
+      }
+      if (Object.keys(activatedGroups).length === 0) {
+        return 'None'
+      }
+      let text = ''
+      for (const groupId in activatedGroups) {
+        text = text + activatedGroups[groupId].name + ' '
+      }
+      return text
+    },
+    searchStr: {
+      get () {
+        return this.$store.state.inspector.searchStr
       },
-      dataGroups(){
-        return this.$store.state.inspector.groupList
-      },
-      activatedGroupId:{
-        get(){
-          return this.$store.state.inspector.activatedGroupId
-        },
-        set(groupId){
-          if(groupId){
-            this.$store.dispatch('activateGroup', groupId)
-          }else{
-            this.$store.dispatch('deactivateGroup')
-          }
-        }
-      },
-      searchStr:{
-        get(){
-          return this.$store.state.inspector.searchStr
-        },
-        set(val){
-          this.$store.commit('search', val)
-        }
-      },
-      recordBtnTooltip(){
-        if(this.recordingBtn.recording){
-          return 'Stop recording'
-        }else{
-          return 'Record'
-        }
+      set (val) {
+        this.$store.commit('search', val)
       }
     },
-    methods: {
-      switchRecord: function () {
-        if (this.recordingBtn.recording) {
-          this.$http.put("/api/mode/normal").then(
-            response => {
-              this.recordingBtn = stopedStatus;
-              console.log("stop recording", response);
-            },
-            error => {
-              console.log("stop recording failed", response);
-            }
-          );
-        } else {
-          if (!this.activatedGroupId) {
-            this.showCreateGroupModal = true;
+    recordBtnTooltip () {
+      if (this.recordingBtn.recording) {
+        return 'Stop recording'
+      } else {
+        return 'Record'
+      }
+    }
+  },
+  methods: {
+    showMockDataSelector () {
+      this.$refs.dataSelector.toggal()
+    },
+    switchRecord: function () {
+      if (this.recordingBtn.recording) {
+        this.$http.put("/api/mode/normal").then(
+          response => {
+            this.recordingBtn = stopedStatus;
+            console.log("stop recording", response);
+          },
+          error => {
+            console.log("stop recording failed", response);
           }
-          this.$http.put("/api/mode/record").then(
-            response => {
-              this.recordingBtn = recordingStatus;
-              console.log("start recode", response);
-            },
-            error => {
-              console.log("start recode failed", error);
-            }
-          );
-        }
-      },
-      getRecordStatus: function () {
-        this.$http.get("/api/mode").then(
-          response => {
-            if (response.data.mode === "record") {
-              this.recordingBtn = recordingStatus;
-            } else {
-              this.recordingBtn = stopedStatus;
-            }
-            console.log("get recode mode", response);
-          },
-          error => {}
         );
-      },
-      clearModalOk: function () {
-        this.$http.delete('/api/flow', {body: {ids:null}}).then(response => {
-        });
-
-        this.selectedFlow = null;
-      },
-      resetActivatedData: function () {
-        this.$http.put("/api/mock/group/deactivate").then(
-          response => {
-            console.log("reset group");
-            this.updateActivatedDataGroup();
-          },
-          errpr => {}
-        );
-      },
-      filterMethod: function (value, option) {
-        return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
-      },
-      saveSelectedFlow: function () {
-        if(!this.activatedGroupId){
+      } else {
+        if (!this.activatedGroupId) {
           this.showCreateGroupModal = true;
-          return
         }
-        this.$http.post('/api/flow',
-          {
-            ids:this.$store.state.inspector.selectedIds,
-            group:this.activatedGroupId
+        this.$http.put("/api/mode/record").then(
+          response => {
+            this.recordingBtn = recordingStatus;
+            console.log("start recode", response);
+          },
+          error => {
+            console.log("start recode failed", error);
           }
-        )
-        .then(resp=>{
-          if(resp.data.code===1000){
+        );
+      }
+    },
+    getRecordStatus: function () {
+      this.$http.get("/api/mode").then(
+        response => {
+          if (response.data.mode === "record") {
+            this.recordingBtn = recordingStatus;
+          } else {
+            this.recordingBtn = stopedStatus;
+          }
+          console.log("get recode mode", response);
+        },
+        error => { }
+      );
+    },
+    clearModalOk: function () {
+      this.$http.delete('/api/flow', { body: { ids: null } }).then(response => {
+      });
+
+      this.selectedFlow = null;
+    },
+    resetActivatedData: function () {
+      this.$store.dispatch('deactivateGroup')
+    },
+    filterMethod: function (value, option) {
+      return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+    },
+    saveSelectedFlow: function () {
+      if (Object.keys(this.activatedGroups).length <= 0) {
+        this.$Message.warning('Please activate a mock group before save.')
+        return
+      }
+      this.$http.post('/api/flow',
+        {
+          ids: this.$store.state.inspector.selectedIds,
+          group: this.activatedGroupId
+        }
+      )
+        .then(resp => {
+          if (resp.data.code === 1000) {
             this.$Notice.success(
-                {
-                  title:'Flow saved',
-                  desc:resp.data.message
-                }
-              )
-          }else{
+              {
+                title: 'HTTP flow saved',
+                desc: resp.data.message
+              }
+            )
+          } else {
             this.$Notice.error(
-                {
-                  title:'Save flow failed',
-                  desc:resp.data.message,
-                  duration:0
-                }
-              )
+              {
+                title: 'Save HTTP flow failed',
+                desc: resp.data.message,
+                duration: 0
+              }
+            )
           }
           console.log('POST flow', this.$store.state.inspector.selectedIds, resp);
         })
-      },
-      deleteSelectedFlow: function () {
-        this.$http.delete('/api/flow', {body:{ids:this.$store.state.inspector.selectedIds}})
-        .then(resp=>{
+    },
+    deleteSelectedFlow: function () {
+      this.$http.delete('/api/flow', { body: { ids: this.$store.state.inspector.selectedIds } })
+        .then(resp => {
           console.log('DEL flow', this.$store.state.inspector.selectedIds, resp);
           this.$store.commit('clearSelectedId')
         })
-      },
-      createAndActivateGroupOk(){
-        this.$store.dispatch('createAndActivateGroup', this.newDataGroupName)
-      }
     }
-  };
+  }
+}
 </script>
 
-<style scoped>
-  .inline {
-    display: inline;
-  }
-  .button-bar {
-    flex-grow: 1
-  }
+<style>
+.inline {
+  display: inline;
+}
+.inspector-button-bar {
+  flex-grow: 1;
+}
+.inspector-button {
+  padding: 3px 8px 3px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.inspector-searchbox {
+  width: 30vw;
+  float: right;
+}
 </style>
+

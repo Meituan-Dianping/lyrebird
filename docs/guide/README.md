@@ -8,13 +8,26 @@
 
 ## 安装
 
-```python        
+```shell
 pip3 install lyrebird
+```
+
+### 安装插件 (选装)
+
+```shell
+# Android插件 
+pip3 install lyrebird-android
+# iOS插件
+pip3 install lyrebird-ios
+# 埋点检查插件
+pip3 install lyrebird-tracking
+# API覆盖率插件
+pip3 install lyrebird-api-coverage
 ```
         
 ## 启动
 
-```python
+```shell
 lyrebird
 ```
 
@@ -32,12 +45,23 @@ lyrebird
 
 ## 查看及录制数据
 
-![](../img/inspector-a.gif)
+![](../img/1_7_0_inspector.gif)
+
+* 在Inspector上激活一个数据组(数据组需要在DataManager创建)。
+
+* 选中Inspector上的请求后，按保存按钮即可将数据保存到已激活的数据组中。
+
 
 ## 使用mock数据
 
-![](../img/inspector-b.gif)
+![](../img/1_7_0_inspector_mock.gif)
+
+* 在DataManager中可编辑已保存的Mock数据。
+
+* 在Inspector或DataManager中激活数据后，同样的请求会得到mock数据。
 
 ## 管理mock数据
 
-![](../img/datamanager-a.gif)
+![](../img/1_7_0_data_manager.gif)
+
+* 在DataManager上完全的管理Mock数据：激活、剪切、复制、删除等

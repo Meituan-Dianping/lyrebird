@@ -25,8 +25,6 @@
   - [使用Mock数据](#使用Mock数据)
   - [Mock数据管理](#Mock数据管理)
 - [基本命令](#基本命令)
-- [开发者指南](#开发者指南)
-  - [配置Lyrebird工程](#配置lyrebird工程)
 - [感谢](#感谢)
 
 # 简介
@@ -95,21 +93,27 @@ b. 直连
 ## 查看及录制数据
 
 > 现在，可以开始操作移动设备了。Lyrebird将显示捕获到的HTTP/HTTPS请求。
+>
+> 选中请求后，可以将它保存到已激活的mock数据组中。
 
-<img src="./image/inspector-a.gif" width="800">
+<img src="./image/1_7_0_inspector.gif" width="800">
 
 
 ## 使用Mock数据
 
-<img src="./image/inspector-b.gif" width="800">
-
 > 激活mock数据选择器，选择mock数据后。经过Lyrebird的请求会被mock，如果mock数据中没有匹配的数据，则会代理该请求。
+> 
+> 可以在DataManager界面管理mock数据。
+
+<img src="./image/1_7_0_inspector_mock.gif" width="800">
+
 
 ## Mock数据管理
 
-<img src="./image/datamanager-a.gif" width="800">
-
 > mock数据可由左边导航栏切换到DataManager界面进行编辑管理
+
+<img src="./image/1_7_0_data_manager.gif" width="800">
+
 
 ----
 
@@ -144,77 +148,6 @@ b. 直连
         --data 默认./data, mock数据根目录
         
         --config 默认~/.lyrebird/conf.json, lyrebird启动配置
-
-----
-
-# 开发者指南
-
-## 拉取代码
-
-```bash
-# clone 代码
-git clone https://github.com/Meituan-Dianping/lyrebird.git
-```
-
-## 前端开发
-
-```bash
-# clone完成后进入前端工程目录
-cd lyrebird/frontend
-
-# 安装依赖
-npm install
-
-# 启动调试服务
-npm run serve
-
-# 构建
-npm run build
-```
-
-## 后端开发
-
-```bash
-# clone完成后进入工程目录
-cd lyrebird
-
-# 初始化开发环境
-sh dev.sh
-
-# 打开项目 - 推荐使用vscode进行开发
-code .
-```
-
-## 在IDE中执行debug.py即可开始调试
-> vscode debug 配置
-```json
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python: Lyrebird",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/debug.py",
-            "console": "integratedTerminal",
-            "args": [
-                "-v"
-            ]
-        },
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "vuejs: chrome",
-            "url": "http://localhost:8080/ui/static/",
-            "webRoot": "${workspaceFolder}/frontend/src/",
-            "breakOnLoad": true,
-            "sourceMapPathOverrides": {
-              "webpack:///src/*": "${webRoot}/*"
-            }
-        }
-    ]
-}
-```
 
 ----
 
