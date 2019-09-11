@@ -46,7 +46,8 @@ module.exports = {
                 'android',
                 'ios',
                 'tracking',
-                'api-coverage'
+                'api-coverage',
+                'bugit'
             ],
             '/advance/': [
                 '',
