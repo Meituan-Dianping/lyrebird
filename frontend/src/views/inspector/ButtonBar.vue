@@ -68,12 +68,37 @@
       <p>Clear flow list?</p>
     </Modal>
 
-    <MockDataSelector ref="dataSelector"></MockDataSelector>
+    <MockDataSelector ref="searchModal">
+      <template #selected>
+        <div v-if="activatedGroups">
+          <label style="padding-right:5px">Activated Mock Group:</label>
+          <Tag v-for="group in activatedGroups" :key="group.id">{{group.name}}</Tag>
+        </div>
+      </template>
+      <template #searchItem="{ searchResult }">
+        <Row type="flex" align="middle" class="search-row" @click.native="onActivateClick(searchResult.id)">
+          <Col span="22">
+            <p class="search-item">
+              <b class="search-item-title">{{searchResult.name}}</b>
+              <span class="search-item-path">{{searchResult.abs_parent_path}}</span>
+            </p>
+          </Col>
+          <Col span="2" align="right">
+            <Icon
+              type="ios-play"
+              color="#19be6b"
+              size="22"
+              class="search-item-btn"
+            />
+          </Col>
+        </Row>
+      </template>
+    </MockDataSelector>
   </div>
 </template>
 
 <script>
-import MockDataSelector from '@/views/inspector/MockDataSelector.vue'
+import MockDataSelector from '@/components/SearchModal.vue'
 import Icon from 'vue-svg-icon/Icon.vue'
 
 let stopedStatus = {
@@ -144,7 +169,7 @@ export default {
   },
   methods: {
     showMockDataSelector () {
-      this.$refs.dataSelector.toggal()
+      this.$refs.searchModal.toggal()
     },
     switchRecord: function () {
       if (this.recordingBtn.recording) {
@@ -234,6 +259,9 @@ export default {
           console.log('DEL flow', this.$store.state.inspector.selectedIds, resp);
           this.$store.commit('clearSelectedId')
         })
+    },
+    onActivateClick (groupId) {
+      this.$store.dispatch('activateGroup', groupId)
     }
   }
 }
