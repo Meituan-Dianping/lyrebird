@@ -31,7 +31,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .checker-split{
   height: calc(100vh - 66px);
   border: 1px solid #dcdee2;

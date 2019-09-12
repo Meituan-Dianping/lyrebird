@@ -12,8 +12,19 @@ class SearchMockDataByName(Resource):
             _matched_group.append({
                 'id': _group['id'],
                 'name': _group['name'],
-                'parent_id': _group['parent_id']
+                'type': _group['type'],
+                'parent_id': _group['parent_id'],
+                'abs_parent_path': _get_abs_parent_path(_group),
+                'abs_parent_obj': _get_abs_parent_obj(_group)
             })
+
+        def _get_abs_parent_path(_group):
+            _abs_parent_path = context.application.data_manager._get_abs_parent_path(_group)
+            return _abs_parent_path
+
+        def _get_abs_parent_obj(_group):
+            _abs_parent_obj = context.application.data_manager._get_abs_parent_obj(_group)
+            return _abs_parent_obj
 
         if search_str:
             if context.application.data_manager.id_map.get(search_str):
@@ -28,7 +39,4 @@ class SearchMockDataByName(Resource):
             for _id, group in context.application.data_manager.id_map.items():
                 if group.get('type') == 'group' and group.get('name') and group.get('name') != '$':
                     _add_group(group)
-        for _group in _matched_group:
-            _abs_path = context.application.data_manager._get_abs_parent_path(_group)
-            _group['abs_parent_path'] = _abs_path
         return application.make_ok_response(data=_matched_group)

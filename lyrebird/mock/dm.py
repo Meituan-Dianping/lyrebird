@@ -450,13 +450,38 @@ class DataManager:
         return conflict_rules
 
     def _get_abs_parent_path(self, node, path=''):
-        if 'parent_id' not in node:
-            return path
-        parent_node = self.id_map.get(node['parent_id'])
-        if not parent_node:
+        parent_node = self._get_node_parent(node)
+        if parent_node is None:
             return path
         current_path = '/' + node['name'] + path
         return self._get_abs_parent_path(parent_node, path=current_path)
+
+    def _get_abs_parent_obj(self, node, parent_obj=None):
+        if parent_obj is None:
+            parent_obj = []
+        if 'id' not in node:
+            return parent_obj
+        node_info = self.id_map.get(node['id'])
+        if not node_info:
+            return parent_obj
+        parent_obj.insert(0, {
+            'id': node_info['id'],
+            'name': node_info['name'],
+            'type': node_info['type'],
+            'parent_id': node_info['parent_id']
+        })
+        parent_node = self._get_node_parent(node)
+        if parent_node is None:
+            return parent_obj
+        return self._get_abs_parent_obj(parent_node, parent_obj=parent_obj)
+
+    def _get_node_parent(self, node):
+        if 'parent_id' not in node:
+            return None
+        parent_node = self.id_map.get(node['parent_id'])
+        if not parent_node:
+            return None
+        return parent_node
 
     # -----
     # Record API

@@ -27,15 +27,14 @@ import CodeEditor from '@/components/CodeEditor.vue'
   }
 </script>
 
-<style scoped>
+<style>
   .checker-detail {
-    height: calc(100vh - 71px);
+    height: calc(100vh - 68px);
     /* total:100vh
     header: 38px
-    padding: 5px
-    table
-    padding: 5px
-    padding: 5px
+    border: 1px
+    editor
+    border: 1px
     footer: 28px
     */
   }

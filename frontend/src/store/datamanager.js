@@ -5,22 +5,6 @@ import { breadthFirstSearch } from 'tree-helper'
 export default {
   state: {
     groupList: [],
-    currentDataGroup: null,
-    dataList: [],
-    foucsData: null,
-    selectedData: [],
-    editorCache: {
-      rule: '',
-      req: '',
-      reqBody: '',
-      resp: '',
-      respBody: ''
-    },
-    createGroupModal: {
-      parentGroupId: null,
-      parentDataList: [],
-      selectedDataIdList: []
-    },
     jsonPath: null,
     conflictInfo: null,
     isLoadConflictInfo: false,
@@ -33,42 +17,6 @@ export default {
   mutations: {
     setGroupList (state, groupList) {
       state.groupList = groupList
-    },
-    setCurrentDataGroup (state, dataGroup) {
-      state.currentDataGroup = dataGroup
-    },
-    setDataList (state, dataList) {
-      state.dataList = dataList
-    },
-    setFoucsData (state, dataId) {
-      state.foucsData = dataId
-    },
-    setSelectedData (state, data) {
-      state.selectedData = data
-    },
-    clearSelectedData (state) {
-      state.selectedData = []
-    },
-    setRule (state, rule) {
-      state.editorCache.rule = rule
-    },
-    setReq (state, req) {
-      state.editorCache.req = req
-    },
-    setReqBody (state, reqBody) {
-      state.editorCache.reqBody = reqBody
-    },
-    setResp (state, resp) {
-      state.editorCache.resp = resp
-    },
-    setRespBody (state, respBody) {
-      state.editorCache.respBody = respBody
-    },
-    setCreateGroupModal (state, payload) {
-      state.createGroupModal = payload
-    },
-    setCreateGroupModalSelectedData (state, dataIdList) {
-      state.createGroupModal.selectedDataIdList = dataIdList
     },
     setJsonPath (state, jsonPath) {
       state.jsonPath = jsonPath
@@ -84,9 +32,23 @@ export default {
     },
     addGroupListOpenNode (state, groupId) {
       state.groupListOpenNode.add(groupId)
+      breadthFirstSearch(state.groupList, node => {
+        if (node.id === groupId) {
+          node.open = true
+          // `return false` is used to break loop, no related to search result
+          return false
+        }
+      })
     },
     deleteGroupListOpenNode (state, groupId) {
       state.groupListOpenNode.delete(groupId)
+      breadthFirstSearch(state.groupList, node => {
+        if (node.id === groupId) {
+          node.open = false
+          // `return false` is used to break loop, no related to search result
+          return false
+        }
+      })
     },
     setDataDetail (state, dataDetail) {
       state.dataDetail = dataDetail
