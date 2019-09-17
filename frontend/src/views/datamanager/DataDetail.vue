@@ -4,7 +4,7 @@
       <Col span="15" class="button-bar-line">
         <span v-for="(value, index) in nodeParents" :key="value.id">
           {{value.name}}
-          {{index === nodeParents.length-1 ? '' : ' - '}}
+          {{index === nodeParents.length-1 ? '' : ' > '}}
         </span>
       </Col>
       <Col span="8" offset="1" align="right" class="button-bar-line">
