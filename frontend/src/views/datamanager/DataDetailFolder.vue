@@ -3,17 +3,6 @@
     <tabs v-model="currentTab" :animated="false" size="small">
       <tab-pane label="Information" name="information">
         <div class="data-detail">
-          <Row style="padding-top:10px">
-            <Col span="18" style="padding:0px 5px 0px 10px">
-              <Icon type="md-information-circle" />
-              Information of Group <b>{{groupInfo.id}}</b>
-            </Col>
-            <Col span="6" align="right">
-              <Button type="primary" size="small" @click="saveGroupDetail" style="margin-right:5px">
-                <span>Save</span>
-              </Button>
-            </Col>
-          </Row>
           <div style="margin:10px 5px 10px 10px">
             <div v-for="(value, key) in groupInfoStickyTop" :key="key">
               <DataDetailInfo
@@ -69,17 +58,26 @@
         </div>
       </tab-pane>
     </tabs>
+    <div class="save-btn" v-if="groupInfo">
+      <Tooltip content="Save" placement="top" :delay="500">
+        <Button type="primary" shape="circle" @click="saveGroupDetail">
+          <icon name="md-save" scale="4"></icon>
+        </Button>
+      </Tooltip>
+    </div>
   </div>
 </template>
 
 <script>
 import DataDetailConflict from '@/views/datamanager/DataDetailConflict.vue'
 import DataDetailInfo from "@/views/datamanager/DataDetailInfo.vue"
+import Icon from 'vue-svg-icon/Icon.vue'
 
 export default {
   components: {
     DataDetailConflict,
-    DataDetailInfo
+    DataDetailInfo,
+    Icon
   },
   data() {
     return {
@@ -132,6 +130,8 @@ export default {
       if (this.newPropKey) {
         if (this.newPropKey.match(/^[ ]+$/)) {
           this.$bus.$emit('msg.error', 'Group property key illegal: ' + 'All space')
+        } else if (this.undisplayedKey.includes(this.newPropKey)) {
+          this.$bus.$emit('msg.error', 'Group property key illegal: Keyword ' + this.newPropKey + ' is not allowed!')
         } else if (this.$store.state.dataManager.groupDetail.hasOwnProperty(this.newPropKey)) {
           this.$bus.$emit('msg.error', 'Group property key illegal: Property ' + this.newPropKey + ' exists!')
         } else {
@@ -171,5 +171,23 @@ export default {
     */
   overflow-y: auto;
   font-size: 14px;
+}
+.save-btn {
+  color: #fff;
+  font-size: 0.6rem;
+  text-align: center;
+  line-height: 3rem;
+  width: 3rem;
+  height: 3rem;
+  position: fixed;
+  right: 50px;
+  bottom: 70px;
+  border-radius: 50%;
+  z-index: 500;
+}
+.save-btn > .ivu-tooltip > .ivu-tooltip-rel > .ivu-btn {
+  padding: 5px 8px 5px;
+  background-color: #0fccbf;
+  border-color: #0fccbf;
 }
 </style>
