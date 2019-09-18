@@ -27,7 +27,7 @@ def checker_init(tmp_path, tmpdir):
     checker_b_file.write_text(content)
 
     # mock config
-    application._cm = type('MockedContentManager', (), {'config': config, 'root':tmpdir})()
+    application._cm = type('MockedContentManager', (), {'config': config, 'root':tmpdir, 'ROOT':tmpdir})()
 
     return application.checkers
 
