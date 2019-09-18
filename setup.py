@@ -45,7 +45,10 @@ setup(
         "requests==2.21.0",
         "SQLAlchemy==1.3.1",
         "click==6.7",
-        "urllib3==1.24.1"
+        "urllib3==1.24.1",
+        "pluggy==0.9.0",
+        "py==1.8.0",
+        "pytest==3.9.3"
     ],
     extras_require={
         'dev': [
