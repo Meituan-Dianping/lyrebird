@@ -41,7 +41,7 @@ class LyrebirdCheckerServer(ThreadServer):
     def __init__(self):
         super().__init__()
 
-        ROOT = application._cm.root
+        ROOT = application.root_dir()
         self.SCRIPTS_DIR_TEMPLATE = ROOT/'checkers'
         self.EXAMPLE_DIR = Path(__file__).parent/'examples'/'checkers'
 

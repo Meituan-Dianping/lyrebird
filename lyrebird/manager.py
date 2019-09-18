@@ -71,6 +71,7 @@ def main():
     parser.add_argument('--log', dest='log', help='Set output log file path')
     parser.add_argument('--script', action='append', help='Set a checker script path')
     parser.add_argument('--plugin', action='append', help='Set a plugin project path')
+    parser.add_argument('--database', dest='database', help='Set a plugin project path')
 
     subparser = parser.add_subparsers(dest='sub_command')
 
@@ -139,7 +140,7 @@ def run(args: argparse.Namespace):
     application.server['task'] = BackgroundTaskServer()
     application.server['proxy'] = LyrebirdProxyServer()
     application.server['mock'] = LyrebirdMockServer()
-    application.server['db'] = LyrebirdDatabaseServer()
+    application.server['db'] = LyrebirdDatabaseServer(db_name=args.database)
     application.server['plugin'] = PluginManager()
     application.server['checker'] = LyrebirdCheckerServer()
 

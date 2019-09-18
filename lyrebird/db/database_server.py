@@ -23,12 +23,13 @@ Base = declarative_base()
 
 
 class LyrebirdDatabaseServer(ThreadServer):
-    def __init__(self):
+    def __init__(self, db_name=None):
         super().__init__()
 
-        DB_FILE_NAME = 'lyrebird.db'
+        if not db_name or db_name.isspace():
+            db_name = 'lyrebird.db'
         ROOT_DIR = application.root_dir()
-        SQLALCHEMY_DATABASE_URI = ROOT_DIR/DB_FILE_NAME
+        SQLALCHEMY_DATABASE_URI = ROOT_DIR/db_name
         sqlite_path = 'sqlite:///'+str(SQLALCHEMY_DATABASE_URI)
 
         engine = create_engine(str(sqlite_path))
