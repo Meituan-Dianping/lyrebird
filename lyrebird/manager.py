@@ -5,6 +5,7 @@ import socket
 import threading
 import signal
 import os
+import resource
 from pathlib import Path
 from lyrebird import log
 from lyrebird import application
@@ -116,6 +117,8 @@ def main():
 
 
 def run(args: argparse.Namespace):
+    # Set file descriptors
+    resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
     # Check mock data group version. Update if is older than 1.x
     data_path = application._cm.config['mock.data']
     Path(data_path).mkdir(parents=True, exist_ok=True)
