@@ -85,6 +85,8 @@ def main():
         print(version.LYREBIRD)
         return
 
+    Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
+
     if args.config:
         application._cm = ConfigManager(conf_path=args.config)
     else:

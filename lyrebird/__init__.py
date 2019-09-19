@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 from blinker import Signal
 from .manager import main, run
 from .mock import context
@@ -12,8 +11,7 @@ from lyrebird import application
 from lyrebird.log import get_logger
 
 
-APPLICATION_CONF_DIR = Path('~/.lyrebird').expanduser()
-APPLICATION_CONF_DIR.mkdir(parents=True, exist_ok=True)
+APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
 
 
 def start_background_task(target, *args, **kwargs):

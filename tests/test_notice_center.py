@@ -10,7 +10,9 @@ import pytest
 def notice_center(tmpdir):
     def emit(*args, **kwargs):pass
     context.application.socket_io = type('MockedSocketIO', (), {'emit': emit})()
-    return NoticeCenter()
+    notice_center = NoticeCenter()
+    notice_center.HISTORY_NOTICE = str(tmpdir) + '/notice.json'
+    return notice_center
 
 
 @pytest.fixture
