@@ -72,6 +72,7 @@ def main():
     parser.add_argument('--log', dest='log', help='Set output log file path')
     parser.add_argument('--script', action='append', help='Set a checker script path')
     parser.add_argument('--plugin', action='append', help='Set a plugin project path')
+    parser.add_argument('--database', dest='database', help='Set a database path. Default is "~/.lyrebird/lyrebird.db"')
 
     subparser = parser.add_subparsers(dest='sub_command')
 
@@ -83,6 +84,8 @@ def main():
     if args.version:
         print(version.LYREBIRD)
         return
+
+    Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
     if args.config:
         application._cm = ConfigManager(conf_path=args.config)
@@ -142,7 +145,7 @@ def run(args: argparse.Namespace):
     application.server['task'] = BackgroundTaskServer()
     application.server['proxy'] = LyrebirdProxyServer()
     application.server['mock'] = LyrebirdMockServer()
-    application.server['db'] = LyrebirdDatabaseServer()
+    application.server['db'] = LyrebirdDatabaseServer(path=args.database)
     application.server['plugin'] = PluginManager()
     application.server['checker'] = LyrebirdCheckerServer()
 

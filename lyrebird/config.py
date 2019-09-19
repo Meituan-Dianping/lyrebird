@@ -36,58 +36,50 @@ class ConfigManager():
     BASE_CONFIG = ROOT/DEFAULT_FILENAME
 
     def __init__(self, conf_path=None):
-        self.update_base_config()
-        self.root = self.ROOT
-        self.config = None
-        self.conf_file = None
-        if conf_path:
-            self.update_conf(conf_path)
-        self.config = self.read_base_config()
-        if conf_path:
-            self.read()
+        self.config = config_template
+        self.config_root = self.ROOT
+        self.conf_file = self.BASE_CONFIG
 
-    def update_conf(self, path):
+        self.update_base_config()
+        self.read_config()
+        if conf_path:
+            self.update_conf_source(conf_path)
+
+    def update_conf_source(self, path):
         input_path: Path = Path(path).expanduser().absolute()
         if input_path.is_dir():
-            self.root = input_path
-            self.conf_file = input_path / self.DEFAULT_FILENAME
+            input_root = input_path
+            input_file = input_path / self.DEFAULT_FILENAME
         else:
-            self.root = input_path.parent
-            self.conf_file = input_path
+            input_root = input_path.parent
+            input_file = input_path
 
-        # load config or use default config
-        if not self.conf_file.exists():
-            raise ConfigException(f'{self.conf_file} not found')
+        if not input_file.exists():
+            logger.error(f'Config {input_file} not found!')
+        else:
+            self.config_root = input_root
+            self.conf_file = input_file
+            self.read_config()
 
-    def read(self):
-        template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.root)))
+    def read_config(self):
+        template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.config_root)))
         template = template_env.get_template(self.conf_file.name)
-        custom_config = json.loads(template.render(current_dir=str(self.root), download_dir=str(self.ROOT/'downloads')))
-        self.config.update(custom_config)
+        loaded_config = json.loads(template.render(current_dir=str(self.config_root), download_dir=str(self.ROOT/'downloads')))
+        self.config.update(loaded_config)
 
-    def save(self):
+    def write_config(self):
+        self.config_root.mkdir(parents=True, exist_ok=True)
         with codecs.open(self.conf_file, 'w', 'utf-8') as f:
-            f.write(json.dumps(self.config, ensure_ascii=False, indent=4))
+            f.write(json.dumps(self.config, indent=4, ensure_ascii=False))
 
     def update_base_config(self):
         if self.BASE_CONFIG.exists() and self.BASE_CONFIG.is_file():
             with codecs.open(self.BASE_CONFIG, 'r', 'utf-8') as f:
                 base_conf = json.load(f)
                 if version.parse(base_conf.get('version', '0.0.0')) < version.parse(config_template.get('version', '0.0.0')):
-                    self.write_base_config()
+                    self.write_config()
         else:
-            self.write_base_config()
-
-    def write_base_config(self):
-        self.ROOT.mkdir(parents=True, exist_ok=True)
-        with codecs.open(self.BASE_CONFIG, 'w', 'utf-8') as f:
-            f.write(json.dumps(config_template, indent=4, ensure_ascii=False))
-
-    def read_base_config(self):
-        template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.ROOT)))
-        template = template_env.get_template('conf.json')
-        base_config = json.loads(template.render(current_dir=str(self.root), download_dir=str(self.ROOT/'downloads')))
-        return base_config
+            self.write_config()
 
 
 class ConfigException(Exception):

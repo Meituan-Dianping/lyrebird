@@ -2,6 +2,7 @@ import imp
 import shutil
 import importlib
 from pathlib import Path
+import lyrebird
 from lyrebird import log
 from lyrebird import application
 from lyrebird.mock import context
@@ -41,7 +42,7 @@ class LyrebirdCheckerServer(ThreadServer):
     def __init__(self):
         super().__init__()
 
-        ROOT = application._cm.root
+        ROOT = Path(lyrebird.APPLICATION_CONF_DIR)
         self.SCRIPTS_DIR_TEMPLATE = ROOT/'checkers'
         self.EXAMPLE_DIR = Path(__file__).parent/'examples'/'checkers'
 

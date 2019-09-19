@@ -3,6 +3,7 @@ import math
 import datetime
 import traceback
 from queue import Queue
+from pathlib import Path
 from lyrebird import application
 from lyrebird import log
 from lyrebird.base_server import ThreadServer
@@ -23,13 +24,21 @@ Base = declarative_base()
 
 
 class LyrebirdDatabaseServer(ThreadServer):
-    def __init__(self):
+    def __init__(self, path=None):
         super().__init__()
 
-        DB_FILE_NAME = 'lyrebird.db'
-        ROOT_DIR = application.root_dir()
-        SQLALCHEMY_DATABASE_URI = ROOT_DIR/DB_FILE_NAME
-        sqlite_path = 'sqlite:///'+str(SQLALCHEMY_DATABASE_URI)
+        if not path or path.isspace():
+            ROOT_DIR = application.root_dir()
+            DEFAULT_NAME = 'lyrebird.db'
+            database_uri = ROOT_DIR/DEFAULT_NAME
+        else:
+            path_obj = Path(path).expanduser()
+            if path_obj.is_absolute():
+                database_uri = path_obj
+            else:
+                database_uri = path_obj.absolute()
+
+        sqlite_path = 'sqlite:///'+str(database_uri)
 
         engine = create_engine(str(sqlite_path))
         # Create all tables
