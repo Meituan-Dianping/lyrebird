@@ -63,7 +63,6 @@ class NoticeCenter():
             with codecs.open(self.HISTORY_NOTICE, 'r', 'utf-8') as f:
                 try:
                     self.notice_hashmap = json.load(f)
-                    # self.history_notice_transformer()
                     self.update_frontend()
                 except Exception:
                     self.notice_hashmap = {}

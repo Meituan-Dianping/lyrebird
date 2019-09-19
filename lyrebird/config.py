@@ -36,12 +36,11 @@ class ConfigManager():
     BASE_CONFIG = ROOT/DEFAULT_FILENAME
 
     def __init__(self, conf_path=None):
-        self.update_base_config()
-
         self.config = config_template
         self.config_root = self.ROOT
         self.conf_file = self.BASE_CONFIG
 
+        self.update_base_config()
         self.read_config()
         if conf_path:
             self.update_conf_source(conf_path)
