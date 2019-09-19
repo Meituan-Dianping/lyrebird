@@ -3,7 +3,7 @@ from .mock import context
 from .mock.plugin_manager import PluginView, caller_info
 from .mock.handlers.handler_context import HandlerContext
 from .mock import plugin_manager
-from blinker import Signal	
+from blinker import Signal
 import os
 from .event import CustomEventReceiver
 from .checker import event
