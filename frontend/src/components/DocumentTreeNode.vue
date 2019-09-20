@@ -13,7 +13,10 @@
         @click="onToggleStatusChange"
       />
       <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
-      <span class="tree-node-inner-text">{{data.name}}</span>
+      <span class="tree-node-inner-text">
+        <span v-if="data.parent_id">{{data.name}}</span>
+        <Icon v-else type="ios-home" />
+      </span>
     </span>
 
     <span class="tree-node-inner-button-bar-right" v-show="isMouseOver">
