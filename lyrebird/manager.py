@@ -6,6 +6,7 @@ import threading
 import signal
 import os
 import resource
+import traceback
 from pathlib import Path
 from lyrebird import log
 from lyrebird import application
@@ -121,7 +122,11 @@ def main():
 
 def run(args: argparse.Namespace):
     # Set file descriptors
-    resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
+    try:
+        resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
+    except Exception:
+        traceback.print_exc()
+        logger.warning('Set file descriptors failed\nPlease set it by your self, use "ulimit -n 8192" with root account')
     # Check mock data group version. Update if is older than 1.x
     data_path = application._cm.config['mock.data']
     Path(data_path).mkdir(parents=True, exist_ok=True)
