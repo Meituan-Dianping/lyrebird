@@ -257,6 +257,8 @@ class DataManager:
             'super_id': None
         }
         # New group added in the head of child list
+        if 'children' not in parent_node:
+            parent_node['children'] = []
         parent_node['children'].insert(0, new_group)
         # Register ID
         self.id_map[group_id] = new_group
