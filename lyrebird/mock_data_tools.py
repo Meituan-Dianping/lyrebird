@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 from lyrebird.log import get_logger
 import uuid
-
+from lyrebird.mock.dm import PropWriter
 
 logger = get_logger()
 
@@ -51,31 +51,9 @@ def update(data_dir):
         if not data_groups_dir.is_dir():
             continue
         _load_mock_group(data_groups_dir)
+    prop_str = PropWriter().parse(root)
     with codecs.open(Path(data_dir) / '.lyrebird_prop', 'w', 'utf-8') as f:
-        jsonstr = json.dumps(root, ensure_ascii=False)
-        formated_json = _prop_json_str_format(jsonstr)
-        f.write(formated_json)
-
-
-def _prop_json_str_format(jsonstr):
-    # Add new line for every node
-    jsonstr_with_newline = jsonstr.replace('[{', '[\n{').replace('}]', '}\n]').replace('},', '},\n')
-    # Add indent
-    lines = jsonstr_with_newline.splitlines()
-    newlines = []
-    _indent_tag = '  '
-    _indent_count = 0
-    for line in lines:
-        line = line.strip()
-        if line[-1] == '[':
-            newlines.append(_indent_tag*_indent_count + line)
-            _indent_count += 1
-        elif line[0] == ']':
-            _indent_count -= 1
-            newlines.append(_indent_tag * _indent_count + line)
-        else:
-            newlines.append(_indent_tag * _indent_count + line)
-    return '\n'.join(newlines)
+        f.write(prop_str)
 
 
 def _load_mock_group(group_dir):
@@ -88,11 +66,13 @@ def _load_mock_group(group_dir):
         'name': None,
         'parent_id': root['id'],
         'type': 'group',
+        'super_id': None,
         'children': []
     }
     with codecs.open(group_prop_file, 'r', 'utf-8') as f:
         _group_prop = json.load(f)
         if 'parent' in _group_prop:
+            group_prop['super_id'] = _group_prop['parent']
             del _group_prop['parent']
         group_prop.update(_group_prop)
     for data_dir in group_dir.iterdir():
@@ -124,7 +104,6 @@ def _load_mock_data(data_dir, parent_id):
         data_prop['id'] = _data_prop['id']
         data_prop['name'] = _data_prop['name']
         id_map[data_prop['id']] = data_prop
-    # TODO save to file
     _save_data_to_file(data_dir, data_root_dir/data_prop['id'])
     return data_prop
 
