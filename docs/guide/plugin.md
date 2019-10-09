@@ -6,9 +6,9 @@
 
 ## Android插件
 
-支持Android设备的插件。为Lyrebird提供设备信息、日志、截图、崩溃监控、APP信息及拉起应用功能。
+支持Android设备的插件。为Lyrebird提供设备信息、日志、截图、命令执行、崩溃监控、APP信息及拉起应用功能。
 
-![](../img/plugin-android.gif)
+![](../img/plugin-android.png)
 
 #### 安装
 
