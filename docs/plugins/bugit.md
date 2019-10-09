@@ -2,7 +2,7 @@
 
 BugIt 是一个Issue生成的插件，目前应用于提交Bug场景下。
 
-配合其他插件，BugIt提供了一种准确、快捷、有效的Issue生成服务。除填写Issue配置字段外，BugIt还提供Lyrebird中[检查器](../checker/)([Checker](../checker/))与其他[插件](../plugins)([Android](./android.md)、[iOS](./ios.md))数据。
+配合其他插件，BugIt提供了一种准确、快捷、有效的Issue生成服务。除填写Issue配置字段外，BugIt还提供Lyrebird中[检查器](../checker/)([Checker](../checker/))与其他[插件](../plugins/)([Android](./android.md)、[iOS](./ios.md))数据。
 
 通过脚本配置，可支持任意Bug管理系统。
 
