@@ -601,8 +601,7 @@ class PropWriter:
         return f'{val}'
 
     def str_parser(self, val):
-        _val = val.replace('"', '\\"')
-        return f'"{_val}"'
+        return json.dumps(val)
 
     def none_parser(self, val):
         return "null"

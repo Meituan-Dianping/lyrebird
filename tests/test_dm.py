@@ -311,3 +311,15 @@ def test_copy_and_paste(data_manager):
     new_group = group_c['children'][0]
     assert new_group['id'] != 'groupA-UUID'
     assert new_group['name'] == 'groupA'
+
+
+def test_prop_writer():
+    prop_writer = dm.PropWriter()
+    prop_str = prop_writer.parse(
+        {
+            "url": "<\"test\">",
+            "description": "a\nb\nc"
+        }
+    )
+    assert prop_str == '{"url":"<\\"test\\">","description":"a\\nb\\nc"}'
+    json.loads(prop_str)
