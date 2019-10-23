@@ -507,6 +507,8 @@ class DataManager:
             data_str = json.dumps(data, ensure_ascii=False)
             f.write(data_str)
         self._save_prop()
+        self.deactivate()
+        self.activate(node['parent_id'])
 
 
 # -----------------
