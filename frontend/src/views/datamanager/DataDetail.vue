@@ -3,7 +3,8 @@
     <Row class="button-bar">
       <Col span="15" class="button-bar-line">
         <span v-for="(value, index) in nodeParents" :key="value.id">
-          {{value.name}}
+          <Icon v-if="value.isRoot" type="ios-home" />
+          <span v-else>{{value.name}}</span>
           {{index === nodeParents.length-1 ? '' : ' > '}}
         </span>
       </Col>
@@ -20,14 +21,12 @@
 import DataDetailHttpData from '@/views/datamanager/DataDetailHttpData.vue'
 import DataDetailFolder from '@/views/datamanager/DataDetailFolder.vue'
 import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
-import Icon from 'vue-svg-icon/Icon.vue'
 
 export default {
   components: {
     DataDetailHttpData,
     DataDetailFolder,
-    JsonPathBar,
-    Icon
+    JsonPathBar
   },
   computed: {
     dataDetail () {
@@ -43,7 +42,8 @@ export default {
         while (tree.id) {
           parents.push({
             id: tree.id,
-            name: tree.name
+            name: tree.name,
+            isRoot: tree.parent_id ? false: true
           })
           tree = tree.parent
         }
