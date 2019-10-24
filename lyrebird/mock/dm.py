@@ -613,7 +613,7 @@ class PropWriter:
             child_str = self.parse(child)
             children_str += '\n' + '  '*self.indent + child_str + ','
         if children_str.endswith(','):
-            children_str = children_str[:-1] + '\n' + '  '*(self.indent-1)
+            children_str = children_str[:-1]
         children_str += ']'
         self.indent -= 1
         return children_str
