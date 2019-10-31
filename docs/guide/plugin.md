@@ -63,7 +63,7 @@ pip3 install lyrebird-api-coverage
 #### [使用说明](../plugins/api-coverage.html)
 #### [代码仓库](https://github.com/Meituan-Dianping/lyrebird-api-coverage)
 
-## Issue生成插件(BugIt)
+## BugIt插件
 
 将实时收集的设备信息、APP信息、请求记录、日志等作为描述或附件一键提交到BUG管理系统的工具。
 除手动跳转到BugIt界面进行操作外也可通过[检查器](./checker.html)([Checker](./checker.html))触发的[通知](./checker.html#捕获报警)跳转到BugIt。
