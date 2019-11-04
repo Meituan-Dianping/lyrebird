@@ -12,7 +12,7 @@ export default {
     dataDetail: {},
     groupDetail: {},
     focusNodeInfo: {},
-    copyTarget: null
+    pasteTarget: null
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -67,8 +67,8 @@ export default {
     setFocusNodeInfo (state, focusNodeInfo) {
       state.focusNodeInfo = focusNodeInfo
     },
-    setCopyTarget (state, copyTarget) {
-      state.copyTarget = copyTarget
+    setPasteTarget (state, pasteTarget) {
+      state.pasteTarget = pasteTarget
     }
   },
   actions: {
@@ -142,8 +142,8 @@ export default {
           dispatch('loadDataMap')
           commit('deleteGroupListOpenNode', payload.id)
           commit('setFocusNodeInfo', {})
-          if (state.copyTarget && payload.id === state.copyTarget.id) {
-            commit('setCopyTarget', null)
+          if (state.pasteTarget && payload.id === state.pasteTarget.id) {
+            commit('setPasteTarget', null)
           }
           bus.$emit('msg.success', 'Delete Group ' + payload.name + ' success!')
         })
@@ -182,8 +182,8 @@ export default {
         .then(response => {
           dispatch('loadDataMap', payload.id)
           commit('setFocusNodeInfo', {})
-          if (state.copyTarget && payload.id === state.copyTarget.id) {
-            commit('setCopyTarget', null)
+          if (state.pasteTarget && payload.id === state.pasteTarget.id) {
+            commit('setPasteTarget', null)
           }
           bus.$emit('msg.success', 'Delete Data ' + payload.name + ' success!')
         })
@@ -207,10 +207,20 @@ export default {
           bus.$emit('msg.error', 'Get group ' + payload.name + ' conflicts error: ' + error.data.message)
         })
     },
+    cutGroupOrData ({ commit }, payload) {
+      api.cutGroupOrData(payload.id)
+        .then(response => {
+          commit('setPasteTarget', payload)
+          bus.$emit('msg.success', payload.type + ' ' + payload.name + ' is waiting for paste')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', payload.type + ' ' + payload.name + ' cut error: ' + error.data.message)
+        })
+    },
     copyGroupOrData ({ commit }, payload) {
       api.copyGroupOrData(payload.id)
         .then(response => {
-          commit('setCopyTarget', payload)
+          commit('setPasteTarget', payload)
           bus.$emit('msg.success', payload.type + ' ' + payload.name + ' is waiting for paste')
         })
         .catch(error => {

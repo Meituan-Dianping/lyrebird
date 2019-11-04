@@ -1,6 +1,6 @@
 # BugIt插件
 
-BugIt 是一个Issue生成的插件，目前应用于提交Bug场景下。
+BugIt 是一个Issue提交的插件，目前应用于提交Bug场景下。
 
 配合其他插件，BugIt提供了一种准确、快捷、有效的Issue生成服务。除填写Issue配置字段外，BugIt还提供Lyrebird中[检查器](../checker/)([Checker](../checker/))与其他[插件](../plugins/)([Android](./android.md)、[iOS](./ios.md))数据。
 
@@ -22,7 +22,7 @@ pip3 install lyrebird-bugit
 ```
 ### 载入脚本文件
 
-BugIt workplace 配置由[Lyrebird配置文件](???)统一管理。
+BugIt workplace 配置由[Lyrebird配置文件](../guide/config.html)统一管理。
 
 通过修改 ~/.lyrebird/conf.json 中 "bugit.workspace" 的值，可以修改 BugIt 读取脚本文件的路径。
 
