@@ -64,6 +64,13 @@ export const updateData = (data) => {
   })
 }
 
+export const cutGroupOrData = (id) => {
+  return axios({
+    url: '/api/cut/' + id,
+    method: 'PUT'
+  })
+}
+
 export const copyGroupOrData = (id) => {
   return axios({
     url: '/api/copy/' + id,

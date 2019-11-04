@@ -44,6 +44,7 @@
           <DropdownMenu slot="list" style="min-width:60px">
             <DropdownItem align="left" name="activate" v-show="data.type==='group'">Activate</DropdownItem>
             <DropdownItem align="left" name="delete">Delete</DropdownItem>
+            <DropdownItem align="left" name="cut">Cut</DropdownItem>
             <DropdownItem align="left" name="copy">Copy</DropdownItem>
             <DropdownItem
               align="left"
@@ -136,12 +137,12 @@ export default {
       return toggleClassObj
     },
     pasteButtonEnable () {
-      const copyTarget = this.$store.state.dataManager.copyTarget
-      if (copyTarget === null) {
+      const pasteTarget = this.$store.state.dataManager.pasteTarget
+      if (pasteTarget === null) {
         return false
       } else {
         // Paste target should not be it self or it's children
-        return !this.containsCopyTarget(copyTarget, this.data)
+        return !this.containsPasteTarget(pasteTarget, this.data)
       }
     },
     showActivateButton () {
@@ -149,12 +150,12 @@ export default {
     }
   },
   methods: {
-    containsCopyTarget (target, node) {
+    containsPasteTarget (target, node) {
       if (node.id === target.id) {
         return true
       }
       if (node.parent) {
-        return this.containsCopyTarget(target, node.parent)
+        return this.containsPasteTarget(target, node.parent)
       } else {
         return false
       }
@@ -165,6 +166,8 @@ export default {
       }
       else if (payload === 'delete') {
         this.shownDeleteModal = true
+      } else if (payload === 'cut') {
+        this.onTreeNodeCut()
       } else if (payload === 'copy') {
         this.onTreeNodeCopy()
       } else if (payload === 'paste') {
@@ -200,6 +203,9 @@ export default {
         this.$store.dispatch('deleteData', this.data)
       } else { }
       this.shownDeleteModal = false
+    },
+    onTreeNodeCut () {
+      this.$store.dispatch('cutGroupOrData', this.data)
     },
     onTreeNodeCopy () {
       this.$store.dispatch('copyGroupOrData', this.data)
