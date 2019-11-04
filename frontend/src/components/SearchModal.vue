@@ -35,9 +35,10 @@ export default {
           this.searchResults = response.data.data
           if (!this.showRoot) {
             for (const index in this.searchResults) {
-              if (this.searchResults[index].parent_id) continue 
-              this.searchResults.splice(index, 1)
-              break
+              if (!this.searchResults[index].parent_id) {
+                this.searchResults.splice(index, 1)
+                break
+              } 
             }
           }
         }).catch(error => { })
