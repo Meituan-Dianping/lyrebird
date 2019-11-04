@@ -37,6 +37,6 @@ class SearchMockDataByName(Resource):
                         _add_group(group)
         else:
             for _id, group in context.application.data_manager.id_map.items():
-                if group.get('type') == 'group' and group.get('name') and group.get('name') != '$':
+                if group.get('type') == 'group' and group.get('name'):
                     _add_group(group)
         return application.make_ok_response(data=_matched_group)

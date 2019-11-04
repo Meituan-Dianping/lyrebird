@@ -27,12 +27,13 @@
       </span>
     </Row>
     <DocumentTree :treeData="treeData" class="data-list" />
-    <MockDataSelector ref="searchModal">
+    <MockDataSelector ref="searchModal" :showRoot=true>
       <template #searchItem="{ searchResult }">
         <Row type="flex" align="middle" class="search-row" @click.native="showNode(searchResult)">
           <Col span="24">
             <p class="search-item">
-              <b class="search-item-title">{{searchResult.name}}</b>
+              <b v-if="searchResult.parent_id" class="search-item-title">{{searchResult.name}}</b>
+              <Icon v-else type="ios-home" class="search-item-title"/>
               <span class="search-item-path">{{searchResult.abs_parent_path}}</span>
             </p>
           </Col>
