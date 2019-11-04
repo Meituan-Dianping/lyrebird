@@ -68,7 +68,7 @@
       <p>Clear flow list?</p>
     </Modal>
 
-    <MockDataSelector ref="searchModal">
+    <MockDataSelector ref="searchModal" :showRoot=false>
       <template #selected>
         <div v-if="activatedGroups">
           <label style="padding-right:5px">Activated Mock Group:</label>

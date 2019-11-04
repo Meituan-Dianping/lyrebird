@@ -90,14 +90,14 @@ class DataManager:
         """
         if not self.root:
             raise RootNotSet
-        _node = self.get(_id)
+        _node = self.id_map.get(_id)
         if _node:
             self._activate(_node)
         else:
             raise DataNotFound(f'ID:{_id}')
         if _node.get('super_id'):
             _secondary_search_node_id = _node.get('super_id')
-            _secondary_search_node = self.get(_secondary_search_node_id)
+            _secondary_search_node = self.id_map.get(_secondary_search_node_id)
             if not _secondary_search_node:
                 raise DataNotFound(f'Secondary search node ID: {_secondary_search_node_id}')
             self._activate(_secondary_search_node, secondary_search=True)
@@ -430,7 +430,7 @@ class DataManager:
                 )
         return conflict_rules
 
-    def _get_abs_parent_path(self, node, path=''):
+    def _get_abs_parent_path(self, node, path='/'):
         parent_node = self._get_node_parent(node)
         if parent_node is None:
             return path
@@ -507,6 +507,8 @@ class DataManager:
             data_str = json.dumps(data, ensure_ascii=False)
             f.write(data_str)
         self._save_prop()
+        if self.activated_data.get(_id):
+            self.activate(_id)
 
 
 # -----------------
