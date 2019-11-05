@@ -38,7 +38,7 @@ class LyrebirdDatabaseServer(ThreadServer):
             else:
                 database_uri = path_obj.absolute()
 
-        sqlite_path = 'sqlite:///'+str(database_uri)
+        sqlite_path = 'sqlite:///'+str(database_uri)+'?check_same_thread=False'
 
         engine = create_engine(str(sqlite_path))
         # Create all tables
