@@ -603,7 +603,7 @@ class PropWriter:
         return f'{val}'
 
     def str_parser(self, val):
-        return json.dumps(val)
+        return json.dumps(val, ensure_ascii=False)
 
     def none_parser(self, val):
         return "null"
