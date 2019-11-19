@@ -1,0 +1,14 @@
+*/*/__pycache__
+.github
+.pytest_cache
+.vscode
+build
+dist
+data
+docs
+image
+*.egg-info
+venv
+tmp
+tests
+*/node_modules
