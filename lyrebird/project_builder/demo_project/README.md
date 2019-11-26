@@ -1,2 +1,0 @@
-# Lyrebird plugin demo
-

@@ -1,0 +1,2 @@
+graft {{project_name}}
+recursive-exclude * *.pyc *.pyo *.swo *.swp *.map *.DS_Store

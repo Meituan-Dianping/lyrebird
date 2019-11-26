@@ -40,7 +40,8 @@ class FlowList(Resource):
                 ),
                 response=dict(
                     code=item['response']['code'],
-                    mock=item['response']['headers'].get('lyrebird', 'proxy')
+                    mock=item['response']['headers'].get('lyrebird', 'proxy'),
+                    modified=item['response']['headers'].get('lyrebird_modified', '')
                 )if item.get('response') else {}
             )
             req_list.append(info)
