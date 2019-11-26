@@ -366,6 +366,11 @@ class DataManager:
         prop_file = self.root_path / PROP_FILE_NAME
         with codecs.open(prop_file, 'w') as f:
             f.write(prop_str)
+        # Reactive mock data
+        _activated_group = self.activated_group
+        self.deactivate()
+        for _group_id in _activated_group:
+            self.activate(_group_id)
 
     def _sort_children_by_name(self):
         for node_id in self.id_map:
@@ -499,7 +504,6 @@ class DataManager:
         if not node:
             raise IDNotFound(_id)
         node['name'] = data['name']
-
         data_file = self.root_path / _id
         if not data_file.exists():
             raise DataNotFound(_id)
