@@ -22,6 +22,7 @@ from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird import version
 from lyrebird import reporter
 from lyrebird import mock_data_tools
+from lyrebird import project_builder
 from packaging.version import parse as vparse
 
 
@@ -192,7 +193,12 @@ def run(args: argparse.Namespace):
 
 
 def gen(args):
-    pass
+    parent_path = args.path
+    project_name = input('Please input your project name:')
+    if not project_name:
+        print('Not set project name')
+        return
+    project_builder.make_plugin_project(project_name, parent_path+'/'+project_name)
 
 
 def _get_ip():
