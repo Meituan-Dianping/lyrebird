@@ -32,18 +32,18 @@
 export default {
   name: 'HelloWorld',
   methods: {
-    load: function () {
+    load () {
       this.$store.dispatch('reloadReqestCount')
     },
-    reset: function () {
+    reset () {
       this.$store.dispatch('resetRequestCount')
     }
   },
   computed: {
-    count: function () {
+    count () {
       return this.$store.state.requestCount
     },
-    lastURL: function () {
+    lastURL () {
       return this.$store.state.lastRequestURL
     }
   }

@@ -10,15 +10,15 @@ export default new Vuex.Store({
     requestCount: 0
   },
   mutations: {
-    setRequestCount: function (state, count) {
+    setRequestCount (state, count) {
       state.requestCount = count
     },
-    setLastRequestURL: function (state, url) {
+    setLastRequestURL (state, url) {
       state.lastRequestURL = url
     }
   },
   actions: {
-    reloadReqestCount: function (context, payload) {
+    reloadReqestCount (context) {
       apis.loadRequestCount().then(response => {
         if (response.data.code !== 1000) {
           console.error('Load request count failed', response.data)
@@ -32,7 +32,7 @@ export default new Vuex.Store({
         console.error('Load request count failed', error)
       })
     },
-    resetRequestCount: function (context, payload) {
+    resetRequestCount (context) {
       apis.resetRequestCount().then(response => {
         if (response.data.code !== 1000) {
           console.error('Reset failed', response.data)

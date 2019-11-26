@@ -1,4 +1,3 @@
-from flask import jsonify
 from lyrebird import application
 
 req_count = 0
