@@ -99,3 +99,20 @@ Lyrebird 1.6.0
 ## --plugin 
 
 从源码启动插件工程，用于插件开发和调试。
+
+## gen
+
+从模板生成一个插件项目
+
+安装好Lyrebird后，可通过Lyrebird命令行工具生成插件
+
+```
+# 在指定路径创建插件工程
+lyrebird gen /your/workspace/path
+
+# 创建过程中会要求输入插件名（用作包名\显示名称\插件项目目录名）
+>Please input your project name:
+
+# 例如输入demo_project
+# 您将会在 /your/workspace/path/demo_project得到一个插件工程
+```
