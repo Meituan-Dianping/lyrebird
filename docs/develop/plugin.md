@@ -84,7 +84,7 @@ cd frontend
 npm run serve
 ```
 
-推进使用[VUE devtools](https://github.com/vuejs/vue-devtools)
+推荐使用[VUE devtools](https://github.com/vuejs/vue-devtools)
 
 
 
