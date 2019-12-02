@@ -5,6 +5,7 @@ export * from '@/api/flow.js'
 export * from '@/api/datamanager.js'
 export * from '@/api/checker.js'
 export * from '@/api/notice.js'
+export * from '@/api/event.js'
 
 
 const successHandler = (response) => {

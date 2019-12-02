@@ -16,6 +16,12 @@ class Menu(Resource):
                 'path': '/'
             },
             {
+                'name': 'event',
+                'title': 'Events',
+                'type': 'router',
+                'path': '/event'
+            },
+            {
                 'name': 'datamanager',
                 'title': 'DataManager',
                 'type': 'router',

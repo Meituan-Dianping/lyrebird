@@ -5,7 +5,7 @@ import Inspector from './views/inspector/Inspector.vue'
 import DataManager from './views/datamanager/DataManager.vue'
 import Checker from './views/checker/Checker.vue'
 import PluginView from './views/PluginView.vue'
-
+import Events from './views/event/Events.vue'
 
 Vue.use(Router)
 
@@ -23,11 +23,22 @@ export default new Router({
       ]
     },
     {
+      path: '/event',
+      component: Main,
+      children: [
+        {
+          path: '',
+          name: 'event',
+          component: Events
+        }
+      ]
+    },
+    {
       path: '/datamanager',
       component: Main,
       children: [
         {
-          path:'',
+          path: '',
           name: 'datamanager',
           component: DataManager
         }
@@ -48,9 +59,9 @@ export default new Router({
       path: '/plugin',
       name: 'plugin',
       component: Main,
-      children:[
+      children: [
         {
-          path:':name',
+          path: ':name',
           name: 'plugin-view',
           component: PluginView
         }
@@ -60,9 +71,9 @@ export default new Router({
       path: '/plugins',
       name: 'plugins',
       component: Main,
-      children:[
+      children: [
         {
-          path:':name',
+          path: ':name',
           name: 'plugin-container',
           component: PluginView
         }

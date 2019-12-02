@@ -6,6 +6,7 @@ import dataManager from '@/store/datamanager'
 import plugin from '@/store/plugin'
 import notice from '@/store/notice'
 import checker from '@/store/checker'
+import event from '@/store/event'
 
 
 Vue.use(Vuex)
@@ -16,7 +17,8 @@ export default new Vuex.Store({
     dataManager,
     plugin,
     notice,
-    checker
+    checker,
+    event
   },
   state: {
     menu: null,
@@ -25,31 +27,31 @@ export default new Vuex.Store({
     activeName: null
   },
   mutations: {
-    setMenu(state, menu){
+    setMenu (state, menu) {
       state.menu = menu
     },
-    setStatus(state, status){
+    setStatus (state, status) {
       state.status = status
     },
-    setManifest(state, manifest){
+    setManifest (state, manifest) {
       state.manifest = manifest
     },
-    setActiveName(state, activeName){
+    setActiveName (state, activeName) {
       state.activeName = activeName
     }
   },
   actions: {
-    loadMenu({commit}){
+    loadMenu ({ commit }) {
       api.getMenu().then(response => {
         commit('setMenu', response.data.menu)
       })
     },
-    loadStatus({commit}){
+    loadStatus ({ commit }) {
       api.getStatus().then(response => {
         commit('setStatus', response.data)
       })
     },
-    loadManifest({commit}){
+    loadManifest ({ commit }) {
       api.getManifest().then(response => {
         commit('setManifest', response.data.manifest)
       })

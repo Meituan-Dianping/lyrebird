@@ -11,6 +11,9 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine
 
+from lyrebird.utils import timeit
+import time
+
 """
 Database server
 
@@ -78,23 +81,24 @@ class LyrebirdDatabaseServer(ThreadServer):
 
     def get_event(self, channel_rules, offset=0, limit=20):
         session = self._scoped_session()
-        query = session.query(Event).order_by(Event.id.desc())
+        _subquery = session.query(Event.id).order_by(Event.id.desc())
         if len(channel_rules) > 0:
-            query = query.filter(Event.channel.in_(channel_rules))
-        query = query.offset(offset).limit(limit)
-        result = query.all()
+            _subquery = _subquery.filter(Event.channel.in_(channel_rules))
+        _subquery = _subquery.offset(offset).limit(limit).subquery()
+        result = session.query(Event).filter(Event.id == _subquery.c.id).all()
         self._scoped_session.remove()
         return result
 
     def get_page_index_by_event_id(self, event_id, channel_rules, limit=20):
+
         session = self._scoped_session()
-        subquery = session.query(Event).filter(Event.event_id==event_id).subquery()
+        subquery = session.query(Event).filter(Event.event_id == event_id).subquery()
         query = session.query(Event.id)
         if len(channel_rules) > 0:
             query = query.filter(Event.channel.in_(channel_rules))
         # Fix bug: event_id in page end, return next page
         # Wrong code: query.filter(Event.id>=subquery.c.id).count()
-        result = query.filter(Event.id>subquery.c.id).count()
+        result = query.filter(Event.id > subquery.c.id).count()
         return int(result/limit)
 
     def get_channel_list(self):
