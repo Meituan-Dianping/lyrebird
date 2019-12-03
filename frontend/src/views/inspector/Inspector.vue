@@ -1,10 +1,14 @@
 <template>
-  <div>
+  <div class="small-tab">
     <Row class="inspector-container-button-bar">
       <button-bar></button-bar>
     </Row>
     <div class="divider"></div>
-    <Row>
+    <Tabs :value="selectedModeTab" size="small" @on-click="switchTab">
+      <TabPane label="Real-time" name="realtime"></TabPane>
+      <TabPane label="Advanced" name="advanced"></TabPane>
+    </Tabs>
+    <Row v-if="selectedModeTab==='realtime'">
       <Col :span="listSpan">
         <flow-list class="inspector-left"></flow-list>
       </Col>
@@ -12,6 +16,9 @@
       <Col span="12" v-if="focusedFlow">
         <flow-detail class="inspector-right"></flow-detail>
       </Col>
+    </Row>
+    <Row v-if="selectedModeTab==='advanced'">
+      <Events></Events>
     </Row>
   </div>
 </template>
@@ -29,9 +36,11 @@ let recordingStatus = {
   color: 'black',
   text: 'Stop recording'
 };
+
 import FlowList from '@/views/inspector/FlowList.vue'
 import FlowDetail from '@/views/inspector/FlowDetail.vue'
 import ButtonBar from '@/views/inspector/ButtonBar.vue'
+import Events from '@/views/event/EventInspector.vue'
 
 export default {
   name: 'Inspector',
@@ -39,12 +48,14 @@ export default {
     return {
       activatedData: null,
       selectedDataGroup: '',
+      selectedModeTab: 'realtime'
     };
   },
   components: {
     FlowList,
     FlowDetail,
     ButtonBar,
+    Events
   },
   computed: {
     listSpan () {
@@ -56,6 +67,11 @@ export default {
     },
     focusedFlow () {
       return this.$store.state.inspector.focusedFlow
+    }
+  },
+  methods: {
+    switchTab (name) {
+      this.selectedModeTab = name
     }
   }
 }
@@ -88,5 +104,8 @@ export default {
   bottom: 0;
   left: 50%;
   border: 1px dashed #eee;
+}
+.small-tab > .ivu-tabs > .ivu-tabs-bar {
+  margin-bottom: 0;
 }
 </style>

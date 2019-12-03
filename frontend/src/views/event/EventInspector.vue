@@ -8,8 +8,8 @@
       :data="events"
       @on-filter-change="onFilterChange"
       @on-row-click="onRowClick"
-      style="height:100%"
       class="event-table"
+      :height="tableHeight"
     >
       <template slot-scope="{ row }" slot="action">
         <ContextMenuItem>
@@ -73,10 +73,16 @@ export default {
   },
   mounted () {
     this.tableRect = this.$refs.eventTable.$el.getBoundingClientRect()
+    this.onResize()
+    window.addEventListener('resize', this.onResize)
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.onResize)
   },
   data () {
     return {
       tableRect: null,
+      tableHeight: 500,
       isContextMenuShown: false,
       contextMenuLeft: 0,
       contextMenuTop: 0
@@ -192,6 +198,11 @@ export default {
     onContextMenuShowAll () {
       this.$store.dispatch('showAll')
       this.isContextMenuShown = false
+    },
+    onResize () {
+      //  
+      //
+      this.tableHeight = window.innerHeight - 148 - 32
     }
   }
 }

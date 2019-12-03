@@ -1,19 +1,24 @@
 <template>
-  <div class="split-right-table">
-    <Split v-model="detailSplit" mode="vertical">
-      <div ref="eventContainer" slot="top" class="demo-split-pane">
-        <EventInspector ref="eventList"></EventInspector>
-      </div>
-      <div slot="bottom" class="demo-split-pane">
-        <CodeEditor read-only language="json" v-model="eventDetail" style="height:800px"></CodeEditor>
-      </div>
-    </Split>
+  <div class="root-window">
+    <div class="search-box">
+      <input type="text" />
+    </div>
+    <div class="content-pane">
+      <Split v-model="detailSplit" mode="vertical">
+        <div ref="eventContainer" slot="top" class="demo-split-pane">
+          <EventInspector ref="eventList"></EventInspector>
+        </div>
+        <div slot="bottom" class="demo-split-pane">
+          <CodeEditor read-only language="json" v-model="eventDetail" style="height:800px"></CodeEditor>
+        </div>
+      </Split>
+    </div>
   </div>
 </template>
 
 <script>
 import EventInspector from '@/views/event/EventInspector.vue'
-import CodeEditor from '@/views/event/CodeEditor.vue'
+import CodeEditor from '@/components/CodeEditor.vue'
 
 export default {
   components: {
@@ -76,24 +81,20 @@ export default {
 </script>
 
 <style scoped>
-.split-right-table {
-  height: calc(100vh - 66px);
-  /* total:100vh
-    form
-    padding: 10px
-    button: 32px
-    padding: 10px
-    */
+.root-window {
+  height: 100%;
   overflow-y: auto;
   border-bottom: 1px solid #dcdee2;
-}
-.demo-split {
-  height: 200px;
-  border: 1px solid #dcdee2;
 }
 .demo-split-pane {
   padding: 10px;
   overflow-y: auto;
   height: 100%;
+}
+.search-box {
+  height: 60px;
+}
+.content-pane {
+  height: calc(100% - 60px);
 }
 </style>

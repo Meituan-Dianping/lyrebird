@@ -252,7 +252,7 @@ export default {
 
 <style>
 .flow-list {
-  height: calc(100vh - 114px);
+  height: calc(100vh - 148px);
   /* total:100vh
   header: 38px
   buttonBar: 38px
