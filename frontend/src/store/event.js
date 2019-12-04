@@ -1,4 +1,6 @@
 import * as api from '@/api'
+import { bus } from '@/eventbus'
+
 
 export default {
   state: {
@@ -35,28 +37,21 @@ export default {
       commit('setChannelNames', ['flow', 'notice', 'page', 'android.crash', 'ios.crash'])
     },
     loadEvents ({ state, commit }, options = {}) {
-      let eventId = null
-      if (options.eventId) {
-        eventId = options.eventId
-      } else if (state.selectedEventId) {
-        eventId = state.selectedEventId
-      }
+      let eventId = options.eventId ? options.eventId : state.selectedEventId
       api.getEvent({ channelFilters: state.channelFilters, eventId, page: options.page }).then(response => {
         if (response.data.code !== 1000) {
+          return
         }
         let events = response.data.events
         if (eventId) {
-          let i = 1
-          for (const event of events) {
-            if (event.event_id === eventId) {
-              event._highlight = true
-              const prettyJson = JSON.stringify(JSON.parse(event.content), null, 2)
-              commit('setEventDetail', prettyJson)
-              commit('setSelectedEventId', event.event_id)
-              bus.$emit('eventLitScroll', i / events.length)
-              break
-            }
-            i++
+          let eventIndex = events.findIndex(e => e.event_id === eventId)
+          if (eventIndex >= 0) {
+            let event = events[eventIndex]
+            event._highlight = true
+            const prettyJson = JSON.stringify(JSON.parse(event.content), null, 2)
+            commit('setEventDetail', prettyJson)
+            commit('setSelectedEventId', event.event_id)
+            bus.$emit('eventLitScroll', eventIndex / events.length)
           }
         }
         commit('setEvents', events)
