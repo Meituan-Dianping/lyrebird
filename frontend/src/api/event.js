@@ -3,22 +3,36 @@ import axios from 'axios'
 
 export const getEvent = (options) => {
     let url = '/api/event'
-    if (!options) {
-        return axios({ url })
+    if (options) {
+        url = addChannelFilters(url, options)
+        url = addEventId(url, options)
+        url = addPage(url, options)
     }
 
-    if (options.channelFilters && options.channelFilters.length > 0) {
-        url += '/' + options.channelFilters.join('+')
-    }
-    if (options.eventId) {
-        url += '/id/' + options.eventId
-    }
-    if (options.page) {
-        url += '/page/' + options.page
-    }
     return axios({
         url
     })
+}
+
+const addChannelFilters = (url, options) => {
+    if (options.channelFilters && options.channelFilters.length > 0) {
+        url += '/' + options.channelFilters.join('+')
+    }
+    return url
+}
+
+const addEventId = (url, options) => {
+    if (options.eventId) {
+        url += '/id/' + options.eventId
+    }
+    return url
+}
+
+const addPage = (url, options) => {
+    if (options.page) {
+        url += '/page/' + options.page
+    }
+    return url
 }
 
 export const getChannelNames = () => {
