@@ -1,19 +1,5 @@
 import axios from 'axios'
 
-
-export const getEvent = (options) => {
-    let url = '/api/event'
-    if (options) {
-        url = addChannelFilters(url, options)
-        url = addEventId(url, options)
-        url = addPage(url, options)
-    }
-
-    return axios({
-        url
-    })
-}
-
 const addChannelFilters = (url, options) => {
     if (options.channelFilters && options.channelFilters.length > 0) {
         url += '/' + options.channelFilters.join('+')
@@ -33,6 +19,19 @@ const addPage = (url, options) => {
         url += '/page/' + options.page
     }
     return url
+}
+
+export const getEvent = (options) => {
+    let url = '/api/event'
+    if (options) {
+        url = addChannelFilters(url, options)
+        url = addEventId(url, options)
+        url = addPage(url, options)
+    }
+
+    return axios({
+        url
+    })
 }
 
 export const getChannelNames = () => {
