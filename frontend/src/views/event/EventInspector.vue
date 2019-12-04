@@ -1,223 +1,126 @@
 <template>
-  <div>
-    <Table
-      ref="eventTable"
-      size="small"
-      highlight-row
-      :columns="columns"
-      :data="events"
-      @on-filter-change="onFilterChange"
-      @on-row-click="onRowClick"
-      class="event-table"
-      :height="tableHeight"
-    >
-      <template slot-scope="{ row }" slot="action">
-        <ContextMenuItem>
-          <Button type="text" shape="circle" icon="ios-add-circle-outline" @click="onAddEvent(row)"></Button>
-        </ContextMenuItem>
-      </template>
-      <template slot-scope="{ row }" slot="timestamp">
-        <ContextMenuItem>
-          <div>{{ts2String(row.timestamp)}}</div>
-        </ContextMenuItem>
-      </template>
-      <template slot-scope="{ row }" slot="channel">
-        <ChannelColumn :channel="row.channel"></ChannelColumn>
-      </template>
-      <template slot-scope="{ row }" slot="content">
-        <component :is="contentComponentName(row.content)" :event="content2Obj(row.content)"></component>
-      </template>
-    </Table>
-    <div class="page">
-      <Page
-        v-if="page"
-        :current="page.index+1"
-        :total="page.count*page.size"
-        :page-size="page.size"
-        @on-change="onPageChange"
-      ></Page>
-    </div>
-    <div
-      v-show="isContextMenuShown"
-      class="row-contextmenu ivu-select-dropdown"
-      :style="{left:contextMenuLeft, top:contextMenuTop}"
-    >
-      <ul class="ivu-dropdown-menu">
-        <li class="ivu-dropdown-item" @click="onContextMenuShowNotice">Show notice</li>
-        <li class="ivu-dropdown-item" @click="onContextMenuShowAll">Show all</li>
-      </ul>
-    </div>
+  <div class="root-window">
+    <Row>
+      <Col :span="listSpan">
+        <EventList class="inspector-left"></EventList>
+      </Col>
+      <div class="split" v-if="eventDetail"></div>
+      <Col span="12" v-if="eventDetail">
+        <EventDetail v-model="eventDetail" class="inspector-right"></EventDetail>
+      </Col>
+    </Row>
+    <!-- <div class="content-pane">
+      <Split v-model="detailSplit" mode="vertical">
+        <div ref="eventContainer" slot="top" class="demo-split-pane">
+          <EventList ref="eventList"></EventList>
+        </div>
+        <div slot="bottom" class="demo-split-pane">
+          <CodeEditor read-only language="json" v-model="eventDetail" style="height:800px"></CodeEditor>
+        </div>
+      </Split>
+    </div>-->
   </div>
 </template>
 
 <script>
-import FlowTableItem from '@/views/event/FlowTableItem.vue'
-import CustomTableItem from '@/views/event/CustomTableItem.vue'
-import ChannelColumn from '@/views/event/ChannelColumn.vue'
-import ContextMenuItem from '@/views/event/ContextMenuItem.vue'
+import EventList from '@/views/event/EventList.vue'
+import EventDetail from '@/views/event/EventDetail.vue'
+import CodeEditor from '@/components/CodeEditor.vue'
 
 export default {
   components: {
-    FlowTableItem,
-    CustomTableItem,
-    ChannelColumn,
-    ContextMenuItem
-  },
-  created () {
-    const urlParams = new URLSearchParams(window.location.search)
-    const eventId = urlParams.get('event_id')
-    this.$store.dispatch('loadEvents', { eventId: eventId })
-    this.$store.dispatch('loadChannelNames')
-    this.$bus.$on('contextmenu.show', this.showContextMenu)
-    this.$bus.$on('contextmenu.dismiss', this.dismissContextMenu)
-  },
-  mounted () {
-    this.tableRect = this.$refs.eventTable.$el.getBoundingClientRect()
-    this.onResize()
-    window.addEventListener('resize', this.onResize)
-  },
-  beforeDestroy () {
-    window.removeEventListener('resize', this.onResize)
+    EventList,
+    EventDetail,
+    CodeEditor
   },
   data () {
     return {
-      tableRect: null,
-      tableHeight: 500,
-      isContextMenuShown: false,
-      contextMenuLeft: 0,
-      contextMenuTop: 0
+      detailSplit: 0.6,
+      scrollRate: 0
     }
   },
+  created () {
+    this.$bus.$on('eventLitScroll', this.setEventContainerScroll)
+  },
   computed: {
-    events () {
-      return this.$store.state.event.events
-    },
-    page () {
-      return this.$store.state.event.page
-    },
-    channelNames () {
-      return this.$store.state.event.channelNames
-    },
-    columns () {
-      let filters = []
-      for (const channelName of this.$store.state.event.channelNames) {
-        filters.push({ label: channelName, value: channelName })
+    listSpan () {
+      if (this.eventDetail) {
+        return '12'
+      } else {
+        return '24'
       }
-      return [
-        {
-          title: '',
-          slot: 'action',
-          width: 35
-        },
-        {
-          title: 'Time',
-          key: 'timestamp',
-          slot: 'timestamp',
-          width: 90
-        },
-        {
-          title: 'Channel',
-          key: 'channel',
-          slot: 'channel',
-          width: 80,
-          filters: filters,
-          filteredValue: this.$store.state.event.channelFilters,
-          filterRemote (value) {
-            this.$store.dispatch('updateChannelFilters', value)
-          }
-        },
-        {
-          title: 'Content',
-          key: 'content',
-          slot: 'content'
-        }
-      ]
+    },
+    eventDetail: {
+      get () {
+        return this.$store.state.event.eventDetail
+      },
+      set (val) {
+
+      }
     }
   },
   methods: {
-    content2Obj (content) {
-      return JSON.parse(content)
-    },
-    contentComponentName (content) {
-      const eventObj = JSON.parse(content)
-      if (eventObj.channel === 'flow') {
-        return 'FlowTableItem'
-      } else {
-        return 'CustomTableItem'
+    addDescAttach (row) {
+      if (this.channelAddToDesc.indexOf(row.channel) > -1) {
+        this.dispatch('addIntoDesc', row.id)
+      } else if (this.channelAddToAttach.indexOf(row.channel) > -1) {
+        this.dispatch('addIntoAttach', row.id)
       }
+      this.$Message.error(
+        'Add description and attachments have not supported yet!'
+      )
     },
-    onFilterChange (opt) {
-      console.log('filter change', opt)
-    },
-    onRowClick (row) {
-      this.$store.commit('setSelectedEventId', row.event_id)
-      const prettyJson = JSON.stringify(JSON.parse(row.content), null, 2)
-      this.$store.commit('setEventDetail', prettyJson)
-      this.isContextMenuShown = false
-    },
-    ts2String (timeStamp) {
+    timestampToTime (timeStamp) {
       let date = new Date(timeStamp * 1000)
       let hour = date.getHours() + ':'
-      let minute = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
-      let second = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
-      return date.getMonth() + 1 + '-' + date.getDate() + ' ' + hour + minute + second
+      let minute =
+        (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) +
+        ':'
+      let second =
+        date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
+      return hour + minute + second
     },
-    onPageChange (page) {
-      this.$store.commit('setSelectedEventId', null)
-      this.$store.commit('setEventDetail', '')
-      this.$store.dispatch('loadEvents', { page: page - 1 })
+    getColunmsFilterItem () {
+      return []
     },
-    onAddEvent (row) {
-      const eventObj = JSON.parse(row.content)
-      if (eventObj.summary) {
-        this.$bus.$emit('addSummary', eventObj.summary)
-      }
-      if (eventObj.message) {
-        this.$bus.$emit('addMessage', {
-          channel: eventObj.channel,
-          message: eventObj.message
-        })
-      }
-      if (eventObj.attachments) {
-        this.$bus.$emit('addAttachments', eventObj.attachments)
-      }
-    },
-    showContextMenu (event) {
-      const rect = this.$refs.eventTable.$el.getBoundingClientRect()
-      this.contextMenuLeft = event.pageX - rect.left + 'px'
-      this.contextMenuTop = event.pageY - this.tableRect.top + 'px'
-      this.isContextMenuShown = true
-    },
-    dismissContextMenu () {
-      this.isContextMenuShown = false
-    },
-    onContextMenuShowNotice () {
-      this.$store.dispatch('showNotice')
-      this.isContextMenuShown = false
-    },
-    onContextMenuShowAll () {
-      this.$store.dispatch('showAll')
-      this.isContextMenuShown = false
-    },
-    onResize () {
-      //  
-      //
-      this.tableHeight = window.innerHeight - 148 - 32
+    setEventContainerScroll (event) {
+      this.scrollRate = event
+      setTimeout(() => {
+        const container = this.$refs.eventContainer
+        const topHeight = container.scrollHeight * event
+        this.$refs.eventContainer.scrollTop = topHeight - (container.scrollHeight / 20)
+      }, 1)
     }
   }
 }
 </script>
 
-<style less>
-.page {
-  text-align: center;
-  margin-top: 5px;
+<style scoped>
+.root-window {
+  height: 100%;
+  overflow-y: auto;
+  border-bottom: 1px solid #dcdee2;
 }
-.event-table .ivu-table-cell {
-  padding-left: 3px;
-  padding-right: 3px;
+.demo-split-pane {
+  padding: 10px;
+  overflow-y: auto;
+  height: 100%;
 }
-.row-contextmenu {
+.content-pane {
+  height: calc(100% - 60px);
+}
+.inspector-left {
+  margin-right: 0px;
+}
+.inspector-right {
+  margin-left: 5px;
+}
+.split {
+  display: block;
   position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border: 1px dashed #eee;
 }
 </style>

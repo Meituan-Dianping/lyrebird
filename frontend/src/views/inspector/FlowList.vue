@@ -250,7 +250,18 @@ export default {
 };
 </script>
 
-<style>
+<style lang="css">
+.data-table th div {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.data-table td div {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+</style>
+
+<style scoped>
 .flow-list {
   height: calc(100vh - 148px);
   /* total:100vh
@@ -261,13 +272,5 @@ export default {
   footer: 28px
     */
   overflow-y: auto;
-}
-.data-table th div {
-  padding-left: 5px;
-  padding-right: 5px;
-}
-.data-table td div {
-  padding-left: 5px;
-  padding-right: 5px;
 }
 </style>
