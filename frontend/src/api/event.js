@@ -8,11 +8,12 @@ export const getEvent = (options) => {
     }
     if (options && options.hasOwnProperty('eventId') && options.eventId) {
         url += '/id/' + options.eventId
-    } else if (options && options.hasOwnProperty('page') && options.page) {
+    }
+    if (options && options.hasOwnProperty('page') && options.page) {
         url += '/page/' + options.page
     }
     return axios({
-        url: url
+        url
     })
 }
 

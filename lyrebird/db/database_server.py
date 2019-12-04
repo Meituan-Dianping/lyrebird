@@ -11,8 +11,6 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine
 
-from lyrebird.utils import timeit
-import time
 
 """
 Database server
