@@ -9,16 +9,6 @@
         <EventDetail v-model="eventDetail" class="inspector-right"></EventDetail>
       </Col>
     </Row>
-    <!-- <div class="content-pane">
-      <Split v-model="detailSplit" mode="vertical">
-        <div ref="eventContainer" slot="top" class="demo-split-pane">
-          <EventList ref="eventList"></EventList>
-        </div>
-        <div slot="bottom" class="demo-split-pane">
-          <CodeEditor read-only language="json" v-model="eventDetail" style="height:800px"></CodeEditor>
-        </div>
-      </Split>
-    </div>-->
   </div>
 </template>
 

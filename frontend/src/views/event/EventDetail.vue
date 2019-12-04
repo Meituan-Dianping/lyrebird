@@ -67,10 +67,11 @@ export default {
     footer 28px
     */
 }
-</style>
-
-<style scoped>
 .event-message {
-  padding-left: 15px;
+  width: 100%;
+  height: calc(100vh - 177px);
+  overflow: auto;
+  margin: 0px;
+  padding: 5px 0 0px 10px;
 }
 </style>

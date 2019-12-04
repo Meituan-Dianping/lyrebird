@@ -200,9 +200,16 @@ export default {
       this.isContextMenuShown = false
     },
     onResize () {
-      //  
-      //
-      this.tableHeight = window.innerHeight - 148 - 32
+      /* reset table height
+      Header 38px
+      ButtonBar 38px
+      Tab 34px
+      5px
+      PaginationBar 32px
+      5px
+      Footer 28px
+      */
+      this.tableHeight = window.innerHeight - 180
     }
   }
 }
