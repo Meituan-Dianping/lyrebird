@@ -68,7 +68,7 @@ class LyrebirdMockServer(ThreadServer):
         # self.app.jinja_env.globals['version'] = VERSION
 
         # async_mode = threading / eventlet / gevent / gevent_uwsgi
-        self.socket_io = SocketIO(self.app, async_mode='threading', logger=False)
+        self.socket_io = SocketIO(self.app, async_mode='threading', logger=False, cors_allowed_origins='*')
 
         # 存储socket-io
         context.application.socket_io = self.socket_io

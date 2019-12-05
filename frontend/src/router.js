@@ -6,7 +6,6 @@ import DataManager from './views/datamanager/DataManager.vue'
 import Checker from './views/checker/Checker.vue'
 import PluginView from './views/PluginView.vue'
 
-
 Vue.use(Router)
 
 export default new Router({
@@ -27,7 +26,7 @@ export default new Router({
       component: Main,
       children: [
         {
-          path:'',
+          path: '',
           name: 'datamanager',
           component: DataManager
         }
@@ -48,9 +47,9 @@ export default new Router({
       path: '/plugin',
       name: 'plugin',
       component: Main,
-      children:[
+      children: [
         {
-          path:':name',
+          path: ':name',
           name: 'plugin-view',
           component: PluginView
         }
@@ -60,9 +59,9 @@ export default new Router({
       path: '/plugins',
       name: 'plugins',
       component: Main,
-      children:[
+      children: [
         {
-          path:':name',
+          path: ':name',
           name: 'plugin-container',
           component: PluginView
         }

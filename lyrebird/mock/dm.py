@@ -568,6 +568,7 @@ class PropWriter:
             'list': self.list_parser,
             'int': self.int_parser,
             'str': self.str_parser,
+            'bool': self.bool_parser,
             'NoneType': self.none_parser
         }
 
@@ -608,6 +609,9 @@ class PropWriter:
 
     def str_parser(self, val):
         return json.dumps(val, ensure_ascii=False)
+
+    def bool_parser(self, val):
+        return json.dumps(val)
 
     def none_parser(self, val):
         return "null"

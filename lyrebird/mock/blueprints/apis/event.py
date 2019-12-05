@@ -29,6 +29,7 @@ class Event(Resource):
         event_manager.publish(channel, message)
         return application.make_ok_response()
 
+
 class Channel(Resource):
 
     def get(self):

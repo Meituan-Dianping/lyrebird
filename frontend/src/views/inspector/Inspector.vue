@@ -1,18 +1,15 @@
 <template>
-  <div>
+  <div class="small-tab">
     <Row class="inspector-container-button-bar">
       <button-bar></button-bar>
     </Row>
     <div class="divider"></div>
-    <Row>
-      <Col :span="listSpan">
-        <flow-list class="inspector-left"></flow-list>
-      </Col>
-      <div class="split" v-if="focusedFlow"></div>
-      <Col span="12" v-if="focusedFlow">
-        <flow-detail class="inspector-right"></flow-detail>
-      </Col>
-    </Row>
+    <Tabs :value="selectedModeTab" size="small" @on-click="switchTab">
+      <TabPane label="Real-time" name="realtime"></TabPane>
+      <TabPane label="Advanced" name="advanced"></TabPane>
+    </Tabs>
+    <FlowInspector v-if="selectedModeTab==='realtime'"></FlowInspector>
+    <EventInspector v-if="selectedModeTab==='advanced'"></EventInspector>
   </div>
 </template>
 
@@ -29,9 +26,10 @@ let recordingStatus = {
   color: 'black',
   text: 'Stop recording'
 };
-import FlowList from '@/views/inspector/FlowList.vue'
-import FlowDetail from '@/views/inspector/FlowDetail.vue'
+
 import ButtonBar from '@/views/inspector/ButtonBar.vue'
+import EventInspector from '@/views/event/EventInspector.vue'
+import FlowInspector from '@/views/inspector/FlowInspector.vue'
 
 export default {
   name: 'Inspector',
@@ -39,23 +37,17 @@ export default {
     return {
       activatedData: null,
       selectedDataGroup: '',
+      selectedModeTab: 'realtime'
     };
   },
   components: {
-    FlowList,
-    FlowDetail,
     ButtonBar,
+    EventInspector,
+    FlowInspector
   },
-  computed: {
-    listSpan () {
-      if (this.focusedFlow) {
-        return '12'
-      } else {
-        return '24'
-      }
-    },
-    focusedFlow () {
-      return this.$store.state.inspector.focusedFlow
+  methods: {
+    switchTab (name) {
+      this.selectedModeTab = name
     }
   }
 }
@@ -67,12 +59,6 @@ export default {
   display: flex;
   align-items: center;
 }
-.inspector-left {
-  margin-right: 0px;
-}
-.inspector-right {
-  margin-left: 5px;
-}
 .divider {
   display: block;
   width: 100%;
@@ -81,12 +67,7 @@ export default {
   top: 0;
   left: 0;
 }
-.split {
-  display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  border: 1px dashed #eee;
+.small-tab > .ivu-tabs > .ivu-tabs-bar {
+  margin-bottom: 0;
 }
 </style>

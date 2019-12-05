@@ -11,6 +11,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine
 
+
 """
 Database server
 
@@ -87,6 +88,7 @@ class LyrebirdDatabaseServer(ThreadServer):
         return result
 
     def get_page_index_by_event_id(self, event_id, channel_rules, limit=20):
+
         session = self._scoped_session()
         _subquery = session.query(Event).filter(Event.event_id == event_id).subquery()
         query = session.query(Event.id)
