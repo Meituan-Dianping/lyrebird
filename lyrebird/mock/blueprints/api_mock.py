@@ -26,6 +26,10 @@ def index(path=''):
     req_context = HandlerContext(request)
     req_context.update_client_req_time()
 
+    from lyrebird import checker
+    for encoder_fn in checker.encoders:
+        encoder_fn(req_context)
+
     for handler_name in plugin_manager.inner_handler:
         handler = plugin_manager.inner_handler[handler_name]
         try:
