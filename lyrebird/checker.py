@@ -37,6 +37,21 @@ class CheckerEventHandler:
 
 event = CheckerEventHandler()
 
+encoders = []
+encoder_func_array = []
+
+
+class EncoderHandler:
+
+    def __call__(self, *args, **kw):
+        def func(origin_func):
+            encoder_func_array.append(origin_func)
+            return origin_func
+        return func
+
+
+encoder = EncoderHandler()
+
 
 class LyrebirdCheckerServer(ThreadServer):
     def __init__(self):
@@ -127,16 +142,32 @@ class LyrebirdCheckerServer(ThreadServer):
         for path in scripts:
             try:
                 class_module = imp.load_source('checker', path)
-                if isinstance(class_module.event, CustomEventReceiver):
-                    for event in class_module.event.listeners:
-                        application.server['event'].subscribe(event['channel'], event['func'])
-                elif isinstance(class_module.event, CheckerEventHandler):
-                    global registered_func_array
-                    for registered_func in registered_func_array:
-                        application.server['event'].subscribe(registered_func[0], registered_func[1])
-                    registered_func_array = []
+                self._load_event_handler(class_module)
+                # TODO Decoder
+                self._load_encoder_handler(class_module)
             except ValueError:
                 logger.error(f'{path} failed to load. Only python file is allowed.')
+
+    def _load_event_handler(self, checker_class_module):
+        if not hasattr(checker_class_module, 'event'):
+            return
+        if isinstance(checker_class_module.event, CustomEventReceiver):
+            for event in checker_class_module.event.listeners:
+                application.server['event'].subscribe(event['channel'], event['func'])
+        elif isinstance(checker_class_module.event, CheckerEventHandler):
+            global registered_func_array
+            for registered_func in registered_func_array:
+                application.server['event'].subscribe(registered_func[0], registered_func[1])
+            registered_func_array = []
+
+    def _load_encoder_handler(self, checker_class_module):
+        if not hasattr(checker_class_module, 'encoder'):
+            return
+        global encoder_func_array
+        global encoders
+        for encoder_func in encoder_func_array:
+            encoders.append(encoder_func)
+        encoder_func_array = []
 
     def run(self):
         super().run()

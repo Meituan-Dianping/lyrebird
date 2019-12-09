@@ -7,6 +7,7 @@ from blinker import Signal
 import os
 from .event import CustomEventReceiver
 from .checker import event
+from .checker import encoder
 from lyrebird import application
 from lyrebird.log import get_logger
 
