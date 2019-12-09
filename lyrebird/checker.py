@@ -143,7 +143,7 @@ class LyrebirdCheckerServer(ThreadServer):
             try:
                 class_module = imp.load_source('checker', path)
                 self._load_event_handler(class_module)
-                # TODO Encoder
+                # TODO Decoder
                 self._load_encoder_handler(class_module)
             except ValueError:
                 logger.error(f'{path} failed to load. Only python file is allowed.')
