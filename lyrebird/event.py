@@ -10,6 +10,7 @@ import traceback
 import inspect
 import uuid
 import time
+import copy
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird.mock import context
@@ -75,6 +76,8 @@ class EventServer(ThreadServer):
         while self.running:
             try:
                 e = self.event_queue.get()
+                # Deep copy event for async event system
+                e = copy.deepcopy(e)
                 callback_fn_list = self.pubsub_channels.get(e.channel)
                 if callback_fn_list:
                     for callback_fn, args, kwargs in callback_fn_list:

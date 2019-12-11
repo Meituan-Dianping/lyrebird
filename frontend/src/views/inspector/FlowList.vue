@@ -47,7 +47,7 @@ export default {
         {
           title: 'Source',
           key: 'src',
-          width: 85,
+          width: 100,
           align: 'center',
           render: (h, params) => {
             const flag = this.getFlowSourceFlagForTable(params.row.response.mock, params.row.response.modified)
@@ -61,7 +61,13 @@ export default {
             ]
             if (flag.modified) {
               elements.push(
-                h("Icon", { props: { vif: flag.modified, type: "ios-build" } })
+                h("Tooltip", {
+                  props: { content: flag.modifyTag, placement: "top" }
+                },
+                  [
+                    h("Icon", { props: { vif: flag.modified, type: "ios-build" } })
+                  ]
+                )
               )
             }
             return h("div", elements);
@@ -233,7 +239,8 @@ export default {
       const flag = {
         text: '',
         color: 'default',
-        modified: false
+        modified: false,
+        modifyTag
       }
       if (mockTag.startsWith('mock')) {
         flag.text = 'mock'
@@ -256,8 +263,8 @@ export default {
   padding-right: 5px;
 }
 .data-table td div {
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 2px;
+  padding-right: 2px;
 }
 </style>
 
