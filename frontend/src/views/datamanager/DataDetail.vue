@@ -3,8 +3,8 @@
     <Row class="button-bar">
       <Col span="15" class="button-bar-line">
         <span v-for="(value, index) in nodeParents" :key="value.id">
-          <Icon v-if="value.isRoot" type="ios-home" />
-          <span v-else>{{value.name}}</span>
+          <Icon v-if="value.isRoot" type="ios-home" @click="showNode(value)" style="cursor: pointer;"/>
+          <a v-else @click="showNode(value)">{{value.name}}</a>
           {{index === nodeParents.length-1 ? '' : ' > '}}
         </span>
       </Col>
@@ -21,6 +21,7 @@
 import DataDetailHttpData from '@/views/datamanager/DataDetailHttpData.vue'
 import DataDetailFolder from '@/views/datamanager/DataDetailFolder.vue'
 import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
+import { breadthFirstSearch } from 'tree-helper'
 
 export default {
   components: {
@@ -43,6 +44,7 @@ export default {
           parents.push({
             id: tree.id,
             name: tree.name,
+            type: tree.type,
             isRoot: tree.parent_id ? false: true
           })
           tree = tree.parent
@@ -62,6 +64,34 @@ export default {
       } else {
         return ''
       }
+    },
+    showNode (payload) {
+      this.resetGroupListOpenNode(payload)
+      this.resetFocusNodeInfo(payload)
+      this.resetGroupDetail(payload)
+    },
+    resetGroupListOpenNode (payload) {
+      this.nodeParents.find(node => {
+        if (!this.$store.state.dataManager.groupListOpenNode.has(node.id)) {
+          this.$store.commit('deleteGroupListOpenNode', node.id)
+        }
+      })
+    },
+    resetFocusNodeInfo (payload) {
+      breadthFirstSearch(this.$store.state.dataManager.groupList, node => {
+        if (node.id === payload.id) {
+          this.$store.commit('setFocusNodeInfo', node)
+          // `return false` is used to break loop, no related to search result
+          return false
+        }
+      })
+    },
+    resetGroupDetail (payload) {
+      if (payload.type === 'group') {
+        this.$store.dispatch('loadGroupDetail', payload)
+      } else if (payload.type === 'data') {
+        this.$store.dispatch('loadDataDetail', payload)
+      } else { }
     }
   }
 }
