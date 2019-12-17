@@ -149,12 +149,12 @@ class DataManager:
                     _matched_data.append(_data)
 
         # TODO render mock data before response, support more functions
+        params = {
+            'ip': config.get('ip'),
+            'port': config.get('mock.port')
+        }
         for response_data in _matched_data:
             resp_data_template = Template(response_data['response']['data'])
-            params = {
-                'ip': config.get('ip'),
-                'port': config.get('mock.port')
-            }
             response_data['response']['data'] = resp_data_template.render(params)
 
         return _matched_data
