@@ -154,6 +154,10 @@ class DataManager:
             'port': config.get('mock.port')
         }
         for response_data in _matched_data:
+            if 'response' not in response_data:
+                continue
+            if 'data' not in response_data['response']:
+                continue
             resp_data_template = Template(response_data['response']['data'])
             response_data['response']['data'] = resp_data_template.render(params)
 
