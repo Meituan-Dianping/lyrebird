@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from lyrebird.mock import context
-from flask import request, send_file
+from flask import request
 from ... import qrcode
 
 
