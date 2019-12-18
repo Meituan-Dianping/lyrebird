@@ -11,6 +11,7 @@ from .checker import Checker
 from .event import Event, Channel
 from .conflict_check import ConflictCheck, ActivatedDataConflictCheck
 from .mock_editor import Cut, Copy, Paste
+from .qrcode import Qrcode
 from .search import SearchMockDataByName
 from lyrebird.log import get_logger
 from lyrebird import application
@@ -54,6 +55,7 @@ api_source.add_resource(ConflictCheck, '/conflict/id/<string:group_id>')
 api_source.add_resource(ActivatedDataConflictCheck, '/conflict/activated')
 api_source.add_resource(ActivatedMockGroup, '/mock/activated', '/mock/<string:group_id>/<string:action>')
 api_source.add_resource(MockGroupByName, '/mock_by_name')
+api_source.add_resource(Qrcode, '/qrcode')
 api_source.add_resource(Conf, '/conf/<string:plugin_name>')
 api_source.add_resource(ResetConf, '/conf/<string:plugin_name>/reset')
 api_source.add_resource(WorkMode, '/mode', '/mode/<string:mode>')

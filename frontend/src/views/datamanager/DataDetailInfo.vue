@@ -15,10 +15,10 @@
     <Col span="19" style="padding:0px 0px 0px 10px">
       <span v-if="inputValueType === 'link'">
         <Input v-model="inputValue" type="textarea" :autosize="{ minRows: 1 }" size="small" style="width:calc(100% - 30px);"/>
-        <Poptip placement="bottom" width="382" word-wrap @on-popper-show="qrcodeRemake">
+        <Poptip placement="bottom" width="382" word-wrap @on-popper-show="loadQrcodeImg">
           <svg-icon class="ivu-icon" name="qrcode" scale="2.8" style="margin-left:3px;cursor: pointer;"/>
           <div slot="content">
-            <div id="qrcodeobj" ref="qrcodeobj"/>
+            <img :src="imgData" style="width:100%">
           </div>
         </Poptip>
       </span>
@@ -26,37 +26,38 @@
         <Input v-model="inputValue" type="textarea" :autosize="{ minRows: 1 }" size="small"/>
       </span>
       <span v-else>
-        {{infoValue}}
+        {{inputValue}}
       </span>
     </Col>
   </Row>
 </template>
 
 <script>
-import QRCode from 'qrcodejs2'
 import svgIcon from 'vue-svg-icon/Icon.vue'
+import { getQrcodeImg } from '@/api'
 
 export default {
-  props: ['infoValue', 'infoKey', 'editable', 'deletable'],
+  props: ['infoKey', 'editable', 'deletable'],
   components: {
     svgIcon
   },
   data() {
     return {
-      qrcodeObj: '',
-      maxLengthDisplayQrcode: 1270,
+      imgData: '',
       isMouseOver: false
-    }
-  },
-  mounted () {
-    if (this.inputValueType === 'link') {
-      this.qrcodeMethod()
     }
   },
   computed: {
     inputValue: {
       get () {
-        return this.$store.state.dataManager.groupDetail[this.infoKey]
+        let infoValue = this.$store.state.dataManager.groupDetail[this.infoKey]
+        if (infoValue === null) {
+          return infoValue
+        } else if (typeof infoValue === 'object') {
+          return JSON.stringify(infoValue)
+        } else {
+          return infoValue
+        }
       },
       set (val) {
         this.$store.commit('setGroupDetailItem', { key: this.infoKey, value: val })
@@ -70,7 +71,7 @@ export default {
       }
     },
     inputValueType () {
-      if (String(this.infoValue).match('(?=.*://)')) {
+      if (String(this.inputValue).match('(?=.*://)')) {
         return 'link'
       } else if (this.editable) {
         return 'input'
@@ -85,20 +86,17 @@ export default {
         this.$store.commit('deleteGroupDetailItem', this.infoKey)
       }
     },
-    qrcodeMethod () {
-      this.qrcodeObj = new QRCode(this.$refs.qrcodeobj, {
-        width: 350,
-        height: 350,
-        text: this.inputValue,
-        correctLevel : QRCode.CorrectLevel.H
-      })
-    },
-    qrcodeRemake () {
-      if (this.infoValue.length > this.maxLengthDisplayQrcode) {
-        this.$bus.$emit('msg.error', 'Make qrcode failed: ' + this.maxLengthDisplayQrcode + ' character is allowed, current length is ' + this.infoValue.length)
-      } else {
-        this.qrcodeObj.makeCode(this.inputValue)
-      }
+    loadQrcodeImg () {
+      let groupId = this.$store.state.dataManager.focusNodeInfo.id
+      this.$store.dispatch('activateGroup', groupId)
+      this.imgData = ''
+      getQrcodeImg(this.inputValue)
+        .then(response => {
+          this.imgData = response.data.img
+        })
+        .catch(error => {
+          this.$bus.$emit('msg.error', 'Make QRCode error: ' + error)
+        })
     }
   }
 }

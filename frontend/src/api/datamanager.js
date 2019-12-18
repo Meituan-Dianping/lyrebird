@@ -90,3 +90,11 @@ export const getConflict = (dataId) => {
     url: '/api/conflict/id/' + dataId
   })
 }
+
+export const getQrcodeImg = (link) => {
+  return axios({
+    url: '/api/qrcode',
+    method: 'POST',
+    data: { link }
+  })
+}
