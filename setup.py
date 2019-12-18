@@ -46,8 +46,7 @@ setup(
         "SQLAlchemy==1.3.1",
         "click==6.7",
         "urllib3==1.24.2",
-        "qrcode==6.1",
-        "Image==1.5.27"
+        "qrcode==6.1"
     ],
     extras_require={
         'dev': [
