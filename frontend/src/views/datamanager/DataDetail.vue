@@ -66,16 +66,8 @@ export default {
       }
     },
     showNode (payload) {
-      this.resetGroupListOpenNode(payload)
       this.resetFocusNodeInfo(payload)
       this.resetGroupDetail(payload)
-    },
-    resetGroupListOpenNode (payload) {
-      this.nodeParents.find(node => {
-        if (!this.$store.state.dataManager.groupListOpenNode.has(node.id)) {
-          this.$store.commit('deleteGroupListOpenNode', node.id)
-        }
-      })
     },
     resetFocusNodeInfo (payload) {
       breadthFirstSearch(this.$store.state.dataManager.groupList, node => {

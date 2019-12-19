@@ -11,7 +11,6 @@
     "iview": "^3.4.2",
     "monaco-editor": "^0.17.0",
     "monaco-editor-webpack-plugin": "^1.7.0",
-    "qrcodejs2": "0.0.2",
     "socket.io-client": "^2.2.0",
     "vue": "^2.6.10",
     "vue-draggable-nested-tree": "^2.2.17",

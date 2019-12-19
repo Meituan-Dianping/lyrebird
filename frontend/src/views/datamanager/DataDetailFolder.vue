@@ -6,7 +6,6 @@
           <div style="margin:10px 5px 10px 10px">
             <div v-for="(value, key) in groupInfoStickyTop" :key="key">
               <DataDetailInfo
-                :infoValue="value"
                 :infoKey="key"
                 :editable="!uneditableKey.includes(key)"
                 :deletable="!undeletableKey.includes(key)"

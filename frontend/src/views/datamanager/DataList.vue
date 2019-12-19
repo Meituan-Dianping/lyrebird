@@ -2,7 +2,7 @@
   <div>
     <Row class="button-bar">
       <span>
-        <b style="padding-left:5px">Mock Data Tree</b>
+        <b style="padding-left:5px">Mock Data</b>
       </span>
       <span class="button-bar-group-right">
         <Tooltip content="Search" placement="bottom-end" :delay="500">
