@@ -1,8 +1,10 @@
 import pytest
 import codecs
 import json
+from typing import NamedTuple
 from urllib.parse import urlparse
 from lyrebird.mock import dm
+from lyrebird import application
 
 dataA = {
     'id': 'dataA-UUID',
@@ -133,6 +135,9 @@ prop = {
 }
 
 
+MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
+
+
 @pytest.fixture
 def root(tmpdir):
     with codecs.open(tmpdir / 'dataA-UUID', 'w') as f:
@@ -150,6 +155,11 @@ def root(tmpdir):
 
 @pytest.fixture
 def data_manager(root):
+    _conf = {
+        'ip': '127.0.0.1',
+        'mock.port': 9090
+    }
+    application._cm = MockConfigManager(config=_conf)
     _dm = dm.DataManager()
     _dm.set_root(root)
     return _dm

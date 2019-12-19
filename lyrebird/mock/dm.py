@@ -7,6 +7,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from lyrebird.log import get_logger
+from jinja2 import Template
+from lyrebird.application import config
 
 PROP_FILE_NAME = '.lyrebird_prop'
 
@@ -145,6 +147,20 @@ class DataManager:
                 _data = self.secondary_activated_data[_data_id]
                 if self._is_match_rule(flow, _data.get('rule')):
                     _matched_data.append(_data)
+
+        # TODO render mock data before response, support more functions
+        params = {
+            'ip': config.get('ip'),
+            'port': config.get('mock.port')
+        }
+        for response_data in _matched_data:
+            if 'response' not in response_data:
+                continue
+            if 'data' not in response_data['response']:
+                continue
+            resp_data_template = Template(response_data['response']['data'])
+            response_data['response']['data'] = resp_data_template.render(params)
+
         return _matched_data
 
     def _is_match_rule(self, flow, rules):
