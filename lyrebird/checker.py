@@ -177,7 +177,6 @@ class LyrebirdCheckerServer(ThreadServer):
 
 
 class Checker:
-
     def __init__(self, name, path):
         self.name = name
         self.activated = False
@@ -186,7 +185,7 @@ class Checker:
         self._module = None
         self._event_receiver = None
         self._update = False
-        self.encoder_func_list = []
+        self._encoder_func_list = []
 
     @property
     def update(self):
@@ -238,12 +237,12 @@ class Checker:
         global encoders
         for encoder_func in encoder_func_array:
             encoders.append(encoder_func)
-            self.encoder_func_list.append(encoder_func)
+            self._encoder_func_list.append(encoder_func)
         encoder_func_array = []
 
     def _unregister_encoder_callback_func(self):
         global encoders
-        for encoder_func in self.encoder_func_list:
+        for encoder_func in self._encoder_func_list:
             if encoder_func not in encoders:
                 continue
             encoders.remove(encoder_func)
