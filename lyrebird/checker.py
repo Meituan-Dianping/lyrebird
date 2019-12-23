@@ -186,6 +186,7 @@ class Checker:
         self._module = None
         self._event_receiver = None
         self._update = False
+        self.encoder_func_list = []
 
     @property
     def update(self):
@@ -196,8 +197,22 @@ class Checker:
         self._update = val
 
     def activate(self):
+        self._module = self.load_class(self.path)
+        self._register_event_callback_func()
+        self._register_encoder_callback_func()
+        self.activated = True
+
+    def deactivate(self):
+        self._unregister_event_callback_func()
+        self._unregister_encoder_callback_func()
+        self.activated = False
+
+    def _register_event_callback_func(self):
+        script_module = self._module
+        if not hasattr(script_module, 'event'):
+            return
+
         global registered_func_array
-        self._module = script_module = self.load_class(self.path)
         event_proxy = getattr(script_module, 'event')
         if isinstance(event_proxy, CustomEventReceiver):
             self._event_receiver = event_proxy
@@ -208,14 +223,30 @@ class Checker:
                 self._event_receiver.listeners.append(dict(channel=registered_func[0], func=registered_func[1]))
             self._event_receiver.register(context.application.event_bus)
             registered_func_array = []
-        self.activated = True
 
-    def deactivate(self):
-        if self._event_receiver:
-            self._event_receiver.unregister(context.application.event_bus)
-            self._event_receiver = None
-            self._module = None
-        self.activated = False
+    def _unregister_event_callback_func(self):
+        if not self._event_receiver:
+            return
+        self._event_receiver.unregister(context.application.event_bus)
+        self._event_receiver = None
+        self._module = None
+
+    def _register_encoder_callback_func(self):
+        if not hasattr(self._module, 'encoder'):
+            return
+        global encoder_func_array
+        global encoders
+        for encoder_func in encoder_func_array:
+            encoders.append(encoder_func)
+            self.encoder_func_list.append(encoder_func)
+        encoder_func_array = []
+
+    def _unregister_encoder_callback_func(self):
+        global encoders
+        for encoder_func in self.encoder_func_list:
+            if encoder_func not in encoders:
+                continue
+            encoders.remove(encoder_func)
 
     def json(self):
         return {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
