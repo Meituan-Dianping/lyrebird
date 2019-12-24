@@ -169,7 +169,7 @@ class DataManager:
         for rule_key in rules:
             pattern = rules[rule_key]
             target = self._get_rule_target(rule_key, flow)
-            if not re.search(pattern, target):
+            if not target or not re.search(pattern, target):
                 return False
         return True
 

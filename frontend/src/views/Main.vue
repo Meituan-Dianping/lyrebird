@@ -38,8 +38,9 @@
           </div>
         </Content>
         <Footer class="main-footer">
-          <span class="main-footer-mock-status">
-            <b v-if="activatedGroupName">Activated mock group: {{activatedGroupName}}</b>
+          <span v-show="activatedGroupName" class="main-footer-mock-status">
+            <b>Activated mock group: {{activatedGroupName}}</b>
+            <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData"/>
           </span>
           <span class="main-footer-right">
             <span class="main-footer-copyright">
@@ -172,6 +173,9 @@ export default {
       } else {
         window.open(menuItem.path, '_self');
       }
+    },
+    resetActivatedData () {
+      this.$store.dispatch('deactivateGroup')
     },
     successMessage (msg) {
       this.$Message.success({

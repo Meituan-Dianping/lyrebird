@@ -87,8 +87,7 @@ export default {
       }
     },
     loadQrcodeImg () {
-      let groupId = this.$store.state.dataManager.focusNodeInfo.id
-      this.$store.dispatch('activateGroup', groupId)
+      this.$store.dispatch('activateGroup', this.$store.state.dataManager.focusNodeInfo)
       this.imgData = ''
       getQrcodeImg(this.inputValue)
         .then(response => {
