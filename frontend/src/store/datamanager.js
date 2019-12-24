@@ -103,6 +103,7 @@ export default {
     saveDataDetail ({ dispatch }, payload) {
       api.updateData(payload)
         .then(response => {
+          dispatch('loadDataMap')
           dispatch('loadDataDetail', payload)
           bus.$emit('msg.success', 'Data ' + payload.name + ' update!')
         })
