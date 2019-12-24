@@ -25,7 +25,7 @@
           type="ios-play"
           color="green"
           class="tree-node-inner-button"
-          @click="onActivateClick(data.id)"
+          @click="onActivateClick"
         />
       </Tooltip>
       <Tooltip content="Delete" placement="bottom-end" :delay="500">
@@ -162,9 +162,8 @@ export default {
     },
     onDropdownMenuClick (payload) {
       if (payload === 'activate') {
-        this.onActivateClick(this.data.id)
-      }
-      else if (payload === 'delete') {
+        this.onActivateClick()
+      } else if (payload === 'delete') {
         this.shownDeleteModal = true
       } else if (payload === 'cut') {
         this.onTreeNodeCut()
@@ -222,11 +221,12 @@ export default {
       } else if (this.createType === 'data') {
         this.$store.dispatch('createData', {
           dataName: this.createName,
-          parentId: this.data.id        })
+          parentId: this.data.id
+        })
       } else { }
     },
-    onActivateClick (groupId) {
-      this.$store.dispatch('activateGroup', groupId)
+    onActivateClick () {
+      this.$store.dispatch('activateGroup', this.data)
     }
   }
 }

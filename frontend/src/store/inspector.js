@@ -44,22 +44,24 @@ export default {
           bus.$emit('msg.error', 'Load activate Group error: ' + error.data.message)
         })
     },
-    activateGroup ({ dispatch }, groupId) {
-      api.activateGroup(groupId)
+    activateGroup ({ dispatch }, payload) {
+      api.activateGroup(payload.id)
         .then(response => {
           dispatch('loadActivatedGroup')
+          bus.$emit('msg.success', 'Group ' + payload.name + ' activated!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Activate Group ' + groupId + ' error: ' + error.data.message)
+          bus.$emit('msg.error', 'Activate group ' + payload.name + ' error: ' + error.data.message)
         })
     },
     deactivateGroup ({ dispatch }) {
       api.deactivateGroup()
         .then(response => {
           dispatch('loadActivatedGroup')
+          bus.$emit('msg.success', 'Deactivate all groups!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Deactivate Group error: ' + error.data.message)
+          bus.$emit('msg.error', 'Deactivate groups error: ' + error.data.message)
         })
     },
     loadFlowDetail ({ commit }, flowId) {

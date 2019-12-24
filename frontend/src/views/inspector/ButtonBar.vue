@@ -76,7 +76,7 @@
         </div>
       </template>
       <template #searchItem="{ searchResult }">
-        <Row type="flex" align="middle" class="search-row" @click.native="onActivateClick(searchResult.id)">
+        <Row type="flex" align="middle" class="search-row" @click.native="onActivateClick(searchResult)">
           <Col span="22">
             <p class="search-item">
               <b class="search-item-title">{{searchResult.name}}</b>
@@ -260,8 +260,8 @@ export default {
           this.$store.commit('clearSelectedId')
         })
     },
-    onActivateClick (groupId) {
-      this.$store.dispatch('activateGroup', groupId)
+    onActivateClick (group) {
+      this.$store.dispatch('activateGroup', group)
     }
   }
 }

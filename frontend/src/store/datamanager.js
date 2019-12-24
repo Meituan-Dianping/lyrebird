@@ -103,6 +103,7 @@ export default {
     saveDataDetail ({ dispatch }, payload) {
       api.updateData(payload)
         .then(response => {
+          dispatch('loadDataMap')
           dispatch('loadDataDetail', payload)
           bus.$emit('msg.success', 'Data ' + payload.name + ' update!')
         })
@@ -194,16 +195,18 @@ export default {
     loadConflict ({ commit }, payload) {
       commit('setIsLoadConflictInfo', true)
       commit('clearConflictInfo')
-      api.getConflict(payload.id).then(response => {
-        commit('setConflictInfo', response.data.data)
-        commit('setIsLoadConflictInfo', false)
-        if (response.data.data.length === 0) {
-          bus.$emit('msg.success', 'Group ' + payload.name + ' has no conflict')
-        } else if (response.data.data.length > 0) {
-          bus.$emit('msg.error', 'Group ' + payload.name + ' has ' + response.data.data.length + ' conflicts')
-        }
-      })
+      api.getConflict(payload.id)
+        .then(response => {
+          commit('setConflictInfo', response.data.data)
+          commit('setIsLoadConflictInfo', false)
+          if (response.data.data.length === 0) {
+            bus.$emit('msg.success', 'Group ' + payload.name + ' has no conflict')
+          } else if (response.data.data.length > 0) {
+            bus.$emit('msg.error', 'Group ' + payload.name + ' has ' + response.data.data.length + ' conflicts')
+          }
+        })
         .catch(error => {
+          commit('setIsLoadConflictInfo', false)
           bus.$emit('msg.error', 'Get group ' + payload.name + ' conflicts error: ' + error.data.message)
         })
     },
