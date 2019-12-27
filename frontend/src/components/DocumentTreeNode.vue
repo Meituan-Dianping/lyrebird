@@ -30,6 +30,7 @@
         <Icon
           :type="isGroupActivated ? 'md-square' : 'ios-play'"
           :color="isGroupActivated ? '#ed4014' : '#19be6b'"
+          size="14"
           class="tree-node-inner-button"
           @click="isGroupActivated ? onTreeNodeDeactivate() : onTreeNodeActivate()"
         />
