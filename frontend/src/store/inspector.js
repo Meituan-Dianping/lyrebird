@@ -3,7 +3,7 @@ import { bus } from '@/eventbus'
 
 export default {
   state: {
-    activatedGroup: null,
+    activatedGroup: {},
     showDataButtons: false,
     searchStr: '',
     selectedIds: [],

@@ -17,33 +17,21 @@
         <span v-if="data.parent_id">{{data.name}}</span>
         <Icon v-else type="ios-home" />
       </span>
-      <Tooltip
-        v-show="isGroupActivated"
-        content="Click to deactivate"
-        placement="bottom-end"
-        :delay="500"
-        style="padding-left:5px;"
-      >
-        <Button
-          type="success"
-          shape="circle"
-          size="small"
-          class="tree-node-inner-badge"
-          style="height:16px;line-height:8px;cursor:pointer;"
-          @click.native="onTreeNodeDeactivate"
-        >
-          Activate
-        </Button>
-      </Tooltip>
+      <span v-show="isGroupActivated" class="tree-node-inner-tag">Activated</span>
     </span>
 
     <span class="tree-node-inner-button-bar-right" v-show="isMouseOver">
-      <Tooltip content="Activate" placement="bottom-end" :delay="500" v-show="data.type==='group'">
+      <Tooltip 
+        v-show="data.type==='group'"
+        :content="isGroupActivated ? 'Deactivate' : 'Activate'"
+        placement="bottom-end"
+        :delay="500"
+      >
         <Icon
-          type="ios-play"
-          color="green"
+          :type="isGroupActivated ? 'md-square' : 'ios-play'"
+          :color="isGroupActivated ? '#ed4014' : '#19be6b'"
           class="tree-node-inner-button"
-          @click="onActivateClick"
+          @click="isGroupActivated ? onTreeNodeDeactivate() : onTreeNodeActivate()"
         />
       </Tooltip>
       <Tooltip content="Delete" placement="bottom-end" :delay="500">
@@ -61,13 +49,20 @@
           </a>
           <DropdownMenu slot="list" style="min-width:60px">
             <DropdownItem align="left" name="activate" v-show="data.type==='group'">Activate</DropdownItem>
+            <DropdownItem
+              align="left"
+              name="deactivate"
+              v-show="data.type==='group'"
+              :disabled="!isGroupActivated"
+            >Deactivate</DropdownItem>
             <DropdownItem align="left" name="delete">Delete</DropdownItem>
             <DropdownItem align="left" name="cut">Cut</DropdownItem>
             <DropdownItem align="left" name="copy">Copy</DropdownItem>
             <DropdownItem
               align="left"
               name="paste"
-              :disabled="data.type === 'data' || !pasteButtonEnable"
+              v-show="data.type==='group'"
+              :disabled="!pasteButtonEnable"
             >Paste</DropdownItem>
             <DropdownItem align="left" name="addGroup" v-show="data.type==='group'">Add group</DropdownItem>
             <DropdownItem align="left" name="addData" v-show="data.type==='group'">Add data</DropdownItem>
@@ -183,7 +178,9 @@ export default {
     },
     onDropdownMenuClick (payload) {
       if (payload === 'activate') {
-        this.onActivateClick()
+        this.onTreeNodeActivate()
+      } else if (payload == 'deactivate') {
+        this.onTreeNodeDeactivate()
       } else if (payload === 'delete') {
         this.shownDeleteModal = true
       } else if (payload === 'cut') {
@@ -247,7 +244,7 @@ export default {
         })
       } else { }
     },
-    onActivateClick () {
+    onTreeNodeActivate () {
       this.$store.dispatch('activateGroup', this.data)
     },
     onTreeNodeDeactivate () {
@@ -268,6 +265,14 @@ export default {
 .tree-node-inner-button {
   padding-left: 5px;
   cursor: pointer;
+}
+.tree-node-inner-tag {
+  margin-left: 5px;
+  padding: 0px 6px;
+  display: inline;
+  color:white;
+  background-color: #19be6b;
+  border-radius: 10px;
 }
 .tree-node-inner-button-empty {
   padding-left: 5px;
