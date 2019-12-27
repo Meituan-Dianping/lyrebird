@@ -17,6 +17,24 @@
         <span v-if="data.parent_id">{{data.name}}</span>
         <Icon v-else type="ios-home" />
       </span>
+      <Tooltip
+        v-show="isGroupActivated"
+        content="Click to deactivate"
+        placement="bottom-end"
+        :delay="500"
+        style="padding-left:5px;"
+      >
+        <Button
+          type="success"
+          shape="circle"
+          size="small"
+          class="tree-node-inner-badge"
+          style="height:16px;line-height:8px;cursor:pointer;"
+          @click.native="onTreeNodeDeactivate"
+        >
+          Activate
+        </Button>
+      </Tooltip>
     </span>
 
     <span class="tree-node-inner-button-bar-right" v-show="isMouseOver">
@@ -147,6 +165,9 @@ export default {
     },
     showActivateButton () {
       return this.isMouseOver && (this.data.type === 'group')
+    },
+    isGroupActivated () {
+      return this.$store.state.inspector.activatedGroup.hasOwnProperty(this.data.id)
     }
   },
   methods: {
@@ -217,7 +238,8 @@ export default {
       if (this.createType === 'group') {
         this.$store.dispatch('createGroup', {
           groupName: this.createName,
-          parentId: this.data.id        })
+          parentId: this.data.id
+        })
       } else if (this.createType === 'data') {
         this.$store.dispatch('createData', {
           dataName: this.createName,
@@ -227,7 +249,10 @@ export default {
     },
     onActivateClick () {
       this.$store.dispatch('activateGroup', this.data)
-    }
+    },
+    onTreeNodeDeactivate () {
+      this.$store.dispatch('deactivateGroup')
+    },
   }
 }
 </script>
