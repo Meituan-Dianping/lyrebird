@@ -250,7 +250,7 @@ export default {
     },
     onTreeNodeDeactivate () {
       this.$store.dispatch('deactivateGroup')
-    },
+    }
   }
 }
 </script>
