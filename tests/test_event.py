@@ -21,7 +21,7 @@ class CallbackTester:
         self.history.append(msg)
 
 
-class fake_socketio:
+class FakeSocketio:
 
     def emit(self, event, *args, **kwargs): {
         print(f'Send event {event} args={args} kw={kwargs}')
