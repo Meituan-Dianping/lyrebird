@@ -10,6 +10,7 @@ class Checker(Resource):
         if not checker_id:
             checkers = application.checkers
             script_info_list = [checkers[checker_name].json() for checker_name in checkers]
+            script_info_list.sort(key=lambda x:x['name'])
             return application.make_ok_response(data=script_info_list)
 
         _checker = application.checkers.get(checker_id)
