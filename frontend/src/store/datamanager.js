@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import * as api from '../api'
 import { bus } from '@/eventbus'
 import { breadthFirstSearch } from 'tree-helper'
@@ -57,12 +58,10 @@ export default {
       state.groupDetail = groupDetail
     },
     setGroupDetailItem (state, groupDetailItem) {
-      state.groupDetail[groupDetailItem.key] = groupDetailItem.value
+      Vue.set(state.groupDetail, groupDetailItem.key, groupDetailItem.value)
     },
     deleteGroupDetailItem (state, key) {
-      // Trigger object groupDetail's set method 
-      state.groupDetail[key] = ''
-      delete state.groupDetail[key]
+      Vue.delete(state.groupDetail, key)
     },
     setFocusNodeInfo (state, focusNodeInfo) {
       state.focusNodeInfo = focusNodeInfo
