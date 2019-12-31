@@ -1,10 +1,15 @@
 import time
 import pytest
 import lyrebird
+from typing import NamedTuple
+from lyrebird import application
 from lyrebird import reporter
 from lyrebird.event import EventServer
 from lyrebird import CustomEventReceiver
 from lyrebird.task import BackgroundTaskServer
+
+
+MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
 
 
 class CallbackTester:
@@ -15,17 +20,33 @@ class CallbackTester:
     def callback(self, msg):
         self.history.append(msg)
 
+
+class fake_socketio:
+
+    def emit(self, event, *args, **kwargs): {
+        print(f'Send event {event} args={args} kw={kwargs}')
+    }
+
+
 @pytest.fixture
 def callback_tester():
     return CallbackTester()
 
+
 @pytest.fixture
 def event_server():
+    _conf = {
+        'ip': '127.0.0.1',
+        'mock.port': 9090
+    }
+    application._cm = MockConfigManager(config=_conf)
+    lyrebird.mock.context.application.socket_io = fake_socketio()
     server = EventServer()
     server.start()
     lyrebird.application.server['event'] = server
     yield server
     server.stop()
+
 
 @pytest.fixture
 def task_server():
@@ -35,6 +56,7 @@ def task_server():
     lyrebird.application.server['task'] = server
     yield server
     server.stop()
+
 
 def test_event(callback_tester, event_server, task_server):
 
@@ -65,8 +87,8 @@ def test_event_default_information(callback_tester, event_server, task_server):
     assert event_server.pubsub_channels.get('Test')
 
     test = {
-                'message': 'test',
-            }
+        'message': 'test',
+    }
 
     event_server.publish('Test', test)
     time.sleep(0.2)
@@ -109,8 +131,8 @@ def test_state_getter(event_server, task_server):
 def test_customer_event_issue(event_server):
     custom_event = CustomEventReceiver()
     issue_message = {
-                        'message': 'test'
-                    }
+        'message': 'test'
+    }
     custom_event.issue('issue_string', issue_message)
 
     def msg_receiver(msg):

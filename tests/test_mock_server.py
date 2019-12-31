@@ -1,6 +1,8 @@
 from lyrebird.mock.mock_server import LyrebirdMockServer
+from lyrebird.task import BackgroundTaskServer
 from lyrebird.event import EventServer
 from lyrebird import application
+from lyrebird import reporter
 import pytest
 
 
@@ -22,6 +24,8 @@ conf = {
 def client():
     application.config = conf
     application.server['event'] = EventServer()
+    application.reporter = reporter.Reporter()
+    application.server['task'] = BackgroundTaskServer()
     server = LyrebirdMockServer()
     client = server.app.test_client()
     yield client
