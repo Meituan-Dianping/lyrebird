@@ -138,6 +138,10 @@ class EventServer(ThreadServer):
             else:
                 self.state[channel] = message
 
+        # Send event to socket-io
+        context.application.socket_io.emit('event', {'id': event_id, 'channel': channel})
+
+        # Send report
         application.reporter.report({
             'action': 'event',
             'channel': channel,
