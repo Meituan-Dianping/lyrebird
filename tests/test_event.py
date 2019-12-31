@@ -40,7 +40,7 @@ def event_server():
         'mock.port': 9090
     }
     application._cm = MockConfigManager(config=_conf)
-    lyrebird.mock.context.application.socket_io = fake_socketio()
+    lyrebird.mock.context.application.socket_io = FakeSocketio()
     server = EventServer()
     server.start()
     lyrebird.application.server['event'] = server
