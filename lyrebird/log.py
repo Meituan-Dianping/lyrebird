@@ -97,7 +97,5 @@ def init(custom_log_path=None):
         logger.setLevel(logging.ERROR)
     elif verbose == 1:
         logger.setLevel(logging.INFO)
-    elif verbose == 2:
+    elif verbose >= 2:
         logger.setLevel(logging.DEBUG)
-    elif verbose >= 3:
-        logger.setLevel(logging.NOTSET)
