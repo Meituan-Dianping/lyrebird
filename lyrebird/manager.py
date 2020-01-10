@@ -5,7 +5,6 @@ import socket
 import threading
 import signal
 import os
-import resource
 import traceback
 from pathlib import Path
 from lyrebird import log
@@ -124,6 +123,7 @@ def main():
 def run(args: argparse.Namespace):
     # Set file descriptors
     try:
+        import resource
         resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
     except Exception:
         traceback.print_exc()
