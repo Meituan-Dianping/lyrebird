@@ -24,8 +24,10 @@ setup(
     classifiers=[
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
         "Operating System :: MacOS",
+        "Operating System :: Windows",
     ],
     entry_points={
         'console_scripts': [
@@ -43,7 +45,7 @@ setup(
         "packaging==19.0",
         "portpicker==1.3.1",
         "requests==2.21.0",
-        "SQLAlchemy==1.3.1",
+        "SQLAlchemy==1.3.6",
         "click==6.7",
         "urllib3==1.24.2",
         "qrcode==6.1"
