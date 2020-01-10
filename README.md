@@ -49,7 +49,7 @@
 
 ## 环境要求
 
-* macOS
+* macOS/Windows
 
 * Python >= 3.6
 
@@ -57,6 +57,14 @@
 # 推荐使用Homebrew(https://brew.sh/#install)安装Python3
 brew install python3
 ```
+
+Windows需要的额外步骤：
+
+* 下载并安装[编译版 OpenSSL](https://slproweb.com/products/Win32OpenSSL.html)
+* 设置系统环境变量（根据实际路径调整）
+    * LIB = C:\Program Files\OpenSSL-Win64\lib
+    * INCLUDE = C:\Program Files\OpenSSL-Win64\include
+
 
 ## 安装
 
