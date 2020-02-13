@@ -35,6 +35,10 @@ plugins = {}
 notice = None
 checkers = {}
 
+on_request = []
+on_response = []
+on_request_upstream = []
+on_response_upstream = []
 
 def start_server():
     for name in server:

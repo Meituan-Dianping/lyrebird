@@ -9,6 +9,7 @@ from ..handlers.handler_context import HandlerContext
 from .. import plugin_manager
 from .. import context
 from lyrebird import log
+from lyrebird import application
 
 
 logger = log.get_logger()
@@ -26,9 +27,16 @@ def index(path=''):
     req_context = HandlerContext(request)
     req_context.update_client_req_time()
 
-    from lyrebird import checker
-    for encoder_fn in checker.encoders:
-        encoder_fn(req_context)
+    for request_fn in application.on_request:
+        handler_fn = request_fn['func']
+        try:
+            handler_fn(req_context)
+        except Exception:
+            logger.error(traceback.format_exc())
+
+    # from lyrebird import checker
+    # for encoder_fn in checker.encoders:
+    #     encoder_fn(req_context)
 
     for handler_name in plugin_manager.inner_handler:
         handler = plugin_manager.inner_handler[handler_name]
@@ -39,6 +47,7 @@ def index(path=''):
         except Exception:
             logger.error(traceback.format_exc())
 
+    # TODO: remove later
     for plugin_name in plugin_manager.data_handler_plugins:
         try:
             plugin = plugin_manager.data_handler_plugins[plugin_name]
@@ -55,6 +64,13 @@ def index(path=''):
 
     if not resp:
         resp = abort(404, 'Not handle this request')
+
+    for response_fn in application.on_response:
+        handler_fn = response_fn['func']
+        try:
+            handler_fn(req_context)
+        except Exception:
+            logger.error(traceback.format_exc())
 
     req_context.update_client_resp_time()
 

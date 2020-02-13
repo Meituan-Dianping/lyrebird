@@ -5,6 +5,7 @@ from .. import context
 import urllib
 from lyrebird import application
 from lyrebird.log import get_logger
+import traceback
 
 
 # 关闭ssl警告
@@ -23,6 +24,14 @@ class ProxyHandler:
         if handler_context.response:
             handler_context.response.headers.add_header("isMocked", "True")
             return
+
+        for request_fn in application.on_request_upstream:
+            handler_fn = request_fn['func']
+            try:
+                handler_fn(handler_context)
+            except Exception:
+                logger.error(traceback.format_exc())
+
         request = handler_context.request
 
         origin_url = handler_context.get_origin_url()
@@ -70,3 +79,10 @@ class ProxyHandler:
             stream_with_context(r.iter_content(chunk_size=2048)),
             status=r.status_code,
             headers=resp_headers)
+
+        for response_fn in application.on_response_upstream:
+            handler_fn = response_fn['func']
+            try:
+                handler_fn(handler_context)
+            except Exception:
+                logger.error(traceback.format_exc())
