@@ -37,20 +37,68 @@ class CheckerEventHandler:
 
 event = CheckerEventHandler()
 
-encoders = []
-encoder_func_array = []
+# encoders = []
+# encoder_func_array = []
 
 
-class EncoderHandler:
+# class EncoderHandler:
+
+#     def __call__(self, *args, **kw):
+#         def func(origin_func):
+#             encoder_func_array.append(origin_func)
+#             return origin_func
+#         return func
+
+
+# encoder = EncoderHandler()
+
+
+on_request_func_array = []
+on_response_func_array = []
+on_request_upstream_func_array = []
+on_response_upstream_func_array = []
+
+
+class OnRequestHandler:
 
     def __call__(self, *args, **kw):
         def func(origin_func):
-            encoder_func_array.append(origin_func)
+            on_request_func_array.append(origin_func)
             return origin_func
         return func
 
 
-encoder = EncoderHandler()
+class OnResponseHandler:
+
+    def __call__(self, *args, **kw):
+        def func(origin_func):
+            on_response_func_array.append(origin_func)
+            return origin_func
+        return func
+
+
+class OnRequestUpstreamHandler:
+
+    def __call__(self, *args, **kw):
+        def func(origin_func):
+            on_request_upstream_func_array.append(origin_func)
+            return origin_func
+        return func
+
+
+class OnResponseUpstreamHandler:
+
+    def __call__(self, *args, **kw):
+        def func(origin_func):
+            on_response_upstream_func_array.append(origin_func)
+            return origin_func
+        return func
+
+
+on_request = OnRequestHandler()
+on_response = OnResponseHandler()
+on_request_upstream = OnRequestUpstreamHandler()
+on_response_upstream = OnResponseUpstreamHandler()
 
 
 class LyrebirdCheckerServer(ThreadServer):
@@ -144,7 +192,7 @@ class LyrebirdCheckerServer(ThreadServer):
                 class_module = imp.load_source('checker', path)
                 self._load_event_handler(class_module)
                 # TODO Decoder
-                self._load_encoder_handler(class_module)
+                # self._load_encoder_handler(class_module)
             except ValueError:
                 logger.error(f'{path} failed to load. Only python file is allowed.')
 
@@ -160,14 +208,14 @@ class LyrebirdCheckerServer(ThreadServer):
                 application.server['event'].subscribe(registered_func[0], registered_func[1])
             registered_func_array = []
 
-    def _load_encoder_handler(self, checker_class_module):
-        if not hasattr(checker_class_module, 'encoder'):
-            return
-        global encoder_func_array
-        global encoders
-        for encoder_func in encoder_func_array:
-            encoders.append(encoder_func)
-        encoder_func_array = []
+    # def _load_encoder_handler(self, checker_class_module):
+    #     if not hasattr(checker_class_module, 'encoder'):
+    #         return
+    #     global encoder_func_array
+    #     global encoders
+    #     for encoder_func in encoder_func_array:
+    #         encoders.append(encoder_func)
+    #     encoder_func_array = []
 
     def run(self):
         super().run()
@@ -185,7 +233,7 @@ class Checker:
         self._module = None
         self._event_receiver = None
         self._update = False
-        self._encoder_func_list = []
+        # self._encoder_func_list = []
 
     @property
     def update(self):
@@ -198,12 +246,16 @@ class Checker:
     def activate(self):
         self._module = self.load_class(self.path)
         self._register_event_callback_func()
-        self._register_encoder_callback_func()
+        # self._register_encoder_callback_func()
+        self._register_on_request_callback_func()
+        self._register_on_response_callback_func()
+        self._register_on_request_upstream_callback_func()
+        self._register_on_response_upstream_callback_func()
         self.activated = True
 
     def deactivate(self):
         self._unregister_event_callback_func()
-        self._unregister_encoder_callback_func()
+        # self._unregister_encoder_callback_func()
         self.activated = False
 
     def _register_event_callback_func(self):
@@ -230,22 +282,58 @@ class Checker:
         self._event_receiver = None
         self._module = None
 
-    def _register_encoder_callback_func(self):
-        if not hasattr(self._module, 'encoder'):
-            return
-        global encoder_func_array
-        global encoders
-        for encoder_func in encoder_func_array:
-            encoders.append(encoder_func)
-            self._encoder_func_list.append(encoder_func)
-        encoder_func_array = []
+    # def _register_encoder_callback_func(self):
+    #     if not hasattr(self._module, 'encoder'):
+    #         return
+    #     global encoder_func_array
+    #     global encoders
+    #     for encoder_func in encoder_func_array:
+    #         encoders.append(encoder_func)
+    #         self._encoder_func_list.append(encoder_func)
+    #     encoder_func_array = []
 
-    def _unregister_encoder_callback_func(self):
-        global encoders
-        for encoder_func in self._encoder_func_list:
-            if encoder_func not in encoders:
-                continue
-            encoders.remove(encoder_func)
+    # def _unregister_encoder_callback_func(self):
+    #     global encoders
+    #     for encoder_func in self._encoder_func_list:
+    #         if encoder_func not in encoders:
+    #             continue
+    #         encoders.remove(encoder_func)
+
+    def _register_on_request_callback_func(self):
+        if not hasattr(self._module, 'on_request'):
+            return
+        for func in on_request_func_array:
+            application.on_request.append({
+                'name': '',
+                'func': func
+            })
+
+    def _register_on_response_callback_func(self):
+        if not hasattr(self._module, 'on_response'):
+            return
+        for func in on_response_func_array:
+            application.on_response.append({
+                'name': '',
+                'func': func
+            })
+
+    def _register_on_request_upstream_callback_func(self):
+        if not hasattr(self._module, 'on_request_upstream'):
+            return
+        for func in on_request_upstream_func_array:
+            application.on_request_upstream.append({
+                'name': '',
+                'func': func
+            })
+
+    def _register_on_response_upstream_callback_func(self):
+        if not hasattr(self._module, 'on_response_upstream'):
+            return
+        for func in on_response_upstream_func_array:
+            application.on_response_upstream.append({
+                'name': '',
+                'func': func
+            })
 
     def json(self):
         return {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
