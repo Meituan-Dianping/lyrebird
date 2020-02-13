@@ -7,6 +7,7 @@ from pathlib import Path
 from lyrebird import application
 from lyrebird import log
 from lyrebird.base_server import ThreadServer
+from sqlalchemy import event
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine
@@ -42,6 +43,11 @@ class LyrebirdDatabaseServer(ThreadServer):
         sqlite_path = 'sqlite:///'+str(database_uri)+'?check_same_thread=False'
 
         engine = create_engine(str(sqlite_path))
+
+        # Set pragma on connect
+        # https://www.sqlite.org/pragma.html
+        event.listen(engine, 'connect', self._fk_pragma_on_connect)
+
         # Create all tables
         Base.metadata.create_all(engine)
         # Create session factory
@@ -54,6 +60,12 @@ class LyrebirdDatabaseServer(ThreadServer):
 
         # subscribe all channel
         application.server['event'].subscribe('any', self.event_receiver)
+
+    def _fk_pragma_on_connect(self, dbapi_con, con_record):
+        # https://www.sqlite.org/pragma.html#pragma_journal_mode
+        dbapi_con.execute('PRAGMA journal_mode=MEMORY')
+        # https://www.sqlite.org/pragma.html#pragma_synchronous
+        dbapi_con.execute('PRAGMA synchronous=OFF')
 
     def event_receiver(self, event, channel=None, event_id=None):
         content = json.dumps(event)
