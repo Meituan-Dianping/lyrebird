@@ -65,18 +65,20 @@ def index(path=''):
         except Exception:
             logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
 
-    if not resp:
-        resp = abort(404, 'Not handle this request')
-
     for response_fn in application.on_response:
         handler_fn = response_fn['func']
         try:
             handler_fn(req_context)
+            if req_context.response:
+                resp = req_context.response
         except Exception:
             logger.error(traceback.format_exc())
 
     req_context.update_client_resp_time()
 
     context.emit('action', 'add flow log')
+
+    if not req_context.response:
+        resp = abort(404, 'Not handle this request')
 
     return resp
