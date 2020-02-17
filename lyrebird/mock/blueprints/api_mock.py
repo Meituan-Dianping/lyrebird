@@ -3,7 +3,7 @@ import json
 import os
 import traceback
 from types import FunctionType
-from flask import Blueprint, request, abort, Response
+from flask import Blueprint, request, abort
 
 from ..handlers.handler_context import HandlerContext
 from .. import plugin_manager
