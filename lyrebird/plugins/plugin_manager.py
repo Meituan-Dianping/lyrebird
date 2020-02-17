@@ -70,28 +70,28 @@ class PluginManager(StaticServer):
                 callback_func = event_option[1]
                 event_service.subscribe(channel, callback_func)
 
-            # Subscribe 
+            # Subscribe handler on request
             for handler in plugin.manifest.on_request:
                 application.on_request.append({
                     'name': handler[0],
                     'func': handler[1]
                 })
 
-            # Subscribe 
+            # Subscribe handler on response
             for handler in plugin.manifest.on_response:
                 application.on_response.append({
                     'name': handler[0],
                     'func': handler[1]
                 })
 
-            # Subscribe 
+            # Subscribe handler on proxy request
             for handler in plugin.manifest.on_request_upstream:
                 application.on_request_upstream.append({
                     'name': handler[0],
                     'func': handler[1]
                 })
 
-            # Subscribe 
+            # Subscribe handler on proxy response
             for handler in plugin.manifest.on_response_upstream:
                 application.on_response_upstream.append({
                     'name': handler[0],

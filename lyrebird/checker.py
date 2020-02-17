@@ -192,7 +192,7 @@ class LyrebirdCheckerServer(ThreadServer):
                 class_module = imp.load_source('checker', path)
                 self._load_event_handler(class_module)
                 # TODO Decoder
-                # self._load_encoder_handler(class_module)
+                self._load_encoder_handler(class_module)
             except ValueError:
                 logger.error(f'{path} failed to load. Only python file is allowed.')
 
@@ -233,7 +233,7 @@ class Checker:
         self._module = None
         self._event_receiver = None
         self._update = False
-        # self._encoder_func_list = []
+        self._encoder_func_list = []
 
     @property
     def update(self):
@@ -246,7 +246,7 @@ class Checker:
     def activate(self):
         self._module = self.load_class(self.path)
         self._register_event_callback_func()
-        # self._register_encoder_callback_func()
+        self._register_encoder_callback_func()
         self._register_on_request_callback_func()
         self._register_on_response_callback_func()
         self._register_on_request_upstream_callback_func()
@@ -255,7 +255,7 @@ class Checker:
 
     def deactivate(self):
         self._unregister_event_callback_func()
-        # self._unregister_encoder_callback_func()
+        self._unregister_encoder_callback_func()
         self.activated = False
 
     def _register_event_callback_func(self):
