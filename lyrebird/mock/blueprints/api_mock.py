@@ -34,9 +34,14 @@ def index(path=''):
         except Exception:
             logger.error(traceback.format_exc())
 
-    # from lyrebird import checker
-    # for encoder_fn in checker.encoders:
-    #     encoder_fn(req_context)
+    # keep response clean
+    req_context.response = None
+
+    # old scripts loading function
+    # remove later
+    from lyrebird import checker
+    for encoder_fn in checker.encoders:
+        encoder_fn(req_context)
 
     for handler_name in plugin_manager.inner_handler:
         handler = plugin_manager.inner_handler[handler_name]
@@ -47,7 +52,8 @@ def index(path=''):
         except Exception:
             logger.error(traceback.format_exc())
 
-    # TODO: remove later
+    # old plugin loading function
+    # remove later
     for plugin_name in plugin_manager.data_handler_plugins:
         try:
             plugin = plugin_manager.data_handler_plugins[plugin_name]

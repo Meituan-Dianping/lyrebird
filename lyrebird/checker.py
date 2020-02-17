@@ -37,20 +37,20 @@ class CheckerEventHandler:
 
 event = CheckerEventHandler()
 
-# encoders = []
-# encoder_func_array = []
+encoders = []
+encoder_func_array = []
 
 
-# class EncoderHandler:
+class EncoderHandler:
 
-#     def __call__(self, *args, **kw):
-#         def func(origin_func):
-#             encoder_func_array.append(origin_func)
-#             return origin_func
-#         return func
+    def __call__(self, *args, **kw):
+        def func(origin_func):
+            encoder_func_array.append(origin_func)
+            return origin_func
+        return func
 
 
-# encoder = EncoderHandler()
+encoder = EncoderHandler()
 
 
 on_request_func_array = []
@@ -208,14 +208,14 @@ class LyrebirdCheckerServer(ThreadServer):
                 application.server['event'].subscribe(registered_func[0], registered_func[1])
             registered_func_array = []
 
-    # def _load_encoder_handler(self, checker_class_module):
-    #     if not hasattr(checker_class_module, 'encoder'):
-    #         return
-    #     global encoder_func_array
-    #     global encoders
-    #     for encoder_func in encoder_func_array:
-    #         encoders.append(encoder_func)
-    #     encoder_func_array = []
+    def _load_encoder_handler(self, checker_class_module):
+        if not hasattr(checker_class_module, 'encoder'):
+            return
+        global encoder_func_array
+        global encoders
+        for encoder_func in encoder_func_array:
+            encoders.append(encoder_func)
+        encoder_func_array = []
 
     def run(self):
         super().run()
@@ -282,22 +282,22 @@ class Checker:
         self._event_receiver = None
         self._module = None
 
-    # def _register_encoder_callback_func(self):
-    #     if not hasattr(self._module, 'encoder'):
-    #         return
-    #     global encoder_func_array
-    #     global encoders
-    #     for encoder_func in encoder_func_array:
-    #         encoders.append(encoder_func)
-    #         self._encoder_func_list.append(encoder_func)
-    #     encoder_func_array = []
+    def _register_encoder_callback_func(self):
+        if not hasattr(self._module, 'encoder'):
+            return
+        global encoder_func_array
+        global encoders
+        for encoder_func in encoder_func_array:
+            encoders.append(encoder_func)
+            self._encoder_func_list.append(encoder_func)
+        encoder_func_array = []
 
-    # def _unregister_encoder_callback_func(self):
-    #     global encoders
-    #     for encoder_func in self._encoder_func_list:
-    #         if encoder_func not in encoders:
-    #             continue
-    #         encoders.remove(encoder_func)
+    def _unregister_encoder_callback_func(self):
+        global encoders
+        for encoder_func in self._encoder_func_list:
+            if encoder_func not in encoders:
+                continue
+            encoders.remove(encoder_func)
 
     def _register_on_request_callback_func(self):
         if not hasattr(self._module, 'on_request'):
