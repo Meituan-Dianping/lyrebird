@@ -3,7 +3,7 @@ import json
 import os
 import traceback
 from types import FunctionType
-from flask import Blueprint, request, abort, Response
+from flask import Blueprint, request, abort
 
 from ..handlers.handler_context import HandlerContext
 from .. import plugin_manager
@@ -39,9 +39,6 @@ def index(path=''):
     from lyrebird import checker
     for encoder_fn in checker.encoders:
         encoder_fn(req_context)
-
-    # keep response clean
-    req_context.response = Response()
 
     for handler_name in plugin_manager.inner_handler:
         handler = plugin_manager.inner_handler[handler_name]
