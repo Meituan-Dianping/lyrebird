@@ -8,6 +8,7 @@ import os
 from .event import CustomEventReceiver
 from .checker import event
 from .checker import encoder
+from .checker import on_request, on_response, on_request_upstream, on_response_upstream
 from lyrebird import application
 from lyrebird.log import get_logger
 

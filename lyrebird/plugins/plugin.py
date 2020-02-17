@@ -15,7 +15,11 @@ class Plugin:
             view=('dist', 'index.html'),
             api=[],
             background=[],
-            event=[]
+            event=[],
+            on_request=[],
+            on_response=[],
+            on_request_upstream=[],
+            on_response_upstream=[]
             )
 
 
