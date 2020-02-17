@@ -40,9 +40,6 @@ def index(path=''):
     for encoder_fn in checker.encoders:
         encoder_fn(req_context)
 
-    # keep response clean
-    req_context.response = Response()
-
     for handler_name in plugin_manager.inner_handler:
         handler = plugin_manager.inner_handler[handler_name]
         try:

@@ -94,7 +94,7 @@ export default {
           this.imgData = response.data.img
         })
         .catch(error => {
-          this.$bus.$emit('msg.error', 'Make QRCode error: ' + error)
+          this.$bus.$emit('msg.error', 'Make QRCode error: ' + error.data.message)
         })
     }
   }

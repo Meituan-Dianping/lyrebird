@@ -193,6 +193,10 @@ class LyrebirdCheckerServer(ThreadServer):
                 self._load_event_handler(class_module)
                 # TODO Decoder
                 self._load_encoder_handler(class_module)
+                self._load_on_request_handler(class_module)
+                self._load_on_response_handler(class_module)
+                self._load_on_request_upstream_handler(class_module)
+                self._load_on_response_upstream_handler(class_module)
             except ValueError:
                 logger.error(f'{path} failed to load. Only python file is allowed.')
 
@@ -217,6 +221,50 @@ class LyrebirdCheckerServer(ThreadServer):
             encoders.append(encoder_func)
         encoder_func_array = []
 
+    def _load_on_request_handler(self, script_module):
+        if not hasattr(script_module, 'on_request'):
+            return
+        global on_request_func_array
+        for func in on_request_func_array:
+            application.on_request.append({
+                'name': '',
+                'func': func
+            })
+        on_request_func_array = []
+
+    def _load_on_response_handler(self, script_module):
+        if not hasattr(script_module, 'on_response'):
+            return
+        global on_response_func_array
+        for func in on_response_func_array:
+            application.on_response.append({
+                'name': '',
+                'func': func
+            })
+        on_response_func_array = []
+
+    def _load_on_request_upstream_handler(self, script_module):
+        if not hasattr(script_module, 'on_request_upstream'):
+            return
+        global on_request_upstream_func_array
+        for func in on_request_upstream_func_array:
+            application.on_request_upstream.append({
+                'name': '',
+                'func': func
+            })
+        on_request_upstream_func_array = []
+
+    def _load_on_response_upstream_handler(self, script_module):
+        if not hasattr(script_module, 'on_response_upstream'):
+            return
+        global on_response_upstream_func_array
+        for func in on_response_upstream_func_array:
+            application.on_response_upstream.append({
+                'name': '',
+                'func': func
+            })
+        on_response_upstream_func_array = []
+
     def run(self):
         super().run()
 
@@ -234,6 +282,10 @@ class Checker:
         self._event_receiver = None
         self._update = False
         self._encoder_func_list = []
+        self._on_request_func_list = []
+        self._on_response_func_list = []
+        self._on_request_upstream_func_list = []
+        self._on_response_upstream_func_list = []
 
     @property
     def update(self):
@@ -256,6 +308,10 @@ class Checker:
     def deactivate(self):
         self._unregister_event_callback_func()
         self._unregister_encoder_callback_func()
+        self._unregister_on_request_callback_func()
+        self._unregister_on_response_callback_func()
+        self._unregister_on_request_upstream_callback_func()
+        self._unregister_on_response_upstream_callback_func()
         self.activated = False
 
     def _register_event_callback_func(self):
@@ -302,38 +358,74 @@ class Checker:
     def _register_on_request_callback_func(self):
         if not hasattr(self._module, 'on_request'):
             return
+        global on_request_func_array
         for func in on_request_func_array:
+            self._on_request_func_list.append(func)
             application.on_request.append({
                 'name': '',
                 'func': func
             })
+        on_request_func_array = []
+
+    def _unregister_on_request_callback_func(self):
+        for func_obj in application.on_request[::-1]:
+            if func_obj['func'] not in self._on_request_func_list:
+                continue
+            application.on_request.remove(func_obj)
 
     def _register_on_response_callback_func(self):
         if not hasattr(self._module, 'on_response'):
             return
+        global on_response_func_array
         for func in on_response_func_array:
+            self._on_response_func_list.append(func)
             application.on_response.append({
                 'name': '',
                 'func': func
             })
+        on_response_func_array = []
+
+    def _unregister_on_response_callback_func(self):
+        for func_obj in application.on_response[::-1]:
+            if func_obj['func'] not in self._on_response_func_list:
+                continue
+            application.on_response.remove(func_obj)
 
     def _register_on_request_upstream_callback_func(self):
         if not hasattr(self._module, 'on_request_upstream'):
             return
+        global on_request_upstream_func_array
         for func in on_request_upstream_func_array:
+            self._on_request_upstream_func_list.append(func)
             application.on_request_upstream.append({
                 'name': '',
                 'func': func
             })
+        on_request_upstream_func_array = []
+
+    def _unregister_on_request_upstream_callback_func(self):
+        for func_obj in application.on_request_upstream[::-1]:
+            if func_obj['func'] not in self._on_request_upstream_func_list:
+                continue
+            application.on_request_upstream.remove(func_obj)
 
     def _register_on_response_upstream_callback_func(self):
         if not hasattr(self._module, 'on_response_upstream'):
             return
+        global on_response_upstream_func_array
         for func in on_response_upstream_func_array:
+            self._on_response_upstream_func_list.append(func)
             application.on_response_upstream.append({
                 'name': '',
                 'func': func
             })
+        on_response_upstream_func_array = []
+
+    def _unregister_on_response_upstream_callback_func(self):
+        for func_obj in application.on_response_upstream[::-1]:
+            if func_obj['func'] not in self._on_response_upstream_func_list:
+                continue
+            application.on_response_upstream.remove(func_obj)
 
     def json(self):
         return {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
