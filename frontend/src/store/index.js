@@ -7,6 +7,7 @@ import plugin from '@/store/plugin'
 import notice from '@/store/notice'
 import checker from '@/store/checker'
 import event from '@/store/event'
+import bandwidth from '@/store/bandwidth'
 
 
 Vue.use(Vuex)
@@ -18,7 +19,8 @@ export default new Vuex.Store({
     plugin,
     notice,
     checker,
-    event
+    event,
+    bandwidth
   },
   state: {
     menu: null,

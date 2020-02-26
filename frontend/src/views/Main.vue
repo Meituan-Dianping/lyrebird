@@ -40,8 +40,37 @@
         <Footer class="main-footer">
           <span v-show="activatedGroupName" class="main-footer-mock-status">
             <b>Activated mock group: {{activatedGroupName}}</b>
-            <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData"/>
+            <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
+            <Divider type="vertical" />
           </span>
+          <!-- bandwidth plugin begin -->
+          <Poptip
+            v-if="status"
+            content="content"
+            placement="top-start"
+            class="main-footer-status"
+            width="250"
+          >
+            <a>
+              <b style="color:#f8f8f9">&nbsp;&nbsp; Bandwidth：{{bandwidthExplanation}} </b>
+              <Icon type="ios-arrow-up" style="color:#f8f8f9;margin-left:5px;" />
+            </a>
+            <div slot="title">
+              <b>💡Bandwidth</b>
+            </div>
+            <div slot="content">
+              <Row type="flex" justify="space-around">
+                <Col span="12" v-for="(item, index) in bandwidthTemplates" :key="index">
+                  <Button
+                    style="min-width:95px;margin-top:5px;"
+                    :class="item.bandwidth == bandwidth ? 'bandwidth-btn-highlight' : ''"
+                    @click.prevent="updateBandwidth(item.template_name)"
+                  >{{ item.template_name }}</Button>
+                </Col>
+              </Row>
+            </div>
+          </Poptip>
+          <!-- bandwidth plugin end -->
           <span class="main-footer-right">
             <span class="main-footer-copyright">
               <strong style="color:#f8f8f9">
@@ -108,6 +137,8 @@ export default {
     this.$store.dispatch('loadStatus')
     this.$store.dispatch('loadManifest')
     this.$store.dispatch('loadActivatedGroup')
+    this.$store.dispatch('loadBandwidth')
+    this.$store.dispatch('loadBandwidthTemplates')
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
@@ -137,6 +168,25 @@ export default {
     activeName () {
       return this.$store.state.activeName
     },
+    bandwidth() {
+      return this.$store.state.bandwidth.bandwidth
+    },
+    bandwidthTemplates () {
+      return this.$store.state.bandwidth.bandwidthTemplates
+    },
+    bandwidthExplanation (){
+      for (let v of this.bandwidthTemplates) {
+        	if (this.bandwidth == v["bandwidth"]){
+            	if (this.bandwidth == -1){
+                	return v["template_name"]
+                }
+              else {
+                return `  ${ v["template_name"] } ( ${ v["bandwidth"] } Kb/s)`
+              }
+            }    
+      }
+    },
+    
     activatedGroupName () {
       const activatedGroups = this.$store.state.inspector.activatedGroup
       if (activatedGroups === null) {
@@ -197,6 +247,9 @@ export default {
         duration: 0,
         closable: true
       })
+    },
+    updateBandwidth(template_name){
+        this.$store.dispatch('updateBandwidth', template_name)
     }
   }
 };
@@ -281,6 +334,12 @@ export default {
   padding-right: 5px;
   height: calc(100vh - 66px);
   background: #fff;
+}
+.bandwidth-btn-highlight {
+	background-color: #0fccbf !important;
+	color: #fff;
+	outline:none;
+	
 }
 </style>
 
