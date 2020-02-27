@@ -176,17 +176,16 @@ export default {
     },
     bandwidthExplanation (){
       for (let v of this.bandwidthTemplates) {
-        	if (this.bandwidth == v["bandwidth"]){
-            	if (this.bandwidth == -1){
-                	return v["template_name"]
-                }
-              else {
-                return `  ${ v["template_name"] } ( ${ v["bandwidth"] } Kb/s)`
-              }
-            }    
+        if (this.bandwidth == v["bandwidth"]) {
+          if (this.bandwidth == -1) {
+            return v["template_name"]
+          }
+          else {
+            return `  ${ v["template_name"] } ( ${ v["bandwidth"] } Kb/s)`
+          }
+        }
       }
     },
-    
     activatedGroupName () {
       const activatedGroups = this.$store.state.inspector.activatedGroup
       if (activatedGroups === null) {
