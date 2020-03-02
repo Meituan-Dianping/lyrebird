@@ -21,7 +21,7 @@ export default {
           if (response.data.code === 1000) {
             context.commit('setBandwidth', response.data.bandwidth)
           } else {
-            console.log('loadBandwidth failed', error)
+            console.log('loadBandwidth failed')
           }
         })
         .catch(error => {
@@ -39,7 +39,7 @@ export default {
               response.data.bandwidth_templates
             )
           } else {
-            console.log('loadBandwidthTemplates failed', error)
+            console.log('loadBandwidthTemplates failed')
           }
         })
         .catch(error => {
