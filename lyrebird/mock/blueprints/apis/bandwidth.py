@@ -37,7 +37,7 @@ class Bandwidth(Resource):
             bandwidth=config.bandwidth
         )
     def put(self):
-        template = request.json["template_name"]
+        template = request.json["templateName"]
         # check template valid
         if template in list(config.indexes_by_name.keys()):
             # reset bandwidth

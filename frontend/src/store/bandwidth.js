@@ -1,4 +1,4 @@
-import * as api from "../api";
+import * as api from '../api'
 
 export default {
   state: {
@@ -7,10 +7,10 @@ export default {
   },
   mutations: {
     setBandwidth(state, bandwidth) {
-      state.bandwidth = bandwidth;
+      state.bandwidth = bandwidth
     },
     setBandwidthTemplates(state, bandwidthTemplates) {
-      state.bandwidthTemplates = bandwidthTemplates;
+      state.bandwidthTemplates = bandwidthTemplates
     }
   },
   actions: {
@@ -19,14 +19,14 @@ export default {
         .getBandwidth()
         .then(response => {
           if (response.data.code === 1000) {
-            context.commit("setBandwidth", response.data.bandwidth);
+            context.commit('setBandwidth', response.data.bandwidth)
           } else {
-            console.error("loadBandwidth failed", error);
+            console.log('loadBandwidth failed', error)
           }
         })
         .catch(error => {
-          console.error("loadBandwidth failed", error);
-        });
+          console.log('loadBandwidth failed', error)
+        })
     },
 
     loadBandwidthTemplates(context) {
@@ -35,32 +35,32 @@ export default {
         .then(response => {
           if (response.data.code === 1000) {
             context.commit(
-              "setBandwidthTemplates",
+              'setBandwidthTemplates',
               response.data.bandwidth_templates
-            );
+            )
           } else {
-            console.error("loadBandwidthTemplates failed", error);
+            console.log('loadBandwidthTemplates failed', error)
           }
         })
         .catch(error => {
-          console.error("loadBandwidthTemplates failed", error);
-        });
+          console.log('loadBandwidthTemplates failed', error)
+        })
     },
 
-    updateBandwidth(context, template_name) {
+    updateBandwidth(context, templateName) {
       api
-        .updateBandwidth(template_name)
+        .updateBandwidth(templateName)
         .then(response => {
           if (response.data.code === 1000) {
-            console.log(response.data.bandwidth);
-            context.commit("setBandwidth", response.data.bandwidth);
+            console.log(response.data.bandwidth)
+            context.commit('setBandwidth', response.data.bandwidth)
           } else {
-            console.error(response.data.message);
+            console.log(response.data.message)
           }
         })
         .catch(error => {
-          console.error("updateBandwidthTemplate failed", error);
-        });
+          console.log('updateBandwidthTemplate failed', error)
+        })
     }
   }
-};
+}

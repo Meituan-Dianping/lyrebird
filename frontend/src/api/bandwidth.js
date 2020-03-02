@@ -16,11 +16,11 @@ export const getBandwidthTemplates = () => {
     })
 }
 
-export const updateBandwidth = template_name => {
+export const updateBandwidth = templateName => {
     let url = '/api/bandwidth'
     return axios({
         url,
         method: 'PUT',
-        data: { template_name }
+        data: { templateName }
     })
 }

@@ -176,12 +176,12 @@ export default {
     },
     bandwidthExplanation (){
       for (let v of this.bandwidthTemplates) {
-        if (this.bandwidth == v["bandwidth"]) {
+        if (this.bandwidth == v['bandwidth']) {
           if (this.bandwidth == -1) {
-            return v["template_name"]
+            return v['template_name']
           }
           else {
-            return `  ${ v["template_name"] } ( ${ v["bandwidth"] } Kb/s)`
+            return `${ v['template_name'] } ( ${ v['bandwidth'] } Kb/s)`
           }
         }
       }
@@ -338,7 +338,6 @@ export default {
 	background-color: #0fccbf !important;
 	color: #fff;
 	outline:none;
-	
 }
 </style>
 
