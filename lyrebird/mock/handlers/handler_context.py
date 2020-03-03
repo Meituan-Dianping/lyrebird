@@ -35,7 +35,10 @@ class HandlerContext:
             id=self.id,
             size=0,
             duration=0,
-            start_time=time.time())
+            start_time=time.time(),
+            request={},
+            response={}
+            )
         self.client_address = None
         self._parse_request()
 
@@ -281,23 +284,3 @@ class ResponseDataHelper(DataHelper):
         except Exception as e:
             output['data'] = ResponseDataHelper.data2Str(response.data)
             logger.warning(f'Convert response failed. {e}')
-
-    @staticmethod
-    def dict2resp(response_dict, output):
-        content_type = response_dict['headers'].get('Content-Type')
-        content_type = content_type.strip()
-
-        try:
-            if content_type.startswith('application/json'):
-                output.data = json.dumps(response_dict['data']).encode()
-            elif content_type.startswith('text/xml'):
-                output.data = response_dict['data'].encode()
-            elif content_type.startswith('text/html'):
-                output.data = response_dict['data'].encode()
-            else:
-                # TODO write bin data
-                output.data = response_dict['data'].encode()
-
-        except Exception as e:
-            output.data = ''.encode()
-            logger.warning(f'Convert response_dict failed. {e}')
