@@ -1,14 +1,16 @@
-import codecs
-import json
-import os
+import re
 import traceback
 from types import FunctionType
-from flask import Blueprint, request, abort
+from flask import Blueprint, request, abort, Response, stream_with_context
 
-from ..handlers.handler_context import HandlerContext
+from ..handlers.mock_handler import MockHandler
+from ..handlers.proxy_handler import ProxyHandler
+from ..handlers.handler_context import HandlerContext, ResponseDataHelper
+from ..handlers.path_not_found_handler import RequestPathNotFound
 from .. import plugin_manager
 from .. import context
 from lyrebird import log
+from lyrebird import utils
 from lyrebird import application
 
 
@@ -28,57 +30,143 @@ def index(path=''):
     req_context.update_client_req_time()
 
     for request_fn in application.on_request:
+        if request_fn['rules'] and not _is_req_match_rule(request_fn['rules'], req_context.flow):
+            continue
         handler_fn = request_fn['func']
         try:
-            handler_fn(req_context)
+            handler_fn(req_context.flow['request'])
         except Exception:
             logger.error(traceback.format_exc())
 
     # old scripts loading function
     # remove later
-    from lyrebird import checker
-    for encoder_fn in checker.encoders:
-        encoder_fn(req_context)
+    # from lyrebird import checker
+    # for encoder_fn in checker.encoders:
+    #     encoder_fn(req_context)
 
-    for handler_name in plugin_manager.inner_handler:
-        handler = plugin_manager.inner_handler[handler_name]
+    try:
+        mock_res = MockHandler().handle(req_context)
+        if mock_res:
+            req_context.flow['response'] = mock_res['response']
+    except Exception:
+        logger.error(traceback.format_exc())
+
+    if req_context.flow.get('response'):
+        req_context.flow['response']['headers']['isMocked'] = 'True'
+        req_context.flow['response']['headers']['lyrebird'] = 'mock'
+
+    else:
+        for request_fn in application.on_request_upstream:
+            if request_fn['rules'] and not _is_req_match_rule(request_fn['rules'], req_context.flow):
+                continue
+            handler_fn = request_fn['func']
+            try:
+                handler_fn(req_context.flow['request'])
+            except Exception:
+                logger.error(traceback.format_exc())
+
         try:
-            handler.handle(req_context)
-            if req_context.response:
-                resp = req_context.response
+            req_context.update_server_req_time()
+            req_context.response = ProxyHandler().handle(req_context)
+            req_context.update_server_resp_time()
         except Exception:
             logger.error(traceback.format_exc())
+
+        for response_fn in application.on_response_upstream:
+            req_context.update_response_into_flow()
+            if response_fn['rules'] and not _is_req_match_rule(response_fn['rules'], req_context.flow):
+                req_context.flow['response'] = {}
+                continue
+
+            req_context.update_response_into_flow(is_update_response_data=True)
+            handler_fn = response_fn['func']
+            try:
+                handler_fn(req_context.flow['response'])
+            except Exception:
+                logger.error(traceback.format_exc())
 
     # old plugin loading function
     # remove later
-    for plugin_name in plugin_manager.data_handler_plugins:
-        try:
-            plugin = plugin_manager.data_handler_plugins[plugin_name]
-            plugin.handle(req_context)
-            if hasattr(plugin, 'change_response'):
-                if isinstance(plugin.change_response, bool) and plugin.change_response:
-                    resp = req_context.response
-                elif isinstance(plugin.change_response, FunctionType) and plugin.change_response():
-                    resp = req_context.response
-                else:
-                    logger.error(f'Plugin {plugin_name} has attr change_response, but its not bool or function')
-        except Exception:
-            logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
+    # for plugin_name in plugin_manager.data_handler_plugins:
+    #     try:
+    #         plugin = plugin_manager.data_handler_plugins[plugin_name]
+    #         plugin.handle(req_context)
+    #         if hasattr(plugin, 'change_response'):
+    #             if isinstance(plugin.change_response, bool) and plugin.change_response:
+    #                 resp = req_context.response
+    #             elif isinstance(plugin.change_response, FunctionType) and plugin.change_response():
+    #                 resp = req_context.response
+    #             else:
+    #                 logger.error(f'Plugin {plugin_name} has attr change_response, but its not bool or function')
+    #     except Exception:
+    #         logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
 
     for response_fn in application.on_response:
+        if not req_context.flow.get('response') and not req_context.response:
+            break
+
+        if not req_context.flow.get('response'):
+            req_context.update_response_into_flow()
+            if response_fn['rules'] and not _is_req_match_rule(response_fn['rules'], req_context.flow):
+                continue
+            req_context.update_response_into_flow(is_update_response_data=True)
         handler_fn = response_fn['func']
         try:
-            handler_fn(req_context)
-            if req_context.response:
-                resp = req_context.response
+            handler_fn(req_context.flow['response'])
         except Exception:
             logger.error(traceback.format_exc())
 
-    req_context.update_client_resp_time()
+    if req_context.flow.get('response'):
+        def gen():
+            yield req_context.flow['response']['data']
+        req_context.update_client_resp_time()
+        resp = Response(
+            stream_with_context(gen()),
+            status=req_context.flow['response']['code'],
+            headers=req_context.flow['response']['headers']
+        )
+
+    elif req_context.response:
+        def gen():
+            # buffer = []
+            buffer = b''
+            while True:
+                yield req_context.response.data
+                buffer += req_context.response.data
+                if len(buffer) >= len(req_context.response.data):
+                    break
+            req_context.update_response_into_flow(is_update_response_data=True, response_data=buffer.decode('utf-8'))
+            req_context.update_client_resp_time()
+        resp = Response(
+            stream_with_context(gen()),
+            status=req_context.response.status_code,
+            headers=req_context.response.headers
+        )
+
+    else:
+        resp = RequestPathNotFound().handle(req_context)
+        req_context.update_client_resp_time()
 
     context.emit('action', 'add flow log')
 
-    if not req_context.response:
-        resp = abort(404, 'Not handle this request')
-
     return resp
+
+
+def _is_req_match_rule(rules, flow):
+    if not rules:
+        return False
+    for rule_key in rules:
+        pattern = rules[rule_key]
+        target = _get_rule_target(rule_key, flow)
+        if not target or not re.search(pattern, target):
+            return False
+    return True
+
+def _get_rule_target(rule_key, flow):
+    prop_keys = rule_key.split('.')
+    result = flow
+    for prop_key in prop_keys:
+        result = result.get(prop_key)
+        if not result:
+            return None
+    return result

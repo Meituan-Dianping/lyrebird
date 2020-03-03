@@ -26,7 +26,7 @@ class HandlerContext:
     def __init__(self, request):
         self.id = str(uuid.uuid4())
         self.request = request
-        self._response = None
+        self.response = None
         self.client_req_time = None
         self.client_resp_time = None
         self.server_req_time = None
@@ -116,46 +116,51 @@ class HandlerContext:
             path=self.request.path[len(self.MOCK_PATH_PREFIX):]
         )
 
-    @property
-    def response(self):
-        return self._response
+    def update_response_into_flow(self, is_update_response_data=False, response_data=''):
+        if not self.response:
+            return
 
-    @response.setter
-    def response(self, val):
-        self._response = val
-        self.update_server_resp_time()
+        self.flow['response'] = {
+            'code': self.response.status_code,
+            'headers': {k: v for (k, v) in self.response.headers},
+            'timestamp': round(time.time(), 3),
+            'duration': self.server_resp_time - self.client_req_time
+        }
 
-        _response = dict(
-            code=self._response.status_code,
-            headers={k: v for (k, v) in self._response.headers},
-            timestamp=round(time.time(), 3)
-        )
+        if not is_update_response_data:
+            return
 
-        ResponseDataHelper.resp2dict(self._response, output=_response)
-        self.flow['response'] = _response
+        if response_data:
+            self.flow['response']['data'] = response_data
+            self.flow['size'] = len(response_data)
 
-        if val.content_length:
-            self.flow['size'] = val.content_length
         else:
-            self.flow['size'] = len(val.data)
-        self.flow['duration'] = self.server_resp_time - self.client_req_time
-
+            ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
+            if self.response.content_length:
+                self.flow['size'] = self.response.content_length
+            else:
+                self.flow['size'] = len(self.response.data)
+        
         if context.application.work_mode == context.Mode.RECORD:
             dm = context.application.data_manager
             dm.save_data(self.flow)
 
-    def _read_response_info(self):
-        self._response.headers.get('Content-Type')
-
     def update_client_req_time(self):
+        # publish client-request- into event
+
         self.client_req_time = time.time()
-        # 消息总线 客户端请求事件，启用此事件
         method = self.flow['request']['method']
         url = self.flow['request']['url']
-        context.application.event_bus.publish('flow.request',
-        dict(
-            flow=self.flow,
-            message=f"URL: {url}\nMethod: {method}\n"
+
+        _flow_client_req = {}
+        for key, value in self.flow.items():
+            _flow_client_req[key] = value
+
+        context.application.event_bus.publish(
+            'flow.request',
+            dict(
+                flow=_flow_client_req,
+                message=f"URL: {url}\nMethod: {method}\n"
             )
         )
 
@@ -167,12 +172,13 @@ class HandlerContext:
         code = self.flow['response']['code']
         duration = utils.convert_time(self.flow['duration'])
         size = utils.convert_size(self.flow['size'])
-        context.application.event_bus.publish('flow',
-                                              dict(
-                                                  flow=self.flow,
-                                                  message=f"URL: {url}\nMethod: {method}\nStatusCode: {code}\nDuration: {duration}\nSize: {size}"
-                                              )
-                                              )
+        context.application.event_bus.publish(
+            'flow',
+            dict(
+                flow=self.flow,
+                message=f"URL: {url}\nMethod: {method}\nStatusCode: {code}\nDuration: {duration}\nSize: {size}"
+            )
+        )
 
     def update_server_req_time(self):
         self.server_req_time = time.time()
@@ -204,7 +210,7 @@ class DataHelper:
             return data.decode('utf-8')
         except Exception as e:
             logger.warning(f'Data to string failed. {e}')
-            return binascii.b2a_base64(data).decode('utf-8')
+            return binascii.b2a_base64(data).decode('utf-8') #
 
 
 class RequestDataHelper(DataHelper):
@@ -275,3 +281,23 @@ class ResponseDataHelper(DataHelper):
         except Exception as e:
             output['data'] = ResponseDataHelper.data2Str(response.data)
             logger.warning(f'Convert response failed. {e}')
+
+    @staticmethod
+    def dict2resp(response_dict, output):
+        content_type = response_dict['headers'].get('Content-Type')
+        content_type = content_type.strip()
+
+        try:
+            if content_type.startswith('application/json'):
+                output.data = json.dumps(response_dict['data']).encode()
+            elif content_type.startswith('text/xml'):
+                output.data = response_dict['data'].encode()
+            elif content_type.startswith('text/html'):
+                output.data = response_dict['data'].encode()
+            else:
+                # TODO write bin data
+                output.data = response_dict['data'].encode()
+
+        except Exception as e:
+            output.data = ''.encode()
+            logger.warning(f'Convert response_dict failed. {e}')

@@ -242,6 +242,9 @@ export default {
         modified: false,
         modifyTag
       }
+      if (!mockTag) {
+        flag.text = 'pending'
+      }
       if (mockTag.startsWith('mock')) {
         flag.text = 'mock'
         flag.color = 'green'

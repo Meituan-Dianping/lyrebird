@@ -1,6 +1,7 @@
 from lyrebird.mock import context
 from lyrebird.log import get_logger
 from flask import Response, stream_with_context
+from .handler_context import ResponseDataHelper
 
 
 logger = get_logger()
@@ -14,32 +15,31 @@ class MockHandler:
     """
 
     def handle(self, handler_context):
-        data = context.application.data_manager.get_matched_data(handler_context.flow)
-        if len(data) <= 0:
+        handler_context.update_server_req_time()
+    
+        hit_datas = context.application.data_manager.get_matched_data(handler_context.flow)
+        if len(hit_datas) <= 0:
             return
-        handler_context.response = self.data2response(data[0])
+
+        hit_data = hit_datas[0]
+        content_type = hit_data['response']['headers'].get('Content-Type')
+        content_type = content_type.strip()
+        if not content_type:
+            pass
+        elif content_type.startswith('application/json'):
+            pass
+        elif content_type.startswith('text/xml'):
+            hit_data['response']['data'] = hit_data['response']['data'].encode()
+        elif content_type.startswith('text/html'):
+            hit_data['response']['data'] = hit_data['response']['data'].encode()
+        else:
+            # TODO write bin data
+            hit_data['response']['data'] = hit_data['response']['data'].encode()
+
         activated_groups = context.application.data_manager.activated_group
         activated_group = list(activated_groups.values())[0]
         logger.info(
-            f'<Mock> Hit Group:{activated_group.get("name")} - Data:{data[0]["name"]} \nURL: {handler_context.flow["request"]["url"]}\nGroupID:{activated_group["id"]} DataID:{data[0]["id"]}')
+            f'<Mock> Hit Group:{activated_group.get("name")} - Data:{hit_data["name"]} \nURL: {handler_context.flow["request"]["url"]}\nGroupID:{activated_group["id"]} DataID:{hit_data["id"]}')
 
-    def data2response(self, data):
-        response = data['response']
-        code = response['code']
-        headers = response['headers']
-        headers['lyrebird'] = 'mock'
-        resp_data = response['data']
-
-        if resp_data:
-            if type(resp_data) == str:
-                data_len = len(resp_data.encode())
-            else:
-                data_len = len(resp_data)
-            headers['Content-Length'] = data_len
-        else:
-            # Handle none response data
-            resp_data = ''
-
-        def gen():
-            yield resp_data
-        return Response(stream_with_context(gen()), status=code, headers=headers)
+        handler_context.update_server_resp_time()
+        return hit_data
