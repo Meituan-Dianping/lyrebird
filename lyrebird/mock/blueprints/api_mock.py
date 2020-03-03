@@ -40,9 +40,9 @@ def index(path=''):
 
     # old scripts loading function
     # remove later
-    # from lyrebird import checker
-    # for encoder_fn in checker.encoders:
-    #     encoder_fn(req_context)
+    from lyrebird import checker
+    for encoder_fn in checker.encoders:
+        encoder_fn(req_context)
 
     try:
         mock_res = MockHandler().handle(req_context)
@@ -87,19 +87,19 @@ def index(path=''):
 
     # old plugin loading function
     # remove later
-    # for plugin_name in plugin_manager.data_handler_plugins:
-    #     try:
-    #         plugin = plugin_manager.data_handler_plugins[plugin_name]
-    #         plugin.handle(req_context)
-    #         if hasattr(plugin, 'change_response'):
-    #             if isinstance(plugin.change_response, bool) and plugin.change_response:
-    #                 resp = req_context.response
-    #             elif isinstance(plugin.change_response, FunctionType) and plugin.change_response():
-    #                 resp = req_context.response
-    #             else:
-    #                 logger.error(f'Plugin {plugin_name} has attr change_response, but its not bool or function')
-    #     except Exception:
-    #         logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
+    for plugin_name in plugin_manager.data_handler_plugins:
+        try:
+            plugin = plugin_manager.data_handler_plugins[plugin_name]
+            plugin.handle(req_context)
+            if hasattr(plugin, 'change_response'):
+                if isinstance(plugin.change_response, bool) and plugin.change_response:
+                    resp = req_context.response
+                elif isinstance(plugin.change_response, FunctionType) and plugin.change_response():
+                    resp = req_context.response
+                else:
+                    logger.error(f'Plugin {plugin_name} has attr change_response, but its not bool or function')
+        except Exception:
+            logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
 
     for response_fn in application.on_response:
         if not req_context.flow.get('response') and not req_context.response:
