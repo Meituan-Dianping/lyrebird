@@ -143,7 +143,7 @@ class HandlerContext:
                 self.flow['size'] = self.response.content_length
             else:
                 self.flow['size'] = len(self.response.data)
-        
+
         if context.application.work_mode == context.Mode.RECORD:
             dm = context.application.data_manager
             dm.save_data(self.flow)

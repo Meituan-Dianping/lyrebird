@@ -1,16 +1,15 @@
 import re
 import traceback
 from types import FunctionType
-from flask import Blueprint, request, abort, Response, stream_with_context
+from flask import Blueprint, request, Response, stream_with_context
 
 from ..handlers.mock_handler import MockHandler
 from ..handlers.proxy_handler import ProxyHandler
-from ..handlers.handler_context import HandlerContext, ResponseDataHelper
+from ..handlers.handler_context import HandlerContext
 from ..handlers.path_not_found_handler import RequestPathNotFound
 from .. import plugin_manager
 from .. import context
 from lyrebird import log
-from lyrebird import utils
 from lyrebird import application
 
 

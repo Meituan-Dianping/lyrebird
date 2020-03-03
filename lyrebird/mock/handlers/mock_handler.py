@@ -1,7 +1,6 @@
 from lyrebird.mock import context
 from lyrebird.log import get_logger
 from flask import Response, stream_with_context
-from .handler_context import ResponseDataHelper
 
 
 logger = get_logger()
@@ -16,7 +15,7 @@ class MockHandler:
 
     def handle(self, handler_context):
         handler_context.update_server_req_time()
-    
+
         hit_datas = context.application.data_manager.get_matched_data(handler_context.flow)
         if len(hit_datas) <= 0:
             return

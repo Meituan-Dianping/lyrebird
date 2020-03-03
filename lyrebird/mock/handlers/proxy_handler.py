@@ -44,7 +44,7 @@ class ProxyHandler:
                 continue
             headers[name] = value
 
-        r = requests.request(method, origin_url, headers=headers, data=data, cookies=handler_context.request.cookies, 
+        r = requests.request(method, origin_url, headers=headers, data=data, cookies=handler_context.request.cookies,
                             stream=True, verify=False)
 
         # 增加数据源标记，此数据经代理得到
