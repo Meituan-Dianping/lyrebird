@@ -24,10 +24,12 @@ api_mock = Blueprint('mock', __name__, url_prefix='/mock')
 def index(path=''):
     logger.debug(f'Mock handler on request {request.url}')
 
+    # init
     resp = None
     req_context = HandlerContext(request)
     req_context.update_client_req_time()
 
+    # on_request handle
     for request_fn in application.on_request:
         if request_fn['rules'] and not _is_req_match_rule(request_fn['rules'], req_context.flow):
             continue
@@ -43,6 +45,7 @@ def index(path=''):
     for encoder_fn in checker.encoders:
         encoder_fn(req_context)
 
+    # mock handle
     try:
         mock_res = MockHandler().handle(req_context)
     except Exception:
@@ -54,7 +57,9 @@ def index(path=''):
         req_context.flow['response']['headers']['isMocked'] = 'True'
         req_context.flow['response']['headers']['lyrebird'] = 'mock'
 
+    # proxy
     else:
+        # on_request_upstream handle
         for request_fn in application.on_request_upstream:
             if request_fn['rules'] and not _is_req_match_rule(request_fn['rules'], req_context.flow):
                 continue
@@ -65,6 +70,7 @@ def index(path=''):
                 req_context._parse_request()
                 logger.error(traceback.format_exc())
 
+        # proxy handle
         req_context.update_server_req_time()
         try:
             req_context.response = ProxyHandler().handle(req_context)
@@ -72,6 +78,7 @@ def index(path=''):
             logger.error(traceback.format_exc())
         req_context.update_server_resp_time()
 
+        # on_response_upstream handle
         _matched_on_response_upstream = []
         req_context.update_response_into_flow()
         for response_fn in application.on_response_upstream:
@@ -106,6 +113,7 @@ def index(path=''):
         except Exception:
             logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
 
+    # on_response handle
     if not req_context.flow.get('response') and req_context.response:
         _matched_on_response = []
         req_context.update_response_into_flow()
@@ -135,6 +143,7 @@ def index(path=''):
             except Exception:
                 logger.error(traceback.format_exc())
 
+    # Response
     if req_context.flow.get('response'):
         def gen():
             yield req_context.flow['response']['data']
