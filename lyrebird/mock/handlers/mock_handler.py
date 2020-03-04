@@ -1,6 +1,5 @@
 from lyrebird.mock import context
 from lyrebird.log import get_logger
-from flask import Response, stream_with_context
 
 
 logger = get_logger()
