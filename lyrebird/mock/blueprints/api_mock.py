@@ -28,7 +28,6 @@ def index(path=''):
     req_context = HandlerContext(request)
     req_context.update_client_req_time()
 
-    # on_request
     for request_fn in application.on_request:
         if request_fn['rules'] and not _is_req_match_rule(request_fn['rules'], req_context.flow):
             continue
@@ -44,20 +43,18 @@ def index(path=''):
     for encoder_fn in checker.encoders:
         encoder_fn(req_context)
 
-    # mock handler
     try:
         mock_res = MockHandler().handle(req_context)
     except Exception:
         mock_res = None
         logger.error(traceback.format_exc())
+
     if mock_res:
         req_context.flow['response'] = mock_res['response']
         req_context.flow['response']['headers']['isMocked'] = 'True'
         req_context.flow['response']['headers']['lyrebird'] = 'mock'
 
-    # proxy
     else:
-        # on_request_upstream
         for request_fn in application.on_request_upstream:
             if request_fn['rules'] and not _is_req_match_rule(request_fn['rules'], req_context.flow):
                 continue
@@ -68,7 +65,6 @@ def index(path=''):
                 req_context._parse_request()
                 logger.error(traceback.format_exc())
 
-        # proxy handler
         req_context.update_server_req_time()
         try:
             req_context.response = ProxyHandler().handle(req_context)
@@ -76,7 +72,6 @@ def index(path=''):
             logger.error(traceback.format_exc())
         req_context.update_server_resp_time()
 
-        # on_response_upstream
         _matched_on_response_upstream = []
         req_context.update_response_into_flow()
         for response_fn in application.on_response_upstream:
@@ -111,22 +106,34 @@ def index(path=''):
         except Exception:
             logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
 
-    # on_response
     if not req_context.flow.get('response') and req_context.response:
+        _matched_on_response = []
         req_context.update_response_into_flow()
         for response_fn in application.on_response:
             if response_fn['rules'] and not _is_req_match_rule(response_fn['rules'], req_context.flow):
                 continue
+            _matched_on_response.append(response_fn)
+        if not _matched_on_response:
+            req_context.flow['response'] = {}
+        else:
             req_context.update_response_into_flow(is_update_response_data=True)
-            break
-    for response_fn in application.on_response:
-        if response_fn['rules'] and not _is_req_match_rule(response_fn['rules'], req_context.flow):
-            continue
-        handler_fn = response_fn['func']
-        try:
-            handler_fn(req_context.flow['response'])
-        except Exception:
-            logger.error(traceback.format_exc())
+            for response_fn in _matched_on_response:
+                handler_fn = response_fn['func']
+                try:
+                    handler_fn(req_context.flow['response'])
+                except Exception:
+                    req_context.update_response_into_flow(is_update_response_data=True)
+                    logger.error(traceback.format_exc())
+
+    elif req_context.flow.get('response'):
+        for response_fn in application.on_response:
+            if response_fn['rules'] and not _is_req_match_rule(response_fn['rules'], req_context.flow):
+                continue
+            handler_fn = response_fn['func']
+            try:
+                handler_fn(req_context.flow['response'])
+            except Exception:
+                logger.error(traceback.format_exc())
 
     if req_context.flow.get('response'):
         def gen():
@@ -161,6 +168,7 @@ def index(path=''):
     context.emit('action', 'add flow log')
 
     return resp
+
 
 def _is_req_match_rule(rules, flow):
     if not rules:
