@@ -3,13 +3,14 @@ from lyrebird import application
 from lyrebird.log import get_logger
 from lyrebird import utils
 from urllib.parse import urlparse, unquote
-import urllib
 import uuid
 import time
 import gzip
 import json
-import ipaddress
+import urllib
 import binascii
+import ipaddress
+from flask import Response, stream_with_context, abort
 
 
 logger = get_logger()
@@ -22,6 +23,10 @@ class HandlerContext:
 
     """
     MOCK_PATH_PREFIX = '/mock'
+
+    STREAM = 1
+    UNKNOWN = 0
+    JSON = 2
 
     def __init__(self, request):
         self.id = str(uuid.uuid4())
@@ -40,6 +45,8 @@ class HandlerContext:
             response={}
             )
         self.client_address = None
+        # self.response_state = ResponseState()
+        self.response_state = None
         self._parse_request()
 
     def _parse_request(self):
@@ -119,7 +126,19 @@ class HandlerContext:
             path=self.request.path[len(self.MOCK_PATH_PREFIX):]
         )
 
-    def update_response_into_flow(self, is_update_response_data=False, response_data=''):
+    def set_response_state_json(self):
+        self.response_state = self.JSON
+
+    def set_response_state_stream(self):
+        if self.response_state == self.JSON:
+            logger.warning('Not support changing flow response state into STREAM from JSON')
+            return
+        self.response_state = self.STREAM
+
+    def set_response_state_unknown(self):
+        self.response_state = self.UNKNOWN
+
+    def update_response_info2flow(self, is_update_response_data=False):
         if not self.response:
             return
 
@@ -130,28 +149,66 @@ class HandlerContext:
             'duration': self.server_resp_time - self.client_req_time
         }
 
-        if not is_update_response_data:
-            return
+        if is_update_response_data:
+            self.update_response_data2flow()
 
-        if response_data:
-            self.flow['response']['data'] = response_data
-            self.flow['size'] = len(response_data)
-
+    def update_response_data2flow(self):
+        ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
+        if self.response.content_length:
+            self.flow['size'] = self.response.content_length
         else:
-            ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
-            if self.response.content_length:
-                self.flow['size'] = self.response.content_length
-            else:
-                self.flow['size'] = len(self.response.data)
+            self.flow['size'] = len(self.response.data)
 
         if context.application.work_mode == context.Mode.RECORD:
             dm = context.application.data_manager
             dm.save_data(self.flow)
 
-    def update_client_req_time(self):
-        # publish client-request- into event
+    def make_req_response(self):
+        if self.response_state == self.STREAM:
+            self._make_response_stream()
 
+        if self.response_state == self.JSON:
+            MockDataHelper.json2resp(self.flow['response'], output=self.flow['response'])
+
+        if self.response_state == self.UNKNOWN:
+
+            logger.warning(f'Data to string failed. {e}')
+            return binascii.b2a_base64(data).decode('utf-8') #
+            self.response = Response(
+                self.flow['response'],
+                status=self.flow['response']['code'],
+                headers=self.flow['response']['headers']
+            )
+
+        else:
+            self.response = abort(404, f'Unhandler this type of data: {self.response_state}\n')
+
+    def _make_response_stream(self):
+        def stream_copy_worker(upstream):
+            try:
+                buffer = []
+                for item in upstream:
+                    buffer.append(item)
+                    yield item
+            finally:
+                _resp = b''
+                for item in buffer:
+                    _resp += item
+                _resp = _resp.decode('utf-8')
+                self.flow['response'] = json.dumps(_resp)
+                self.update_client_resp_time()
+                upstream.close()
+
+        self.response = Response(
+            stream_copy_worker(self.response.raw.stream()),
+            status=self.response.status_code,
+            headers=self.response.headers
+            )
+
+
+    def update_client_req_time(self):
         self.client_req_time = time.time()
+        # 消息总线 客户端请求事件，启用此事件
         method = self.flow['request']['method']
         url = self.flow['request']['url']
 
@@ -201,8 +258,6 @@ class HandlerContext:
         #                                       id=self.id,
         #                                       flow=self.flow))
 
-    def get_origin_url(self):
-        return self.flow['request'].get('url')
 
 
 class DataHelper:
@@ -284,3 +339,11 @@ class ResponseDataHelper(DataHelper):
         except Exception as e:
             output['data'] = ResponseDataHelper.data2Str(response.data)
             logger.warning(f'Convert response failed. {e}')
+
+
+class MockDataHelper(DataHelper):
+
+    @staticmethod
+    def json2resp(response, output=None):
+        pass
+
