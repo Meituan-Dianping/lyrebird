@@ -1,3 +1,4 @@
+import re
 import traceback
 from lyrebird import application
 from lyrebird.log import get_logger
@@ -30,7 +31,7 @@ class FlowEditorHandler:
         self._func_handler(matched_funcs, handler_context.flow['request'])
 
     def on_response_upstream_handler(self, handler_context):
-        matched_funcs = self._get_matched_handler(self.on_request_upstream, handler_context.flow)
+        matched_funcs = self._get_matched_handler(self.on_response_upstream, handler_context.flow)
 
         if matched_funcs and not handler_context.flow['response'].get('data'):
             handler_context.update_response_data2flow()
@@ -59,14 +60,11 @@ class FlowEditorHandler:
         matched_func = []
         for func in func_list:
             rules = func['rules']
-            if not rules or not self._is_req_match_rule(rules, flow):
-                continue
-            matched_func.append(func)
+            if not rules or self._is_req_match_rule(rules, flow):
+                matched_func.append(func)
         return matched_func
 
     def _is_req_match_rule(self, rules, flow):
-        if not rules:
-            return False
         for rule_key in rules:
             pattern = rules[rule_key]
             target = self._get_rule_target(rule_key, flow)

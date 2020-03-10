@@ -1,12 +1,12 @@
-import re
+import json
 import traceback
 from types import FunctionType
-from flask import Blueprint, request, Response, stream_with_context
+from flask import Blueprint, request, Response, abort
 
 from ..handlers.mock_handler import MockHandler
 from ..handlers.proxy_handler import ProxyHandler
-from ..handlers.handler_context import HandlerContext
-from ..handlers.path_not_found_handler import RequestPathNotFound
+from ..handlers.handler_context import HandlerContext, MockDataHelper
+from ..handlers.flow_editor_handler import FlowEditorHandler
 from .. import plugin_manager
 from .. import context
 from lyrebird import log
@@ -14,6 +14,9 @@ from lyrebird import application
 
 
 logger = log.get_logger()
+mock_handler = MockHandler()
+proxy_handler = ProxyHandler()
+flow_editor_handler = FlowEditorHandler()
 
 
 api_mock = Blueprint('mock', __name__, url_prefix='/mock')
@@ -24,78 +27,22 @@ api_mock = Blueprint('mock', __name__, url_prefix='/mock')
 def index(path=''):
     logger.debug(f'Mock handler on request {request.url}')
 
-    # init
     resp = None
     req_context = HandlerContext(request)
     req_context.update_client_req_time()
 
-    # on_request handle
-    for request_fn in application.on_request:
-        if request_fn['rules'] and not _is_req_match_rule(request_fn['rules'], req_context.flow):
-            continue
-        handler_fn = request_fn['func']
-        try:
-            handler_fn(req_context.flow['request'])
-        except Exception:
-            logger.error(traceback.format_exc())
+    flow_editor_handler.on_request_handler(req_context)
 
-    # old scripts loading function
-    # remove later
-    from lyrebird import checker
-    for encoder_fn in checker.encoders:
-        encoder_fn(req_context)
+    req_context.update_server_req_time()
 
-    # mock handle
-    try:
-        mock_res = MockHandler().handle(req_context)
-    except Exception:
-        mock_res = None
-        logger.error(traceback.format_exc())
+    mock_handler.handle(req_context)
 
-    if mock_res:
-        req_context.flow['response'] = mock_res['response']
-        req_context.flow['response']['headers']['isMocked'] = 'True'
-        req_context.flow['response']['headers']['lyrebird'] = 'mock'
+    if not req_context.flow['response']:
+        flow_editor_handler.on_request_upstream_handler(req_context)
+        proxy_handler.handle(req_context)
+        flow_editor_handler.on_response_upstream_handler(req_context)
 
-    # proxy
-    else:
-        # on_request_upstream handle
-        for request_fn in application.on_request_upstream:
-            if request_fn['rules'] and not _is_req_match_rule(request_fn['rules'], req_context.flow):
-                continue
-            handler_fn = request_fn['func']
-            try:
-                handler_fn(req_context.flow['request'])
-            except Exception:
-                req_context._parse_request()
-                logger.error(traceback.format_exc())
-
-        # proxy handle
-        req_context.update_server_req_time()
-        try:
-            req_context.response = ProxyHandler().handle(req_context)
-        except Exception:
-            logger.error(traceback.format_exc())
-        req_context.update_server_resp_time()
-
-        # on_response_upstream handle
-        _matched_on_response_upstream = []
-        req_context.update_response_into_flow()
-        for response_fn in application.on_response_upstream:
-            if response_fn['rules'] and not _is_req_match_rule(response_fn['rules'], req_context.flow):
-                continue
-            _matched_on_response_upstream.append(response_fn)
-        if not _matched_on_response_upstream:
-            req_context.flow['response'] = {}
-        else:
-            req_context.update_response_into_flow(is_update_response_data=True)
-            for response_fn in _matched_on_response_upstream:
-                handler_fn = response_fn['func']
-                try:
-                    handler_fn(req_context.flow['response'])
-                except Exception:
-                    req_context.update_response_into_flow(is_update_response_data=True)
-                    logger.error(traceback.format_exc())
+    req_context.update_server_resp_time()
 
     # old plugin loading function
     # remove later
@@ -113,87 +60,63 @@ def index(path=''):
         except Exception:
             logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
 
-    # on_response handle
-    if not req_context.flow.get('response') and req_context.response:
-        _matched_on_response = []
-        req_context.update_response_into_flow()
-        for response_fn in application.on_response:
-            if response_fn['rules'] and not _is_req_match_rule(response_fn['rules'], req_context.flow):
-                continue
-            _matched_on_response.append(response_fn)
-        if not _matched_on_response:
-            req_context.flow['response'] = {}
-        else:
-            req_context.update_response_into_flow(is_update_response_data=True)
-            for response_fn in _matched_on_response:
-                handler_fn = response_fn['func']
-                try:
-                    handler_fn(req_context.flow['response'])
-                except Exception:
-                    req_context.update_response_into_flow(is_update_response_data=True)
-                    logger.error(traceback.format_exc())
+    flow_editor_handler.on_response_handler(req_context)
 
-    elif req_context.flow.get('response'):
-        for response_fn in application.on_response:
-            if response_fn['rules'] and not _is_req_match_rule(response_fn['rules'], req_context.flow):
-                continue
-            handler_fn = response_fn['func']
+    if req_context.response_state == req_context.STREAM:
+        def stream_copy_worker(upstream):
             try:
-                handler_fn(req_context.flow['response'])
-            except Exception:
-                logger.error(traceback.format_exc())
+                buffer = []
+                for item in upstream.response:
+                    buffer.append(item)
+                    # TODO speedlimit
+                    yield item
+            finally:
+                _resp = b''
+                for item in buffer:
+                    _resp += item
+                req_context.response.data = _resp
+                req_context.update_response_data2flow()
+                
+                req_context.update_client_resp_time()
+                upstream.close()
 
-    # Response
-    if req_context.flow.get('response'):
-        def gen():
-            yield req_context.flow['response']['data']
-        req_context.update_client_resp_time()
         resp = Response(
-            stream_with_context(gen()),
+            stream_copy_worker(req_context.response),
+            status=req_context.response.status_code,
+            headers=req_context.response.headers
+            )
+
+    elif req_context.response_state == req_context.JSON:
+        MockDataHelper.json2resp(req_context.flow['response'], output=req_context.flow['response'])
+        # length = req_context.flow['response']['headers'].get('Content-Length')
+
+        def generator():
+            try:
+                size = req_context.response_chunk_size
+                resp_data = req_context.flow['response']['data']
+                length = len(resp_data)
+
+                for i in range(int(length/size) + 1):
+                    # TODO speedlimit
+                    yield resp_data[ i * size : (i+1) * size ]
+            finally:
+                req_context.update_client_resp_time()
+
+        resp = Response(
+            generator(),
             status=req_context.flow['response']['code'],
             headers=req_context.flow['response']['headers']
         )
-
-    elif req_context.response:
-        def gen():
-            buffer = b''
-            while True:
-                yield req_context.response.data
-                buffer += req_context.response.data
-                if len(buffer) >= len(req_context.response.data):
-                    break
-            req_context.update_response_into_flow(is_update_response_data=True, response_data=buffer.decode('utf-8'))
-            req_context.update_client_resp_time()
-        resp = Response(
-            stream_with_context(gen()),
-            status=req_context.response.status_code,
-            headers=req_context.response.headers
-        )
+        # resp = req_context.flow['response']
+    
+    elif req_context.response_state == req_context.INIT:
+        resp = abort(404, f'Not handle this request: {req_context.flow["request"].get("url")}')
+        req_context.update_client_resp_time()
 
     else:
-        resp = RequestPathNotFound().handle(req_context)
+        resp = abort(404, f'Unhandler this type of response data: {req_context.response_state}\n')
         req_context.update_client_resp_time()
 
     context.emit('action', 'add flow log')
 
     return resp
-
-
-def _is_req_match_rule(rules, flow):
-    if not rules:
-        return False
-    for rule_key in rules:
-        pattern = rules[rule_key]
-        target = _get_rule_target(rule_key, flow)
-        if not target or not re.search(pattern, target):
-            return False
-    return True
-
-def _get_rule_target(rule_key, flow):
-    prop_keys = rule_key.split('.')
-    result = flow
-    for prop_key in prop_keys:
-        result = result.get(prop_key)
-        if not result:
-            return None
-    return result

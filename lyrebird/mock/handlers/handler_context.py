@@ -10,7 +10,6 @@ import json
 import urllib
 import binascii
 import ipaddress
-from flask import Response, stream_with_context, abort
 
 
 logger = get_logger()
@@ -25,8 +24,9 @@ class HandlerContext:
     MOCK_PATH_PREFIX = '/mock'
 
     STREAM = 1
-    UNKNOWN = 0
+    INIT = 0
     JSON = 2
+    UNKNOWN = 3
 
     def __init__(self, request):
         self.id = str(uuid.uuid4())
@@ -45,8 +45,8 @@ class HandlerContext:
             response={}
             )
         self.client_address = None
-        # self.response_state = ResponseState()
         self.response_state = None
+        self.response_chunk_size = 2048
         self._parse_request()
 
     def _parse_request(self):
@@ -145,66 +145,18 @@ class HandlerContext:
         self.flow['response'] = {
             'code': self.response.status_code,
             'headers': {k: v for (k, v) in self.response.headers},
-            'timestamp': round(time.time(), 3),
-            'duration': self.server_resp_time - self.client_req_time
+            'timestamp': round(time.time(), 3)
         }
 
         if is_update_response_data:
             self.update_response_data2flow()
-
-    def update_response_data2flow(self):
-        ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
-        if self.response.content_length:
-            self.flow['size'] = self.response.content_length
-        else:
-            self.flow['size'] = len(self.response.data)
-
+        
         if context.application.work_mode == context.Mode.RECORD:
             dm = context.application.data_manager
             dm.save_data(self.flow)
 
-    def make_req_response(self):
-        if self.response_state == self.STREAM:
-            self._make_response_stream()
-
-        if self.response_state == self.JSON:
-            MockDataHelper.json2resp(self.flow['response'], output=self.flow['response'])
-
-        if self.response_state == self.UNKNOWN:
-
-            logger.warning(f'Data to string failed. {e}')
-            return binascii.b2a_base64(data).decode('utf-8') #
-            self.response = Response(
-                self.flow['response'],
-                status=self.flow['response']['code'],
-                headers=self.flow['response']['headers']
-            )
-
-        else:
-            self.response = abort(404, f'Unhandler this type of data: {self.response_state}\n')
-
-    def _make_response_stream(self):
-        def stream_copy_worker(upstream):
-            try:
-                buffer = []
-                for item in upstream:
-                    buffer.append(item)
-                    yield item
-            finally:
-                _resp = b''
-                for item in buffer:
-                    _resp += item
-                _resp = _resp.decode('utf-8')
-                self.flow['response'] = json.dumps(_resp)
-                self.update_client_resp_time()
-                upstream.close()
-
-        self.response = Response(
-            stream_copy_worker(self.response.raw.stream()),
-            status=self.response.status_code,
-            headers=self.response.headers
-            )
-
+    def update_response_data2flow(self):
+        ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
 
     def update_client_req_time(self):
         self.client_req_time = time.time()
@@ -227,6 +179,14 @@ class HandlerContext:
     def update_client_resp_time(self):
         self.client_resp_time = time.time()
         # 消息总线 客户端响应事件，启用此事件
+        resp_data = self.flow['response']['data']
+        if type(resp_data) == str:	
+            self.flow['size'] = len(resp_data.encode())	
+        else:	
+            self.flow['size'] = len(resp_data)
+
+        self.flow['duration'] = self.server_resp_time - self.client_req_time
+
         method = self.flow['request']['method']
         url = self.flow['request']['url']
         code = self.flow['response']['code']
@@ -268,7 +228,15 @@ class DataHelper:
             return data.decode('utf-8')
         except Exception as e:
             logger.warning(f'Data to string failed. {e}')
-            return binascii.b2a_base64(data).decode('utf-8') #
+            return binascii.b2a_base64(data).decode('utf-8')
+
+    @staticmethod
+    def data2byte(data):
+        try:
+            return data.encode()
+        except Exception as e:
+            logger.warning(f'String to data failed. {e}')
+            return binascii.a2b_base64(data)
 
 
 class RequestDataHelper(DataHelper):
@@ -345,5 +313,37 @@ class MockDataHelper(DataHelper):
 
     @staticmethod
     def json2resp(response, output=None):
-        pass
+        if not output:
+            output = {}
+        content_encoding = response['headers'].get('Content-Encoding')
+        content_type = response['headers'].get('Content-Type')
 
+        try:
+            if not content_type:
+                output['data'] = MockDataHelper.data2byte(response['data'])
+                return
+            # output['headers']['Content-Length'] = len(response['data'])
+
+            content_type = content_type.strip()
+            if content_type.startswith('application/json'):
+                # output['data'] = json.loads(response['data'])
+                pass
+            elif content_type.startswith('text/xml'):
+                output['data'] = response['data'].encode()
+            elif content_type.startswith('text/html'):
+                output['data'] = response['data'].encode()
+            else:
+                # TODO handle bin data
+                output['data'] = MockDataHelper.data2byte(response['data'])
+                return
+
+            if content_encoding:
+                ziped_data = gzip.compress(output['data'])
+                output['data'] = ziped_data
+
+            # data_len = len(output['data'])
+            # headers['Content-Length'] = data_len
+            
+        except Exception as e:
+            output['data'] = MockDataHelper.data2byte(response['data'])
+            logger.warning(f'Convert mock data response failed. {e}')

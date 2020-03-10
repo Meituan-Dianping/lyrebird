@@ -60,7 +60,10 @@ class ProxyHandler:
             resp_headers.append((name, value))
 
         # After huangyuanzhen test, we use 2048byte buffer :D
-        return Response(
-            stream_with_context(r.iter_content(chunk_size=2048)),
+        handler_context.response = Response(
+            stream_with_context(r.iter_content(chunk_size=handler_context.response_chunk_size)),
             status=r.status_code,
             headers=resp_headers)
+
+        handler_context.update_response_info2flow()
+        handler_context.set_response_state_stream()
