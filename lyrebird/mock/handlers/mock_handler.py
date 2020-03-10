@@ -17,7 +17,7 @@ class MockHandler:
         if len(hit_datas) <= 0:
             return
 
-        # TODO 增加命中多条数据时的处理
+        # TODO rules of hitting multiple mock data
         hit_data = hit_datas[0]
 
         activated_groups = context.application.data_manager.activated_group
