@@ -23,8 +23,8 @@ class HandlerContext:
     """
     MOCK_PATH_PREFIX = '/mock'
 
-    STREAM = 1
     INIT = 0
+    STREAM = 1
     JSON = 2
     UNKNOWN = 3
 
@@ -150,7 +150,7 @@ class HandlerContext:
 
         if is_update_response_data:
             self.update_response_data2flow()
-        
+
         if context.application.work_mode == context.Mode.RECORD:
             dm = context.application.data_manager
             dm.save_data(self.flow)

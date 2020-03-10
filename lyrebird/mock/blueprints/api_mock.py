@@ -76,7 +76,7 @@ def index(path=''):
                     _resp += item
                 req_context.response.data = _resp
                 req_context.update_response_data2flow()
-                
+
                 req_context.update_client_resp_time()
                 upstream.close()
 
