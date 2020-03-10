@@ -40,7 +40,7 @@
         <Footer class="main-footer">
           <span v-show="activatedGroupName" class="main-footer-mock-status">
             <b>Activated mock group: {{activatedGroupName}}</b>
-            <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData"/>
+            <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
           </span>
           <span class="main-footer-right">
             <span class="main-footer-copyright">
@@ -108,6 +108,13 @@ export default {
     this.$store.dispatch('loadStatus')
     this.$store.dispatch('loadManifest')
     this.$store.dispatch('loadActivatedGroup')
+    this._keydownListener = (e) => {
+      this.$bus.$emit('keydown', e)
+    }
+    document.addEventListener('keydown', this._keydownListener)
+  },
+  beforeDestroy () {
+    document.removeEventListener('keydown', this._keydownListener)
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
@@ -116,7 +123,7 @@ export default {
   },
   computed: {
     menuitemClasses () {
-      return ["menu-item", this.isCollapsed ? "collapsed-menu" : "menu"];
+      return ["menu-item", this.isCollapsed ? "collapsed-menu" : "menu"]
     },
     logo () {
       if (this.isCollapsed) {
@@ -154,7 +161,7 @@ export default {
   },
   methods: {
     collapsedSider () {
-      this.$refs.mainSider.toggleCollapse();
+      this.$refs.mainSider.toggleCollapse()
     },
     menuItemTitle (menuItem) {
       if (this.isCollapsed) {
@@ -167,11 +174,11 @@ export default {
       this.$store.commit('setActiveName', menuItem.title)
       if (menuItem.type === 'router') {
         if (menuItem.name === 'plugin-view' || menuItem.name === 'plugin-container') {
-          this.$store.commit('plugin/setSrc', menuItem.params.src);
+          this.$store.commit('plugin/setSrc', menuItem.params.src)
         }
-        this.$router.push({ name: menuItem.name, params: menuItem.params });
+        this.$router.push({ name: menuItem.name, params: menuItem.params })
       } else {
-        window.open(menuItem.path, '_self');
+        window.open(menuItem.path, '_self')
       }
     },
     resetActivatedData () {

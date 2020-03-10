@@ -48,6 +48,12 @@ export default {
       }
     }
   },
+  mounted () {
+    this.$bus.$on('keydown', this.onKeyDown)
+  },
+  beforeDestroy () {
+    this.$bus.$off('keydown', this.onKeyDown)
+  },
   computed: {
     currentTabContentType () {
       if (this.currentTab === 'info' || this.currentTab === 'req' || this.currentTab === 'resp') {
@@ -113,8 +119,16 @@ export default {
     },
     onJsonPathChange (payload) {
       this.$store.commit('setJsonPath', payload.jsonPath)
+    },
+    onKeyDown (event) {
+      if (event.code !== "KeyS" || !event.metaKey) {
+        return
+      }
+      this.save()
+      event.preventDefault()
+      console.log("Save", event)
     }
-  },
+  }
 }
 </script>
 
