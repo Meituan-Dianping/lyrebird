@@ -34,7 +34,8 @@ class ProxyHandler:
         if not parsed_url.hostname:
             return
         elif parsed_url.hostname in ['localhost', '127.0.0.1', ] and parsed_url.port == application.config["mock.port"]:
-            return Response(response='Duplicate request path\n', status=400)
+            handler_context.response =  Response(response='Duplicate request path\n', status=400)
+            return
 
         method = request['method']
         data = request.get('data') or request.get('query') or None
