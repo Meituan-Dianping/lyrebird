@@ -180,9 +180,9 @@ class HandlerContext:
         self.client_resp_time = time.time()
         # 消息总线 客户端响应事件，启用此事件
         resp_data = self.flow['response']['data']
-        if type(resp_data) == str:	
-            self.flow['size'] = len(resp_data.encode())	
-        else:	
+        if isinstance(resp_data, str):
+            self.flow['size'] = len(resp_data.encode())
+        else:
             self.flow['size'] = len(resp_data)
 
         self.flow['duration'] = self.server_resp_time - self.client_req_time
@@ -341,9 +341,6 @@ class MockDataHelper(DataHelper):
                 ziped_data = gzip.compress(output['data'])
                 output['data'] = ziped_data
 
-            # data_len = len(output['data'])
-            # headers['Content-Length'] = data_len
-            
         except Exception as e:
             output['data'] = MockDataHelper.data2byte(response['data'])
             logger.warning(f'Convert mock data response failed. {e}')

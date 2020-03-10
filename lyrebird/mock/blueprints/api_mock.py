@@ -107,8 +107,7 @@ def index(path=''):
             status=req_context.flow['response']['code'],
             headers=req_context.flow['response']['headers']
         )
-        # resp = req_context.flow['response']
-    
+
     elif req_context.response_state == req_context.INIT:
         resp = abort(404, f'Not handle this request: {req_context.flow["request"].get("url")}')
         req_context.update_client_resp_time()
