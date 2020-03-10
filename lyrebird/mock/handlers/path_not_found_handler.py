@@ -1,7 +1,8 @@
-from flask import abort
+from flask import Response
 
 
 class RequestPathNotFound:
 
     def handle(self, handler_context):
-        return abort(404, 'Request path not found\n')
+        if not handler_context.response:
+            handler_context.response = Response('Request path not found\n', 404)
