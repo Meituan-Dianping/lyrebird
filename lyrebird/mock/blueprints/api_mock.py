@@ -4,7 +4,7 @@ from flask import Blueprint, request, Response, abort
 
 from ..handlers.mock_handler import MockHandler
 from ..handlers.proxy_handler import ProxyHandler
-from ..handlers.handler_context import HandlerContext, ResponseDataHelper
+from ..handlers.handler_context import HandlerContext
 from ..handlers.flow_editor_handler import FlowEditorHandler
 from .. import plugin_manager
 from .. import context
@@ -71,7 +71,7 @@ def index(path=''):
 
     elif req_context.response_state == req_context.JSON:
         gen = req_context.get_response_gen_json()
-    
+
     elif req_context.response_state == req_context.BYTES:
         gen = req_context.get_response_gen_bytes()
 
