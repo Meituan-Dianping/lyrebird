@@ -9,7 +9,6 @@ from ..handlers.flow_editor_handler import FlowEditorHandler
 from .. import plugin_manager
 from .. import context
 from lyrebird import log
-from lyrebird import application
 
 
 logger = log.get_logger()
