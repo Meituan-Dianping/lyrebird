@@ -66,5 +66,5 @@ class ProxyHandler:
             status=r.status_code,
             headers=resp_headers)
 
-        handler_context.update_response_info2flow()
+        handler_context.update_response_headers_code2flow()
         handler_context.set_response_state_stream()

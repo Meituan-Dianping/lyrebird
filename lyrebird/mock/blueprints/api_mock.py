@@ -1,11 +1,10 @@
-import json
 import traceback
 from types import FunctionType
 from flask import Blueprint, request, Response, abort
 
 from ..handlers.mock_handler import MockHandler
 from ..handlers.proxy_handler import ProxyHandler
-from ..handlers.handler_context import HandlerContext, MockDataHelper
+from ..handlers.handler_context import HandlerContext, ResponseDataHelper
 from ..handlers.flow_editor_handler import FlowEditorHandler
 from .. import plugin_manager
 from .. import context
@@ -26,6 +25,8 @@ api_mock = Blueprint('mock', __name__, url_prefix='/mock')
 @api_mock.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 def index(path=''):
     logger.debug(f'Mock handler on request {request.url}')
+
+    # TODO change api_mock.py into core.py
 
     resp = None
     req_context = HandlerContext(request)
@@ -62,59 +63,30 @@ def index(path=''):
 
     flow_editor_handler.on_response_handler(req_context)
 
+    if req_context.response_state == req_context.STRING:
+        req_context.transfer_response_state_string()
+
     if req_context.response_state == req_context.STREAM:
-        def stream_copy_worker(upstream):
-            try:
-                buffer = []
-                for item in upstream.response:
-                    buffer.append(item)
-                    # TODO speedlimit
-                    yield item
-            finally:
-                _resp = b''
-                for item in buffer:
-                    _resp += item
-                req_context.response.data = _resp
-                req_context.update_response_data2flow()
-
-                req_context.update_client_resp_time()
-                upstream.close()
-
-        resp = Response(
-            stream_copy_worker(req_context.response),
-            status=req_context.response.status_code,
-            headers=req_context.response.headers
-            )
+        gen = req_context.get_response_gen_stream()
 
     elif req_context.response_state == req_context.JSON:
-        MockDataHelper.json2resp(req_context.flow['response'], output=req_context.flow['response'])
-        # length = req_context.flow['response']['headers'].get('Content-Length')
+        gen = req_context.get_response_gen_json()
+    
+    elif req_context.response_state == req_context.BYTES:
+        gen = req_context.get_response_gen_bytes()
 
-        def generator():
-            try:
-                size = req_context.response_chunk_size
-                resp_data = req_context.flow['response']['data']
-                length = len(resp_data)
+    elif req_context.response_state == req_context.UNKNOWN:
+        gen = req_context.get_response_gen_unknown()
 
-                for i in range(int(length/size) + 1):
-                    # TODO speedlimit
-                    yield resp_data[ i * size : (i+1) * size ]
-            finally:
-                req_context.update_client_resp_time()
-
-        resp = Response(
-            generator(),
-            status=req_context.flow['response']['code'],
-            headers=req_context.flow['response']['headers']
-        )
-
-    elif req_context.response_state == req_context.INIT:
+    else:
         resp = abort(404, f'Not handle this request: {req_context.flow["request"].get("url")}')
         req_context.update_client_resp_time()
 
-    else:
-        resp = abort(404, f'Unhandler this type of response data: {req_context.response_state}\n')
-        req_context.update_client_resp_time()
+    resp = Response(
+        gen(),
+        status=req_context.flow['response']['code'],
+        headers=req_context.flow['response']['headers']
+    )
 
     context.emit('action', 'add flow log')
 

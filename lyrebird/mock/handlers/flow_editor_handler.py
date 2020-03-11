@@ -9,14 +9,6 @@ logger = get_logger()
 class FlowEditorHandler:
 
     def __init__(self):
-        self.on_request = []
-        self.on_response = []
-        self.on_request_upstream = []
-        self.on_response_upstream = []
-        self.response_status = None
-        self.init_handler()
-
-    def init_handler(self):
         self.on_request = application.on_request
         self.on_response = application.on_response
         self.on_request_upstream = application.on_request_upstream

@@ -28,4 +28,4 @@ class MockHandler:
         handler_context.flow['response'] = hit_data['response']
         handler_context.flow['response']['headers']['isMocked'] = 'True'
         handler_context.flow['response']['headers']['lyrebird'] = 'mock'
-        handler_context.set_response_state_json()
+        handler_context.set_response_state_string()

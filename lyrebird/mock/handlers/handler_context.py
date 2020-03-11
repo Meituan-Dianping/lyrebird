@@ -23,10 +23,12 @@ class HandlerContext:
     """
     MOCK_PATH_PREFIX = '/mock'
 
-    INIT = 0
+    NONETYPE = 0
     STREAM = 1
     JSON = 2
-    UNKNOWN = 3
+    STRING = 3
+    BYTES = 4
+    UNKNOWN = 5
 
     def __init__(self, request):
         self.id = str(uuid.uuid4())
@@ -45,7 +47,7 @@ class HandlerContext:
             response={}
             )
         self.client_address = None
-        self.response_state = None
+        self.response_state = self.NONETYPE
         self.response_chunk_size = 2048
         self._parse_request()
 
@@ -126,19 +128,100 @@ class HandlerContext:
             path=self.request.path[len(self.MOCK_PATH_PREFIX):]
         )
 
+    def set_response_state_string(self):
+        self.response_state = self.STRING
+
+    def set_response_state_stream(self):
+        if self.response_state != self.NONETYPE:
+            logger.warning('Only transition from state NONETYPE is allowed!')
+            return
+        self.response_state = self.STREAM
+
     def set_response_state_json(self):
         self.response_state = self.JSON
 
-    def set_response_state_stream(self):
-        if self.response_state == self.JSON:
-            logger.warning('Not support changing flow response state into STREAM from JSON')
-            return
-        self.response_state = self.STREAM
+    def set_response_state_bytes(self):
+        self.response_state = self.BYTES
 
     def set_response_state_unknown(self):
         self.response_state = self.UNKNOWN
 
-    def update_response_info2flow(self, is_update_response_data=False):
+    def transfer_response_state_string(self):
+        content_encoding = self.flow['response']['headers'].get('Content-Encoding')
+        content_type = self.flow['response']['headers'].get('Content-Type')
+
+        try:
+            if not content_type:
+                self.set_response_state_unknown()
+                return
+
+            content_type = content_type.strip()
+            if content_type.startswith('application/json'):
+                self.flow['response']['data'] = json.loads(self.flow['response']['data'])
+                self.set_response_state_json()
+            elif content_type.startswith('text/xml'):
+                self.set_response_state_bytes()
+            elif content_type.startswith('text/html'):
+                self.set_response_state_bytes()
+            else:
+                self.set_response_state_unknown()
+                return
+
+            if content_encoding:
+                ziped_data = gzip.compress(self.flow['response']['data'])
+                self.flow['response']['data'] = ziped_data
+
+        except Exception as e:
+            self.set_response_state_unknown()
+            logger.warning(f'Convert mock data response failed. {e}')
+
+    def get_response_gen_stream(self):
+        _resp_data = self.response.response
+        return self._generator_stream()
+
+    def get_response_gen_json(self):
+        _resp_data = json.dumps(self.flow['response']['data']).encode()
+        return self._generator_bytes(_resp_data)
+
+    def get_response_gen_bytes(self):
+        _resp_data = self.flow['response']['data'].encode()
+        return self._generator_bytes(_resp_data)
+
+    def get_response_gen_unknown(self):
+        _resp_data = ResponseDataHelper.data2byte(self.flow['response']['data'])
+        return self._generator_bytes(_resp_data)
+
+    def _generator_bytes(self, _resp_data):
+        def generator():
+            try:
+                size = self.response_chunk_size
+                length = len(_resp_data)
+
+                for i in range(int(length/size) + 1):
+                    # TODO speedlimit
+                    yield _resp_data[ i * size : (i+1) * size ]
+            finally:
+                self.update_client_resp_time()
+        return generator
+
+    def _generator_stream(self):
+        def generator():
+            upstream = self.response
+            try:
+                buffer = []
+                for item in upstream.response:
+                    buffer.append(item)
+                    # TODO speedlimit
+                    yield item
+            finally:
+                self.response.data = b''.join(buffer)
+                ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
+
+                self.update_client_resp_time()
+                upstream.close()
+        return generator
+
+    def update_response_headers_code2flow(self):
         if not self.response:
             return
 
@@ -148,15 +231,8 @@ class HandlerContext:
             'timestamp': round(time.time(), 3)
         }
 
-        if is_update_response_data:
-            self.update_response_data2flow()
-
-        if context.application.work_mode == context.Mode.RECORD:
-            dm = context.application.data_manager
-            dm.save_data(self.flow)
-
     def update_response_data2flow(self):
-        ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
+        self.response_state = ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
 
     def update_client_req_time(self):
         self.client_req_time = time.time()
@@ -200,6 +276,10 @@ class HandlerContext:
             )
         )
 
+        if context.application.work_mode == context.Mode.RECORD:
+            dm = context.application.data_manager
+            dm.save_data(self.flow)
+
     def update_server_req_time(self):
         self.server_req_time = time.time()
         # 消息总线 向服务端转发请求事件，暂不使用
@@ -225,18 +305,16 @@ class DataHelper:
     @staticmethod
     def data2Str(data):
         try:
-            return data.decode('utf-8')
-        except Exception as e:
-            logger.warning(f'Data to string failed. {e}')
             return binascii.b2a_base64(data).decode('utf-8')
+        except Exception as e:
+            logger.warning(f'Data to base64 failed. {e}')
 
     @staticmethod
     def data2byte(data):
         try:
-            return data.encode()
-        except Exception as e:
-            logger.warning(f'String to data failed. {e}')
             return binascii.a2b_base64(data)
+        except Exception as e:
+            logger.warning(f'Data to byte failed. {e}')
 
 
 class RequestDataHelper(DataHelper):
@@ -289,58 +367,25 @@ class ResponseDataHelper(DataHelper):
         if not output:
             output = {}
         content_type = response.headers.get('Content-Type')
-        if not content_type:
-            output['binary_data'] = 'bin'
-        else:
-            content_type = content_type.strip()
-
-        try:
-            if content_type.startswith('application/json'):
-                output['data'] = response.json
-            elif content_type.startswith('text/xml'):
-                output['data'] = response.data.decode('utf-8')
-            elif content_type.startswith('text/html'):
-                output['data'] = response.data.decode('utf-8')
-            else:
-                # TODO write bin data
-                output['data'] = ResponseDataHelper.data2Str(response.data)
-        except Exception as e:
-            output['data'] = ResponseDataHelper.data2Str(response.data)
-            logger.warning(f'Convert response failed. {e}')
-
-
-class MockDataHelper(DataHelper):
-
-    @staticmethod
-    def json2resp(response, output=None):
-        if not output:
-            output = {}
-        content_encoding = response['headers'].get('Content-Encoding')
-        content_type = response['headers'].get('Content-Type')
 
         try:
             if not content_type:
-                output['data'] = MockDataHelper.data2byte(response['data'])
-                return
-            # output['headers']['Content-Length'] = len(response['data'])
+                output['data'] = ResponseDataHelper.data2Str(response.data)
+                return HandlerContext.UNKNOWN
 
             content_type = content_type.strip()
             if content_type.startswith('application/json'):
-                # output['data'] = json.loads(response['data'])
-                pass
+                output['data'] = response.json
+                return HandlerContext.JSON
             elif content_type.startswith('text/xml'):
-                output['data'] = response['data'].encode()
+                output['data'] = response.data.decode('utf-8')
+                return HandlerContext.BYTES
             elif content_type.startswith('text/html'):
-                output['data'] = response['data'].encode()
+                output['data'] = response.data.decode('utf-8')
+                return HandlerContext.BYTES
             else:
-                # TODO handle bin data
-                output['data'] = MockDataHelper.data2byte(response['data'])
-                return
-
-            if content_encoding:
-                ziped_data = gzip.compress(output['data'])
-                output['data'] = ziped_data
-
+                output['data'] = ResponseDataHelper.data2Str(response.data)
+                return HandlerContext.UNKNOWN
         except Exception as e:
-            output['data'] = MockDataHelper.data2byte(response['data'])
-            logger.warning(f'Convert mock data response failed. {e}')
+            output['data'] = ResponseDataHelper.data2Str(response.data)
+            logger.warning(f'Convert response failed. {e}')
