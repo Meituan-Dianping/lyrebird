@@ -37,7 +37,9 @@ def index(path=''):
 
     mock_handler.handle(req_context)
 
-    if not req_context.flow['response']:
+    if req_context.flow['response']:
+        req_context.transfer_response_state_string()
+    else:
         flow_editor_handler.on_request_upstream_handler(req_context)
         proxy_handler.handle(req_context)
         flow_editor_handler.on_response_upstream_handler(req_context)
@@ -61,9 +63,6 @@ def index(path=''):
             logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
 
     flow_editor_handler.on_response_handler(req_context)
-
-    if req_context.response_state == req_context.STRING:
-        req_context.transfer_response_state_string()
 
     if req_context.response_state == req_context.STREAM:
         gen = req_context.get_response_gen_stream()

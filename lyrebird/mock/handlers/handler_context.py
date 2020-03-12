@@ -147,7 +147,6 @@ class HandlerContext:
         self.response_state = self.UNKNOWN
 
     def transfer_response_state_string(self):
-        content_encoding = self.flow['response']['headers'].get('Content-Encoding')
         content_type = self.flow['response']['headers'].get('Content-Type')
 
         try:
@@ -166,10 +165,6 @@ class HandlerContext:
             else:
                 self.set_response_state_unknown()
                 return
-
-            if content_encoding:
-                ziped_data = gzip.compress(self.flow['response']['data'])
-                self.flow['response']['data'] = ziped_data
 
         except Exception as e:
             self.set_response_state_unknown()
