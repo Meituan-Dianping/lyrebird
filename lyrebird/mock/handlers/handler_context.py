@@ -164,7 +164,6 @@ class HandlerContext:
                 self.set_response_state_bytes()
             else:
                 self.set_response_state_unknown()
-                return
 
         except Exception as e:
             self.set_response_state_unknown()
