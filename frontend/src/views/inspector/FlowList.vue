@@ -242,6 +242,11 @@ export default {
         modified: false,
         modifyTag
       }
+      // Handle empty mockTag
+      // TODO: remove when upgrade inspector
+      if (!mockTag) {
+        flag.text = 'pending'
+      }
       if (mockTag.startsWith('mock')) {
         flag.text = 'mock'
         flag.color = 'green'

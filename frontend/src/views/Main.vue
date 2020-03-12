@@ -147,7 +147,7 @@ export default {
   },
   computed: {
     menuitemClasses () {
-      return ["menu-item", this.isCollapsed ? "collapsed-menu" : "menu"];
+      return ["menu-item", this.isCollapsed ? "collapsed-menu" : "menu"]
     },
     logo () {
       if (this.isCollapsed) {
@@ -203,7 +203,7 @@ export default {
   },
   methods: {
     collapsedSider () {
-      this.$refs.mainSider.toggleCollapse();
+      this.$refs.mainSider.toggleCollapse()
     },
     menuItemTitle (menuItem) {
       if (this.isCollapsed) {
@@ -216,11 +216,11 @@ export default {
       this.$store.commit('setActiveName', menuItem.title)
       if (menuItem.type === 'router') {
         if (menuItem.name === 'plugin-view' || menuItem.name === 'plugin-container') {
-          this.$store.commit('plugin/setSrc', menuItem.params.src);
+          this.$store.commit('plugin/setSrc', menuItem.params.src)
         }
-        this.$router.push({ name: menuItem.name, params: menuItem.params });
+        this.$router.push({ name: menuItem.name, params: menuItem.params })
       } else {
-        window.open(menuItem.path, '_self');
+        window.open(menuItem.path, '_self')
       }
     },
     resetActivatedData () {

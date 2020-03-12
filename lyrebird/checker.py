@@ -61,36 +61,52 @@ on_response_upstream_func_array = []
 
 class OnRequestHandler:
 
-    def __call__(self, *args, **kw):
+    def __call__(self, rules=None, *args, **kw):
         def func(origin_func):
-            on_request_func_array.append(origin_func)
+            on_request_func_array.append({
+                'name': origin_func.__name__,
+                'func': origin_func,
+                'rules': rules
+            })
             return origin_func
         return func
 
 
 class OnResponseHandler:
 
-    def __call__(self, *args, **kw):
+    def __call__(self, rules=None, *args, **kw):
         def func(origin_func):
-            on_response_func_array.append(origin_func)
+            on_response_func_array.append({
+                'name': origin_func.__name__,
+                'func': origin_func,
+                'rules': rules
+            })
             return origin_func
         return func
 
 
 class OnRequestUpstreamHandler:
 
-    def __call__(self, *args, **kw):
+    def __call__(self, rules=None, *args, **kw):
         def func(origin_func):
-            on_request_upstream_func_array.append(origin_func)
+            on_request_upstream_func_array.append({
+                'name': origin_func.__name__,
+                'func': origin_func,
+                'rules': rules
+            })
             return origin_func
         return func
 
 
 class OnResponseUpstreamHandler:
 
-    def __call__(self, *args, **kw):
+    def __call__(self, rules=None, *args, **kw):
         def func(origin_func):
-            on_response_upstream_func_array.append(origin_func)
+            on_response_upstream_func_array.append({
+                'name': origin_func.__name__,
+                'func': origin_func,
+                'rules': rules
+            })
             return origin_func
         return func
 
@@ -226,10 +242,7 @@ class LyrebirdCheckerServer(ThreadServer):
             return
         global on_request_func_array
         for func in on_request_func_array:
-            application.on_request.append({
-                'name': '',
-                'func': func
-            })
+            application.on_request.append(func)
         on_request_func_array = []
 
     def _load_on_response_handler(self, script_module):
@@ -237,10 +250,7 @@ class LyrebirdCheckerServer(ThreadServer):
             return
         global on_response_func_array
         for func in on_response_func_array:
-            application.on_response.append({
-                'name': '',
-                'func': func
-            })
+            application.on_response.append(func)
         on_response_func_array = []
 
     def _load_on_request_upstream_handler(self, script_module):
@@ -248,10 +258,7 @@ class LyrebirdCheckerServer(ThreadServer):
             return
         global on_request_upstream_func_array
         for func in on_request_upstream_func_array:
-            application.on_request_upstream.append({
-                'name': '',
-                'func': func
-            })
+            application.on_request_upstream.append(func)
         on_request_upstream_func_array = []
 
     def _load_on_response_upstream_handler(self, script_module):
@@ -259,10 +266,7 @@ class LyrebirdCheckerServer(ThreadServer):
             return
         global on_response_upstream_func_array
         for func in on_response_upstream_func_array:
-            application.on_response_upstream.append({
-                'name': '',
-                'func': func
-            })
+            application.on_response_upstream.append(func)
         on_response_upstream_func_array = []
 
     def run(self):
@@ -360,11 +364,8 @@ class Checker:
             return
         global on_request_func_array
         for func in on_request_func_array:
-            self._on_request_func_list.append(func)
-            application.on_request.append({
-                'name': '',
-                'func': func
-            })
+            self._on_request_func_list.append(func['func'])
+            application.on_request.append(func)
         on_request_func_array = []
 
     def _unregister_on_request_callback_func(self):
@@ -378,11 +379,8 @@ class Checker:
             return
         global on_response_func_array
         for func in on_response_func_array:
-            self._on_response_func_list.append(func)
-            application.on_response.append({
-                'name': '',
-                'func': func
-            })
+            self._on_response_func_list.append(func['func'])
+            application.on_response.append(func)
         on_response_func_array = []
 
     def _unregister_on_response_callback_func(self):
@@ -396,11 +394,8 @@ class Checker:
             return
         global on_request_upstream_func_array
         for func in on_request_upstream_func_array:
-            self._on_request_upstream_func_list.append(func)
-            application.on_request_upstream.append({
-                'name': '',
-                'func': func
-            })
+            self._on_request_upstream_func_list.append(func['func'])
+            application.on_request_upstream.append(func)
         on_request_upstream_func_array = []
 
     def _unregister_on_request_upstream_callback_func(self):
@@ -414,11 +409,8 @@ class Checker:
             return
         global on_response_upstream_func_array
         for func in on_response_upstream_func_array:
-            self._on_response_upstream_func_list.append(func)
-            application.on_response_upstream.append({
-                'name': '',
-                'func': func
-            })
+            self._on_response_upstream_func_list.append(func['func'])
+            application.on_response_upstream.append(func)
         on_response_upstream_func_array = []
 
     def _unregister_on_response_upstream_callback_func(self):

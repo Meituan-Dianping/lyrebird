@@ -3,6 +3,7 @@ from lyrebird.task import BackgroundTaskServer
 from lyrebird.event import EventServer
 from lyrebird import application
 from lyrebird import reporter
+from typing import NamedTuple
 import pytest
 
 
@@ -11,6 +12,7 @@ conf = {
     "proxy.filters": ["kuxun", "meituan", "sankuai", "dianping"],
     "proxy.port": 4272,
     "mock.port": 9090,
+    # 'ip': '127.0.0.1',
     "mock.data": "data",
     "mock.proxy_headers": {
         "scheme": "MKScheme",
@@ -19,10 +21,12 @@ conf = {
     }
 }
 
+MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
 
 @pytest.fixture
 def client():
-    application.config = conf
+    # application.config = conf
+    application._cm = MockConfigManager(config=conf)
     application.server['event'] = EventServer()
     application.reporter = reporter.Reporter()
     application.server['task'] = BackgroundTaskServer()

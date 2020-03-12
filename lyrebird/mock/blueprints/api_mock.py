@@ -1,18 +1,20 @@
-import codecs
-import json
-import os
 import traceback
 from types import FunctionType
-from flask import Blueprint, request, abort
+from flask import Blueprint, request, Response, abort
 
+from ..handlers.mock_handler import MockHandler
+from ..handlers.proxy_handler import ProxyHandler
 from ..handlers.handler_context import HandlerContext
+from ..handlers.flow_editor_handler import FlowEditorHandler
 from .. import plugin_manager
 from .. import context
 from lyrebird import log
-from lyrebird import application
 
 
 logger = log.get_logger()
+mock_handler = MockHandler()
+proxy_handler = ProxyHandler()
+flow_editor_handler = FlowEditorHandler()
 
 
 api_mock = Blueprint('mock', __name__, url_prefix='/mock')
@@ -23,31 +25,26 @@ api_mock = Blueprint('mock', __name__, url_prefix='/mock')
 def index(path=''):
     logger.debug(f'Mock handler on request {request.url}')
 
+    # TODO change api_mock.py into core.py
+
     resp = None
     req_context = HandlerContext(request)
     req_context.update_client_req_time()
 
-    for request_fn in application.on_request:
-        handler_fn = request_fn['func']
-        try:
-            handler_fn(req_context)
-        except Exception:
-            logger.error(traceback.format_exc())
+    flow_editor_handler.on_request_handler(req_context)
 
-    # old scripts loading function
-    # remove later
-    from lyrebird import checker
-    for encoder_fn in checker.encoders:
-        encoder_fn(req_context)
+    req_context.update_server_req_time()
 
-    for handler_name in plugin_manager.inner_handler:
-        handler = plugin_manager.inner_handler[handler_name]
-        try:
-            handler.handle(req_context)
-            if req_context.response:
-                resp = req_context.response
-        except Exception:
-            logger.error(traceback.format_exc())
+    mock_handler.handle(req_context)
+
+    if req_context.flow['response']:
+        req_context.transfer_response_state_string()
+    else:
+        flow_editor_handler.on_request_upstream_handler(req_context)
+        proxy_handler.handle(req_context)
+        flow_editor_handler.on_response_upstream_handler(req_context)
+
+    req_context.update_server_resp_time()
 
     # old plugin loading function
     # remove later
@@ -65,20 +62,30 @@ def index(path=''):
         except Exception:
             logger.error(f'plugin error {plugin_name}\n{traceback.format_exc()}')
 
-    for response_fn in application.on_response:
-        handler_fn = response_fn['func']
-        try:
-            handler_fn(req_context)
-            if req_context.response:
-                resp = req_context.response
-        except Exception:
-            logger.error(traceback.format_exc())
+    flow_editor_handler.on_response_handler(req_context)
 
-    req_context.update_client_resp_time()
+    if req_context.response_state == req_context.STREAM:
+        gen = req_context.get_response_gen_stream()
+
+    elif req_context.response_state == req_context.JSON:
+        gen = req_context.get_response_gen_json()
+
+    elif req_context.response_state == req_context.BYTES:
+        gen = req_context.get_response_gen_bytes()
+
+    elif req_context.response_state == req_context.UNKNOWN:
+        gen = req_context.get_response_gen_unknown()
+
+    else:
+        resp = abort(404, f'Not handle this request: {req_context.flow["request"].get("url")}')
+        req_context.update_client_resp_time()
+
+    resp = Response(
+        gen(),
+        status=req_context.flow['response']['code'],
+        headers=req_context.flow['response']['headers']
+    )
 
     context.emit('action', 'add flow log')
-
-    if not req_context.response:
-        resp = abort(404, 'Not handle this request')
 
     return resp
