@@ -14,7 +14,7 @@
           <span>{{logo}}</span>
         </div>
         <Divider class="sider-bar-divider" />
-        <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName">
+        <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeMenuItem.title">
           <MenuItem
             v-for="(menuItem, index) in menu"
             :key="index"
@@ -121,6 +121,12 @@ export default {
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
   },
+  watch: {
+    activeMenuItem: function (newValue, oldValue) {
+      console.log(` activeMenuItem :  ${newValue.title}`)
+      this.refreshPage(newValue)
+    },
+  },
   computed: {
     menuitemClasses () {
       return ["menu-item", this.isCollapsed ? "collapsed-menu" : "menu"]
@@ -143,6 +149,9 @@ export default {
     },
     activeName () {
       return this.$store.state.activeName
+    },
+    activeMenuItem () {
+      return this.$store.state.activeMenuItem
     },
     activatedGroupName () {
       const activatedGroups = this.$store.state.inspector.activatedGroup
@@ -172,13 +181,16 @@ export default {
     },
     menuItemOnClick (menuItem) {
       this.$store.commit('setActiveName', menuItem.title)
-      if (menuItem.type === 'router') {
-        if (menuItem.name === 'plugin-view' || menuItem.name === 'plugin-container') {
-          this.$store.commit('plugin/setSrc', menuItem.params.src)
+      this.$store.dispatch('updateActiveMenuItem',menuItem)
+    },
+    refreshPage(activeMenuItem) {
+      if (activeMenuItem.type === 'router') {
+        if (activeMenuItem.name === 'plugin-view' || activeMenuItem.name === 'plugin-container') {
+          this.$store.commit('plugin/setSrc', activeMenuItem.params.src)
         }
-        this.$router.push({ name: menuItem.name, params: menuItem.params })
+        this.$router.push({ name: activeMenuItem.name, params: activeMenuItem.params })
       } else {
-        window.open(menuItem.path, '_self')
+        window.open(activeMenuItem.path, '_self')
       }
     },
     resetActivatedData () {

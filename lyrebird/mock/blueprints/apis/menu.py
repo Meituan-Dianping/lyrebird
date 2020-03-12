@@ -1,10 +1,10 @@
 from flask_restful import Resource
-from flask import jsonify
+from flask import jsonify,request
 from lyrebird.mock import context
 from lyrebird.mock import plugin_manager
 from lyrebird import application
 
-
+activeMenuItem = {"name": "inspector", "path": "/", "title": "Inspector", "type": "router"}
 class Menu(Resource):
 
     def get(self):
@@ -62,4 +62,9 @@ class Menu(Resource):
                     'name': name
                 }
             })
-        return context.make_ok_response(menu=menu)
+        return context.make_ok_response(menu=menu, activeMenuItem=activeMenuItem)
+
+    def put(self):
+        global activeMenuItem
+        activeMenuItem = request.json.get('activeMenuItem')
+        return context.make_ok_response(activeMenuItem=activeMenuItem)
