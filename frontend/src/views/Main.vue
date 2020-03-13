@@ -14,7 +14,7 @@
           <span>{{logo}}</span>
         </div>
         <Divider class="sider-bar-divider" />
-        <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeMenuItem.title">
+        <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName" ref="menu">
           <MenuItem
             v-for="(menuItem, index) in menu"
             :key="index"
@@ -123,9 +123,14 @@ export default {
   },
   watch: {
     activeMenuItem: function (newValue, oldValue) {
-      console.log(` activeMenuItem :  ${newValue.title}`)
+      console.log(`activeMenuItem :  ${newValue.title}`)
       this.refreshPage(newValue)
-    },
+      // :active-name 异步刷新后，需要手动更新 
+      // https://github.com/iview/iview/issues/1245#issuecomment-352992001 
+      this.$nextTick(function(){
+        this.$refs.menu.updateActiveName();
+      });
+    }
   },
   computed: {
     menuitemClasses () {
@@ -180,17 +185,19 @@ export default {
       }
     },
     menuItemOnClick (menuItem) {
-      this.$store.commit('setActiveName', menuItem.title)
-      this.$store.dispatch('updateActiveMenuItem',menuItem)
+      // 更新activeName 与 activeMenuItem
+      // 点击后，activeMenuItem更新，触发watch，操作页面更新
+      this.$store.dispatch('updateActiveMenuItem', menuItem)
     },
-    refreshPage(activeMenuItem) {
-      if (activeMenuItem.type === 'router') {
-        if (activeMenuItem.name === 'plugin-view' || activeMenuItem.name === 'plugin-container') {
-          this.$store.commit('plugin/setSrc', activeMenuItem.params.src)
+    refreshPage (menuItem) {
+      // 更新 router
+      if (menuItem.type === 'router') {
+        if (menuItem.name === 'plugin-view' || menuItem.name === 'plugin-container') {
+          this.$store.commit('plugin/setSrc', menuItem.params.src)
         }
-        this.$router.push({ name: activeMenuItem.name, params: activeMenuItem.params })
+        this.$router.push({ name: menuItem.name, params: menuItem.params })
       } else {
-        window.open(activeMenuItem.path, '_self')
+        window.open(menuItem.path, '_self')
       }
     },
     resetActivatedData () {

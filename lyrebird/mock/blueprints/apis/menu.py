@@ -4,7 +4,8 @@ from lyrebird.mock import context
 from lyrebird.mock import plugin_manager
 from lyrebird import application
 
-activeMenuItem = {"name": "inspector", "path": "/", "title": "Inspector", "type": "router"}
+activeMenuItem = None
+activeName = None
 class Menu(Resource):
 
     def get(self):
@@ -62,9 +63,10 @@ class Menu(Resource):
                     'name': name
                 }
             })
-        return context.make_ok_response(menu=menu, activeMenuItem=activeMenuItem)
+        return context.make_ok_response(menu=menu, activeMenuItem=activeMenuItem, activeName=activeName)
 
     def put(self):
-        global activeMenuItem
+        global activeMenuItem, activeName
         activeMenuItem = request.json.get('activeMenuItem')
-        return context.make_ok_response(activeMenuItem=activeMenuItem)
+        activeName = activeMenuItem["title"]
+        return context.make_ok_response(activeMenuItem=activeMenuItem, activeName=activeName)

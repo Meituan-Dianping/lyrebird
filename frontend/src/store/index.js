@@ -49,6 +49,7 @@ export default new Vuex.Store({
       api.getMenu().then(response => {
         commit('setMenu', response.data.menu)
         commit('setActiveMenuItem', response.data.activeMenuItem)
+        commit('setActiveName', response.data.activeName)
       })
     },
     loadStatus ({ commit }) {
@@ -65,6 +66,7 @@ export default new Vuex.Store({
       api.setActiveMenuItem(activeMenuItem)
         .then(response => {
           commit('setActiveMenuItem', response.data.activeMenuItem)
+          commit('setActiveName', response.data.activeName)
         })
         .catch(error => console.log(error))
     },
