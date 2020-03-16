@@ -1,5 +1,5 @@
 import * as api from '../api'
-import { bus } from '@/eventbus'
+import { bus } from '../eventbus'
 
 export default {
   state: {
@@ -26,7 +26,7 @@ export default {
           }
         })
         .catch(error => {
-          bus.$emit('msg.error','loadBandwidth failed'+ error.data.message)
+          bus.$emit('msg.error','loadBandwidth failed '+ error.data.message)
         })
     },
 
@@ -44,7 +44,7 @@ export default {
           }
         })
         .catch(error => {
-          bus.$emit('msg.error', 'loadBandwidthTemplates failed' + error.data.message)
+          bus.$emit('msg.error', 'loadBandwidthTemplates failed ' + error.data.message)
         })
     },
 
@@ -60,7 +60,7 @@ export default {
           }
         })
         .catch(error => {
-          bus.$emit('msg.error', 'updateBandwidthTemplate failed' + error.data.message)
+          bus.$emit('msg.error', 'updateBandwidthTemplate failed ' + error.data.message)
         })
     }
   }
