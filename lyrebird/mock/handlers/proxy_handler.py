@@ -1,8 +1,8 @@
-import requests
-from flask import Response, stream_with_context
-from requests.packages import urllib3
-from .. import context
 import urllib
+import requests
+from requests.packages import urllib3
+from flask import Response, stream_with_context
+from .. import context
 from lyrebird import application
 from lyrebird.log import get_logger
 
@@ -15,7 +15,7 @@ logger = get_logger()
 
 class ProxyHandler:
     """
-    当前处理链上没有生成response的请求，尝试按照代理规则代理。
+    按照代理规则代理
 
     """
 
@@ -37,8 +37,8 @@ class ProxyHandler:
             handler_context.response = Response(response='Duplicate request path\n', status=400)
             return
 
+        data = handler_context.get_request_data_from_flow()
         method = request['method']
-        data = request.get('data') or request.get('query') or None
         headers = dict()
         for name, value in request['headers'].items():
             if not value or name in ['Cache-Control', 'Host']:

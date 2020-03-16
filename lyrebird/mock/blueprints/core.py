@@ -1,9 +1,10 @@
 import traceback
 from types import FunctionType
-from flask import Blueprint, request, Response, abort
+from flask import Blueprint, request, Response
 
 from ..handlers.mock_handler import MockHandler
 from ..handlers.proxy_handler import ProxyHandler
+from ..handlers.path_not_found_handler import RequestPathNotFound
 from ..handlers.handler_context import HandlerContext
 from ..handlers.flow_editor_handler import FlowEditorHandler
 from .. import plugin_manager
@@ -14,18 +15,17 @@ from lyrebird import log
 logger = log.get_logger()
 mock_handler = MockHandler()
 proxy_handler = ProxyHandler()
+path_not_found_handler = RequestPathNotFound()
 flow_editor_handler = FlowEditorHandler()
 
 
-api_mock = Blueprint('mock', __name__, url_prefix='/mock')
+core = Blueprint('mock', __name__, url_prefix='/mock')
 
 
-@api_mock.route('/', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
-@api_mock.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
+@core.route('/', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
+@core.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 def index(path=''):
     logger.debug(f'Mock handler on request {request.url}')
-
-    # TODO change api_mock.py into core.py
 
     resp = None
     req_context = HandlerContext(request)
@@ -64,6 +64,8 @@ def index(path=''):
 
     flow_editor_handler.on_response_handler(req_context)
 
+    gen = None
+
     if req_context.response_state == req_context.STREAM:
         gen = req_context.get_response_gen_stream()
 
@@ -76,15 +78,17 @@ def index(path=''):
     elif req_context.response_state == req_context.UNKNOWN:
         gen = req_context.get_response_gen_unknown()
 
-    else:
-        resp = abort(404, f'Not handle this request: {req_context.flow["request"].get("url")}')
-        req_context.update_client_resp_time()
+    if gen:
+        resp = Response(
+            gen(),
+            status=req_context.flow['response']['code'],
+            headers=req_context.flow['response']['headers']
+        )
 
-    resp = Response(
-        gen(),
-        status=req_context.flow['response']['code'],
-        headers=req_context.flow['response']['headers']
-    )
+    else:
+        path_not_found_handler.handle(req_context)
+        req_context.update_client_resp_time()
+        resp = req_context.response
 
     context.emit('action', 'add flow log')
 

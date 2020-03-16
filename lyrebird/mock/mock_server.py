@@ -9,7 +9,7 @@ from . import context
 from .blueprints.plugin import plugin
 from .blueprints.apis import api
 from .blueprints.ui import ui
-from .blueprints.api_mock import api_mock
+from .blueprints.core import core
 from flask_socketio import SocketIO
 from ..version import VERSION
 from lyrebird.base_server import ThreadServer
@@ -92,7 +92,7 @@ class LyrebirdMockServer(ThreadServer):
         plugin_manager.add_event_rules(self.socket_io)
         # Register blueprints
         self.app.register_blueprint(api)
-        self.app.register_blueprint(api_mock)
+        self.app.register_blueprint(core)
         self.app.register_blueprint(ui)
         self.app.register_blueprint(plugin)
 

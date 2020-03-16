@@ -8,7 +8,6 @@ logger = get_logger()
 class MockHandler:
     """
     根据当前设置数据组的匹配条件,查找对应的mock数据。
-    如果没有找到匹配的数据则交由下一个处理器处理。
 
     """
 
