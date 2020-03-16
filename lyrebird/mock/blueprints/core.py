@@ -19,15 +19,13 @@ path_not_found_handler = RequestPathNotFound()
 flow_editor_handler = FlowEditorHandler()
 
 
-api_mock = Blueprint('mock', __name__, url_prefix='/mock')
+core = Blueprint('mock', __name__, url_prefix='/mock')
 
 
-@api_mock.route('/', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
-@api_mock.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
+@core.route('/', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
+@core.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 def index(path=''):
     logger.debug(f'Mock handler on request {request.url}')
-
-    # TODO change api_mock.py into core.py
 
     resp = None
     req_context = HandlerContext(request)

@@ -244,6 +244,8 @@ class HandlerContext:
                 requset_data = json.dumps(self.flow['request']['data']).encode()
             elif content_type.startswith('application/x-www-form-urlencoded'):
                 requset_data = json.dumps(self.flow['request']['data']).encode()
+            else:
+                requset_data = self.flow['request']['data']
 
             content_encoding = self.flow['request']['headers'].get('Content-Encoding')
             if content_encoding == 'gzip' and requset_data:
