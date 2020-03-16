@@ -32,6 +32,14 @@ export const getMenu = () => {
   })
 }
 
+export const setActiveMenuItem = (activeMenuItem) => {
+  return axios({
+    url: '/api/menu',
+    data: { activeMenuItem },
+    method: 'PUT'
+  })
+}
+
 //------Lyrebird status--------
 /**
     Get lyrebird status

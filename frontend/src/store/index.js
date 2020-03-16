@@ -26,7 +26,8 @@ export default new Vuex.Store({
     menu: null,
     status: null,
     manifest: null,
-    activeName: null
+    activeName: null,
+    activeMenuItem: null
   },
   mutations: {
     setMenu (state, menu) {
@@ -40,12 +41,17 @@ export default new Vuex.Store({
     },
     setActiveName (state, activeName) {
       state.activeName = activeName
+    },
+    setActiveMenuItem (state, activeMenuItem) {
+      state.activeMenuItem = activeMenuItem
     }
   },
   actions: {
     loadMenu ({ commit }) {
       api.getMenu().then(response => {
         commit('setMenu', response.data.menu)
+        commit('setActiveMenuItem', response.data.activeMenuItem)
+        commit('setActiveName', response.data.activeName)
       })
     },
     loadStatus ({ commit }) {
@@ -57,6 +63,14 @@ export default new Vuex.Store({
       api.getManifest().then(response => {
         commit('setManifest', response.data.manifest)
       })
-    }
+    },
+    updateActiveMenuItem ({ commit }, activeMenuItem) {
+      api.setActiveMenuItem(activeMenuItem)
+        .then(response => {
+          commit('setActiveMenuItem', response.data.activeMenuItem)
+          commit('setActiveName', response.data.activeName)
+        })
+        .catch(error => console.log(error))
+    },
   }
 })
