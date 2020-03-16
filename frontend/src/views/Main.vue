@@ -139,6 +139,13 @@ export default {
     this.$store.dispatch('loadActivatedGroup')
     this.$store.dispatch('loadBandwidth')
     this.$store.dispatch('loadBandwidthTemplates')
+    this._keydownListener = (e) => {
+      this.$bus.$emit('keydown', e)
+    }
+    document.addEventListener('keydown', this._keydownListener)
+  },
+  beforeDestroy () {
+    document.removeEventListener('keydown', this._keydownListener)
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
