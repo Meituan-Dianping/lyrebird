@@ -208,6 +208,8 @@ class DataManager:
                 raise DataObjectCannotContainAnyOtherObject
 
         data = dict(raw_data)
+        data['request'] = dict(raw_data['request'])
+        data['response'] = dict(raw_data['response'])
         data_id = str(uuid.uuid4())
         data['id'] = data_id
         if 'request' in data:
