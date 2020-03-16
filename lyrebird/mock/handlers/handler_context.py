@@ -242,7 +242,7 @@ class HandlerContext:
 
             if content_type.startswith('application/json'):
                 requset_data = json.dumps(self.flow['request']['data']).encode()
-            elif content_type and content_type.startswith('application/x-www-form-urlencoded'):
+            elif content_type.startswith('application/x-www-form-urlencoded'):
                 requset_data = json.dumps(self.flow['request']['data']).encode()
 
             content_encoding = self.flow['request']['headers'].get('Content-Encoding')
