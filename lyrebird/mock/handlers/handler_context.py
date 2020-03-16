@@ -240,6 +240,34 @@ class HandlerContext:
     def update_response_data2flow(self):
         self.response_state = ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
 
+    def get_request_data_from_flow(self):
+        if not self.flow['request'].get('data'):
+            return None
+
+        content_type = self.flow['request']['headers'].get('Content-Type')
+
+        try:
+            if not content_type:
+                return str(self.flow['request']['data']).encode()
+
+            requset_data = None
+
+            if content_type.startswith('application/json'):
+                requset_data = json.dumps(self.flow['request']['data']).encode()
+            elif content_type.startswith('application/x-www-form-urlencoded'):
+                requset_data = json.dumps(self.flow['request']['data']).encode()
+            else:
+                requset_data = self.flow['request']['data']
+
+            content_encoding = self.flow['request']['headers'].get('Content-Encoding')
+            if content_encoding == 'gzip' and requset_data:
+                requset_data = gzip.compress(requset_data)
+            return requset_data
+
+        except Exception as e:
+            logger.warning(f'Convert request failed. {e}')
+            return str(self.flow['request']['data']).encode()
+
     def update_client_req_time(self):
         self.client_req_time = time.time()
         # 消息总线 客户端请求事件，启用此事件

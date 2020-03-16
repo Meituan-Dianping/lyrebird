@@ -211,6 +211,9 @@ class DataManager:
         data_id = str(uuid.uuid4())
         data['id'] = data_id
         if 'request' in data:
+            # TODO remove it with inspector frontend
+            data['request'] = dict(raw_data['request'])
+
             _data_name = self._get_request_path(data['request'])
             _data_rule = {
                 'request.url': f'(?=.*{self._get_request_path(data["request"])})'
@@ -222,6 +225,9 @@ class DataManager:
             _data_rule = {'request.url': '(?=.*YOUR-REQUEST-PATH)(?=.*PARAMS)'}
 
         if 'response' in data:
+            # TODO remove it with inspector frontend
+            data['response'] = dict(raw_data['response'])
+
             if 'data' in data['response']:
                 data['response']['data'] = self._flow_data_2_str(data['response']['data'])
 
