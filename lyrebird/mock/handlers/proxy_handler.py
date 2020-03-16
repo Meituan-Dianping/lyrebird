@@ -1,5 +1,3 @@
-import json
-import gzip
 import urllib
 import requests
 from requests.packages import urllib3
