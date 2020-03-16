@@ -21,11 +21,11 @@ export default {
           if (response.data.code === 1000) {
             context.commit('setBandwidth', response.data.bandwidth)
           } else {
-            console.log('loadBandwidth failed')
+            bus.$emit('msg.error', 'loadBandwidth failed')
           }
         })
         .catch(error => {
-          console.log('loadBandwidth failed', error)
+          bus.$emit('msg.error','loadBandwidth failed'+ error.data.message)
         })
     },
 
@@ -39,11 +39,11 @@ export default {
               response.data.bandwidth_templates
             )
           } else {
-            console.log('loadBandwidthTemplates failed')
+            bus.$emit('msg.error', 'loadBandwidthTemplates failed')
           }
         })
         .catch(error => {
-          console.log('loadBandwidthTemplates failed', error)
+          bus.$emit('msg.error', 'loadBandwidthTemplates failed' + error.data.message)
         })
     },
 
@@ -55,11 +55,11 @@ export default {
             console.log(response.data.bandwidth)
             context.commit('setBandwidth', response.data.bandwidth)
           } else {
-            console.log(response.data.message)
+            bus.$emit('msg.error', response.data.message)
           }
         })
         .catch(error => {
-          console.log('updateBandwidthTemplate failed', error)
+          bus.$emit('msg.error', 'updateBandwidthTemplate failed' + error.data.message)
         })
     }
   }

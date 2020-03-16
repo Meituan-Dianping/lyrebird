@@ -56,7 +56,7 @@
               <Icon type="ios-arrow-up" style="color:#f8f8f9;margin-left:5px;" />
             </a>
             <div slot="title">
-              <b>💡Bandwidth</b>
+              <b>Bandwidth</b>
             </div>
             <div slot="content">
               <Row type="flex" justify="space-around">
