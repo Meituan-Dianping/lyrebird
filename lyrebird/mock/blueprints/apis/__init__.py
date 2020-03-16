@@ -13,6 +13,7 @@ from .conflict_check import ConflictCheck, ActivatedDataConflictCheck
 from .mock_editor import Cut, Copy, Paste
 from .qrcode import Qrcode
 from .search import SearchMockDataByName
+from .bandwidth import Bandwidth , BandwidthTemplates
 from lyrebird.log import get_logger
 from lyrebird import application
 from flask import got_request_exception
@@ -63,6 +64,8 @@ api_source.add_resource(Plugin, '/plugin', '/plugin/<string:plugin_name>')
 api_source.add_resource(Menu, '/menu')
 api_source.add_resource(Notice, '/notice')
 api_source.add_resource(Checker, '/checker', '/checker/<string:checker_id>')
+api_source.add_resource(Bandwidth, '/bandwidth')
+api_source.add_resource(BandwidthTemplates, '/bandwidth_templates')
 api_source.add_resource(
     Event,
     '/event',

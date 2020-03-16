@@ -2,6 +2,7 @@ from .. import context
 from lyrebird import application
 from lyrebird.log import get_logger
 from lyrebird import utils
+from lyrebird.mock.blueprints.apis.bandwidth import config
 from urllib.parse import urlparse, unquote
 import uuid
 import time
@@ -190,9 +191,14 @@ class HandlerContext:
             try:
                 size = self.response_chunk_size
                 length = len(_resp_data)
-
+                bandwidth = config.bandwidth
+                if bandwidth > 0:
+                    sleep_time = self.response_chunk_size / (bandwidth * 1024)
+                else:
+                    sleep_time = 0
                 for i in range(int(length/size) + 1):
-                    # TODO speedlimit
+                    time.sleep(sleep_time)
+                    self.server_resp_time = time.time()
                     yield _resp_data[ i * size : (i+1) * size ]
             finally:
                 self.update_client_resp_time()
@@ -202,10 +208,16 @@ class HandlerContext:
         def generator():
             upstream = self.response
             try:
+                bandwidth = config.bandwidth
+                if bandwidth > 0:
+                    sleep_time = self.response_chunk_size / (bandwidth * 1024)
+                else:
+                    sleep_time = 0
                 buffer = []
                 for item in upstream.response:
                     buffer.append(item)
-                    # TODO speedlimit
+                    time.sleep(sleep_time)
+                    self.server_resp_time = time.time()
                     yield item
             finally:
                 self.response.data = b''.join(buffer)
