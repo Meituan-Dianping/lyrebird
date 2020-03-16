@@ -1,4 +1,5 @@
 import json
+import gzip
 import urllib
 import requests
 from requests.packages import urllib3
@@ -16,7 +17,7 @@ logger = get_logger()
 
 class ProxyHandler:
     """
-    当前处理链上没有生成response的请求，尝试按照代理规则代理。
+    按照代理规则代理
 
     """
 
@@ -38,10 +39,8 @@ class ProxyHandler:
             handler_context.response = Response(response='Duplicate request path\n', status=400)
             return
 
+        data = handler_context.get_request_data_from_flow()
         method = request['method']
-        data = request.get('data') or request.get('query') or None
-        if isinstance(request.get('data'), list):
-            data = json.dumps(request.get('data')).encode()
         headers = dict()
         for name, value in request['headers'].items():
             if not value or name in ['Cache-Control', 'Host']:
