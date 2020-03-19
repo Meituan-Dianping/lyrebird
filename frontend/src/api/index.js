@@ -7,6 +7,7 @@ export * from '@/api/checker.js'
 export * from '@/api/notice.js'
 export * from '@/api/event.js'
 export * from '@/api/bandwidth.js'
+export * from '@/api/statusbar.js'
 
 
 const successHandler = (response) => {
