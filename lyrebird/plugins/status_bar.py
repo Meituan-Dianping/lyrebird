@@ -48,6 +48,6 @@ class ImageMenuItem(MenuItem):
 
 class TextMenuItem(MenuItem):
     """
-    src: text 
+    src: text
     """
     pass
