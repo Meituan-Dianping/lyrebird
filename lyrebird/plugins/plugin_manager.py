@@ -98,6 +98,9 @@ class PluginManager(StaticServer):
                     'func': handler[1]
                 })
 
+            for status_item in plugin.manifest.status:
+                plugin.status.append(status_item())
+
 
 class IndexPageViewFunc:
 

@@ -8,6 +8,7 @@ class Plugin:
         self.version = version
         self.location = location
         self.manifest = ManifestProxy(**kwargs)
+        self.status = []
 
     @staticmethod
     def default():
@@ -19,8 +20,9 @@ class Plugin:
             on_request=[],
             on_response=[],
             on_request_upstream=[],
-            on_response_upstream=[]
-            )
+            on_response_upstream=[],
+            status=[]
+        )
 
 
 class ManifestProxy:

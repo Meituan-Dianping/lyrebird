@@ -13,7 +13,8 @@ from .conflict_check import ConflictCheck, ActivatedDataConflictCheck
 from .mock_editor import Cut, Copy, Paste
 from .qrcode import Qrcode
 from .search import SearchMockDataByName
-from .bandwidth import Bandwidth , BandwidthTemplates
+from .bandwidth import Bandwidth, BandwidthTemplates
+from .status_bar import StatusBar
 from lyrebird.log import get_logger
 from lyrebird import application
 from flask import got_request_exception
@@ -76,3 +77,4 @@ api_source.add_resource(
     '/event/<string:channel>/id/<string:event_id>'
 )
 api_source.add_resource(Channel, '/channel')
+api_source.add_resource(StatusBar, '/statusbar', '/statusbar/<string:item_id>')
