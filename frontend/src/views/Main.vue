@@ -71,7 +71,7 @@
             </div>
           </Poptip>
           <!-- bandwidth plugin end -->
-          <status-bar />
+          <StatusBar />
           <span class="main-footer-right">
             <Poptip
               v-if="status"

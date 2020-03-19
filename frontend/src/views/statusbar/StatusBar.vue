@@ -15,7 +15,7 @@
         <div slot="content">
           <div v-for="(item, index) in statusBarDetail" :key="index">
               <img v-if="item.type=='ImageMenuItem'" :src="item.src" style="width:100%">
-              <div v-else >{{item.src}}</div>
+              <div v-else class="TextMenuItem">{{item.src}}</div>
           </div>
         </div>
       </Poptip>
@@ -48,5 +48,12 @@ export default {
 #statusBar {
   width: 600px;
   display: inline-block;
+}
+.TextMenuItem {
+  font-size:20px;
+  font-family: Helvetica,"Hiragino Sans GB";
+  font-weight: bold; 
+  color: #17233d;
+  letter-spacing: 1px;
 }
 </style>
