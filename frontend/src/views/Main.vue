@@ -71,22 +71,14 @@
             </div>
           </Poptip>
           <!-- bandwidth plugin end -->
+          <status-bar />
           <span class="main-footer-right">
-            <span class="main-footer-copyright">
-              <strong style="color:#f8f8f9">
-                Copyright &copy; 2018-present
-                <a
-                  href="https://meituan-dianping.github.io/lyrebird"
-                  target="_blank"
-                >Meituan</a>. All rights reserved.
-              </strong>
-            </span>
             <Poptip
               v-if="status"
               content="content"
               placement="top-end"
               class="main-footer-status"
-              width="220"
+              width="250"
             >
               <a>
                 <Icon type="ios-arrow-up" style="color:#f8f8f9" />
@@ -102,6 +94,16 @@
                   </i-col>
                   <i-col span="12" offset="1">{{status[key]}}</i-col>
                 </Row>
+                <Divider style="margin:10px 0;"/>
+                <div style="text-align:center">
+                  <strong >
+                    Copyright &copy; 2018-present 
+                    <a href="https://meituan-dianping.github.io/lyrebird" target="_blank" >Meituan</a>.
+                  </strong>
+                </div>
+                <div style="text-align:center"> 
+                  <span> All rights reserved.</span>
+                </div>
               </div>
             </Poptip>
             <a
@@ -120,11 +122,13 @@
 
 <script>
 import NoticeCenter from '@/views/notice/NoticeCenter.vue'
+import StatusBar from '@/views/statusbar/StatusBar.vue'
 
 export default {
   name: 'MainLayout',
   components: {
-    NoticeCenter
+    NoticeCenter,
+    StatusBar
   },
   data () {
     return {
