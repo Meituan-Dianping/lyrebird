@@ -12,7 +12,6 @@ from .checker import on_request, on_response, on_request_upstream, on_response_u
 from lyrebird import application
 from lyrebird.log import get_logger
 
-
 APPLICATION_CONF_DIR = os.path.join(os.path.expanduser('~'), '.lyrebird')
 
 

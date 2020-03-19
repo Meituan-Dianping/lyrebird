@@ -57,6 +57,12 @@ def manifest(**options):
 
             event=[
                 ('flow', plugin.event_handler)
+            ],
+
+            # Set status bar text
+
+            status=[
+                plugin.StatusItem
             ]
         )
     """
