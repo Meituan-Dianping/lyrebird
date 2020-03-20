@@ -41,7 +41,6 @@
           <span v-show="activatedGroupName" class="main-footer-mock-status">
             <b>Activated mock group: {{activatedGroupName}}</b>
             <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
-            <Divider type="vertical" />
           </span>
           <!-- bandwidth plugin begin -->
           <Poptip
@@ -52,8 +51,7 @@
             width="250"
           >
             <a>
-              <b style="color:#f8f8f9">&nbsp;&nbsp; Bandwidth：{{bandwidthExplanation}} </b>
-              <Icon type="ios-arrow-up" style="color:#f8f8f9;margin-left:5px;" />
+              <b style="color:#f8f8f9;font-size:12px;">&nbsp;&nbsp; Bandwidth：{{bandwidthExplanation}} </b>
             </a>
             <div slot="title">
               <b>Bandwidth</b>
@@ -339,7 +337,7 @@ export default {
 }
 .main-footer-status {
   font-size: 11px;
-  margin-right: 10px;
+  margin-right: 20px;
 }
 .main-footer-right {
   float: right;
