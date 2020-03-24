@@ -241,9 +241,6 @@ class HandlerContext:
         self.response_state = ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
 
     def get_request_data_from_flow(self):
-        # if self.request.form:
-        #     return self.request.form.to_dict()
-
         if not self.flow['request'].get('data'):
             return None
 
