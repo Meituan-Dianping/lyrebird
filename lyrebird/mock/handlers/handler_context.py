@@ -3,7 +3,7 @@ from lyrebird import application
 from lyrebird.log import get_logger
 from lyrebird import utils
 from lyrebird.mock.blueprints.apis.bandwidth import config
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, urlencode
 import uuid
 import time
 import gzip
@@ -255,7 +255,8 @@ class HandlerContext:
             if content_type.startswith('application/json'):
                 requset_data = json.dumps(self.flow['request']['data']).encode()
             elif content_type.startswith('application/x-www-form-urlencoded'):
-                requset_data = json.dumps(self.flow['request']['data']).encode()
+                # Combined with RequestDataHelper.req2dict(line 379) , the type of form data can only be dict
+                requset_data = urlencode(self.flow['request']['data']).encode()
             else:
                 requset_data = self.flow['request']['data']
 
