@@ -3,7 +3,7 @@ from lyrebird import application
 from lyrebird.log import get_logger
 from lyrebird import utils
 from lyrebird.mock.blueprints.apis.bandwidth import config
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, urlencode
 import uuid
 import time
 import gzip
@@ -241,6 +241,9 @@ class HandlerContext:
         self.response_state = ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
 
     def get_request_data_from_flow(self):
+        # if self.request.form:
+        #     return self.request.form.to_dict()
+
         if not self.flow['request'].get('data'):
             return None
 
@@ -255,7 +258,10 @@ class HandlerContext:
             if content_type.startswith('application/json'):
                 requset_data = json.dumps(self.flow['request']['data']).encode()
             elif content_type.startswith('application/x-www-form-urlencoded'):
-                requset_data = json.dumps(self.flow['request']['data']).encode()
+                if isinstance(self.flow['request']['data'], dict):
+                    requset_data = urlencode(self.flow['request']['data']).encode()
+                else:
+                    requset_data = json.dumps(self.flow['request']['data']).encode()
             else:
                 requset_data = self.flow['request']['data']
 
