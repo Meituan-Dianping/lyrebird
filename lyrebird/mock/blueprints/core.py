@@ -31,9 +31,6 @@ def index(path=''):
     req_context = HandlerContext(request)
     req_context.update_client_req_time()
 
-    # if 'https://passport.meituan.com/api/v7/account/login' in req_context.flow['request']['url']:
-    #     print(req_context)
-
     flow_editor_handler.on_request_handler(req_context)
 
     req_context.update_server_req_time()
