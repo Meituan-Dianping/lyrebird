@@ -255,7 +255,7 @@ class HandlerContext:
             if content_type.startswith('application/json'):
                 requset_data = json.dumps(self.flow['request']['data']).encode()
             elif content_type.startswith('application/x-www-form-urlencoded'):
-                # Combined with line 379, the type of form data can only be dict
+                # Combined with RequestDataHelper.req2dict(line 379) , the type of form data can only be dict
                 requset_data = urlencode(self.flow['request']['data']).encode()
             else:
                 requset_data = self.flow['request']['data']
