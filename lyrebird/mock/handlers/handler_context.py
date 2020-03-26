@@ -418,6 +418,9 @@ class ResponseDataHelper(DataHelper):
             elif content_type.startswith('text/html'):
                 output['data'] = response.data.decode('utf-8')
                 return HandlerContext.BYTES
+            elif content_type.startswith('text/plain'):
+                output['data'] = response.data.decode('utf-8')
+                return HandlerContext.BYTES
             else:
                 output['data'] = ResponseDataHelper.data2Str(response.data)
                 return HandlerContext.UNKNOWN
