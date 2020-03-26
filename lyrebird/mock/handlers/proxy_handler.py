@@ -37,7 +37,7 @@ class ProxyHandler:
             handler_context.response = Response(response='Duplicate request path\n', status=400)
             return
 
-        # lock feature: Request Editor
+        # Disable request editor temporarily
         # data = handler_context.get_request_data_from_flow()
         data = handler_context.request.get_data() or handler_context.request.form or None
         method = request['method']
