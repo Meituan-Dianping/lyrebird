@@ -4,7 +4,8 @@
 
     <Row>
       <i-col span='12'>
-        <Table border :columns='columns' :data='requestList'></Table>
+        <h2 >mock list of the last 10</h2>
+        <Table style="margin:10px 0;" border :columns="columns" :data="requestList"></Table>
       </i-col>
       <i-col span='12'>
         <div style='margin:0 50px ;'>
