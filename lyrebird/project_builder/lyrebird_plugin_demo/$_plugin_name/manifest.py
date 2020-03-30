@@ -2,6 +2,7 @@ from lyrebird.plugins import manifest
 from . import handler
 from . import status
 
+
 manifest(
     id='demo',
     name='Demo',

@@ -5,7 +5,7 @@ import requests
 from flask import request
 
 
-lists = []
+requestList = []
 
 
 def on_request(msg):
@@ -15,12 +15,12 @@ def on_request(msg):
         "uri": uri,
         "id":id
     }
-    global lists
-    if len(lists) > 9:
-        lists.pop()
-        lists.insert(0, item)
+    global requestList
+    if len(requestList) > 9:
+        requestList.pop()
+        requestList.insert(0, item)
     else:
-        lists.insert(0, item)
+        requestList.insert(0, item)
 
     lyrebird.emit('loadRequestList')
 
@@ -32,16 +32,13 @@ def remock():
     r = requests.get(url=f"http://{ip}:{port}/mock/{uri}")
     return application.make_ok_response()
     
-
-    
 def request_list():
-    global lists
+    global requestList
     return application.make_ok_response(
-        requestList = lists
+        requestList = requestList
     )
 
-
 def reset():
-    global lists
-    lists = []
+    global requestList
+    requestList = []
     return application.make_ok_response()
