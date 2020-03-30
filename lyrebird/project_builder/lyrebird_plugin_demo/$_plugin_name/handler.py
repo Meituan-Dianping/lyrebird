@@ -1,26 +1,47 @@
 from lyrebird import application
+import lyrebird
+from lyrebird.application import config
+import requests
+from flask import request
 
-req_count = 0
-last_req_url = None
+
+lists = []
 
 
 def on_request(msg):
-    global req_count
-    req_count += 1
-    global last_req_url
-    last_req_url = msg['flow']['request']['url']
+    uri = msg['flow']['request']['url']
+    id = msg['flow']['id']
+    item = {
+        "uri": uri,
+        "id":id
+    }
+    global lists
+    if len(lists) > 9:
+        lists.pop()
+        lists.insert(0, item)
+    else:
+        lists.insert(0, item)
 
+    lyrebird.emit('loadRequestList')
 
-def request_count():
+def remock():
+    uri = request.json["uri"]
+    ip =  config.get('ip')
+    port = config.get('mock.port')
+
+    r = requests.get(url=f"http://{ip}:{port}/mock/{uri}")
+    return application.make_ok_response()
+    
+
+    
+def request_list():
+    global lists
     return application.make_ok_response(
-        count=req_count,
-        last_request=last_req_url
+        requestList = lists
     )
 
 
-def reset_count():
-    global req_count
-    req_count = 0
-    global last_req_url
-    last_req_url = None
+def reset():
+    global lists
+    lists = []
     return application.make_ok_response()
