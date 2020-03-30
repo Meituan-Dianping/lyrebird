@@ -10,10 +10,10 @@ requestList = []
 
 def on_request(msg):
     uri = msg['flow']['request']['url']
-    id = msg['flow']['id']
+    flow_id = msg['flow']['id']
     item = {
         "uri": uri,
-        "id":id
+        "id":flow_id
     }
     global requestList
     if len(requestList) > 9:
@@ -29,9 +29,9 @@ def remock():
     ip =  config.get('ip')
     port = config.get('mock.port')
 
-    r = requests.get(url=f"http://{ip}:{port}/mock/{uri}")
+    requests.get(url=f"http://{ip}:{port}/mock/{uri}")
     return application.make_ok_response()
-    
+
 def request_list():
     global requestList
     return application.make_ok_response(

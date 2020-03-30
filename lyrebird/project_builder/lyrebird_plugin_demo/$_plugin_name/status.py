@@ -4,7 +4,7 @@ import io
 import binascii
 
 
-class StatusbarDemo(ClickableStatusText):
+class StatusbarDemoImage(ClickableStatusText):
     def get_text(self):
         return 'Lyrebird_QRCode'
 
@@ -19,3 +19,9 @@ class StatusbarDemo(ClickableStatusText):
         img_data = (b"data:image/png;base64," + binascii.b2a_base64(img_data_bytes)).decode()
         return [ImageMenuItem(src=img_data)]
 
+class StatusbarDemoText(ClickableStatusText):
+    def get_text(self):
+        return 'Lyrebird_Text'
+
+    def get_menu(self):
+        return [TextMenuItem(src="Text Status Bar")]

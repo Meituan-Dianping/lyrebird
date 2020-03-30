@@ -10,7 +10,7 @@ export default new Vuex.Store({
   },
   mutations: {
     setRequestList(state, requestList) {
-      state.requestList = requestList;
+      state.requestList = requestList
     }
   },
   actions: {

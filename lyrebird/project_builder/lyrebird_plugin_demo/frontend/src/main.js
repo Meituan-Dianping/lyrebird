@@ -8,7 +8,7 @@ import io from 'socket.io-client'
 Vue.config.productionTip = false
 
 Vue.use(ViewUI)
-Vue.prototype["$io"] = io()
+Vue.prototype['$io'] = io()
 
 new Vue({
   store,
