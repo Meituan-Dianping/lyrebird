@@ -24,7 +24,7 @@ def on_request(msg):
 
     lyrebird.emit('loadRequestList')
 
-def remock():
+def mock():
     uri = request.json["uri"]
     ip =  config.get('ip')
     port = config.get('mock.port')

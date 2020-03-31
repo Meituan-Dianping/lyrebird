@@ -8,9 +8,9 @@ export const loadRequestList = () => {
   })
 }
 
-export const remock = uri => {
+export const mock = uri => {
   return axios({
-    url: PREFIX + '/remock',
+    url: PREFIX + '/mock',
     method: 'POST',
     data: { uri }
   })
