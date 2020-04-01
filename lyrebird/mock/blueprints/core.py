@@ -37,9 +37,7 @@ def index(path=''):
 
     mock_handler.handle(req_context)
 
-    if req_context.flow['response']:
-        req_context.transfer_response_state_string()
-    else:
+    if not req_context.flow['response']:
         flow_editor_handler.on_request_upstream_handler(req_context)
         proxy_handler.handle(req_context)
         flow_editor_handler.on_response_upstream_handler(req_context)
@@ -64,21 +62,12 @@ def index(path=''):
 
     flow_editor_handler.on_response_handler(req_context)
 
-    gen = None
+    if req_context.flow['response']:
+        if req_context.is_response_edited:
+            gen = req_context._generator_bytes()
+        else:
+            gen = req_context._generator_stream()
 
-    if req_context.response_state == req_context.STREAM:
-        gen = req_context.get_response_gen_stream()
-
-    elif req_context.response_state == req_context.JSON:
-        gen = req_context.get_response_gen_json()
-
-    elif req_context.response_state == req_context.BYTES:
-        gen = req_context.get_response_gen_bytes()
-
-    elif req_context.response_state == req_context.UNKNOWN:
-        gen = req_context.get_response_gen_unknown()
-
-    if gen:
         resp = Response(
             gen(),
             status=req_context.flow['response']['code'],

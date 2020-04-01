@@ -1,16 +1,14 @@
-from .. import context
-from lyrebird import application
-from lyrebird.log import get_logger
-from lyrebird import utils
-from lyrebird.mock.blueprints.apis.bandwidth import config
-from urllib.parse import urlparse, unquote, urlencode
 import uuid
 import time
-import gzip
-import json
-import urllib
-import binascii
 import ipaddress
+
+from .. import context
+from lyrebird import utils
+from lyrebird import application
+from lyrebird.log import get_logger
+from lyrebird.mock.blueprints.apis.bandwidth import config
+from urllib.parse import urlparse, unquote
+from .data_helper import RequestDataHelper, ResponseDataHelper
 
 
 logger = get_logger()
@@ -23,13 +21,6 @@ class HandlerContext:
 
     """
     MOCK_PATH_PREFIX = '/mock'
-
-    NONETYPE = 0
-    STREAM = 1
-    JSON = 2
-    STRING = 3
-    BYTES = 4
-    UNKNOWN = 5
 
     def __init__(self, request):
         self.id = str(uuid.uuid4())
@@ -48,7 +39,8 @@ class HandlerContext:
             response={}
             )
         self.client_address = None
-        self.response_state = self.NONETYPE
+        self.is_request_edited = False
+        self.is_response_edited = False
         self.response_chunk_size = 2048
         self._parse_request()
 
@@ -73,7 +65,7 @@ class HandlerContext:
 
         # handle request data
         if self.request.method in ['POST', 'PUT']:
-            RequestDataHelper.req2dict(self.request, output=_request)
+            RequestDataHelper.req2flow(self.request, output=_request)
 
         if self.request.headers.get('Lyrebird-Client-Address'):
             self.client_address = self.request.headers.get('Lyrebird-Client-Address')
@@ -129,68 +121,18 @@ class HandlerContext:
             path=self.request.path[len(self.MOCK_PATH_PREFIX):]
         )
 
-    def set_response_state_string(self):
-        self.response_state = self.STRING
+    def set_request_edited(self):
+        self.is_request_edited = True
 
-    def set_response_state_stream(self):
-        if self.response_state != self.NONETYPE:
-            logger.warning('Only transition from state NONETYPE is allowed!')
-            return
-        self.response_state = self.STREAM
+    def set_response_edited(self):
+        self.is_response_edited = True
 
-    def set_response_state_json(self):
-        self.response_state = self.JSON
-
-    def set_response_state_bytes(self):
-        self.response_state = self.BYTES
-
-    def set_response_state_unknown(self):
-        self.response_state = self.UNKNOWN
-
-    def transfer_response_state_string(self):
-        content_type = self.flow['response']['headers'].get('Content-Type')
-
-        try:
-            if not content_type:
-                self.set_response_state_unknown()
-                return
-
-            content_type = content_type.strip()
-            if content_type.startswith('application/json'):
-                self.flow['response']['data'] = json.loads(self.flow['response']['data'])
-                self.set_response_state_json()
-            elif content_type.startswith('text/xml'):
-                self.set_response_state_bytes()
-            elif content_type.startswith('text/html'):
-                self.set_response_state_bytes()
-            else:
-                self.set_response_state_unknown()
-
-        except Exception as e:
-            self.set_response_state_unknown()
-            logger.warning(f'Convert mock data response failed. {e}')
-
-    def get_response_gen_stream(self):
-        _resp_data = self.response.response
-        return self._generator_stream()
-
-    def get_response_gen_json(self):
-        _resp_data = json.dumps(self.flow['response']['data']).encode()
-        return self._generator_bytes(_resp_data)
-
-    def get_response_gen_bytes(self):
-        _resp_data = self.flow['response']['data'].encode()
-        return self._generator_bytes(_resp_data)
-
-    def get_response_gen_unknown(self):
-        _resp_data = ResponseDataHelper.data2byte(self.flow['response']['data'])
-        return self._generator_bytes(_resp_data)
-
-    def _generator_bytes(self, _resp_data):
+    def _generator_bytes(self):
         def generator():
             try:
-                size = self.response_chunk_size
+                _resp_data = ResponseDataHelper.flow2resp(self.flow)
                 length = len(_resp_data)
+                size = self.response_chunk_size
                 bandwidth = config.bandwidth
                 if bandwidth > 0:
                     sleep_time = self.response_chunk_size / (bandwidth * 1024)
@@ -221,7 +163,7 @@ class HandlerContext:
                     yield item
             finally:
                 self.response.data = b''.join(buffer)
-                ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
+                ResponseDataHelper.resp2flow(self.response, output=self.flow['response'])
 
                 self.update_client_resp_time()
                 upstream.close()
@@ -238,36 +180,7 @@ class HandlerContext:
         }
 
     def update_response_data2flow(self):
-        self.response_state = ResponseDataHelper.resp2dict(self.response, output=self.flow['response'])
-
-    def get_request_data_from_flow(self):
-        if not self.flow['request'].get('data'):
-            return None
-
-        content_type = self.flow['request']['headers'].get('Content-Type')
-
-        try:
-            if not content_type:
-                return str(self.flow['request']['data']).encode()
-
-            requset_data = None
-
-            if content_type.startswith('application/json'):
-                requset_data = json.dumps(self.flow['request']['data']).encode()
-            elif content_type.startswith('application/x-www-form-urlencoded'):
-                # Combined with RequestDataHelper.req2dict(line 379) , the type of form data can only be dict
-                requset_data = urlencode(self.flow['request']['data']).encode()
-            else:
-                requset_data = self.flow['request']['data'].encode()
-
-            content_encoding = self.flow['request']['headers'].get('Content-Encoding')
-            if content_encoding == 'gzip' and requset_data:
-                requset_data = gzip.compress(requset_data)
-            return requset_data
-
-        except Exception as e:
-            logger.warning(f'Convert request failed. {e}')
-            return str(self.flow['request']['data']).encode()
+        ResponseDataHelper.resp2flow(self.response, output=self.flow['response'])
 
     def update_client_req_time(self):
         self.client_req_time = time.time()
@@ -333,97 +246,3 @@ class HandlerContext:
         #                                       id=self.id,
         #                                       flow=self.flow))
 
-
-
-class DataHelper:
-
-    @staticmethod
-    def data2Str(data):
-        try:
-            return binascii.b2a_base64(data).decode('utf-8')
-        except Exception as e:
-            logger.warning(f'Data to base64 failed. {e}')
-
-    @staticmethod
-    def data2byte(data):
-        try:
-            return binascii.a2b_base64(data)
-        except Exception as e:
-            logger.warning(f'Data to byte failed. {e}')
-
-
-class RequestDataHelper(DataHelper):
-
-    @staticmethod
-    def req2dict(request, output=None):
-        if not output:
-            output = {}
-        content_encoding = request.headers.get('Content-Encoding')
-        # Content-Encoding handler
-        unziped_data = None
-
-        try:
-            if content_encoding and content_encoding == 'gzip':
-                unziped_data = gzip.decompress(request.data)
-
-            content_type = request.headers.get('Content-Type')
-            if not content_type:
-                output['data'] = RequestDataHelper.data2Str(request.data)
-                return
-
-            content_type = content_type.strip()
-            if content_type.startswith('application/x-www-form-urlencoded'):
-                if unziped_data:
-                    output['data'] = urllib.parse.parse_qs(unziped_data.decode('utf-8'))
-                else:
-                    output['data'] = request.form.to_dict()
-            elif content_type.startswith('application/json'):
-                if unziped_data:
-                    output['data'] = json.loads(unziped_data.decode('utf-8'))
-                else:
-                    output['data'] = request.json
-            elif content_type.startswith('text/xml'):
-                if unziped_data:
-                    output['data'] = unziped_data.decode('utf-8')
-                else:
-                    output['data'] = request.data.decode('utf-8')
-            else:
-                # TODO write bin data
-                output['data'] = RequestDataHelper.data2Str(request.data)
-        except Exception as e:
-            output['data'] = RequestDataHelper.data2Str(request.data)
-            logger.warning(f'Convert request data fail. {e}')
-
-
-class ResponseDataHelper(DataHelper):
-
-    @staticmethod
-    def resp2dict(response, output=None):
-        if not output:
-            output = {}
-        content_type = response.headers.get('Content-Type')
-
-        try:
-            if not content_type:
-                output['data'] = ResponseDataHelper.data2Str(response.data)
-                return HandlerContext.UNKNOWN
-
-            content_type = content_type.strip()
-            if content_type.startswith('application/json'):
-                output['data'] = response.json
-                return HandlerContext.JSON
-            elif content_type.startswith('text/xml'):
-                output['data'] = response.data.decode('utf-8')
-                return HandlerContext.BYTES
-            elif content_type.startswith('text/html'):
-                output['data'] = response.data.decode('utf-8')
-                return HandlerContext.BYTES
-            elif content_type.startswith('text/plain'):
-                output['data'] = response.data.decode('utf-8')
-                return HandlerContext.BYTES
-            else:
-                output['data'] = ResponseDataHelper.data2Str(response.data)
-                return HandlerContext.UNKNOWN
-        except Exception as e:
-            output['data'] = ResponseDataHelper.data2Str(response.data)
-            logger.warning(f'Convert response failed. {e}')
