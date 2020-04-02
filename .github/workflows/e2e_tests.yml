@@ -17,16 +17,11 @@ jobs:
         python-version: '3.6'
     - name: add venv
       run: |
-        pwd
-        ls -a
         cd e2e_tests
-        pwd        
     - name: install dependency
       run: |
-        pwd
         pip install --upgrade pip
         pip install -e .[dev]
-
     - name: run e2e test
       run: |
         cd e2e_tests
