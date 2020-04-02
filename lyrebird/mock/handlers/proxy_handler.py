@@ -6,7 +6,6 @@ from .. import context
 from lyrebird import application
 from lyrebird.log import get_logger
 
-
 # 关闭ssl警告
 urllib3.disable_warnings()
 
@@ -37,7 +36,8 @@ class ProxyHandler:
             handler_context.response = Response(response='Duplicate request path\n', status=400)
             return
 
-        data = handler_context.get_request_data_from_flow()
+        data = handler_context.get_request_body()
+
         method = request['method']
         headers = dict()
         for name, value in request['headers'].items():
@@ -67,4 +67,3 @@ class ProxyHandler:
             headers=resp_headers)
 
         handler_context.update_response_headers_code2flow()
-        handler_context.set_response_state_stream()

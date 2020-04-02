@@ -1,5 +1,6 @@
 from lyrebird.mock import context
 from lyrebird.log import get_logger
+from .mock_data_helper import MockDataHelper
 
 
 logger = get_logger()
@@ -24,7 +25,8 @@ class MockHandler:
         logger.info(
             f'<Mock> Hit Group:{activated_group.get("name")} - Data:{hit_data["name"]} \nURL: {handler_context.flow["request"]["url"]}\nGroupID:{activated_group["id"]} DataID:{hit_data["id"]}')
 
+        handler_context.set_response_edited()
         handler_context.flow['response'] = hit_data['response']
         handler_context.flow['response']['headers']['isMocked'] = 'True'
         handler_context.flow['response']['headers']['lyrebird'] = 'mock'
-        handler_context.set_response_state_string()
+        MockDataHelper.read_mock_data(handler_context)
