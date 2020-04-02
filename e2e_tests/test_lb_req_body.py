@@ -1,5 +1,4 @@
-import os, sys, time, hashlib, base64, json, gzip, requests,urllib
-from urllib import parse
+import os, sys, time, hashlib, json, gzip, requests,urllib
 
 
 curPath = os.path.abspath(os.path.dirname(__file__))
@@ -40,7 +39,7 @@ class TestSuite:
         with open(f'{curPath}/1.png', 'rb') as f:
             data = f.read()
         assert r.text == hashlib.md5(serve_uri.encode() + data).hexdigest()
-    
+
     def test_json(self):
         data = json.dumps({"name": {"12": 123}})
         headers = {"Content-Type": "application/json"}

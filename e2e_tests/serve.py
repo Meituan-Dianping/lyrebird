@@ -1,6 +1,5 @@
 from flask import Flask, request
 import hashlib,json
-from urllib.parse import urlencode, parse_qs
 
 app = Flask(__name__)
 
