@@ -45,7 +45,7 @@ class TestSuite:
 
     def test_json_gzip(self):
         data = {"a": 1}
-        ziped_data = gzip.compress(json.dumps(data).encode(), indent=4, ensure_ascii=False)
+        ziped_data = gzip.compress(json.dumps(data, indent=4, ensure_ascii=False).encode())
         headers = {"Content-Type": "application/json", "Content-Encoding": "gzip"}
         r = requests.post(url=uri, data=ziped_data, headers=headers)
         assert r.text == hashlib.md5(serve_uri.encode() + ziped_data).hexdigest()
