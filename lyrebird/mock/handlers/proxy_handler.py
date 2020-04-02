@@ -5,8 +5,6 @@ from flask import Response, stream_with_context
 from .. import context
 from lyrebird import application
 from lyrebird.log import get_logger
-from ..handlers.http_data_helper import DataHelper
-
 
 # 关闭ssl警告
 urllib3.disable_warnings()

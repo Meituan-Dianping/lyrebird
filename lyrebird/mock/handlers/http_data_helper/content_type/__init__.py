@@ -13,8 +13,7 @@ def _get_matched_action(content_type):
     for pattern, func in _content_type_map.items():
         if content_type.startswith(pattern):
             return func
-    else:
-        return DefaultHandler
+    return DefaultHandler
 
 def origin2flow(content_type, request_data):
     func = _get_matched_action(content_type)
