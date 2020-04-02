@@ -1,4 +1,15 @@
+from collections import OrderedDict
 from . import content_encoding, content_type
+
+origin2flow_handler = OrderedDict({
+    'Content-Encoding': content_encoding,
+    'Content-Type': content_type
+})
+
+flow2origin_handler = OrderedDict({
+    'Content-Type': content_type,
+    'Content-Encoding': content_encoding
+})
 
 
 class DataHelper:
@@ -9,11 +20,9 @@ class DataHelper:
         if not _data:
             return
 
-        encoding_name = origin_obj.headers.get('Content-Encoding', '')
-        _data = content_encoding.origin2flow(encoding_name, _data)
-
-        type_name = origin_obj.headers.get('Content-Type', '')
-        _data = content_type.origin2flow(type_name, _data)
+        for headers_key, func in origin2flow_handler.items():
+            headers_val = origin_obj.headers.get(headers_key, '')
+            _data = func.origin2flow(headers_val, _data)
 
         if output:
             output['data'] = _data
@@ -26,11 +35,9 @@ class DataHelper:
         if not _data:
             return
 
-        type_name = flow_obj['headers'].get('Content-Type', '')
-        _data = content_type.flow2origin(type_name, _data)
-
-        encoding_name = flow_obj['headers'].get('Content-Encoding', '')
-        _data = content_encoding.flow2origin(encoding_name, _data)
+        for headers_key, func in flow2origin_handler.items():
+            headers_val = flow_obj['headers'].get(headers_key, '')
+            _data = func.flow2origin(headers_val, _data)
 
         if output:
             output.data = _data
