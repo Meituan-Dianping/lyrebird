@@ -63,11 +63,7 @@ def index(path=''):
     flow_editor_handler.on_response_handler(req_context)
 
     if req_context.flow['response']:
-        if req_context.is_response_edited:
-            gen = req_context._generator_bytes()
-        else:
-            gen = req_context._generator_stream()
-
+        gen = req_context.get_response_generator()
         resp = Response(
             gen(),
             status=req_context.flow['response']['code'],

@@ -5,7 +5,7 @@ from flask import Response, stream_with_context
 from .. import context
 from lyrebird import application
 from lyrebird.log import get_logger
-from ..handlers.data_helper import RequestDataHelper
+from ..handlers.http_data_helper import DataHelper
 
 
 # 关闭ssl警告
@@ -38,10 +38,7 @@ class ProxyHandler:
             handler_context.response = Response(response='Duplicate request path\n', status=400)
             return
 
-        if handler_context.is_request_edited:
-            data = RequestDataHelper.flow2req(handler_context.flow)
-        else:
-            data = handler_context.request.data or handler_context.request.form or None
+        data = handler_context.get_request_body()
 
         method = request['method']
         headers = dict()

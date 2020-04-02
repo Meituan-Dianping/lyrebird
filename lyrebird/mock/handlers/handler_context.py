@@ -8,7 +8,7 @@ from lyrebird import application
 from lyrebird.log import get_logger
 from lyrebird.mock.blueprints.apis.bandwidth import config
 from urllib.parse import urlparse, unquote
-from .data_helper import RequestDataHelper, ResponseDataHelper
+from .http_data_helper import DataHelper
 
 
 logger = get_logger()
@@ -65,7 +65,7 @@ class HandlerContext:
 
         # handle request data
         if self.request.method in ['POST', 'PUT']:
-            RequestDataHelper.req2flow(self.request, output=_request)
+            DataHelper.origin2flow(self.request, output=_request)
 
         if self.request.headers.get('Lyrebird-Client-Address'):
             self.client_address = self.request.headers.get('Lyrebird-Client-Address')
@@ -127,10 +127,24 @@ class HandlerContext:
     def set_response_edited(self):
         self.is_response_edited = True
 
+    def get_request_body(self):
+        if self.is_request_edited:
+            _data = DataHelper.flow2origin(self.flow['request'])
+        else:
+            _data = self.request.data or self.request.form or None
+        return _data
+
+    def get_response_generator(self):
+        if self.is_response_edited:
+            _generator = self._generator_bytes()
+        else:
+            _generator = self._generator_stream()
+        return _generator
+
     def _generator_bytes(self):
         def generator():
             try:
-                _resp_data = ResponseDataHelper.flow2resp(self.flow)
+                _resp_data = DataHelper.flow2origin(self.flow['response'])
                 length = len(_resp_data)
                 size = self.response_chunk_size
                 bandwidth = config.bandwidth
@@ -163,7 +177,7 @@ class HandlerContext:
                     yield item
             finally:
                 self.response.data = b''.join(buffer)
-                ResponseDataHelper.resp2flow(self.response, output=self.flow['response'])
+                DataHelper.origin2flow(self.response, output=self.flow['response'])
 
                 self.update_client_resp_time()
                 upstream.close()
@@ -180,7 +194,7 @@ class HandlerContext:
         }
 
     def update_response_data2flow(self):
-        ResponseDataHelper.resp2flow(self.response, output=self.flow['response'])
+        DataHelper.origin2flow(self.response, output=self.flow['response'])
 
     def update_client_req_time(self):
         self.client_req_time = time.time()
