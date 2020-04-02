@@ -47,7 +47,7 @@ class FlowList(Resource):
             req_list.append(info)
 
         def gen():
-            yield json.dumps(req_list)
+            yield json.dumps(req_list, ensure_ascii=False)
         return context.make_streamed_response(gen)
 
     def delete(self):

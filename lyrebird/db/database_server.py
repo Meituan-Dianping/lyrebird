@@ -68,7 +68,7 @@ class LyrebirdDatabaseServer(ThreadServer):
         dbapi_con.execute('PRAGMA synchronous=OFF')
 
     def event_receiver(self, event, channel=None, event_id=None):
-        content = json.dumps(event)
+        content = json.dumps(event, ensure_ascii=False)
         flow = Event(event_id=event_id, channel=channel, content=content)
         self.storage_queue.put(flow)
 
