@@ -2,5 +2,7 @@
 ## 测试 lyrebird（POST）request body
 
 ```bash
-sh run_test.sh
+nohup python3 serve.py > /dev/null 2>&1 & 
+nohup lyrebird -b > /dev/null 2>&1 & 
+python -m pytest .
 ```

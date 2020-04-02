@@ -1,24 +1,7 @@
-import os, sys, time, hashlib, json, gzip, requests,urllib
+import os, time, hashlib, json, gzip, requests,urllib
 
 
 curPath = os.path.abspath(os.path.dirname(__file__))
-
-
-def setup_module():
-    os.system("nohup python3 serve.py > /dev/null 2>&1 & ")
-    os.system("nohup lyrebird -b > /dev/null 2>&1 & ")
-    print("init serve")
-    time.sleep(3)
-
-
-def teardown_module():
-    os.system(
-        "ps -ef|grep serve.py | grep -v grep|awk '{printf $2}'|xargs kill -9"
-    )
-    os.system(
-        "ps -ef|grep lyrebird | grep -v grep|awk '{printf $2}'|xargs kill -9"
-    )
-    print("teardown")
 
 
 serve_uri = "http://127.0.0.1:5000/e2e_serve"
