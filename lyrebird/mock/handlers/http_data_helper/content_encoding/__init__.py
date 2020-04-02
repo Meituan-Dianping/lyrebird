@@ -1,13 +1,13 @@
 from .gzip import GzipHandler
 from .default import DefaultHandler
 
-_content_encoding_map = {
+content_encoding_handlers = {
     'gzip': GzipHandler,
 }
 
 def _get_matched_action(content_encoding_name):
-    if content_encoding_name in _content_encoding_map:
-        return _content_encoding_map[content_encoding_name]
+    if content_encoding_name in content_encoding_handlers:
+        return content_encoding_handlers[content_encoding_name]
     return DefaultHandler
 
 def origin2flow(content_encoding, request_data):

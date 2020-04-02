@@ -3,14 +3,14 @@ from .json import JsonHandler
 from .text import TextHandler
 from .default import DefaultHandler
 
-_content_type_map = {
+content_type_handlers = {
     'application/x-www-form-urlencoded': FormHandler,
     'application/json': JsonHandler,
     'text/': TextHandler
 }
 
 def _get_matched_action(content_type):
-    for pattern, func in _content_type_map.items():
+    for pattern, func in content_type_handlers.items():
         if content_type.startswith(pattern):
             return func
     return DefaultHandler

@@ -1,12 +1,12 @@
 from collections import OrderedDict
 from . import content_encoding, content_type
 
-origin2flow_handler = OrderedDict({
+origin2flow_handlers = OrderedDict({
     'Content-Encoding': content_encoding,
     'Content-Type': content_type
 })
 
-flow2origin_handler = OrderedDict({
+flow2origin_handlers = OrderedDict({
     'Content-Type': content_type,
     'Content-Encoding': content_encoding
 })
@@ -20,7 +20,7 @@ class DataHelper:
         if not _data:
             return
 
-        for headers_key, func in origin2flow_handler.items():
+        for headers_key, func in origin2flow_handlers.items():
             headers_val = origin_obj.headers.get(headers_key, '')
             _data = func.origin2flow(headers_val, _data)
 
@@ -35,7 +35,7 @@ class DataHelper:
         if not _data:
             return
 
-        for headers_key, func in flow2origin_handler.items():
+        for headers_key, func in flow2origin_handlers.items():
             headers_val = flow_obj['headers'].get(headers_key, '')
             _data = func.flow2origin(headers_val, _data)
 
