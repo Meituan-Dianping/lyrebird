@@ -41,12 +41,18 @@ class ProxyHandler:
         method = request['method']
         headers = dict()
         for name, value in request['headers'].items():
-            if not value or name in ['Cache-Control', 'Host']:
+            if not value or name in ['Cache-Control']:
                 continue
+            # if name == 'Host' and origin_host:
+            #     if origin_port == None or origin_port == '80':
+            #         headers['Host'] = f'{origin_host}'
+            #     else:
+            #         headers['Host'] = f'{origin_host}:{origin_port}'
+            #     continue
             headers[name] = value
 
         r = requests.request(method, origin_url, headers=headers, data=data, cookies=handler_context.request.cookies,
-                            stream=True, verify=False)
+                             stream=True, verify=False)
 
         # 增加数据源标记，此数据经代理得到
         resp_headers = [('lyrebird', 'proxy')]
