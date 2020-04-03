@@ -55,7 +55,6 @@ class HandlerContext:
             if len(request_info_from_header) > 0:
                 request_info = request_info_from_header
 
-        # headers = {k: v for k, v in self.request.headers}
         headers = HeadersHelper.origin2flow(self.request)
         _request = dict(
             headers=headers,
