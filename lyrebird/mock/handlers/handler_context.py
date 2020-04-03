@@ -9,6 +9,7 @@ from lyrebird.log import get_logger
 from lyrebird.mock.blueprints.apis.bandwidth import config
 from urllib.parse import urlparse, unquote
 from .http_data_helper import DataHelper
+from .http_header_helper import HeadersHelper
 
 
 logger = get_logger()
@@ -54,7 +55,8 @@ class HandlerContext:
             if len(request_info_from_header) > 0:
                 request_info = request_info_from_header
 
-        headers = {k: v for k, v in self.request.headers}
+        # headers = {k: v for k, v in self.request.headers}
+        headers = HeadersHelper.origin2flow(self.request)
         _request = dict(
             headers=headers,
             method=self.request.method,
@@ -136,6 +138,7 @@ class HandlerContext:
 
     def get_response_generator(self):
         if self.is_response_edited:
+            self.flow['response']['headers'] = HeadersHelper.flow2origin(self.flow['response'])
             _generator = self._generator_bytes()
         else:
             _generator = self._generator_stream()
@@ -184,14 +187,11 @@ class HandlerContext:
         return generator
 
     def update_response_headers_code2flow(self):
-        if not self.response:
-            return
-
         self.flow['response'] = {
             'code': self.response.status_code,
-            'headers': {k: v for (k, v) in self.response.headers},
             'timestamp': round(time.time(), 3)
         }
+        HeadersHelper.origin2flow(self.response, self.flow['response'])
 
     def update_response_data2flow(self):
         DataHelper.origin2flow(self.response, output=self.flow['response'])
