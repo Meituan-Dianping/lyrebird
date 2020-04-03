@@ -21,7 +21,7 @@ class NoticeCenter():
 
     def storage_notice(self, storage_date):
         with codecs.open(self.HISTORY_NOTICE, 'w', 'utf-8') as fp:
-            fp.writelines(json.dumps(storage_date))
+            fp.writelines(json.dumps(storage_date, ensure_ascii=False, indent=4))
             fp.flush()
 
     def notice_hashmap_to_list(self):

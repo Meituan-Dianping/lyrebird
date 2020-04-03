@@ -10,5 +10,5 @@ class JsonHandler:
 
     @staticmethod
     def flow2origin(flow_data):
-        _data = json.dumps(flow_data).encode()
+        _data = json.dumps(flow_data, ensure_ascii=False).encode()
         return _data

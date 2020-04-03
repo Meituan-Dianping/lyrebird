@@ -24,7 +24,7 @@ class TestSuite:
         assert r.text == hashlib.md5(serve_uri.encode() + data).hexdigest()
 
     def test_json(self):
-        data = json.dumps({"name": {"12": 123}})
+        data = json.dumps({"name": {"12": 123}}, ensure_ascii=False)
         headers = {"Content-Type": "application/json"}
         r = requests.post(url=uri, data=data, headers=headers)
         assert r.text == hashlib.md5(serve_uri.encode() + data.encode()).hexdigest()
@@ -36,16 +36,14 @@ class TestSuite:
         assert r.text == hashlib.md5(serve_uri.encode() + data.encode()).hexdigest()
 
     def test_form(self):
-        data = {"a": 1, "b": 2}
-        dict2params = urllib.parse.parse_qs(urllib.parse.urlencode(data))
-        params2json = json.dumps({key: dict2params[key][0] for key in dict2params})
+        data = 'z=9&a=1&a=2&b=1'
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         r = requests.post(url=uri, data=data, headers=headers)
-        assert r.text == hashlib.md5(serve_uri.encode() + params2json.encode()).hexdigest()
+        assert r.text == hashlib.md5(serve_uri.encode() + data.encode()).hexdigest()
 
     def test_json_gzip(self):
         data = {"a": 1}
-        ziped_data = gzip.compress(json.dumps(data).encode())
+        ziped_data = gzip.compress(json.dumps(data, ensure_ascii=False).encode())
         headers = {"Content-Type": "application/json", "Content-Encoding": "gzip"}
         r = requests.post(url=uri, data=ziped_data, headers=headers)
         assert r.text == hashlib.md5(serve_uri.encode() + ziped_data).hexdigest()
