@@ -11,8 +11,6 @@ def e2e_test():
     if request.files and "file" in request.files:
         req_body = request.files['file'].read()
         return hashlib.md5(request.url.encode() + req_body).hexdigest()
-    if "Content-Type" in request.headers and request.headers["Content-Type"] == "application/x-www-form-urlencoded":
-        return hashlib.md5(request.url.encode() + json.dumps(request.form.to_dict(), indent=4, ensure_ascii=False).encode()).hexdigest()
     return hashlib.md5(request.url.encode() + req_body).hexdigest()
 
 
