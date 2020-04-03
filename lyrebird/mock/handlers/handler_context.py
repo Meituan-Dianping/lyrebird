@@ -130,6 +130,7 @@ class HandlerContext:
 
     def get_request_body(self):
         if self.is_request_edited:
+            self.flow['request']['headers'] = HeadersHelper.flow2origin(self.flow['request'])
             _data = DataHelper.flow2origin(self.flow['request'])
         else:
             _data = self.request.data or self.request.form or None
