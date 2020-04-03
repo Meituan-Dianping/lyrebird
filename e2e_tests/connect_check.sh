@@ -3,7 +3,7 @@ is_connect=0
 for ((i=1;i<20;i++))
 do
   echo "第 $i 次尝试连接 lyrebird"
-  code=`curl -o /dev/null --retry 3 --retry-max-time 8 -s -w %{http_code} 127.0.0.1:9090/api/status`
+  code=$(curl -o /dev/null --retry 3 --retry-max-time 8 -s -w %{http_code} 127.0.0.1:9090/api/status)
   echo "lyrebird 状态码： $code"
   base=200
   if [[ $code -eq $base ]];then
