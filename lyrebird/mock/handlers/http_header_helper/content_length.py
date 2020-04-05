@@ -6,11 +6,13 @@ class ContentLengthHandler:
     @staticmethod
     def origin2flow(origin_obj):
         _resp_data = DataHelper.origin2flow(origin_obj)
-        length = str(len(_resp_data))
-        return length
+        if not _resp_data:
+            return '0'
+        return str(len(_resp_data))
 
     @staticmethod
     def flow2origin(flow_obj):
         _resp_data = DataHelper.flow2origin(flow_obj)
-        length = str(len(_resp_data))
-        return length
+        if not _resp_data:
+            return '0'
+        return str(len(_resp_data))
