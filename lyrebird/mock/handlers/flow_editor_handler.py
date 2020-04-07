@@ -19,7 +19,7 @@ class FlowEditorHandler:
         if not matched_funcs:
             return
 
-        self._func_handler(matched_funcs, handler_context.flow['request'])
+        self._func_handler(matched_funcs, handler_context.flow)
         handler_context.set_request_edited()
         handler_context.flow['request']['headers']['lyrebird_modified'] = 'modified'
 
@@ -28,7 +28,7 @@ class FlowEditorHandler:
         if not matched_funcs:
             return
 
-        self._func_handler(matched_funcs, handler_context.flow['request'])
+        self._func_handler(matched_funcs, handler_context.flow)
         handler_context.set_request_edited()
         handler_context.flow['request']['headers']['lyrebird_modified'] = 'modified'
 
@@ -40,7 +40,7 @@ class FlowEditorHandler:
         if not handler_context.flow['response'].get('data'):
             handler_context.update_response_data2flow()
 
-        self._func_handler(matched_funcs, handler_context.flow['response'])
+        self._func_handler(matched_funcs, handler_context.flow)
         handler_context.set_response_edited()
         handler_context.flow['response']['headers']['lyrebird_modified'] = 'modified'
 
@@ -52,15 +52,15 @@ class FlowEditorHandler:
         if not handler_context.flow['response'].get('data'):
             handler_context.update_response_data2flow()
 
-        self._func_handler(matched_funcs, handler_context.flow['response'])
+        self._func_handler(matched_funcs, handler_context.flow)
         handler_context.set_response_edited()
         handler_context.flow['response']['headers']['lyrebird_modified'] = 'modified'
 
-    def _func_handler(self, func_list, data):
+    def _func_handler(self, func_list, flow):
         for func_info in func_list:
             handler_fn = func_info['func']
             try:
-                handler_fn(data)
+                handler_fn(flow)
             except Exception:
                 logger.error(traceback.format_exc())
 
