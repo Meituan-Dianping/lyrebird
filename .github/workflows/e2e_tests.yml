@@ -31,3 +31,4 @@ jobs:
         python -m pytest .
         ps -ef|grep serve.py | grep -v grep|awk '{printf $2}'|xargs kill -9
         ps -ef|grep lyrebird | grep -v grep|awk '{printf $2}'|xargs kill -9
+
