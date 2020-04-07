@@ -158,6 +158,8 @@ class DataManager:
                 continue
             if 'data' not in response_data['response']:
                 continue
+            if not response_data['response']['data']:
+                continue
             resp_data_template = Template(response_data['response']['data'])
             response_data['response']['data'] = resp_data_template.render(params)
 
