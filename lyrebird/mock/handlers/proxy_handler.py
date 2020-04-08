@@ -43,7 +43,7 @@ class ProxyHandler:
         for name, value in request['headers'].items():
             if not value or name in ['Cache-Control', 'Host']:
                 continue
-            if name in application.config.get('mock.unproxy_headers'):
+            if name in application.config.get('mock.unproxy_headers', {}):
                 continue
             headers[name] = value
 
