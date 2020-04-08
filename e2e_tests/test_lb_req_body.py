@@ -1,4 +1,4 @@
-import os, hashlib, json, gzip, requests, urllib
+import os, hashlib, json, gzip, requests
 
 
 curPath = os.path.abspath(os.path.dirname(__file__))

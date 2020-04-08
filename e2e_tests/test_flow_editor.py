@@ -1,11 +1,8 @@
 import os
 import gzip
 import json
-import urllib
 import hashlib
 import requests
-
-import pytest
 
 curPath = os.path.abspath(os.path.dirname(__file__))
 
