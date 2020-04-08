@@ -136,6 +136,20 @@ class HandlerContext:
             _data = self.request.data or self.request.form or None
         return _data
 
+    def get_request_headers(self):
+        if self.is_request_edited:
+            self.flow['request']['headers'] = HeadersHelper.flow2origin(self.flow['request'])
+
+        headers = {}
+        unproxy_headers = application.config.get('mock.unproxy_headers', {})
+        for name, value in self.flow['request']['headers'].items():
+            if not value or name in ['Cache-Control', 'Host']:
+                continue
+            if name in unproxy_headers and unproxy_headers[name] in value:
+                continue
+            headers[name] = value
+        return headers
+
     def get_response_generator(self):
         if self.is_response_edited:
             self.flow['response']['headers'] = HeadersHelper.flow2origin(self.flow['response'])
