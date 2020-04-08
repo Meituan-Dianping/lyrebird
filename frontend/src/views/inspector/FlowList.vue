@@ -246,8 +246,7 @@ export default {
       // TODO: remove when upgrade inspector
       if (!mockTag) {
         flag.text = 'pending'
-      }
-      if (mockTag.startsWith('mock')) {
+      } else if (mockTag.startsWith('mock')) {
         flag.text = 'mock'
         flag.color = 'green'
       } else if (mockTag.startsWith('proxy')) {
@@ -255,7 +254,9 @@ export default {
       } else {
         flag.text = 'pending'
       }
-      flag.modified = modifyTag.length > 0
+      // Handle empty modifyTag
+      // TODO: remove when upgrade inspector
+      flag.modified = modifyTag && modifyTag.length > 0
       return flag
     }
   }

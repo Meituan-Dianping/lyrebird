@@ -1,5 +1,8 @@
-import os, hashlib, json, gzip, requests
-
+import os
+import gzip
+import json
+import hashlib
+import requests
 
 curPath = os.path.abspath(os.path.dirname(__file__))
 
@@ -37,9 +40,10 @@ class TestSuite:
 
     def test_form(self):
         data = 'z=9&a=1&a=2&b=1'
+        after_data = 'z=9&a=1&b=1'
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         r = requests.post(url=uri, data=data, headers=headers)
-        assert r.text == hashlib.md5(serve_uri.encode() + data.encode()).hexdigest()
+        assert r.text == hashlib.md5(serve_uri.encode() + after_data.encode()).hexdigest()
 
     def test_json_gzip(self):
         data = {"a": 1}
@@ -47,4 +51,3 @@ class TestSuite:
         headers = {"Content-Type": "application/json", "Content-Encoding": "gzip"}
         r = requests.post(url=uri, data=ziped_data, headers=headers)
         assert r.text == hashlib.md5(serve_uri.encode() + ziped_data).hexdigest()
-

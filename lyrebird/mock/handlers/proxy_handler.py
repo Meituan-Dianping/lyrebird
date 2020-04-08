@@ -39,11 +39,7 @@ class ProxyHandler:
         data = handler_context.get_request_body()
 
         method = request['method']
-        headers = dict()
-        for name, value in request['headers'].items():
-            if not value or name in ['Cache-Control', 'Host']:
-                continue
-            headers[name] = value
+        headers = handler_context.get_request_headers()
 
         r = requests.request(method, origin_url, headers=headers, data=data, cookies=handler_context.request.cookies,
                             stream=True, verify=False)
