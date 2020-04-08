@@ -141,7 +141,7 @@ class HandlerContext:
             self.flow['request']['headers'] = HeadersHelper.flow2origin(self.flow['request'])
 
         headers = {}
-        unproxy_headers = application.config.get('mock.unproxy_headers', {})
+        unproxy_headers = application.config.get('proxy.ignored_headers', {})
         for name, value in self.flow['request']['headers'].items():
             if not value or name in ['Cache-Control', 'Host']:
                 continue
