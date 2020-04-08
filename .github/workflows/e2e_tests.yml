@@ -28,7 +28,7 @@ jobs:
         nohup python3 serve.py > /dev/null 2>&1 & 
         nohup lyrebird -b > /dev/null 2>&1 & 
         sh connect_check.sh
-        python -m pytest .
+        python -m pytest test_lb_req_body.py
         ps -ef|grep serve.py | grep -v grep|awk '{printf $2}'|xargs kill -9
         ps -ef|grep lyrebird | grep -v grep|awk '{printf $2}'|xargs kill -9
 
