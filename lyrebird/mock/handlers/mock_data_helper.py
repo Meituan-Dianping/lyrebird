@@ -7,7 +7,7 @@ class MockDataHelper:
 
     @staticmethod
     def read_mock_data(handler_context):
-        content_type = handler_context.flow['response']['headers'].get('Content-Type')
+        content_type = handler_context.flow['response']['headers'].get('Content-Type', '')
 
         try:
             if content_type.startswith('application/json'):

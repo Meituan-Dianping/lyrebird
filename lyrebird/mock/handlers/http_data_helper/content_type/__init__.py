@@ -13,8 +13,6 @@ content_type_handlers = {
 }
 
 def _get_matched_action(content_type):
-    if not content_type:
-        return DefaultHandler
     for pattern, func in content_type_handlers.items():
         if content_type.startswith(pattern):
             return func
