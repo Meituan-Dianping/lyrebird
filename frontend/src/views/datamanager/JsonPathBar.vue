@@ -32,12 +32,12 @@ export default {
   width: 300px;
 }
 .json-path-span{
-  display:inline-block;
-  max-width:240px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+  display: inline-block;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   vertical-align: top;
-  cursor:pointer;
+  cursor: pointer;
 }
 </style>
