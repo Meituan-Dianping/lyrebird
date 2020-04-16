@@ -231,7 +231,7 @@ class HandlerContext:
     def update_client_resp_time(self):
         self.client_resp_time = time.time()
         # 消息总线 客户端响应事件，启用此事件
-        resp_data = self.flow['response']['data']
+        resp_data = self.flow['response'].get('data', '')
         if isinstance(resp_data, str):
             self.flow['size'] = len(resp_data.encode())
         else:
