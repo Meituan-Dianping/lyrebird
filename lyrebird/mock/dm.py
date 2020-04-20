@@ -535,8 +535,6 @@ class DataManager:
             data_str = json.dumps(data, ensure_ascii=False)
             f.write(data_str)
         self._save_prop()
-        if self.activated_data.get(_id):
-            self.activate(_id)
 
 
 # -----------------
