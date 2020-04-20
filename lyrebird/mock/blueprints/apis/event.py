@@ -1,6 +1,8 @@
 from flask_restful import Resource
 from flask import jsonify, request
 from lyrebird import application
+from lyrebird.mock import context
+import json
 
 # Default event page size
 PAGE_SIZE = 20
@@ -27,6 +29,17 @@ class Event(Resource):
         message = request.json
         event_manager = application.server['event']
         event_manager.publish(channel, message)
+        return application.make_ok_response()
+
+
+class EventDetail(Resource):
+    def post(self):
+        event_id = request.json.get('eventId')
+        db = application.server['db']
+        event_detail_list = [item[0] for item in db.get_event_detail_by_event_id(event_id)]
+        event_detail = json.loads(event_detail_list[0])
+        dm = context.application.data_manager
+        dm.save_data(event_detail)
         return application.make_ok_response()
 
 

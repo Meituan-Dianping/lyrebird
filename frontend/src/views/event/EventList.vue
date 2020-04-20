@@ -12,7 +12,10 @@
       :height="tableHeight"
     >
       <template slot-scope="{ row }" slot="action">
-        <ContextMenuItem>
+        <ContextMenuItem v-if="row.channel == 'mapi'">
+          <div class="event-button ivu-icon" @click="onMapiSaveClick(row)">
+            <svg-icon class="ivu-icon" name="md-save" color="#666" scale="4"></svg-icon>
+          </div>
           <!-- <Button type="text" shape="circle" icon="ios-add-circle-outline" @click="onAddEvent(row)"></Button> -->
         </ContextMenuItem>
       </template>
@@ -55,13 +58,15 @@ import FlowTableItem from '@/views/event/FlowTableItem.vue'
 import CustomTableItem from '@/views/event/CustomTableItem.vue'
 import ChannelColumn from '@/views/event/ChannelColumn.vue'
 import ContextMenuItem from '@/views/event/ContextMenuItem.vue'
+import Icon from 'vue-svg-icon/Icon.vue'
 
 export default {
   components: {
     FlowTableItem,
     CustomTableItem,
     ChannelColumn,
-    ContextMenuItem
+    ContextMenuItem,
+    'svg-icon': Icon
   },
   created () {
     const urlParams = new URLSearchParams(window.location.search)
@@ -132,6 +137,9 @@ export default {
           slot: 'content'
         }
       ]
+    },
+    activatedGroups () {
+      return this.$store.state.inspector.activatedGroup
     }
   },
   methods: {
@@ -149,6 +157,33 @@ export default {
     onFilterChange (opt) {
       console.log('filter change', opt)
     },
+    onMapiSaveClick(row) {
+      if (Object.keys(this.activatedGroups).length <= 0) {
+        this.$Message.warning('Please activate a mock group before save.')
+        return
+      }
+      this.$http.post('/api/event/detail',{eventId:row["event_id"]})
+        .then(resp => {
+          if (resp.data.code === 1000) {
+            this.$Notice.success(
+              {
+                title: 'MApi flow saved',
+                desc: resp.data.message
+              }
+            )
+          } else {
+            this.$Notice.error(
+              {
+                title: 'Save MApi flow failed',
+                desc: resp.data.message,
+                duration: 0
+              }
+            )
+          }
+          console.log('POST flow', this.$store.state.inspector.selectedIds, resp)
+        })
+    }
+    ,
     onRowClick (row) {
       this.$store.commit('setSelectedEventId', row.event_id)
       const prettyJson = JSON.stringify(JSON.parse(row.content), null, 2)
@@ -226,5 +261,10 @@ export default {
 }
 .row-contextmenu {
   position: absolute;
+}
+.event-button {
+  padding: 3px 8px 3px;
+  font-size: 14px;
+  cursor: pointer;
 }
 </style>
