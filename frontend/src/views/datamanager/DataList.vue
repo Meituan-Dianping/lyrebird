@@ -67,8 +67,8 @@ export default {
       this.resetFocusNodeInfo(payload)
       this.resetGroupDetail(payload)
       this.changeSearchModalOpenState()
-      this.$nextTick( () => {
-        document.getElementById(this.$store.state.dataManager.focusNodeInfo._id).scrollIntoView();
+      this.$nextTick(() => {
+        document.getElementById(this.$store.state.dataManager.focusNodeInfo._id).scrollIntoView()
       })
     },
     resetGroupListOpenNode (payload) {
