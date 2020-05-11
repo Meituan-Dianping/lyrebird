@@ -22,3 +22,8 @@ class Paste(Resource):
     def put(self, _id):
         context.application.data_manager.paste(_id)
         return application.make_ok_response()
+
+class DMTreeReload(Resource):
+    def put(self):
+        context.application.data_manager.reload()
+        return application.make_ok_response()

@@ -230,3 +230,14 @@
 
 {"bandwidth":10,"code":1000,"message":"success"}
 ```
+
+## 刷新DataManager关系树
+
+**/dm/reload**
+
+**直接操作data文件修改数据后，可通过刷新接口更新datamanager关系树**
+```bash
+> curl -H "Content-Type:application/json" -X  PUT  http://localhost:9090/api/dm/reload
+
+{"code":1000,"message":"success"}
+```

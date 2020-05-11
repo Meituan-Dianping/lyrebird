@@ -10,7 +10,7 @@ from .notice import Notice
 from .checker import Checker
 from .event import Event, Channel
 from .conflict_check import ConflictCheck, ActivatedDataConflictCheck
-from .mock_editor import Cut, Copy, Paste
+from .mock_editor import Cut, Copy, Paste, DMTreeReload
 from .qrcode import Qrcode
 from .search import SearchMockDataByName
 from .bandwidth import Bandwidth, BandwidthTemplates
@@ -47,6 +47,7 @@ api_source.add_resource(Status, '/status')
 api_source.add_resource(Manifest, '/manifest')
 api_source.add_resource(Flow, '/flow/<string:id>')
 api_source.add_resource(FlowList, '/flow')
+api_source.add_resource(DMTreeReload, '/dm/reload')
 api_source.add_resource(Cut, '/cut/<string:_id>')
 api_source.add_resource(Copy, '/copy/<string:_id>')
 api_source.add_resource(Paste, '/paste/<string:_id>')
