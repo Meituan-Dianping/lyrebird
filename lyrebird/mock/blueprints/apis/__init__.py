@@ -15,6 +15,7 @@ from .qrcode import Qrcode
 from .search import SearchMockDataByName
 from .bandwidth import Bandwidth, BandwidthTemplates
 from .status_bar import StatusBar
+from .snapshot import SanpshotImport
 from lyrebird.log import get_logger
 from lyrebird import application
 from flask import got_request_exception
@@ -67,6 +68,7 @@ api_source.add_resource(Notice, '/notice')
 api_source.add_resource(Checker, '/checker', '/checker/<string:checker_id>')
 api_source.add_resource(Bandwidth, '/bandwidth')
 api_source.add_resource(BandwidthTemplates, '/bandwidth_templates')
+api_source.add_resource(SanpshotImport, '/snapshot/import/<path:url>', '/snapshot/import')
 api_source.add_resource(
     Event,
     '/event',

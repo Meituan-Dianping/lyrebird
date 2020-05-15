@@ -290,6 +290,23 @@ class DataManager:
         self._save_prop()
         return group_id
 
+    def import_snapshot(self, parent_id, snapshot_prop_obj):
+        parent_node = self.id_map.get(parent_id)
+        snapshot_prop_obj["parent_id"] = parent_id
+        if not parent_node:
+            raise IDNotFound(parent_id)
+        if parent_node.get('type') == 'data':
+            raise DataObjectCannotContainAnyOtherObject
+        if 'children' not in parent_node:
+            parent_node['children'] = []
+        parent_node['children'].insert(0, snapshot_prop_obj)
+        # Register ID
+        self.id_map[snapshot_prop_obj["id"]] = snapshot_prop_obj
+        # Save prop
+        self._save_prop()
+        self.reload()
+        
+
     def delete(self, _id):
         target_node = self.id_map.get(_id)
         if not target_node:

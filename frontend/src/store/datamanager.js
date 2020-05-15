@@ -13,7 +13,8 @@ export default {
     dataDetail: {},
     groupDetail: {},
     focusNodeInfo: {},
-    pasteTarget: null
+    pasteTarget: null,
+    importSnapshotParentNode: {}
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -68,6 +69,9 @@ export default {
     },
     setPasteTarget (state, pasteTarget) {
       state.pasteTarget = pasteTarget
+    },
+    setImportSnapshotParentNode (state, importSnapshotParentNode) {
+      state.importSnapshotParentNode = importSnapshotParentNode
     }
   },
   actions: {

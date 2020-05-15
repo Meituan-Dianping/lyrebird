@@ -26,6 +26,11 @@ config_template = {
         "scheme": "MKScheme",
         "host": "MKOriginHost",
         "port": "MKOriginPort"
+    },
+    "snapshot": {
+        "import": {
+            "repositories": "{{current_dir}}/snapshot/import/repositories"
+        }
     }
 }
 
