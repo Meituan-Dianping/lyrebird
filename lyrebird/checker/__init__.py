@@ -109,6 +109,7 @@ class LyrebirdCheckerServer(ThreadServer):
         if name not in self.checkers:
             checker = Checker(name, path)
             self.checkers[name] = checker
+        self.checkers[name].update = True
 
     def delete_unupdated_checker(self):
         del_name_list = []
@@ -162,7 +163,6 @@ class Checker:
         self._update = val
 
     def _load_checker(self):
-        self.update = True
         self._module = imp.load_source(self.name, self.path)
         self._checker_detection()
         global scripts_tmp_storage
