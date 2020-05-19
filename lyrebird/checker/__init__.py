@@ -27,7 +27,6 @@ TYPE_ON_RESPONSE = 'on_response'
 TYPE_ON_RESPONSE_UPSTREAM = 'on_response_upstream'
 TYPE_ENCODER = 'custom_encoder'
 TYPE_DECODER = 'custom_decoder'
-TYPE_ENCODER_DECODER = 'encoder_decoder'
 
 FUNC_MAP_HANDLERS = {
     TYPE_EVENT: event,
