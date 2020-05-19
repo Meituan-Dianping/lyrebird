@@ -44,8 +44,8 @@ class LyrebirdCheckerServer(ThreadServer):
         super().__init__()
 
         ROOT = Path(lyrebird.APPLICATION_CONF_DIR)
-        SCRIPTS_DIR_TEMPLATE = ROOT/'checkers'
-        EXAMPLE_DIR = Path(__file__).parent/'examples'/'checkers'
+        self.SCRIPTS_DIR_TEMPLATE = ROOT/'checkers'
+        self.EXAMPLE_DIR = Path(__file__).parent/'examples'/'checkers'
 
         self.checkers = application.checkers
         self.load_checkers()
@@ -76,7 +76,7 @@ class LyrebirdCheckerServer(ThreadServer):
             workspace = Path(workspace_str)
             if not workspace.expanduser().exists():
                 logger.error(f'Checker scripts dir {workspace_str} not found!')
-                return 
+                return
             workspace_iterdir = self.get_iterdir_python(workspace)
             if not workspace_iterdir:
                 logger.warning(f'No checker script found in dir {workspace_str}')
