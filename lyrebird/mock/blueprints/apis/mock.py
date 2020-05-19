@@ -2,6 +2,7 @@ from flask_restful import Resource
 from lyrebird.mock import context
 from flask import request
 from lyrebird import application
+from ...handlers.encoder_decoder_handler import encoders_decoders
 
 
 class MockGroup(Resource):
@@ -45,11 +46,18 @@ class MockData(Resource):
 
     def get(self, _id):
         data = context.application.data_manager.get(_id)
-        return application.make_ok_response(data=data)
+        display_item = {}
+        encoders_decoders.encoder_handler(data, res=display_item)
+        return application.make_ok_response(data=display_item)
 
     def put(self):
         data_id = request.json.get('id')
-        context.application.data_manager.update_data(data_id, request.json)
+        data = request.json
+        save_data = {}
+        encoders_decoders.decoder_handler(data, res=save_data)
+        if not save_data:
+            save_data = data
+        context.application.data_manager.update_data(data_id, save_data)
         return context.make_ok_response()
 
     def post(self):

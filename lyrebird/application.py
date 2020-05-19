@@ -40,6 +40,9 @@ on_response = []
 on_request_upstream = []
 on_response_upstream = []
 
+encoder = []
+decoder = []
+
 def start_server():
     for name in server:
         server[name].start()

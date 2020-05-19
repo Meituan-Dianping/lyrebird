@@ -4,6 +4,7 @@ from lyrebird import application
 from flask import request, jsonify, abort, stream_with_context
 import json
 import time
+from ...handlers.encoder_decoder_handler import encoders_decoders
 
 
 class Flow(Resource):
@@ -14,7 +15,9 @@ class Flow(Resource):
     def get(self, id):
         for item in context.application.cache.items():
             if item['id'] == id:
-                return application.make_ok_response(data=item)
+                display_item = {}
+                encoders_decoders.encoder_handler(item, res=display_item)
+                return application.make_ok_response(data=display_item)
         return abort(400, 'Request not found')
 
 
