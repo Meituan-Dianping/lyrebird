@@ -55,8 +55,6 @@ class MockData(Resource):
         data = request.json
         save_data = {}
         encoders_decoders.decoder_handler(data, res=save_data)
-        if not save_data:
-            save_data = data
         context.application.data_manager.update_data(data_id, save_data)
         return context.make_ok_response()
 

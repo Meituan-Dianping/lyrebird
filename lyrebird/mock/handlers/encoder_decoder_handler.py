@@ -15,6 +15,7 @@ class EncoderDecoder:
         matched_funcs = FlowEditorHandler._get_matched_handler(self.encoder, flow)
         if not matched_funcs:
             res.update(flow)
+            return
 
         new_flow = deepcopy(flow)
         FlowEditorHandler._func_handler(matched_funcs, new_flow)
@@ -23,6 +24,7 @@ class EncoderDecoder:
     def decoder_handler(self, flow, res=None):
         matched_funcs = FlowEditorHandler._get_matched_handler(self.decoder, flow)
         if not matched_funcs:
+            res.update(flow)
             return
 
         new_flow = deepcopy(flow)
