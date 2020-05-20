@@ -45,7 +45,7 @@ class LyrebirdCheckerServer(ThreadServer):
 
         ROOT = Path(lyrebird.APPLICATION_CONF_DIR)
         self.SCRIPTS_DIR_TEMPLATE = ROOT/'checkers'
-        self.EXAMPLE_DIR = Path(__file__).parent/'examples'/'checkers'
+        self.EXAMPLE_DIR = Path(__file__).parent.parent/'examples'/'checkers'
 
         self.checkers = application.checkers
         self.load_checkers()

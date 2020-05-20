@@ -26,7 +26,7 @@ jobs:
       run: |
         cd e2e_tests
         nohup python3 serve.py > /dev/null 2>&1 &
-        nohup lyrebird -b --script flow_editor.py &
+        nohup lyrebird -b --script flow_editor.py > /dev/null 2>&1 &
         sh connect_check.sh
         python -m pytest test_flow_editor.py
         ps -ef|grep serve.py | grep -v grep|awk '{printf $2}'|xargs kill -9
