@@ -23,7 +23,7 @@ class OnResponseUpstreamHandler:
 
     @staticmethod
     def unregister(func_info):
-        if func_info in application.on_request:
+        if func_info in application.on_response_upstream:
             application.on_response_upstream.remove(func_info)
 
 on_response_upstream = OnResponseUpstreamHandler()

@@ -23,7 +23,7 @@ class OnResponseHandler:
 
     @staticmethod
     def unregister(func_info):
-        if func_info in application.on_request:
+        if func_info in application.on_response:
             application.on_response.remove(func_info)
 
 on_response = OnResponseHandler()
