@@ -12,8 +12,8 @@ from .on_request import on_request
 from .on_request_upstream import on_request_upstream
 from .on_response import on_response
 from .on_response_upstream import on_response_upstream
-from .encoder import custom_encoder
-from .decoder import custom_decoder
+from .encoder import encoder
+from .decoder import decoder
 
 
 logger = log.get_logger()
@@ -25,8 +25,8 @@ TYPE_ON_REQUEST = 'on_request'
 TYPE_ON_REQUEST_UPSTREAM = 'on_request_upstream'
 TYPE_ON_RESPONSE = 'on_response'
 TYPE_ON_RESPONSE_UPSTREAM = 'on_response_upstream'
-TYPE_ENCODER = 'custom_encoder'
-TYPE_DECODER = 'custom_decoder'
+TYPE_ENCODER = 'encoder'
+TYPE_DECODER = 'decoder'
 
 FUNC_MAP_HANDLERS = {
     TYPE_EVENT: event,
@@ -34,8 +34,8 @@ FUNC_MAP_HANDLERS = {
     TYPE_ON_REQUEST_UPSTREAM: on_request_upstream,
     TYPE_ON_RESPONSE: on_response,
     TYPE_ON_RESPONSE_UPSTREAM: on_response_upstream,
-    TYPE_ENCODER: custom_encoder,
-    TYPE_DECODER: custom_decoder
+    TYPE_ENCODER: encoder,
+    TYPE_DECODER: decoder
 }
 
 

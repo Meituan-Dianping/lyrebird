@@ -26,4 +26,4 @@ class CustomEncoder:
         if func_info in application.encoder:
             application.encoder.remove(func_info)
 
-custom_encoder = CustomEncoder()
+encoder = CustomEncoder()

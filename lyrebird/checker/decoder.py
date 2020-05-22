@@ -26,4 +26,4 @@ class CustomDecoder:
         if func_info in application.decoder:
             application.decoder.remove(func_info)
 
-custom_decoder = CustomDecoder()
+decoder = CustomDecoder()
