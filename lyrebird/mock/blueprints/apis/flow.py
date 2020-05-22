@@ -16,7 +16,7 @@ class Flow(Resource):
         for item in context.application.cache.items():
             if item['id'] == id:
                 display_item = {}
-                encoders_decoders.encoder_handler(item, res=display_item)
+                encoders_decoders.decoder_handler(item, res=display_item)
                 return application.make_ok_response(data=display_item)
         return abort(400, 'Request not found')
 
