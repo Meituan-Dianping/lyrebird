@@ -71,7 +71,9 @@ code .
             "module": "lyrebird",
             "console": "integratedTerminal",
             "args": [
-                "-vvv"
+                "-vv",
+                "--plugin",
+                "${workspaceFolder}"
             ]
         },
         {
