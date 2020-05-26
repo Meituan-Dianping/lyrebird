@@ -71,9 +71,9 @@ class LyrebirdDatabaseServer(ThreadServer):
     def event_receiver(self, event, channel=None, event_id=None):
         # event is decoded , which should be encoded when save
         # event is deepcopy when created, no needs to copy again
-
         if event['channel'] in ['flow.request', 'flow']:
             encoders_decoders.encoder_handler(event['flow'])
+
         content = json.dumps(event, ensure_ascii=False)
         flow = Event(event_id=event_id, channel=channel, content=content)
         self.storage_queue.put(flow)
