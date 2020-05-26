@@ -13,6 +13,10 @@ class EncoderDecoder:
 
     def encoder_handler(self, flow, res=None):
         matched_funcs = FlowEditorHandler._get_matched_handler(self.encoder, flow)
+        if res == None:
+            FlowEditorHandler._func_handler(matched_funcs, flow)
+            return
+
         if not matched_funcs:
             res.update(flow)
             return
@@ -23,6 +27,10 @@ class EncoderDecoder:
 
     def decoder_handler(self, flow, res=None):
         matched_funcs = FlowEditorHandler._get_matched_handler(self.decoder, flow)
+        if res == None:
+            FlowEditorHandler._func_handler(matched_funcs, flow)
+            return
+
         if not matched_funcs:
             res.update(flow)
             return

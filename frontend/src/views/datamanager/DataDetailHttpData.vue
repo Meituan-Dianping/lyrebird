@@ -93,12 +93,12 @@ export default {
         headers: val.request.headers,
         method: val.request.method
       })
-      this.editorCache.reqData = val.request.data
+      this.editorCache.reqData = typeof val.request.data == 'object' ? JSON.stringify(val.request.data) : val.request.data
       this.editorCache.resp = JSON.stringify({
         code: val.response.code,
         headers: val.response.headers
       })
-      this.editorCache.respData = val.response.data
+      this.editorCache.respData = typeof val.response.data == 'object' ? JSON.stringify(val.response.data) : val.response.data
     }
   },
   methods: {

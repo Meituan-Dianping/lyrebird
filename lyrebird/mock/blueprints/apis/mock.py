@@ -47,15 +47,16 @@ class MockData(Resource):
     def get(self, _id):
         data = context.application.data_manager.get(_id)
         display_item = {}
+        # Import decoder for decoding the requested content
         encoders_decoders.decoder_handler(data, res=display_item)
         return application.make_ok_response(data=display_item)
 
     def put(self):
         data_id = request.json.get('id')
         data = request.json
-        save_data = {}
-        encoders_decoders.encoder_handler(data, res=save_data)
-        context.application.data_manager.update_data(data_id, save_data)
+        # Import encoder for encoding the requested content
+        encoders_decoders.encoder_handler(data)
+        context.application.data_manager.update_data(data_id, data)
         return context.make_ok_response()
 
     def post(self):
