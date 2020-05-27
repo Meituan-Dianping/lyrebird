@@ -74,28 +74,32 @@ class PluginManager(StaticServer):
             for handler in plugin.manifest.on_request:
                 application.on_request.append({
                     'name': handler[0],
-                    'func': handler[1]
+                    'func': handler[1],
+                    'rules': handler[2] if len(handler)>2 else None
                 })
 
             # Subscribe handler on response
             for handler in plugin.manifest.on_response:
                 application.on_response.append({
                     'name': handler[0],
-                    'func': handler[1]
+                    'func': handler[1],
+                    'rules': handler[2] if len(handler)>2 else None
                 })
 
             # Subscribe handler on proxy request
             for handler in plugin.manifest.on_request_upstream:
                 application.on_request_upstream.append({
                     'name': handler[0],
-                    'func': handler[1]
+                    'func': handler[1],
+                    'rules': handler[2] if len(handler)>2 else None
                 })
 
             # Subscribe handler on proxy response
             for handler in plugin.manifest.on_response_upstream:
                 application.on_response_upstream.append({
                     'name': handler[0],
-                    'func': handler[1]
+                    'func': handler[1],
+                    'rules': handler[2] if len(handler)>2 else None
                 })
 
             for status_item in plugin.manifest.status:
