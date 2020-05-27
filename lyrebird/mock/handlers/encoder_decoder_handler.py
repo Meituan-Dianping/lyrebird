@@ -11,24 +11,32 @@ class EncoderDecoder:
         self.encoder = application.encoder
         self.decoder = application.decoder
 
-    def encoder_handler(self, flow, res=None):
+    def encoder_handler(self, flow, output=None):
         matched_funcs = FlowEditorHandler._get_matched_handler(self.encoder, flow)
+        if output == None:
+            FlowEditorHandler._func_handler(matched_funcs, flow)
+            return
+
         if not matched_funcs:
-            res.update(flow)
+            output.update(flow)
             return
 
         new_flow = deepcopy(flow)
         FlowEditorHandler._func_handler(matched_funcs, new_flow)
-        res.update(new_flow)
+        output.update(new_flow)
 
-    def decoder_handler(self, flow, res=None):
+    def decoder_handler(self, flow, output=None):
         matched_funcs = FlowEditorHandler._get_matched_handler(self.decoder, flow)
+        if output == None:
+            FlowEditorHandler._func_handler(matched_funcs, flow)
+            return
+
         if not matched_funcs:
-            res.update(flow)
+            output.update(flow)
             return
 
         new_flow = deepcopy(flow)
         FlowEditorHandler._func_handler(matched_funcs, new_flow)
-        res.update(new_flow)
+        output.update(new_flow)
 
 encoders_decoders = EncoderDecoder()

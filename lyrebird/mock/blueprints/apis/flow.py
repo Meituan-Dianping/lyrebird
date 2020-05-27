@@ -15,8 +15,9 @@ class Flow(Resource):
     def get(self, id):
         for item in context.application.cache.items():
             if item['id'] == id:
+                # Import decoder for decoding the requested content
                 display_item = {}
-                encoders_decoders.decoder_handler(item, res=display_item)
+                encoders_decoders.decoder_handler(item, output=display_item)
                 return application.make_ok_response(data=display_item)
         return abort(400, 'Request not found')
 
@@ -72,9 +73,7 @@ class FlowList(Resource):
                     break
         dm = context.application.data_manager
 
-        flow_list = context.application.cache.items()
-        for flow in flow_list:
-            if flow['id'] in _ids:
-                dm.save_data(flow)
+        for flow in record_items:
+            dm.save_data(flow)
 
         return context.make_ok_response()
