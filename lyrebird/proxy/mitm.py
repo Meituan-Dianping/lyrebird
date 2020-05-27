@@ -20,7 +20,7 @@ def to_mock_server(flow: http.HTTPFlow):
     # mock server port
     flow.request.port = conf.get('mock.port')
     # mock server ip
-    flow.request.host = conf.get('mock.host', 'localhost')
+    flow.request.host = conf.get('mock.host', '127.0.0.1')
     # device real ip
     address = flow.client_conn.address[0]
     # 获取的address是IPv6（内嵌IPv4地址表示法），需要获取IPv4地址，需要做以下处理
@@ -41,6 +41,7 @@ def request(flow: http.HTTPFlow):
         if _filter in flow.request.host:
             to_mock_server(flow)
             break
+
 
 def responseheaders(flow):
     """
