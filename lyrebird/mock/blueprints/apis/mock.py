@@ -48,7 +48,7 @@ class MockData(Resource):
         data = context.application.data_manager.get(_id)
         display_item = {}
         # Import decoder for decoding the requested content
-        encoders_decoders.decoder_handler(data, res=display_item)
+        encoders_decoders.decoder_handler(data, output=display_item)
         return application.make_ok_response(data=display_item)
 
     def put(self):

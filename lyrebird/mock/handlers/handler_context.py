@@ -248,7 +248,7 @@ class HandlerContext:
 
         # Import decoder for decoding the requested content
         decode_flow = {}
-        encoders_decoders.decoder_handler(self.flow, res=decode_flow)
+        encoders_decoders.decoder_handler(self.flow, output=decode_flow)
 
         context.application.event_bus.publish(
             'flow',
