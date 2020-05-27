@@ -24,7 +24,7 @@ class Event(Resource):
             event_str = event.json()
 
             # Import decoder for decoding the requested content
-            if event_str.get('channel') in ['flow', 'flow.request']:
+            if event_str.get('channel') == 'flow':
                 content = json.loads(event_str['content'])
                 encoders_decoders.decoder_handler(content['flow'])
                 event_str['content'] = json.dumps(content, ensure_ascii=False)
