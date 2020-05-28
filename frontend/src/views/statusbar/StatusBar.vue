@@ -51,7 +51,6 @@ export default {
 }
 .text-menu-item {
   font-size: 14px;
-  font-family: Helvetica,"Hiragino Sans GB";
   font-weight: bold; 
   color: #808695;
   text-align: center;
