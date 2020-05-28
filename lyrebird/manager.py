@@ -101,8 +101,8 @@ def main():
         logger.error('Failed to get local IP address, error occurs on %s' % e)
 
     # set current snapshot to config
-    application._cm.config['snapshot']['import']['repositories'] = str(
-        application._cm.ROOT)+"/snapshot/import/repositories"
+    application._cm.config['snapshot'] = str(
+        application._cm.ROOT)+"/snapshot"
     logger.info(application._cm.ROOT)
 
     # init file logger after config init

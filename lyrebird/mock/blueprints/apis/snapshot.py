@@ -42,9 +42,9 @@ class SanpshotImport(Resource):
         conf = application.config.raw()
         logger.debug(f'conf:\n {conf}')
         mock_data_repositories = conf.get("mock.data")
-        if not conf.get("snapshot").get("import").get("repositories"):
-            return application.make_fail_response(msg=" config snapshot.import.repositories not defined")
-        snapshot_import_repositories = conf.get("snapshot").get("import").get("repositories")
+        if not conf.get("snapshot"):
+            return application.make_fail_response(msg=" config snapshot not defined")
+        snapshot_import_repositories = conf.get("snapshot")
         logger.debug(f'snapshot_repositories: {snapshot_import_repositories}')
         if not os.path.exists(snapshot_import_repositories):
             os.makedirs(snapshot_import_repositories)
