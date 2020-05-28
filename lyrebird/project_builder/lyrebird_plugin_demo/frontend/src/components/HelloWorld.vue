@@ -33,7 +33,7 @@
           <br />
           <h2>✈️API</h2>
           <div style="margin:10px;">
-            <span style="font-size:18px;">You can define API in mainfedt.py</span>
+            <span style="font-size:18px;">You can define API in manifest.py</span>
             <br />
             <span style="font-size:18px;">
               Learn more lyrebird core API from here:
@@ -47,7 +47,7 @@
           <h2>🚢EVENT</h2>
           <div style="margin:10px;">
             <span style="font-size:18px;">
-              You can define event in mainfedt.py,
+              You can define event in manifest.py,
               and you will get some message from lyrebird async channel
             </span>
           </div>
@@ -55,7 +55,7 @@
           <h2>🚗BACKGROUND</h2>
           <div style="margin:10px;">
             <span style="font-size:18px;">
-              You can define background task in mainfedt.py.
+              You can define background task in manifest.py.
               It will influence lyrebird performance, is not recommend to use.
             </span>
           </div>
@@ -63,7 +63,7 @@
           <h2>🚴‍♀️STATUS BAR</h2>
           <div style="margin:10px;">
             <span style="font-size:18px;">
-              You can define status bar in mainfedt.py.
+              You can define status bar in manifest.py.
               It will set a plugin (Image or Text) in footbar, like the demo : lyrebird_qacode plugin
             </span>
           </div>
