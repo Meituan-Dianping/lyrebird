@@ -50,7 +50,7 @@ export default {
   display: inline-block;
 }
 .text-menu-item {
-  font-size:16px;
+  font-size: 14px;
   font-family: Helvetica,"Hiragino Sans GB";
   font-weight: bold; 
   color: #808695;
