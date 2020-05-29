@@ -1,5 +1,5 @@
 <template>
-  <div id="statusBar">
+  <div id="status-bar">
     <span v-for="(item, index) in statusBarList" :key="index">
       <Poptip
         content="content"
@@ -7,6 +7,7 @@
         width="250"
         style="margin-right:20px;"
         word-wrap
+        padding="20px 20px 10px 20px"
       >
         <a @click="getStatusBarDetail(item.id)">
           <b style="color:#f8f8f9;font-size:12px;"> {{item.text}}</b>
@@ -44,15 +45,15 @@ export default {
 </script>
 
 <style  scoped>
-#statusBar {
+#status-bar {
   width: 600px;
   display: inline-block;
 }
 .text-menu-item {
-  font-size:20px;
-  font-family: Helvetica,"Hiragino Sans GB";
+  font-size: 14px;
   font-weight: bold; 
-  color: #17233d;
-  letter-spacing: 1px;
+  color: #808695;
+  text-align: center;
+  margin-top: 5px;
 }
 </style>

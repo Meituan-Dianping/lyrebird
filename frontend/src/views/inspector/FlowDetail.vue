@@ -42,7 +42,7 @@ export default {
         this.codeType = 'json';
       } else if (this.currentTab === 'req-body') {
         if (this.flowDetail.request.data) {
-          codeContent = JSON.stringify(this.flowDetail.request.data, null, 4);
+          codeContent = this.parseJsonData(this.flowDetail.request.data);
           this.codeType = 'json';
         } else {
           codeContent = '';
@@ -88,7 +88,11 @@ export default {
     },
     parseJsonData: function (data) {
       this.codeType = 'json';
-      return JSON.stringify(data, null, 4);
+      if (typeof data === 'object') {
+        return JSON.stringify(data, null, 4)
+      } else {
+        return data
+      }
     },
     parseHtmlData: function (data) {
       this.codeType = 'html';
