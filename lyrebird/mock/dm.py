@@ -5,6 +5,7 @@ import re
 import uuid
 import time
 import shutil
+import copy
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -334,10 +335,11 @@ class DataManager:
                         prop['id'] = child["id"]
                         new_prop_text = json.dumps(prop, ensure_ascii=False)
                         outputfile.write(new_prop_text)
-        _modify_and_collect_prop(node)
+        deep_copy_node = copy.deepcopy(node)
+        _modify_and_collect_prop(deep_copy_node)
 
         # write export file
-        prop_str = PropWriter().parse(node)
+        prop_str = PropWriter().parse(deep_copy_node)
         prop_file = f"{export_root_path}/{export_dir_name}/.lyrebird_prop"
         with codecs.open(prop_file, 'w') as f:
             f.write(prop_str)

@@ -1,5 +1,5 @@
 from flask_restful import Resource, request
-from flask import redirect
+from flask import redirect, Response
 from lyrebird import application
 from lyrebird.mock import context
 from lyrebird import log
@@ -144,4 +144,15 @@ class SnapshotExport(Resource):
                 fullpath = os.path.join(root, file)
                 t.add(fullpath)
         t.close()
-        return application.make_ok_response()
+
+        # stream return
+        def generate():
+            with open(f'{snapshot_export_repositories}/{export_dir_name}.gz', "rb") as f:
+                while True:
+                    data = f.read(2048)  # 每次读取指定的长度
+                    import time
+                    time.sleep(1)
+                    if not data:
+                        break
+                    yield data
+        return Response(generate())
