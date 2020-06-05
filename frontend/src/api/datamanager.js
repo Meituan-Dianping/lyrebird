@@ -101,8 +101,8 @@ export const getQrcodeImg = (link) => {
 
 export const importSnapshot = parentNode => {
   return axios({
-    url: "/api/snapshot/import",
-    method: "POST",
+    url: '/api/snapshot/import',
+    method: 'POST',
     data: { parentNode },
   });
 }

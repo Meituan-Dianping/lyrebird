@@ -1,5 +1,5 @@
 <template>
-  <Modal v-model="shown" :title="title?title:baseTitle"  width="60%" :styles="{top: '80px'}" :footer-hide=true>
+  <Modal v-model="shown" :title="title?title:defaultTitle"  width="60%" :styles="{top: '80px'}" :footer-hide=true>
     <slot name="modalHeader"></slot>
     <slot name="selected"></slot>
     <Input search enter-button v-model="searchStr" @on-search="searchGroup"></Input>
@@ -22,7 +22,7 @@ export default {
       searchStr: '',
       shown: false,
       searchResults: [],
-      baseTitle:"Mock Data Selector"
+      defaultTitle:"Mock Data Selector"
     }
   },
   created () {
