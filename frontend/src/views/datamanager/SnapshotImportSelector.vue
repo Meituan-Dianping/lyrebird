@@ -9,24 +9,24 @@
         </div>
       </template>
       <template #searchItem="{ searchResult }">
-        <Row
+        <i-row
           type="flex"
           align="middle"
           class="search-row"
           @click.native="setSnapshotParentNode(searchResult)"
         >
-          <Col span="24">
+          <i-col span="24">
             <p class="search-item">
               <b v-if="searchResult.parent_id" class="search-item-title">{{searchResult.name}}</b>
               <Icon v-else type="ios-home" class="search-item-title" />
               <span class="search-item-path">{{searchResult.abs_parent_path}}</span>
             </p>
-          </Col>
-        </Row>
+          </i-col>
+        </i-row>
       </template>
       <template slot="modalFooter">
         <Divider />
-        <Row>
+        <i-row>
           <i-col span="14">
             <span>You Selected: {{importSnapshotParentNodeDisplay}}</span>
           </i-col>
@@ -36,7 +36,7 @@
           <i-col span="6" offset="1">
             <Button type="success" long @click="importSnapshot()">add</Button>
           </i-col>
-        </Row>
+        </i-row>
       </template>
     </MockDataSelector>
   </div>

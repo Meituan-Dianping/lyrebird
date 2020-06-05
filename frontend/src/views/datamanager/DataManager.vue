@@ -21,7 +21,6 @@ import DataDetail from '@/views/datamanager/DataDetail.vue'
 import SnapshotImportSelector from './SnapshotImportSelector.vue'
 import SnapshotImportSpin from './SnapshotImportSpin.vue'
 
-
 export default {
   components: {
     DataList,
@@ -39,7 +38,7 @@ export default {
 },
   data () {
     return {
-      split: 0.35,
+      split: 0.35
     }
   }
 }

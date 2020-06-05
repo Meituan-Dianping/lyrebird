@@ -16,7 +16,7 @@ export default {
     spinDisplay () {
       return this.$store.state.dataManager.spinDisplay
     }
-  },
+  }
 }
 </script>
 <style scoped>
