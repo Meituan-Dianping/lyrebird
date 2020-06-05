@@ -14,7 +14,8 @@ export default {
     groupDetail: {},
     focusNodeInfo: {},
     pasteTarget: null,
-    importSnapshotParentNode: {}
+    importSnapshotParentNode: {},
+    spinDisplay:false,
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -72,7 +73,10 @@ export default {
     },
     setImportSnapshotParentNode (state, importSnapshotParentNode) {
       state.importSnapshotParentNode = importSnapshotParentNode
-    }
+    },
+    setSpinDisplay(state, spinDisplay) {
+      state.spinDisplay = spinDisplay
+    },
   },
   actions: {
     loadDataMap ({ state, commit }) {
