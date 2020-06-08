@@ -12,6 +12,7 @@ from lyrebird import application
 from lyrebird.mock import context
 from flask import redirect
 from flask_restful import Resource, request
+from lyrebird.mock.handlers.snapshot_handler import snapshot
 
 
 logger = log.get_logger()
@@ -25,52 +26,35 @@ class SanpshotImport(Resource):
     def get(self, url):
         global importSnapshotUrl
         importSnapshotUrl = url
-        return redirect(f'/ui/?v={VERSION}#/datamanager/import')
+        return redirect(f"/ui/?v={VERSION}#/datamanager/import")
 
     def post(self):
         # get params
         global importSnapshotUrl
-        logger.debug(f'importSnapshotUrl: {importSnapshotUrl}')
-        parent_node = request.json.get('parentNode')
+        logger.debug(f"importSnapshotUrl: {importSnapshotUrl}")
+        parent_node = request.json.get("parentNode")
         if "id" not in parent_node:
-            return application.make_fail_response(msg='object has no attribute : parentNode.id')
+            return application.make_fail_response(msg="object has no attribute : parentNode.id")
         if importSnapshotUrl == None:
-            return application.make_fail_response(msg='object has no attribute : importSnapshotUrl')
+            return application.make_fail_response(msg="object has no attribute : importSnapshotUrl")
 
         # get config
-        conf = application.config.raw()
-        logger.debug(f'conf:\n {conf}')
-        mock_data_repositories = conf.get("mock.data")
-        if not conf.get("snapshot"):
-            return application.make_fail_response(msg=" config snapshot not defined")
-        snapshot_import_repositories = conf.get("snapshot")
-        logger.debug(f'snapshot_repositories: {snapshot_import_repositories}')
-        if not os.path.exists(snapshot_import_repositories):
-            os.makedirs(snapshot_import_repositories)
-            logger.debug(f"make dir {snapshot_import_repositories} success")
-
-        # initialization
-        temp_file_name = str(time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()))+"-" + str(uuid.uuid4())
-        compressed_file_path = f'{snapshot_import_repositories}/{temp_file_name}.gz'
-        decompressed_file_path = f'{snapshot_import_repositories}/{temp_file_name}-unziped'
-        logger.debug(f'temp file name: {temp_file_name}')
+        mock_data_repositories, snapshot_repositories, temp_dir_name = snapshot.context_list
+        temp_dir_absolute_path = f"{snapshot_repositories}/{temp_dir_name}"
+        compressed_file_path = f"{temp_dir_absolute_path}.gz"
+        decompressed_file_path = f"{temp_dir_absolute_path}-unziped"
 
         # download
         resp = requests.get(importSnapshotUrl)
-        with open(compressed_file_path, 'wb') as f:
+        with open(compressed_file_path, "wb") as f:
             for chunck in resp.iter_content():
                 f.write(chunck)
-        logger.debug('download success')
 
         # decompress
-        tf = tarfile.open(compressed_file_path)
-        tf.extractall(decompressed_file_path)
-        tf.close()
-        logger.debug("decompress success")
+        snapshot.decompress_dir(compressed_file_path,decompressed_file_path)
 
         # load lyrebird_prop
         decompressed_innermost_path_list = []
-
         def find_prop(path):
             file_list = os.listdir(path)
             for file in file_list:
@@ -90,11 +74,13 @@ class SanpshotImport(Resource):
         # save data
         if context.application.data_manager.id_map.get(mockdata_node["id"]):
             return application.make_fail_response("snapshot is already exists")
+        
+        # import snapshot
         context.application.data_manager.import_snapshot(
             parent_id=parent_node["id"],
             snapshot_prop_obj=mockdata_node
         )
-
+        
         for file in os.listdir(mock_data_innermost_path):
             if "." not in file:
                 file_path = os.path.join(mock_data_innermost_path, file)

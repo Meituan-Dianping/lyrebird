@@ -298,27 +298,24 @@ class DataManager:
         snapshot_prop_obj["parent_id"] = parent_id
         if not parent_node:
             raise IDNotFound(parent_id)
-        if parent_node.get('type') == 'data':
+        if parent_node.get("type") == "data":
             raise DataObjectCannotContainAnyOtherObject
-        if 'children' not in parent_node:
-            parent_node['children'] = []
+        if "children" not in parent_node:
+            parent_node["children"] = []
         parent_node["children"].append(snapshot_prop_obj)
         # Save prop
         self._save_prop()
         self.reload()
 
-    
     def export_snapshot(self, node_id, export_root_path, export_dir_name, mock_data_repositories):
         node = self.id_map.get(node_id)
         if not node:
             raise IDNotFound(node_id)
-        if node.get('type') == 'data':
+        if node.get("type") == "data":
             raise DataObjectCannotContainAnyOtherObject
-        os.makedirs(f"{export_root_path}/{export_dir_name}")
 
-        # modify id / pid and collect mock data
-        need_to_be_copied_data_list = []
-        def _modify_and_collect_prop(node):
+        # modify id / pid and cp mock data
+        def _modify_and_cp_file(node):
             node["id"] = str(uuid.uuid4())
             if "children" not in node:
                 return
@@ -327,31 +324,22 @@ class DataManager:
                 child["id"] = str(uuid.uuid4())
                 child["parent_id"] = node["id"]
                 if child["type"] == "group":
-                    _modify_and_collect_prop(child)
+                    _modify_and_cp_file(child)
                 if child["type"] == "data":
-                    with codecs.open(f'{mock_data_repositories}/{old_child_id}', 'r') as inputfile, codecs.open(f'{export_root_path}/{export_dir_name}/{child["id"]}', 'w') as outputfile:
+                    with codecs.open(f"{mock_data_repositories}/{old_child_id}", "r") as inputfile, codecs.open(f"{export_root_path}/{export_dir_name}/{child['id']}", "w") as outputfile:
                         origin_text = inputfile.read()
                         prop = json.loads(origin_text)
-                        prop['id'] = child["id"]
+                        prop["id"] = child["id"]
                         new_prop_text = json.dumps(prop, ensure_ascii=False)
                         outputfile.write(new_prop_text)
         deep_copy_node = copy.deepcopy(node)
-        _modify_and_collect_prop(deep_copy_node)
+        _modify_and_cp_file(deep_copy_node)
 
         # write export file
         prop_str = PropWriter().parse(deep_copy_node)
         prop_file = f"{export_root_path}/{export_dir_name}/.lyrebird_prop"
-        with codecs.open(prop_file, 'w') as f:
+        with codecs.open(prop_file, "w") as f:
             f.write(prop_str)
-        
-        # cp mock data
-        for data_id in need_to_be_copied_data_list:
-            base_data_path = f"{mock_data_repositories}/{data_id}"
-            shutil.copy(
-                base_data_path,
-                f"{export_root_path}/{export_dir_name}/{data_id}"
-            )
-        
 
     def delete(self, _id):
         target_node = self.id_map.get(_id)

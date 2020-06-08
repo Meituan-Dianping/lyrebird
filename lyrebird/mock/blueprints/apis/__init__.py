@@ -16,7 +16,7 @@ from .search import SearchMockDataByName
 from .bandwidth import Bandwidth, BandwidthTemplates
 from .status_bar import StatusBar
 from .snapshot_import import SanpshotImport
-from .snapshot_export import SnapshotExport
+from .snapshot_export import SnapshotExportFromDM, SnapshotExportFromEvent
 from lyrebird.log import get_logger
 from lyrebird import application
 from flask import got_request_exception
@@ -70,7 +70,8 @@ api_source.add_resource(Checker, '/checker', '/checker/<string:checker_id>')
 api_source.add_resource(Bandwidth, '/bandwidth')
 api_source.add_resource(BandwidthTemplates, '/bandwidth_templates')
 api_source.add_resource(SanpshotImport, '/snapshot/import/<path:url>', '/snapshot/import')
-api_source.add_resource(SnapshotExport,  '/snapshot/export')
+api_source.add_resource(SnapshotExportFromDM,  '/snapshot/export/dm')
+api_source.add_resource(SnapshotExportFromEvent,  '/snapshot/export/event')
 api_source.add_resource(
     Event,
     '/event',
