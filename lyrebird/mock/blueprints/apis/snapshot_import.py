@@ -2,15 +2,17 @@ import os
 import uuid
 import time
 import json
+import codecs
 import shutil
 import tarfile
 import requests
 from pathlib import Path
 from lyrebird import log
+from flask import redirect
 from ....version import VERSION
 from lyrebird import application
 from lyrebird.mock import context
-from flask import redirect
+from urllib.parse import urlparse
 from flask_restful import Resource, request
 from lyrebird.mock.handlers.snapshot_handler import snapshot
 
@@ -29,8 +31,10 @@ class SanpshotImport(Resource):
         return redirect(f"/ui/?v={VERSION}#/datamanager/import")
 
     def post(self):
+        print(request)
         # get params
         global importSnapshotUrl
+        importSnapshotUrlParsed = urlparse(importSnapshotUrl)
         logger.debug(f"importSnapshotUrl: {importSnapshotUrl}")
         parent_node = request.json.get("parentNode")
         if "id" not in parent_node:
@@ -45,13 +49,18 @@ class SanpshotImport(Resource):
         decompressed_file_path = f"{temp_dir_absolute_path}-unziped"
 
         # download
-        resp = requests.get(importSnapshotUrl)
-        with open(compressed_file_path, "wb") as f:
-            for chunck in resp.iter_content():
-                f.write(chunck)
+        if "http" in importSnapshotUrlParsed.scheme:
+            resp = requests.get(importSnapshotUrl)
+            with open(compressed_file_path, "wb") as f:
+                for chunck in resp.iter_content():
+                    f.write(chunck)
+        elif "file" in importSnapshotUrlParsed.scheme:
+            with codecs.open(importSnapshotUrlParsed.path, "rb") as inputfile, codecs.open(compressed_file_path, "wb") as outputfile:
+                read_content = inputfile.read()
+                outputfile.write(read_content)
 
         # decompress
-        snapshot.decompress_dir(compressed_file_path,decompressed_file_path)
+        snapshot.decompress_dir(compressed_file_path, decompressed_file_path)
 
         # load lyrebird_prop
         decompressed_innermost_path_list = []
