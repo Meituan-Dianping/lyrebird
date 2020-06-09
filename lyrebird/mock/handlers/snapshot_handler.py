@@ -1,6 +1,7 @@
 import os
 import uuid
 import time
+import json
 import codecs
 import tarfile
 from lyrebird import log
@@ -48,7 +49,10 @@ class Snapshot:
         tf.close()
         logger.debug("decompress success")
 
-    
+    def flow_data_2_str(self, data):
+        if isinstance(data, str):
+            return data
+        return json.dumps(data, ensure_ascii=False)
                 
         
 snapshot = Snapshot()

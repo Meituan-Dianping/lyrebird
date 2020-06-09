@@ -9,7 +9,7 @@
         </div>
       </template>
       <template #searchItem="{ searchResult }">
-        <i-row
+        <Row
           type="flex"
           align="middle"
           class="search-row"
@@ -22,11 +22,11 @@
               <span class="search-item-path">{{searchResult.abs_parent_path}}</span>
             </p>
           </i-col>
-        </i-row>
+        </Row>
       </template>
       <template slot="modalFooter">
         <Divider />
-        <i-row>
+        <Row>
           <i-col span="14">
             <span>You Selected: {{importSnapshotParentNodeDisplay}}</span>
           </i-col>
@@ -36,7 +36,7 @@
           <i-col span="6" offset="1">
             <Button type="success" long @click="importSnapshot()">add</Button>
           </i-col>
-        </i-row>
+        </Row>
       </template>
     </MockDataSelector>
   </div>

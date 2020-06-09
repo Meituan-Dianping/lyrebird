@@ -44,14 +44,13 @@ class SnapshotExportFromDM(Resource):
 
 
 class SnapshotExportFromEvent(Resource):
-    def get(self):
-        # event_id = request.json.get("event_id")
-        event_id = "c6c14109-d649-4bde-84be-ef342b658263"
+    def post(self):
+        event_id = request.json.get("eventId")
         db = application.server["db"]
         event_detail = db.get_event_detail_by_event_id(event_id)
 
-        prop_file_content = event_detail.get("flow").get("snapshot")
-        data_list = event_detail.get("flow").get("events")
+        prop_file_content = event_detail.get("snapshot")
+        data_list = event_detail.get("events")
         data_list_id_map = {}
         for data in data_list:
             data_list_id_map.update({data.get("id"):data})
@@ -71,6 +70,8 @@ class SnapshotExportFromEvent(Resource):
                 if child["type"] == "data":
                     with codecs.open(f"{snapshot_repositories}/{temp_dir_name}/{child['id']}", "w") as outputfile:
                         content = data_list_id_map.get(old_child_id)
+                        if "data" in content['response']:
+                            content['response']['data'] = snapshot.flow_data_2_str(content['response']['data'])
                         content["id"] = child["id"]
                         new_id_data = json.dumps(content, ensure_ascii=False)
                         outputfile.write(new_id_data)
