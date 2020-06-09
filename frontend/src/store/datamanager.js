@@ -15,7 +15,7 @@ export default {
     focusNodeInfo: {},
     pasteTarget: null,
     importSnapshotParentNode: {},
-    spinDisplay:false,
+    spinDisplay: false,
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -74,7 +74,7 @@ export default {
     setImportSnapshotParentNode (state, importSnapshotParentNode) {
       state.importSnapshotParentNode = importSnapshotParentNode
     },
-    setSpinDisplay(state, spinDisplay) {
+    setSpinDisplay (state, spinDisplay) {
       state.spinDisplay = spinDisplay
     },
   },

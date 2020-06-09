@@ -16,13 +16,13 @@
 import { searchGroupByName } from '@/api'
 
 export default {
-  props: ['showRoot','title'],
+  props: ['showRoot', 'title'],
   data () {
     return {
       searchStr: '',
       shown: false,
       searchResults: [],
-      defaultTitle:"Mock Data Selector"
+      defaultTitle: "Mock Data Selector"
     }
   },
   created () {

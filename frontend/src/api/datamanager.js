@@ -103,6 +103,6 @@ export const importSnapshot = parentNode => {
   return axios({
     url: '/api/snapshot/import',
     method: 'POST',
-    data: { parentNode },
-  });
+    data: { parentNode }
+  })
 }

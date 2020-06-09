@@ -102,8 +102,7 @@ def main():
 
     # set current snapshot to config
     application._cm.config['snapshot'] = str(
-        application._cm.ROOT)+"/snapshot"
-    logger.info(application._cm.ROOT)
+        application._cm.ROOT) + "/snapshot"
 
     # init file logger after config init
     application._cm.config['verbose'] = args.verbose
