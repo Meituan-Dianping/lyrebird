@@ -14,7 +14,7 @@ class Snapshot:
     @property
     def context_list(self):
         mock_data_repositories = application.config.raw().get("mock.data")
-        
+
         snapshot_repositories = application.config.raw().get("snapshot")
         if not os.path.exists(snapshot_repositories):
             os.makedirs(snapshot_repositories)
@@ -37,12 +37,12 @@ class Snapshot:
 
     def compress_dir(self,compress_dir_path):
         t = tarfile.open(f"{compress_dir_path}.gz", "w:gz")
-        for root, dir, files in os.walk(compress_dir_path):
+        for root, files in os.walk(compress_dir_path):
             for file in files:
                 fullpath = os.path.join(root, file)
                 t.add(fullpath)
         t.close()
-    
+
     def decompress_dir(self, input_path, output_path):
         tf = tarfile.open(input_path)
         tf.extractall(output_path)
@@ -53,6 +53,6 @@ class Snapshot:
         if isinstance(data, str):
             return data
         return json.dumps(data, ensure_ascii=False)
-                
-        
+
+
 snapshot = Snapshot()

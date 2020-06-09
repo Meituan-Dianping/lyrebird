@@ -1,10 +1,7 @@
 import os
-import uuid
-import time
 import json
 import codecs
 import shutil
-import tarfile
 import requests
 from pathlib import Path
 from lyrebird import log
@@ -78,17 +75,17 @@ class SanpshotImport(Resource):
         prop_file_path = decompressed_innermost_path_list[0]
         mock_data_innermost_path = str(decompressed_innermost_path_list[0]).split("/.lyrebird_prop")[0]
         mockdata_node = json.loads(Path(prop_file_path).read_text())
-        
+
         # save data
         if context.application.data_manager.id_map.get(mockdata_node["id"]):
             return application.make_fail_response("snapshot is already exists")
-        
+
         # import snapshot
         context.application.data_manager.import_snapshot(
             parent_id=parent_node["id"],
             snapshot_prop_obj=mockdata_node
         )
-        
+
         for file in os.listdir(mock_data_innermost_path):
             if "." not in file:
                 file_path = os.path.join(mock_data_innermost_path, file)

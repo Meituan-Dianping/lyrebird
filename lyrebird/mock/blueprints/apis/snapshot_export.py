@@ -1,12 +1,8 @@
-import os
 import uuid
-import time
 import json
 import codecs
-import tarfile
 from lyrebird import log
 from flask import Response
-from lyrebird.mock import dm
 from lyrebird import application
 from lyrebird.mock import context
 from flask_restful import Resource, request
@@ -20,6 +16,8 @@ class SnapshotExportFromDM(Resource):
     def post(self):
         node_id = request.json.get("nodeId")
         mock_data_repositories, snapshot_repositories, temp_dir_name = snapshot.context_list
+        logger.debug(
+            f"mock_data_repositories: {mock_data_repositories}\n snapshot_repositories: {snapshot_repositories} \n temp_dir_name: {temp_dir_name}")
 
         # copy file from dm
         context.application.data_manager.export_snapshot(
@@ -56,7 +54,9 @@ class SnapshotExportFromEvent(Resource):
             data_list_id_map.update({data.get("id"):data})
 
         mock_data_repositories, snapshot_repositories, temp_dir_name = snapshot.context_list
-        
+        logger.debug(
+            f"mock_data_repositories: {mock_data_repositories}\n snapshot_repositories: {snapshot_repositories} \n temp_dir_name: {temp_dir_name}")
+
         # create prop file and data file
         def _modify_and_cp_file(node):
             if "children" not in node:
@@ -82,7 +82,7 @@ class SnapshotExportFromEvent(Resource):
 
         # compress export dir
         snapshot.compress_dir(f"{snapshot_repositories}/{temp_dir_name}")
-        
+
         # stream return
         def generate():
             with open(f"{snapshot_repositories}/{temp_dir_name}.gz", "rb") as f:
