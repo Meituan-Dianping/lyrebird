@@ -31,7 +31,6 @@ class SanpshotImport(Resource):
         return redirect(f"/ui/?v={VERSION}#/datamanager/import")
 
     def post(self):
-        print(request)
         # get params
         global importSnapshotUrl
         importSnapshotUrlParsed = urlparse(importSnapshotUrl)

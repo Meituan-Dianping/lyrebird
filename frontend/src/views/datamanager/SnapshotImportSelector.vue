@@ -55,7 +55,7 @@ export default {
   data () {
     return {
       titleMsg: 'please select a parent node, it will be used to save snapshot mock data',
-    };
+    }
   },
   computed: {
     importSnapshotParentNodeDisplay () {
@@ -102,7 +102,7 @@ export default {
   },
   mounted () {
     if (this.$route.path == '/datamanager/import') {
-      this.changeSearchModalOpenState();
+      this.changeSearchModalOpenState()
     }
   }
 }

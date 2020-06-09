@@ -1,9 +1,9 @@
 <template>
   <div class="snapshot-import-spin">
     <!-- snapshot import spin -->
-    <SnapshotImportSpin></SnapshotImportSpin>
+    <snapshot-import-spin></snapshot-import-spin>
     <!-- snapshot import selector -->
-    <SnapshotImportSelector ></SnapshotImportSelector>
+    <snapshot-import-selector></snapshot-import-selector>
     <Split v-model="split" class="datamanager-split">
       <div slot="left">
         <data-list></data-list>
@@ -18,8 +18,8 @@
 <script>
 import DataList from '@/views/datamanager/DataList.vue'
 import DataDetail from '@/views/datamanager/DataDetail.vue'
-import SnapshotImportSelector from './SnapshotImportSelector.vue'
-import SnapshotImportSpin from './SnapshotImportSpin.vue'
+import SnapshotImportSelector from '@/views/datamanager/SnapshotImportSelector.vue'
+import SnapshotImportSpin from '@/views/datamanager/SnapshotImportSpin.vue'
 
 export default {
   components: {
@@ -28,7 +28,7 @@ export default {
     SnapshotImportSelector,
     SnapshotImportSpin
   },
-  mounted () {
+  mounted() {
     this.$store.dispatch('loadDataMap')
   },
   computed: {
