@@ -589,10 +589,6 @@ class DumpPropError(Exception):
     pass
 
 
-class DuplicateSuper(Exception):
-    pass
-
-
 class PropWriter:
 
     def __init__(self):
