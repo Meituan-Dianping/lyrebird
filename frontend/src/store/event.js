@@ -32,8 +32,8 @@ export default {
     }
   },
   actions: {
-    loadChannelNames ({ state, commit, dispatch }) {
-      api.getDisplayChannelNames()
+    loadChannelNames ({ commit, dispatch }) {
+      api.getDefaultChannelNames()
         .then(response => {
           let channel = response.data.data
           dispatch('updateChannelFilters', channel)
@@ -72,8 +72,13 @@ export default {
     showNotice ({ dispatch }) {
       dispatch('updateChannelFilters', ['notice'])
     },
-    showAll ({ dispatch }) {
-      dispatch('updateChannelFilters', ['flow', 'notice', 'page', 'android.crash', 'ios.crash', 'mapi'])
+    showAll ({ commit, dispatch }) {
+      api.getDefaultChannelNames()
+        .then(response => {
+          let channel = response.data.data
+          dispatch('updateChannelFilters', channel)
+          commit('setChannelNames', channel)
+        })
     }
   }
 }

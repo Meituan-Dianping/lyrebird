@@ -40,7 +40,7 @@ export const getChannelNames = () => {
     })
 }
 
-export const getDisplayChannelNames = () => {
+export const getDefaultChannelNames = () => {
     return axios({
         url: '/api/channel/default'
     })
