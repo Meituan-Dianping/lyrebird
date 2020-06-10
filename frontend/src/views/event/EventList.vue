@@ -103,8 +103,6 @@ export default {
       for (const channelName of this.$store.state.event.channelNames) {
         filters.push({ label: channelName, value: channelName })
       }
-      console.log('columns', this.$store.state.event.channelFilters);
-      
       return [
         {
           title: '',
