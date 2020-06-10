@@ -41,7 +41,12 @@ class Event(Resource):
 
 class Channel(Resource):
 
-    def get(self):
-        db = application.server['db']
-        channel_list = db.get_channel_list()
-        return jsonify([item[0] for item in channel_list])
+    def get(self, mode=None):
+        if not mode:
+            db = application.server['db']
+            channel_list = db.get_channel_list()
+            return jsonify([item[0] for item in channel_list])
+
+        elif mode == 'default':
+            channel = application.config.get('event.display_channel')
+            return application.make_ok_response(data=channel)
