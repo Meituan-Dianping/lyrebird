@@ -247,6 +247,20 @@ export default {
         .catch(error => {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' paste error: ' + error.data.message)
         })
+    },
+    importSnapshot ({ commit, dispatch }, parentNode) {
+      api
+        .importSnapshot(parentNode)
+        .then((res) => {
+          commit("setSpinDisplay", false)
+          dispatch("loadDataMap")
+          bus.$emit("msg.success", res.data.message)
+        })
+        .catch((err) => {
+          commit("setSpinDisplay", false)
+          dispatch("loadDataMap");
+          bus.$emit("msg.error", err.data.message)
+        });
     }
   }
 }

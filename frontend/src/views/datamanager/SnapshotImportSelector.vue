@@ -1,7 +1,6 @@
 <!-- SnapshotImportSelector -->
 <template>
   <div class>
-    <!-- snapshot import parentNode selector -->
     <MockDataSelector ref="searchModal" :showRoot="true">
       <template slot="modalHeader">
         <div>
@@ -45,8 +44,6 @@
 <script>
 
 import MockDataSelector from '@/components/SearchModal.vue'
-import { bus } from '../../eventbus'
-import * as api from '../../api'
 
 export default {
   components: {
@@ -83,21 +80,9 @@ export default {
     importSnapshot () {
       this.$store.commit('setSpinDisplay', true)
       this.changeSearchModalOpenState()
-      api
-        .importSnapshot(this.parentNode)
-        .then((res) => {
-          if (res.data.code === 1000) {
-            this.$store.commit('setSpinDisplay', false)
-            bus.$emit('msg.success', res.data.message)
-            this.$router.push({ name: 'datamanager' })
-            this.$store.dispatch('loadDataMap')
-          }
-        }).catch(err => {
-          this.$store.commit('setSpinDisplay', false)
-          bus.$emit('msg.error', err.data.message)
-          this.$router.push({ name: 'datamanager' })
-          this.$store.dispatch('loadDataMap')
-        })
+      this.$store.dispatch('importSnapshot',this.parentNode)
+      this.$router.push({ name: "datamanager" });
+      
     },
   },
   mounted () {

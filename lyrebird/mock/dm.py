@@ -4,12 +4,13 @@ import os
 import re
 import uuid
 import copy
+import shutil
 from pathlib import Path
 from urllib.parse import urlparse
-
 from lyrebird.log import get_logger
 from jinja2 import Template
 from lyrebird.application import config
+
 
 PROP_FILE_NAME = '.lyrebird_prop'
 
@@ -291,53 +292,106 @@ class DataManager:
         self._save_prop()
         return group_id
 
-    def import_snapshot(self, parent_id, snapshot_prop_obj):
+    def import_snapshot(self, parent_id, decompress_dir):
+        decompressed_innermost_path_list = []
+        def _find_prop(path):
+            file_list = os.listdir(path)
+            for file in file_list:
+                filepath = os.path.join(path, file)
+                if ".lyrebird_prop" in filepath:
+                    decompressed_innermost_path_list.append(filepath)
+                if os.path.isdir(filepath):
+                    _find_prop(filepath)
+        _find_prop(path=decompress_dir)
+        
+        logger.debug(decompressed_innermost_path_list)
+        if len(decompressed_innermost_path_list) < 1:
+            raise NonePropFile
+        if len(decompressed_innermost_path_list) > 1:
+            raise TooMuchPropFile 
+        prop_file_path = decompressed_innermost_path_list[0]
+        mock_data_innermost_path = str(prop_file_path).split("/.lyrebird_prop")[0]
+        mock_data_node = json.loads(Path(prop_file_path).read_text())
+
+        if self.id_map.get(mock_data_node["id"]):
+            raise NodeExist
+        
         parent_node = self.id_map.get(parent_id)
-        snapshot_prop_obj["parent_id"] = parent_id
+        mock_data_node["parent_id"] = parent_id
         if not parent_node:
             raise IDNotFound(parent_id)
         if parent_node.get("type") == "data":
             raise DataObjectCannotContainAnyOtherObject
         if "children" not in parent_node:
             parent_node["children"] = []
-        parent_node["children"].append(snapshot_prop_obj)
+        parent_node["children"].append(mock_data_node)
         # Save prop
         self._save_prop()
         self.reload()
 
-    def export_snapshot(self, node_id, export_root_path, export_dir_name, mock_data_repositories):
+        for file in os.listdir(mock_data_innermost_path):
+            if "." not in file:
+                file_path = os.path.join(mock_data_innermost_path, file)
+                logger.debug(file_path)
+                shutil.copy(
+                    file_path,
+                    self.root_path
+                )
+        self.activate(mock_data_node["id"])
+
+    def node_check(self, node_id):
         node = self.id_map.get(node_id)
         if not node:
             raise IDNotFound(node_id)
         if node.get("type") == "data":
             raise DataObjectCannotContainAnyOtherObject
 
+    def export_snapshot(self, node, export_root_path, export_dir_name, func, event_list_id_map=None):
         # modify id / pid and cp mock data
-        def _modify_and_cp_file(node):
-            node["id"] = str(uuid.uuid4())
-            if "children" not in node:
-                return
-            for child in node["children"]:
-                old_child_id = child["id"]
-                child["id"] = str(uuid.uuid4())
-                child["parent_id"] = node["id"]
-                if child["type"] == "group":
-                    _modify_and_cp_file(child)
-                if child["type"] == "data":
-                    with codecs.open(f"{mock_data_repositories}/{old_child_id}", "r") as inputfile, codecs.open(f"{export_root_path}/{export_dir_name}/{child['id']}", "w") as outputfile:
-                        origin_text = inputfile.read()
-                        prop = json.loads(origin_text)
-                        prop["id"] = child["id"]
-                        new_prop_text = json.dumps(prop, ensure_ascii=False)
-                        outputfile.write(new_prop_text)
         deep_copy_node = copy.deepcopy(node)
-        _modify_and_cp_file(deep_copy_node)
-
+        print(event_list_id_map)
+        self.batch_cp_data_repleace_id(
+            deep_copy_node,
+            f"{export_root_path}/{export_dir_name}",
+            func,
+            event_list_id_map=event_list_id_map
+        )
         # write export file
         prop_str = PropWriter().parse(deep_copy_node)
         prop_file = f"{export_root_path}/{export_dir_name}/.lyrebird_prop"
         with codecs.open(prop_file, "w") as f:
             f.write(prop_str)
+
+    def batch_cp_data_repleace_id(self, node, new_path, func, event_list_id_map=None):
+        if "children" not in node:
+            return
+        for child in node["children"]:
+            old_child_id = child["id"]
+            child["id"] = str(uuid.uuid4())
+            child["parent_id"] = node["id"]
+            if child["type"] == "group":
+                batch_cp_data_repleace_id(child, new_path)
+            if child["type"] == "data":
+                source_path = self.root_path
+                func(source_path,new_path,old_child_id,child,event_list_id_map)
+    
+    def _cp_data_from_file_callback(self, source_path, new_path, old_child_id, child, event_list_id_map=None):
+        with codecs.open(f"{source_path}/{old_child_id}", "r") as inputfile, codecs.open(f"{new_path}/{child['id']}", "w") as outputfile:
+            origin_text = inputfile.read()
+            prop = json.loads(origin_text)
+            prop["id"] = child["id"]
+            new_prop_text = json.dumps(prop, ensure_ascii=False)
+            outputfile.write(new_prop_text)
+
+    def _cp_data_from_event_callback(self, source_path, new_path, old_child_id, child, event_list_id_map):
+        print(event_list_id_map)
+        with codecs.open(f"{new_path}/{child['id']}", "w") as outputfile:
+            content = event_list_id_map.get(old_child_id)
+            if "data" in content['response']:
+                content['response']['data'] = self._flow_data_2_str(content['response']['data'])
+            content["id"] = child["id"]
+            new_id_data = json.dumps(content, ensure_ascii=False)
+            outputfile.write(new_id_data)
 
     def delete(self, _id):
         target_node = self.id_map.get(_id)
@@ -629,6 +683,14 @@ class NoneClipbord(Exception):
 class DumpPropError(Exception):
     pass
 
+class NonePropFile(Exception):
+    pass
+
+class TooMuchPropFile(Exception):
+    pass
+
+class NodeExist(Exception):
+    pass
 
 class PropWriter:
 

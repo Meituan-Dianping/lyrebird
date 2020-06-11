@@ -1,8 +1,6 @@
 <template>
   <div class="snapshot-import-spin">
-    <!-- snapshot import spin -->
     <snapshot-import-spin></snapshot-import-spin>
-    <!-- snapshot import selector -->
     <snapshot-import-selector></snapshot-import-selector>
     <Split v-model="split" class="datamanager-split">
       <div slot="left">

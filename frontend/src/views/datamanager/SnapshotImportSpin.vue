@@ -1,6 +1,6 @@
+<!-- snapshot import spin -->
 <template>
   <div>
-    <!-- snapshot import spin -->
     <Spin fix v-if='spinDisplay'>
       <Icon type='ios-loading' size='25' class='snapshot-import-spin-icon-load'></Icon>
       <div>

@@ -26,8 +26,7 @@ config_template = {
         "scheme": "MKScheme",
         "host": "MKOriginHost",
         "port": "MKOriginPort"
-    },
-    "snapshot": "{{current_dir}}/snapshot"
+    }
 }
 
 
