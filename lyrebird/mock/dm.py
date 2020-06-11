@@ -311,12 +311,12 @@ class DataManager:
                 if os.path.isdir(filepath):
                     _find_prop(filepath)
         _find_prop(path=decompress_dir)
-        
+
         logger.debug(decompressed_innermost_path_list)
         if len(decompressed_innermost_path_list) < 1:
             raise NonePropFile
         if len(decompressed_innermost_path_list) > 1:
-            raise TooMuchPropFile 
+            raise TooMuchPropFile
         prop_file_path = decompressed_innermost_path_list[0]
         mock_data_innermost_path = str(prop_file_path).split("/.lyrebird_prop")[0]
         mock_data_node = json.loads(Path(prop_file_path).read_text())

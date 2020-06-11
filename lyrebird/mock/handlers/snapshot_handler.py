@@ -1,7 +1,6 @@
 import os
 import uuid
 import time
-import json
 import codecs
 import tarfile
 import requests
@@ -108,7 +107,7 @@ class Snapshot():
                 fullpath = os.path.join(root, file)
                 tar.add(fullpath)
         tar.close()
-        
+
     def _get_event_detail(self, event_id):
         db = application.server["db"]
         event_detail = db.get_event_detail_by_event_id(event_id)

@@ -252,15 +252,15 @@ export default {
       api
         .importSnapshot(parentNode)
         .then((res) => {
-          commit("setSpinDisplay", false)
-          dispatch("loadDataMap")
-          bus.$emit("msg.success", res.data.message)
+          commit('setSpinDisplay', false)
+          dispatch('loadDataMap')
+          bus.$emit('msg.success', res.data.message)
         })
         .catch((err) => {
-          commit("setSpinDisplay", false)
-          dispatch("loadDataMap");
-          bus.$emit("msg.error", err.data.message)
-        });
+          commit('setSpinDisplay', false)
+          dispatch('loadDataMap');
+          bus.$emit('msg.error', err.data.message)
+        })
     }
   }
 }
