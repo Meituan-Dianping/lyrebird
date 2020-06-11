@@ -36,8 +36,8 @@ export default {
       api.getDefaultChannelNames()
         .then(response => {
           let channel = response.data.data
-          dispatch('updateChannelFilters', channel)
           commit('setChannelNames', channel)
+          dispatch('updateChannelFilters', channel)
         })
     },
     loadEvents ({ state, commit }, options = {}) {

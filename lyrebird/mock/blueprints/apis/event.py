@@ -48,5 +48,5 @@ class Channel(Resource):
             return jsonify([item[0] for item in channel_list])
 
         elif mode == 'default':
-            channel = application.config.get('event.default_channel')
+            channel = application.config.get('event.default_channel', [])
             return application.make_ok_response(data=channel)
