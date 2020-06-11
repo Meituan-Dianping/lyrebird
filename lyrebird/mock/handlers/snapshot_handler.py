@@ -103,7 +103,7 @@ class Snapshot():
         tar = tarfile.open(f"{temp_dir_absolute_path}.tar.gz", "w:gz")
         for root, dirs, files in os.walk(temp_dir_absolute_path):
             for file in files:
-                logger.debug(root, dir, files)
+                logger.debug(root, dirs, files)
                 fullpath = os.path.join(root, file)
                 tar.add(fullpath)
         tar.close()
