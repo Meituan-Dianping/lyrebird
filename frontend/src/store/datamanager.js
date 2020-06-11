@@ -258,7 +258,7 @@ export default {
         })
         .catch((err) => {
           commit('setSpinDisplay', false)
-          dispatch('loadDataMap');
+          dispatch('loadDataMap')
           bus.$emit('msg.error', err.data.message)
         })
     }

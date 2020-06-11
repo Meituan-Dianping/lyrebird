@@ -323,7 +323,7 @@ class DataManager:
 
         if self.id_map.get(mock_data_node["id"]):
             raise NodeExist
-        
+
         parent_node = self.id_map.get(parent_id)
         mock_data_node["parent_id"] = parent_id
         if not parent_node:
@@ -382,7 +382,7 @@ class DataManager:
             if child["type"] == "data":
                 source_path = self.root_path
                 func(source_path,new_path,old_child_id,child,event_list_id_map)
-    
+
     def _cp_data_from_file_callback(self, source_path, new_path, old_child_id, child, event_list_id_map=None):
         with codecs.open(f"{source_path}/{old_child_id}", "r") as inputfile, codecs.open(f"{new_path}/{child['id']}", "w") as outputfile:
             origin_text = inputfile.read()

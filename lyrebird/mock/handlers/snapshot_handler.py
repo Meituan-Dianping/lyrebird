@@ -101,7 +101,7 @@ class Snapshot():
 
     def _compress_dir(self, temp_dir_absolute_path):
         tar = tarfile.open(f"{temp_dir_absolute_path}.tar.gz", "w:gz")
-        for root, dir, files in os.walk(temp_dir_absolute_path):
+        for root, dirs, files in os.walk(temp_dir_absolute_path):
             for file in files:
                 logger.debug(root, dir, files)
                 fullpath = os.path.join(root, file)
