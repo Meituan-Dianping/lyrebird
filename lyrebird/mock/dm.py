@@ -32,6 +32,7 @@ class DataManager:
         self.activated_data = {}
         self.activated_group = {}
         self.secondary_activated_data = {}
+        self.LEVEL_SECONDARY_ACTIVATED = 2
         self.clipboard = None
         self.save_to_group_id = None
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'children': []}
@@ -99,13 +100,20 @@ class DataManager:
             self._activate(_node)
         else:
             raise DataNotFound(f'ID:{_id}')
-        if _node.get('super_id'):
-            _secondary_search_node_id = _node.get('super_id')
-            _secondary_search_node = self.id_map.get(_secondary_search_node_id)
-            if not _secondary_search_node:
-                raise DataNotFound(f'Secondary search node ID: {_secondary_search_node_id}')
-            self._activate(_secondary_search_node, secondary_search=True)
+        self._activate_super_node(_node, level_lefted=self.LEVEL_SECONDARY_ACTIVATED)
         self.activated_group[_id] = _node
+
+    def _activate_super_node(self, node, level_lefted=1):
+        if level_lefted <= 0:
+            return
+        if not node.get('super_id'):
+            return
+        _secondary_search_node_id = node.get('super_id')
+        _secondary_search_node = self.id_map.get(_secondary_search_node_id)
+        if not _secondary_search_node:
+            raise DataNotFound(f'Secondary search node ID: {_secondary_search_node_id}')
+        self._activate(_secondary_search_node, secondary_search=True)
+        self._activate_super_node(_secondary_search_node, level_lefted=level_lefted-1)
 
     def _activate(self, node, secondary_search=False):
         if node.get('type', '') == 'data':

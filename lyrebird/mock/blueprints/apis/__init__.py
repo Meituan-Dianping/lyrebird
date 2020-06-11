@@ -81,5 +81,5 @@ api_source.add_resource(
     '/event/<string:channel>/page/<int:page>',
     '/event/<string:channel>/id/<string:event_id>'
 )
-api_source.add_resource(Channel, '/channel')
+api_source.add_resource(Channel, '/channel', '/channel/<string:mode>')
 api_source.add_resource(StatusBar, '/statusbar', '/statusbar/<string:item_id>')

@@ -100,7 +100,6 @@ def main():
     except socket.gaierror as e:
         logger.error('Failed to get local IP address, error occurs on %s' % e)
 
-
     # init file logger after config init
     application._cm.config['verbose'] = args.verbose
     log.init(args.log)

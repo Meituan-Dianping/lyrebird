@@ -61,6 +61,7 @@ prop = {
             'name': 'groupA',
             'type': 'group',
             'parent_id': 'root',
+            'super_id': 'groupB-UUID',
             'children': [
                 {
                     'id': 'dataA-UUID',
@@ -81,6 +82,7 @@ prop = {
             'name': 'groupB',
             'type': 'group',
             'parent_id': 'root',
+            'super_id': 'groupC-UUID',
             'children': [
                 {
                     'id': 'dataC-UUID',
@@ -95,6 +97,7 @@ prop = {
             'name': 'groupC',
             'type': 'group',
             'parent_id': 'root',
+            'super_id': 'groupD-UUID',
             'children': []
         },
         {
@@ -102,6 +105,7 @@ prop = {
             'name': 'groupD',
             'type': 'group',
             'parent_id': 'root',
+            'super_id': 'groupE-UUID',
             'children': [
                 {
                     'id': 'dataD-UUID',
@@ -182,6 +186,16 @@ def test_activate(data_manager):
     assert len(data_manager.activated_data) == 2
     assert 'dataA-UUID' in data_manager.activated_data
     assert 'dataB-UUID' in data_manager.activated_data
+
+
+def test_activate_secondary_search(data_manager):
+    data_manager.activate('groupA-UUID')
+
+    groupB_children_length = len(data_manager.id_map['groupB-UUID']['children'])
+    groupC_children_length = len(data_manager.id_map['groupC-UUID']['children'])
+    secondary_activated_data_length = groupB_children_length + groupC_children_length
+    assert secondary_activated_data_length == 1
+    assert 'dataC-UUID' in data_manager.secondary_activated_data
 
 
 def test_mock_rule(data_manager):
