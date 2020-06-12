@@ -19,12 +19,9 @@ Info used in channel flow
 """
 
 
-from lyrebird import CustomEventReceiver
+from lyrebird import event
 from decimal import Decimal
 
-
-# init event receiver instance
-event = CustomEventReceiver()
 
 # THRESHOLD_IMG_SIZE: image size limitation
 THRESHOLD_IMG_SIZE = 500
