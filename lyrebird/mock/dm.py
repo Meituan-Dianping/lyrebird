@@ -3,8 +3,6 @@ import json
 import os
 import re
 import uuid
-import copy
-import shutil
 from pathlib import Path
 from urllib.parse import urlparse
 from lyrebird.log import get_logger
@@ -389,7 +387,7 @@ class DataManager:
             for child in node['children']:
                 self._copy_node(new_node, child, custom_input_file_path=kwargs.get('custom_input_file_path'))
         elif new_node['type'] == 'data':
-            self._copy_file(new_node, node, custom_input_file_path=kwargs.get('custom_input_file_path'))        
+            self._copy_file(new_node, node, custom_input_file_path=kwargs.get('custom_input_file_path'))
 
     def _copy_file(self, target_data_node, data_node, **kwargs):
         _id = data_node['id']
@@ -573,7 +571,7 @@ class DataManager:
         prop_file = f"{outfile_path}/{PROP_FILE_NAME}"
         with codecs.open(prop_file, "w") as f:
             f.write(prop_str)
-    
+
     def _write_file_to_custom_path(self, outfile_path, file_content):
         with codecs.open(f"{outfile_path}/{file_content['id']}", "w") as f:
             f.write(json.dumps(file_content, ensure_ascii=False))
@@ -599,7 +597,7 @@ class DataManager:
             self._write_file_to_custom_path(snapshot_path, mock_data)
         self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
         return f"{snapshot_path}.lb"
-    
+
     def export_snapshot_from_dm(self, node_id):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
         _prop = self.id_map.get(node_id)
