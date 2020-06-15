@@ -51,7 +51,7 @@ class SnapshotHelper():
         os.chdir(full_path_in)
         tar = tarfile.open(f"{output_path}.lb", "w:gz")
         for root, dirs, files in os.walk(full_path_in):
-            logger.debug("compress use root: {root}, dirs: {dirs}, files: {files}")
+            logger.debug(f"compress use root: {root}, dirs: {dirs}, files: {files}")
             for file in files:
                 fullpath = file
                 tar.add(fullpath, recursive=False)
