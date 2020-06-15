@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 from lyrebird.log import get_logger
 from jinja2 import Template
 from lyrebird.application import config
-
+from lyrebird.mock.handlers import snapshot_helper
 
 PROP_FILE_NAME = '.lyrebird_prop'
 
@@ -36,6 +36,7 @@ class DataManager:
         self.clipboard = None
         self.save_to_group_id = None
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'children': []}
+        self.snapshot_helper = snapshot_helper.SnapshotHelper()
 
     def set_root(self, root_path):
         """
@@ -300,107 +301,6 @@ class DataManager:
         self._save_prop()
         return group_id
 
-    def import_snapshot(self, parent_id, decompress_dir):
-        decompressed_innermost_path_list = []
-        def _find_prop(path):
-            file_list = os.listdir(path)
-            for file in file_list:
-                filepath = os.path.join(path, file)
-                if ".lyrebird_prop" in filepath:
-                    decompressed_innermost_path_list.append(filepath)
-                if os.path.isdir(filepath):
-                    _find_prop(filepath)
-        _find_prop(path=decompress_dir)
-
-        logger.debug(decompressed_innermost_path_list)
-        if len(decompressed_innermost_path_list) < 1:
-            raise NonePropFile
-        if len(decompressed_innermost_path_list) > 1:
-            raise TooMuchPropFile
-        prop_file_path = decompressed_innermost_path_list[0]
-        mock_data_innermost_path = str(prop_file_path).split("/.lyrebird_prop")[0]
-        mock_data_node = json.loads(Path(prop_file_path).read_text())
-
-        if self.id_map.get(mock_data_node["id"]):
-            raise NodeExist
-
-        parent_node = self.id_map.get(parent_id)
-        mock_data_node["parent_id"] = parent_id
-        if not parent_node:
-            raise IDNotFound(parent_id)
-        if parent_node.get("type") == "data":
-            raise DataObjectCannotContainAnyOtherObject
-        if "children" not in parent_node:
-            parent_node["children"] = []
-        parent_node["children"].append(mock_data_node)
-        # Save prop
-        self._save_prop()
-        self.reload()
-
-        for file in os.listdir(mock_data_innermost_path):
-            if "." not in file:
-                file_path = os.path.join(mock_data_innermost_path, file)
-                logger.debug(file_path)
-                shutil.copy(
-                    file_path,
-                    self.root_path
-                )
-        self.activate(mock_data_node["id"])
-
-    def node_check(self, node_id):
-        node = self.id_map.get(node_id)
-        if not node:
-            raise IDNotFound(node_id)
-        if node.get("type") == "data":
-            raise DataObjectCannotContainAnyOtherObject
-
-    def export_snapshot(self, node, export_root_path, export_dir_name, func, event_list_id_map=None):
-        # modify id / pid and cp mock data
-        deep_copy_node = copy.deepcopy(node)
-        print(event_list_id_map)
-        self.batch_cp_data_repleace_id(
-            deep_copy_node,
-            f"{export_root_path}/{export_dir_name}",
-            func,
-            event_list_id_map=event_list_id_map
-        )
-        # write export file
-        prop_str = PropWriter().parse(deep_copy_node)
-        prop_file = f"{export_root_path}/{export_dir_name}/.lyrebird_prop"
-        with codecs.open(prop_file, "w") as f:
-            f.write(prop_str)
-
-    def batch_cp_data_repleace_id(self, node, new_path, func, event_list_id_map=None):
-        if "children" not in node:
-            return
-        for child in node["children"]:
-            old_child_id = child["id"]
-            child["id"] = str(uuid.uuid4())
-            child["parent_id"] = node["id"]
-            if child["type"] == "group":
-                batch_cp_data_repleace_id(child, new_path)
-            if child["type"] == "data":
-                source_path = self.root_path
-                func(source_path,new_path,old_child_id,child,event_list_id_map)
-
-    def _cp_data_from_file_callback(self, source_path, new_path, old_child_id, child, event_list_id_map=None):
-        with codecs.open(f"{source_path}/{old_child_id}", "r") as inputfile, codecs.open(f"{new_path}/{child['id']}", "w") as outputfile:
-            origin_text = inputfile.read()
-            prop = json.loads(origin_text)
-            prop["id"] = child["id"]
-            new_prop_text = json.dumps(prop, ensure_ascii=False)
-            outputfile.write(new_prop_text)
-
-    def _cp_data_from_event_callback(self, source_path, new_path, old_child_id, child, event_list_id_map):
-        print(event_list_id_map)
-        with codecs.open(f"{new_path}/{child['id']}", "w") as outputfile:
-            content = event_list_id_map.get(old_child_id)
-            if "data" in content['response']:
-                content['response']['data'] = self._flow_data_2_str(content['response']['data'])
-            content["id"] = child["id"]
-            new_id_data = json.dumps(content, ensure_ascii=False)
-            outputfile.write(new_id_data)
-
     def delete(self, _id):
         target_node = self.id_map.get(_id)
         if not target_node:
@@ -450,7 +350,14 @@ class DataManager:
             'node': _node
         }
 
-    def paste(self, parent_id):
+    def import_(self, node):
+        self.clipboard = {
+            'type': 'import',
+            'id': node["id"],
+            'node': node
+        }
+
+    def paste(self, parent_id, **kwargs):
         if not self.clipboard:
             raise NoneClipbord
         _parent_node = self.id_map.get(parent_id)
@@ -464,9 +371,11 @@ class DataManager:
             _node['parent_id'] = parent_id
         elif self.clipboard['type'] == 'copy':
             self._copy_node(_parent_node, _node)
+        elif self.clipboard['type'] == 'import':
+            self._copy_node(_parent_node, _node, custom_input_file_path=kwargs.get('custom_input_file_path'))
         self._save_prop()
 
-    def _copy_node(self, parent_node, node):
+    def _copy_node(self, parent_node, node, **kwargs):
         new_node = {}
         new_node.update(node)
         new_node['id'] = str(uuid.uuid4())
@@ -478,13 +387,15 @@ class DataManager:
         if new_node['type'] == 'group':
             new_node['children'] = []
             for child in node['children']:
-                self._copy_node(new_node, child)
+                self._copy_node(new_node, child, custom_input_file_path=kwargs.get('custom_input_file_path'))
         elif new_node['type'] == 'data':
-            self._copy_file(new_node, node)
+            self._copy_file(new_node, node, custom_input_file_path=kwargs.get('custom_input_file_path'))        
 
-    def _copy_file(self, target_data_node, data_node):
+    def _copy_file(self, target_data_node, data_node, **kwargs):
         _id = data_node['id']
         origin_file_path = self.root_path / _id
+        if kwargs.get('custom_input_file_path'):
+            origin_file_path = f'{kwargs.get("custom_input_file_path")}/{_id}'
         new_file_id = target_data_node['id']
         new_file_path = self.root_path / new_file_id
         with codecs.open(origin_file_path, 'r') as inputfile, codecs.open(new_file_path, 'w') as outputfile:
@@ -647,6 +558,59 @@ class DataManager:
             f.write(data_str)
         self._save_prop()
 
+    # -----
+    # Snapshot
+    # -----
+
+    def _is_natural_snapshot(self, dir_path):
+        file_list = os.listdir(dir_path)
+        if PROP_FILE_NAME not in file_list:
+            return False
+        return True
+
+    def _write_prop_to_custom_path(self, outfile_path, node):
+        prop_str = PropWriter().parse(node)
+        prop_file = f"{outfile_path}/{PROP_FILE_NAME}"
+        with codecs.open(prop_file, "w") as f:
+            f.write(prop_str)
+    
+    def _write_file_to_custom_path(self, outfile_path, file_content):
+        with codecs.open(f"{outfile_path}/{file_content['id']}", "w") as f:
+            f.write(json.dumps(file_content, ensure_ascii=False))
+
+    def import_snapshot(self, parent_id):
+        snapshot_path = self.snapshot_helper.get_snapshot_path()
+        self.snapshot_helper.save_compressed_file(snapshot_path)
+        self.snapshot_helper.decompress_snapshot(f"{snapshot_path}.lb", f"{snapshot_path}-decompressed")
+        if not self._is_natural_snapshot(f"{snapshot_path}-decompressed"):
+            raise LyrebirdPropNotExists
+        with codecs.open(f"{snapshot_path}-decompressed/{PROP_FILE_NAME}") as f:
+            _prop = json.load(f)
+        self.import_(node=_prop)
+        self.paste(parent_id=parent_id, custom_input_file_path=f"{snapshot_path}-decompressed")
+
+    def export_snapshot_from_event(self, event_obj):
+        snapshot_path = self.snapshot_helper.get_snapshot_path()
+        if not event_obj.get("snapshot") or not event_obj.get("events"):
+            raise SnapshotEventNotInCorrectFormat
+        _prop = event_obj.get("snapshot")
+        self._write_prop_to_custom_path(snapshot_path, _prop)
+        for mock_data in event_obj.get("events"):
+            self._write_file_to_custom_path(snapshot_path, mock_data)
+        self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
+        return f"{snapshot_path}.lb"
+    
+    def export_snapshot_from_dm(self, node_id):
+        snapshot_path = self.snapshot_helper.get_snapshot_path()
+        _prop = self.id_map.get(node_id)
+        self._write_prop_to_custom_path(snapshot_path, _prop)
+        data_id_map = {}
+        self.snapshot_helper.get_data_id_map(_prop, data_id_map)
+        for mock_data_id in data_id_map:
+            self._write_file_to_custom_path(snapshot_path, data_id_map.get(mock_data_id))
+        self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
+        return f"{snapshot_path}.lb"
+
 
 # -----------------
 # Exceptions
@@ -698,6 +662,10 @@ class TooMuchPropFile(Exception):
     pass
 
 class NodeExist(Exception):
+    pass
+
+
+class SnapshotEventNotInCorrectFormat(Exception):
     pass
 
 class PropWriter:
