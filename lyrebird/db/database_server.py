@@ -134,13 +134,6 @@ class LyrebirdDatabaseServer(ThreadServer):
         self._scoped_session.remove()
         return math.ceil(result / page_size)
 
-    def get_event_detail_by_event_id(self, event_id):
-        session = self._scoped_session()
-        _subquery = session.query(Event.content).filter(Event.event_id == event_id).all()
-        self._scoped_session.remove()
-        detail = json.loads([item[0] for item in _subquery][0])
-        return detail
-
 
 class JSONFormat:
 
