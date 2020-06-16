@@ -7,7 +7,7 @@ import requests
 from lyrebird import log
 from lyrebird import application
 from urllib.parse import urlparse
-from pathlib import Path, PurePath
+from pathlib import Path
 logger = log.get_logger()
 
 

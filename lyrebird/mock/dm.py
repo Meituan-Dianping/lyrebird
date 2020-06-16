@@ -602,7 +602,6 @@ class DataManager:
         self.snapshot_helper.get_data_id_map(_prop, data_id_map)
         for mock_data_id in data_id_map:
             shutil.copy(Path(self.root_path / mock_data_id), Path(snapshot_path / mock_data_id))
-            self._write_file_to_custom_path(snapshot_path, data_id_map.get(mock_data_id))
         self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
         return f"{snapshot_path}.lb"
 
