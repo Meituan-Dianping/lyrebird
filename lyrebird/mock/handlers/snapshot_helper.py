@@ -18,8 +18,9 @@ class SnapshotHelper():
         if not snapshot_repositories.exists():
             snapshot_repositories.mkdir()
         temp_dir_name = f"{time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())}-{str(uuid.uuid4())}"
-        (snapshot_repositories / temp_dir_name).mkdir()
-        return (snapshot_repositories / temp_dir_name)
+        snapshot_path = snapshot_repositories / temp_dir_name
+        snapshot_path.mkdir()
+        return snapshot_path
 
     def save_compressed_file(self, snapshot_path):
         from lyrebird.mock.blueprints.apis.snapshot_import import snapshot_import_uri

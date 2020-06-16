@@ -1,4 +1,3 @@
-<!-- snapshot import spin -->
 <template>
   <div>
     <Spin fix v-if='spinDisplay'>

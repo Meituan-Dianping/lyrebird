@@ -363,8 +363,6 @@ class DataManager:
         _node = self.clipboard['node']
         if not _parent_node:
             raise IDNotFound(parent_id)
-        if not _parent_node.get('children'):
-            _parent_node['children'] = []
         if self.clipboard['type'] == 'cut':
             _origin_parent = self.id_map.get(_node['parent_id'])
             _origin_parent['children'].remove(_node)
@@ -382,8 +380,6 @@ class DataManager:
         new_node['id'] = str(uuid.uuid4())
         new_node['parent_id'] = parent_node['id']
         # Add to target node
-        if not parent_node.get('children'):
-            parent_node['children'] = []
         parent_node['children'].insert(0, new_node)
         # Register ID
         self.id_map[new_node['id']] = new_node
@@ -568,19 +564,19 @@ class DataManager:
     def _write_prop_to_custom_path(self, outfile_path, node):
         prop_str = PropWriter().parse(node)
 
-        prop_file = Path(outfile_path / PROP_FILE_NAME)
+        prop_file = outfile_path / PROP_FILE_NAME
         with codecs.open(prop_file, "w") as f:
             f.write(prop_str)
 
     def _write_file_to_custom_path(self, outfile_path, file_content):
-        with codecs.open(Path(outfile_path / file_content['id']), "w") as f:
+        with codecs.open(outfile_path / file_content['id'], "w") as f:
             f.write(json.dumps(file_content, ensure_ascii=False))
 
     def import_snapshot(self, parent_id):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
         self.snapshot_helper.save_compressed_file(snapshot_path)
         self.snapshot_helper.decompress_snapshot(f"{snapshot_path}.lb", f"{snapshot_path}-decompressed")
-        if not (Path(f"{snapshot_path}-decompressed")/ ".lyrebird_prop").exists():
+        if not Path(f"{snapshot_path}-decompressed/{PROP_FILE_NAME}").exists():
             raise LyrebirdPropNotExists
         with codecs.open(f"{snapshot_path}-decompressed/{PROP_FILE_NAME}") as f:
             _prop = json.load(f)
@@ -605,7 +601,7 @@ class DataManager:
         data_id_map = {}
         self.snapshot_helper.get_data_id_map(_prop, data_id_map)
         for mock_data_id in data_id_map:
-            shutil.copy(Path(self.root_path / mock_data_id), Path(snapshot_path / mock_data_id))
+            shutil.copy(self.root_path / mock_data_id, snapshot_path / mock_data_id)
         self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
         return f"{snapshot_path}.lb"
 

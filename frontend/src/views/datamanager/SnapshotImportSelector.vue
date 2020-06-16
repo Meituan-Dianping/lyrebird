@@ -1,4 +1,3 @@
-<!-- SnapshotImportSelector -->
 <template>
   <div class>
     <MockDataSelector ref="searchModal" :showRoot="true">
