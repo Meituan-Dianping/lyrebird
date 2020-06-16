@@ -1,8 +1,9 @@
-import codecs
-import json
 import os
 import re
 import uuid
+import json
+import codecs
+import shutil
 from pathlib import Path
 from urllib.parse import urlparse
 from lyrebird.log import get_logger
@@ -10,8 +11,8 @@ from jinja2 import Template
 from lyrebird.application import config
 from lyrebird.mock.handlers import snapshot_helper
 
-PROP_FILE_NAME = '.lyrebird_prop'
 
+PROP_FILE_NAME = '.lyrebird_prop'
 logger = get_logger()
 
 
@@ -560,40 +561,35 @@ class DataManager:
     # Snapshot
     # -----
 
-    def _is_natural_snapshot(self, dir_path):
-        file_list = os.listdir(dir_path)
-        if PROP_FILE_NAME not in file_list:
-            return False
-        return True
-
     def _write_prop_to_custom_path(self, outfile_path, node):
         prop_str = PropWriter().parse(node)
-        prop_file = f"{outfile_path}/{PROP_FILE_NAME}"
+
+        prop_file = Path(outfile_path / PROP_FILE_NAME)
         with codecs.open(prop_file, "w") as f:
             f.write(prop_str)
 
     def _write_file_to_custom_path(self, outfile_path, file_content):
-        with codecs.open(f"{outfile_path}/{file_content['id']}", "w") as f:
+        with codecs.open(Path(outfile_path / file_content['id']), "w") as f:
             f.write(json.dumps(file_content, ensure_ascii=False))
 
     def import_snapshot(self, parent_id):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
         self.snapshot_helper.save_compressed_file(snapshot_path)
         self.snapshot_helper.decompress_snapshot(f"{snapshot_path}.lb", f"{snapshot_path}-decompressed")
-        if not self._is_natural_snapshot(f"{snapshot_path}-decompressed"):
+        if not (Path(f"{snapshot_path}-decompressed")/ ".lyrebird_prop").exists():
             raise LyrebirdPropNotExists
         with codecs.open(f"{snapshot_path}-decompressed/{PROP_FILE_NAME}") as f:
             _prop = json.load(f)
         self.import_(node=_prop)
         self.paste(parent_id=parent_id, custom_input_file_path=f"{snapshot_path}-decompressed")
 
-    def export_snapshot_from_event(self, event_obj):
+    def export_snapshot_from_event(self, event_json):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
-        if not event_obj.get("snapshot") or not event_obj.get("events"):
+        if not event_json.get("snapshot") or not event_json.get("events"):
             raise SnapshotEventNotInCorrectFormat
-        _prop = event_obj.get("snapshot")
+        _prop = event_json.get("snapshot")
         self._write_prop_to_custom_path(snapshot_path, _prop)
-        for mock_data in event_obj.get("events"):
+        for mock_data in event_json.get("events"):
             self._write_file_to_custom_path(snapshot_path, mock_data)
         self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
         return f"{snapshot_path}.lb"
@@ -605,6 +601,7 @@ class DataManager:
         data_id_map = {}
         self.snapshot_helper.get_data_id_map(_prop, data_id_map)
         for mock_data_id in data_id_map:
+            shutil.copy(Path(self.root_path / mock_data_id), Path(snapshot_path / mock_data_id))
             self._write_file_to_custom_path(snapshot_path, data_id_map.get(mock_data_id))
         self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
         return f"{snapshot_path}.lb"
@@ -653,11 +650,14 @@ class NoneClipbord(Exception):
 class DumpPropError(Exception):
     pass
 
+
 class NonePropFile(Exception):
     pass
 
+
 class TooMuchPropFile(Exception):
     pass
+
 
 class NodeExist(Exception):
     pass
@@ -665,6 +665,7 @@ class NodeExist(Exception):
 
 class SnapshotEventNotInCorrectFormat(Exception):
     pass
+
 
 class PropWriter:
 

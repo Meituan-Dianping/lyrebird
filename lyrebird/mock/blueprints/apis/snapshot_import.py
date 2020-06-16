@@ -3,7 +3,6 @@ from ....version import VERSION
 from lyrebird import application
 from flask_restful import Resource, request
 from lyrebird.mock import context
-# from lyrebird.mock.handlers.snapshot_helper import snapshot_import_uri
 snapshot_import_uri = None
 
 class SanpshotImport(Resource):

@@ -57,7 +57,7 @@ export default {
   computed: {
     importSnapshotParentNodeDisplay () {
       let node = this.$store.state.dataManager.importSnapshotParentNode
-      return '' ? Object.keys(node).length == 0 : `【${node['id']}】+【${node['name']}】`
+      return Object.keys(node).length == 0  ? '' : `【${node['id']}】+【${node['name']}】`
     },
     parentNode () {
       return this.$store.state.dataManager.importSnapshotParentNode

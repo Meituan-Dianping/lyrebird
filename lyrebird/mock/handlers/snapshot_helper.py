@@ -7,20 +7,19 @@ import requests
 from lyrebird import log
 from lyrebird import application
 from urllib.parse import urlparse
+from pathlib import Path, PurePath
 logger = log.get_logger()
-
 
 
 class SnapshotHelper():
 
     def get_snapshot_path(self):
-        snapshot_repositories = f"{application._cm.ROOT}/snapshot"
-        if not os.path.exists(snapshot_repositories):
-            os.mkdir(snapshot_repositories)
+        snapshot_repositories = application._cm.ROOT / "snapshot"
+        if not snapshot_repositories.exists():
+            snapshot_repositories.mkdir()
         temp_dir_name = f"{time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())}-{str(uuid.uuid4())}"
-        os.mkdir(f"{snapshot_repositories}/{temp_dir_name}")
-        snapshot_path = f"{snapshot_repositories}/{temp_dir_name}"
-        return snapshot_path
+        (snapshot_repositories / temp_dir_name).mkdir()
+        return (snapshot_repositories / temp_dir_name)
 
     def save_compressed_file(self, snapshot_path):
         from lyrebird.mock.blueprints.apis.snapshot_import import snapshot_import_uri
@@ -46,23 +45,22 @@ class SnapshotHelper():
         logger.debug(f"decompress [{compress_dir}] to [{decompress_dir}] success")
 
     def compress_snapshot(self, output_path, dir_in):
-        cur_path = os.getcwd()
-        full_path_in = os.path.join(cur_path, dir_in)
+        cur_path = Path.cwd()
+        full_path_in = cur_path.joinpath(dir_in)
         os.chdir(full_path_in)
         tar = tarfile.open(f"{output_path}.lb", "w:gz")
         for root, dirs, files in os.walk(full_path_in):
             logger.debug(f"compress use root: {root}, dirs: {dirs}, files: {files}")
             for file in files:
-                fullpath = file
-                tar.add(fullpath, recursive=False)
+                tar.add(file, recursive=False)
         tar.close()
         os.chdir(cur_path)
         logger.debug(f"compress snapshot : ['{output_path}.lb'] success")
 
     def get_data_id_map(self, node, data_id_map):
-        if 'id' in node and node["type"] == "data":
+        if 'id' in node and node['type'] == 'data':
             data_id_map[node['id']] = node
-        if 'children' in node:
+        if 'children' in node and node['type'] == 'group':
             for child in node['children']:
                 self.get_data_id_map(child, data_id_map)
 
@@ -70,7 +68,6 @@ class SnapshotHelper():
 # -----------------
 # Exceptions
 # -----------------
-
 class SnapshotImportUriNotFound(Exception):
     pass
 
