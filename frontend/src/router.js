@@ -29,7 +29,12 @@ export default new Router({
           path: '',
           name: 'datamanager',
           component: DataManager
-        }
+        },
+        {
+          path: 'import',
+          name: 'datamanagerImport',
+          component: DataManager,
+        },
       ]
     },
     {

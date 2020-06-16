@@ -132,7 +132,7 @@ class LyrebirdDatabaseServer(ThreadServer):
             query = query.filter(Event.channel.in_(channel_rules))
         result = query.count()
         self._scoped_session.remove()
-        return math.ceil(result/page_size)
+        return math.ceil(result / page_size)
 
 
 class JSONFormat:

@@ -1,5 +1,6 @@
 <template>
-  <Modal v-model="shown" title="Mock data selector" width="60%" :styles="{top: '80px'}" :footer-hide=true>
+  <Modal v-model="shown" :title="title?title:defaultTitle"  width="60%" :styles="{top: '80px'}" :footer-hide=true>
+    <slot name="modalHeader"></slot>
     <slot name="selected"></slot>
     <Input search enter-button v-model="searchStr" @on-search="searchGroup"></Input>
     <div class="searchlist">
@@ -7,6 +8,7 @@
       <slot name="searchItem" :searchResult="item"></slot>
       </div>
     </div>
+    <slot name="modalFooter"></slot>
   </Modal>
 </template>
 
@@ -14,12 +16,13 @@
 import { searchGroupByName } from '@/api'
 
 export default {
-  props: ['showRoot'],
+  props: ['showRoot', 'title'],
   data () {
     return {
       searchStr: '',
       shown: false,
-      searchResults: []
+      searchResults: [],
+      defaultTitle: "Mock Data Selector"
     }
   },
   created () {

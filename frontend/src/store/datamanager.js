@@ -13,7 +13,9 @@ export default {
     dataDetail: {},
     groupDetail: {},
     focusNodeInfo: {},
-    pasteTarget: null
+    pasteTarget: null,
+    importSnapshotParentNode: {},
+    spinDisplay: false,
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -68,7 +70,13 @@ export default {
     },
     setPasteTarget (state, pasteTarget) {
       state.pasteTarget = pasteTarget
-    }
+    },
+    setImportSnapshotParentNode (state, importSnapshotParentNode) {
+      state.importSnapshotParentNode = importSnapshotParentNode
+    },
+    setSpinDisplay (state, spinDisplay) {
+      state.spinDisplay = spinDisplay
+    },
   },
   actions: {
     loadDataMap ({ state, commit }) {
@@ -238,6 +246,20 @@ export default {
         })
         .catch(error => {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' paste error: ' + error.data.message)
+        })
+    },
+    importSnapshot ({ commit, dispatch }, parentNode) {
+      api
+        .importSnapshot(parentNode)
+        .then((res) => {
+          commit('setSpinDisplay', false)
+          dispatch('loadDataMap')
+          bus.$emit('msg.success', res.data.message)
+        })
+        .catch((err) => {
+          commit('setSpinDisplay', false)
+          dispatch('loadDataMap')
+          bus.$emit('msg.error', err.data.message)
         })
     }
   }
