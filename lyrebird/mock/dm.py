@@ -363,15 +363,17 @@ class DataManager:
         _node = self.clipboard['node']
         if not _parent_node:
             raise IDNotFound(parent_id)
+        if not _parent_node.get('children'):
+            _parent_node['children'] = []
         if self.clipboard['type'] == 'cut':
             _origin_parent = self.id_map.get(_node['parent_id'])
             _origin_parent['children'].remove(_node)
             _parent_node['children'].insert(0, _node)
             _node['parent_id'] = parent_id
         elif self.clipboard['type'] == 'copy':
-            self._copy_node(_parent_node, _node)
+            self._copy_node(_parent_node, _node, **kwargs)
         elif self.clipboard['type'] == 'import':
-            self._copy_node(_parent_node, _node, custom_input_file_path=kwargs.get('custom_input_file_path'))
+            self._copy_node(_parent_node, _node, **kwargs)
         self._save_prop()
 
     def _copy_node(self, parent_node, node, **kwargs):
@@ -380,15 +382,17 @@ class DataManager:
         new_node['id'] = str(uuid.uuid4())
         new_node['parent_id'] = parent_node['id']
         # Add to target node
+        if not parent_node.get('children'):
+            parent_node['children'] = []
         parent_node['children'].insert(0, new_node)
         # Register ID
         self.id_map[new_node['id']] = new_node
         if new_node['type'] == 'group':
             new_node['children'] = []
             for child in node['children']:
-                self._copy_node(new_node, child, custom_input_file_path=kwargs.get('custom_input_file_path'))
+                self._copy_node(new_node, child, **kwargs)
         elif new_node['type'] == 'data':
-            self._copy_file(new_node, node, custom_input_file_path=kwargs.get('custom_input_file_path'))
+            self._copy_file(new_node, node, **kwargs)
 
     def _copy_file(self, target_data_node, data_node, **kwargs):
         _id = data_node['id']
