@@ -23,12 +23,9 @@ Info used in channel flow
 import time
 import hashlib
 from collections import OrderedDict
-from lyrebird import CustomEventReceiver
+from lyrebird import event
 from urllib.parse import urlparse, urlencode, parse_qsl
 
-
-# init event receiver instance
-event = CustomEventReceiver()
 
 # THRESHOLD_TIME: Range of duplicate requests in seconds
 THRESHOLD_TIME = 0.2

@@ -20,7 +20,7 @@ def checker_init(tmp_path, tmpdir):
     }
 
     # init file dir
-    content = u"from lyrebird import CustomEventReceiver\nevent = CustomEventReceiver()\n@event('flow')\ndef test_func():\n\tpass"
+    content = u"from lyrebird import event\n@event('flow')\ndef test_func():\n\tpass"
     checker_a_file = tmp_path / CHECKER_A_FILENAME
     checker_a_file.write_text(content)
     checker_b_file = tmp_path / CHECKER_B_FILENAME
