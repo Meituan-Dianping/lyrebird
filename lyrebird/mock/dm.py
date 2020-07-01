@@ -189,9 +189,9 @@ class DataManager:
         prop_keys = rule_key.split('.')
         result = flow
         for prop_key in prop_keys:
-            result = result.get(prop_key)
             if not isinstance(result, dict):
                 return
+            result = result.get(prop_key)
             if not result:
                 return None
         return result
