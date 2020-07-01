@@ -15,16 +15,13 @@
         </div>
         <Divider class="sider-bar-divider" />
         <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName" ref="menu">
-          <MenuItem
-            v-for="(menuItem, index) in menu"
-            :key="index"
-            :name="menuItem.title"
-            @click.native="menuItemOnClick(menuItem)"
-          >
-            <Tooltip :content="menuItem.title" placement="right" :disabled="!isCollapsed">
-              <b>{{menuItemTitle(menuItem)}}</b>
+          <div v-for="(menuItem, index) in menu" :key="index">
+            <Tooltip :content="menuItem.title" placement="right" :disabled="!isCollapsed" transfer style="width: 100%">
+              <MenuItem :name="menuItem.title" @click.native="menuItemOnClick(menuItem)">
+                <b>{{menuItemTitle(menuItem)}}</b>
+              </MenuItem>
             </Tooltip>
-          </MenuItem>
+          </div>
         </Menu>
       </Sider>
       <Layout>
@@ -288,6 +285,10 @@ export default {
 }
 .sider-bar {
   background-color: #515a6e;
+  transition: sider-bar-red 2 ease 0;
+}
+.sider-bar-red {
+  color: red;
 }
 .sider-bar-divider {
   height: 1px;
