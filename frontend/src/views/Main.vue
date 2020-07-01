@@ -16,8 +16,17 @@
         <Divider class="sider-bar-divider" />
         <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName" ref="menu">
           <div v-for="(menuItem, index) in menu" :key="index">
-            <Tooltip :content="menuItem.title" placement="right" :disabled="!isCollapsed" transfer style="width: 100%">
-              <MenuItem :name="menuItem.title" @click.native="menuItemOnClick(menuItem)">
+            <Tooltip
+              :content="menuItem.title"
+              placement="right"
+              :disabled="!isCollapsed"
+              transfer
+              style="width: 100%"
+            >
+              <MenuItem
+                :name="menuItem.title"
+                @click.native="menuItemOnClick(menuItem)"
+              >
                 <b>{{menuItemTitle(menuItem)}}</b>
               </MenuItem>
             </Tooltip>
