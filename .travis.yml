@@ -4,9 +4,6 @@ jobs:
     - stage: release to pypi
       if: type = push AND tag IS present
       language: python
-      catch:
-        - pip
-        - npm
       python:
         - "3.6"
       node_js:
