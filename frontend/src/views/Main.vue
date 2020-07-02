@@ -294,10 +294,6 @@ export default {
 }
 .sider-bar {
   background-color: #515a6e;
-  transition: sider-bar-red 2 ease 0;
-}
-.sider-bar-red {
-  color: red;
 }
 .sider-bar-divider {
   height: 1px;
