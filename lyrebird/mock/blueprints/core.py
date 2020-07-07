@@ -37,9 +37,11 @@ def index(path=''):
 
     mock_handler.handle(req_context)
 
-    if not req_context.flow['response']:
+    if not req_context.response_source:
         flow_editor_handler.on_request_upstream_handler(req_context)
         proxy_handler.handle(req_context)
+        req_context.set_response_source_proxy()
+        req_context.update_response_headers_code2flow()
         flow_editor_handler.on_response_upstream_handler(req_context)
 
     req_context.update_server_resp_time()
@@ -62,7 +64,7 @@ def index(path=''):
 
     flow_editor_handler.on_response_handler(req_context)
 
-    if req_context.flow['response']:
+    if req_context.response_source:
         gen = req_context.get_response_generator()
         resp = Response(
             gen(),
@@ -74,6 +76,11 @@ def index(path=''):
         path_not_found_handler.handle(req_context)
         req_context.update_client_resp_time()
         resp = req_context.response
+
+    if context.application.is_diff_mode and req_context.response_source == 'mock':
+        proxy_handler.handle(req_context)
+        req_context.update_response_headers_code2flow(output_key='proxy_response')
+        req_context.update_response_data2flow(output_key='proxy_response')
 
     context.emit('action', 'add flow log')
 

@@ -30,6 +30,7 @@ class MockHandler:
         handler_context.flow['response']['data'] = hit_data['response']['data']
 
         handler_context.set_response_edited()
+        handler_context.set_response_source_mock()
         handler_context.flow['response']['headers']['isMocked'] = 'True'
         handler_context.flow['response']['headers']['lyrebird'] = 'mock'
         MockDataHelper.read_mock_data(handler_context)

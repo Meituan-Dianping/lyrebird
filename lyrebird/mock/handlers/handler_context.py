@@ -43,6 +43,7 @@ class HandlerContext:
         self.client_address = None
         self.is_request_edited = False
         self.is_response_edited = False
+        self.response_source = ''
         self.response_chunk_size = 2048
         self._parse_request()
 
@@ -129,6 +130,12 @@ class HandlerContext:
     def set_response_edited(self):
         self.is_response_edited = True
 
+    def set_response_source_mock(self):
+        self.response_source = 'mock'
+
+    def set_response_source_proxy(self):
+        self.response_source = 'proxy'
+
     def get_request_body(self):
         if self.is_request_edited:
             self.flow['request']['headers'] = HeadersHelper.flow2origin(self.flow['request'])
@@ -201,15 +208,15 @@ class HandlerContext:
                 upstream.close()
         return generator
 
-    def update_response_headers_code2flow(self):
-        self.flow['response'] = {
+    def update_response_headers_code2flow(self, output_key='response'):
+        self.flow[output_key]  = {
             'code': self.response.status_code,
             'timestamp': round(time.time(), 3)
         }
-        HeadersHelper.origin2flow(self.response, self.flow['response'])
+        HeadersHelper.origin2flow(self.response, output=self.flow[output_key])
 
-    def update_response_data2flow(self):
-        DataHelper.origin2flow(self.response, output=self.flow['response'])
+    def update_response_data2flow(self, output_key='response'):
+        DataHelper.origin2flow(self.response, output=self.flow[output_key])
 
     def update_client_req_time(self):
         self.client_req_time = time.time()

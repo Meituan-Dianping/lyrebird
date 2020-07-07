@@ -10,7 +10,50 @@
         @on-row-click="selectFlow"
         @on-selection-change="itemSelectChange"
         class="data-table"
-      ></Table>
+      >
+        <template slot-scope="{ row, index }" slot="source">
+          <Tooltip class="flow-list-item-source" :content="row.response.mock" placement="top" transfer>
+            <Tag v-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
+            <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
+            <Tag v-else size="small" class="flow-list-item-tag">pending</Tag>
+          </Tooltip>
+
+          <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="top" transfer>
+            <Tag size="small" class="flow-list-item-tag" color="blue">diff</Tag>
+          </Tooltip>
+
+          <Tooltip class="flow-list-item-source" v-if="row.response.modified" content="modified" placement="top" transfer>
+            <Icon type="md-build" />
+          </Tooltip>
+        </template>
+
+        <template slot-scope="{ row }" slot="method">
+          <span style="color:green">{{ row.request.method }}</span>
+        </template>
+
+        <template slot-scope="{ row }" slot="status">
+          <span v-if="row.response.code === 200" style="color:green">{{ row.response.code }}</span>
+          <span v-else-if="row.response.code >= 300 && row.response.code <= 399" style="color:olive">{{ row.response.code }}</span>
+          <span v-else style="color:red">{{ row.response.code }}</span>
+        </template>
+
+        <template slot-scope="{ row }" slot="request">
+          <span class="flow-list-item-url">{{ row.request.url }}</span>
+        </template>
+
+        <template slot-scope="{ row }" slot="start_time">
+          <span>{{timestampToTime(row.start_time)}}</span>
+        </template>
+
+        <template slot-scope="{ row }" slot="duration">
+          <span>{{readablizeDuration(row.duration)}}</span>
+        </template>
+
+        <template slot-scope="{ row }" slot="size">
+          <span>{{readablizeBytes(row.size)}}</span>
+        </template>
+
+      </Table>
       <div style="float: right; margin-top: 5px">
         <Page
           :total="originFlowList.length"
@@ -24,7 +67,7 @@
 </template>
 
 <script>
-import { readablizeBytes } from '@/utils'
+import { readablizeBytes, timestampToTime } from '@/utils'
 
 export default {
   name: 'flowList',
@@ -46,116 +89,43 @@ export default {
         },
         {
           title: 'Source',
-          key: 'src',
-          width: 100,
-          align: 'center',
-          render: (h, params) => {
-            const flag = this.getFlowSourceFlagForTable(params.row.response.mock, params.row.response.modified)
-            const elements = [
-              h("Tag", {
-                props: {
-                  color: flag.color,
-                  size: 'small'
-                }
-              }, flag.text)
-            ]
-            if (flag.modified) {
-              elements.push(
-                h("Tooltip", {
-                  props: { content: flag.modifyTag, placement: "top" }
-                },
-                  [
-                    h("Icon", { props: { vif: flag.modified, type: "ios-build" } })
-                  ]
-                )
-              )
-            }
-            return h("div", elements);
-          }
+          slot: 'source',
+          width: 100
         },
         {
           title: 'Method',
-          key: 'method',
-          width: 60,
-          render: (h, params) => {
-            return h("p", {
-              style: {
-                color: 'green'
-              }
-            }, params.row.request.method)
-          }
+          slot: 'method',
+          width: 60
         },
         {
           title: 'Status',
-          key: 'status',
-          width: 50,
-          render: (h, params) => {
-            let code = params.row.response.code;
-            if (code === 200 || (code >= 300 && code <= 399)) {
-              return h("p", { style: { color: "green" } }, code);
-            } else {
-              return h("p", { style: { color: "error" } }, code);
-            }
-          }
+          slot: 'status',
+          width: 50
         },
         {
           title: 'URL',
-          key: 'request',
-          render: (h, params) => {
-            return h("span",
-              {                style: {
-                  wordBreak: "keep-all",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis"
-                }              },
-              params.row.request.url)
-          }
+          slot: 'request'
         },
         {
           title: 'Start',
-          key: 'start_time',
+          slot: 'start_time',
           width: 60,
-          sortable: true,
-          render: (h, params) => {
-            const startTime = new Date(params.row.start_time * 1000)
-            function addZero (i) {
-              if (i < 10) {
-                i = "0" + i
-              }
-              return i
-            }
-            const timeStr = startTime.getHours() + ':'
-              + addZero(startTime.getMinutes()) + ':'
-              + addZero(startTime.getSeconds())
-            return h("span", timeStr)
-          }
+          sortable: true
         },
         {
           title: 'Duration',
-          key: 'duration',
+          slot: 'duration',
           width: 80,
-          sortable: true,
-          render: (h, params) => {
-            const duration = params.row.duration
-            if (duration >= 1) {
-              return h("span", Math.round(duration * 100 / 100) + "s")
-            } else {
-              return h("span", (duration * 1000).toFixed(0) + "ms")
-            }
-          }
+          sortable: true
         },
         {
           title: 'Size',
-          key: 'size',
+          slot: 'size',
           sortable: true,
-          width: 60,
-          render: (h, params) => {
-            return h("span", readablizeBytes(params.row.size))
-          }
+          width: 60
         }
       ],
-    };
+    }
   },
   created () {
     this.$io.on("action", this.reload)
@@ -235,29 +205,18 @@ export default {
         return { foucs: false }
       }
     },
-    getFlowSourceFlagForTable: function (mockTag, modifyTag) {
-      const flag = {
-        text: '',
-        color: 'default',
-        modified: false,
-        modifyTag
-      }
-      // Handle empty mockTag
-      // TODO: remove when upgrade inspector
-      if (!mockTag) {
-        flag.text = 'pending'
-      } else if (mockTag.startsWith('mock')) {
-        flag.text = 'mock'
-        flag.color = 'green'
-      } else if (mockTag.startsWith('proxy')) {
-        flag.text = 'proxy'
+    readablizeBytes (size) {
+      return readablizeBytes(size)
+    },
+    timestampToTime (timestamp) {
+      return timestampToTime(timestamp)
+    },
+    readablizeDuration (duration) {
+      if (duration >= 1) {
+        return Math.round(duration * 100 / 100) + 's'
       } else {
-        flag.text = 'pending'
+        return (duration * 1000).toFixed(0) + 'ms'
       }
-      // Handle empty modifyTag
-      // TODO: remove when upgrade inspector
-      flag.modified = modifyTag && modifyTag.length > 0
-      return flag
     }
   }
 };
@@ -285,5 +244,19 @@ export default {
   footer: 28px
     */
   overflow-y: auto;
+}
+.flow-list-item-source {
+  padding: 0px;
+}
+.flow-list-item-tag {
+  margin: 0px 2px;
+}
+.flow-list-item-url {
+  display: inline-block;
+  word-break: keep-all;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
