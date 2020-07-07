@@ -36,13 +36,6 @@ export default {
     flowDetail () {
       return this.$store.state.inspector.focusedFlowDetail
     },
-    currentTab () {
-      let tab = this.defaultCurrentTab
-      if (this.currentTab === 'proxy-resp-body' && !this.hasProxyResponse) {
-        this.currentTab === 'resp-body'
-      }
-      return tab
-    },
     codeContent () {
       let codeContent = ''
       if (this.currentTab === 'req') {
