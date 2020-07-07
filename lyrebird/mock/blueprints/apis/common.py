@@ -1,7 +1,8 @@
 from flask_restful import Resource
 from lyrebird.mock import context
-from flask import jsonify
+from flask import request, jsonify
 from lyrebird import version
+from lyrebird import application
 
 class Status(Resource):
 
@@ -34,3 +35,14 @@ class WorkMode(Resource):
 
     def get(self):
         return jsonify({'mode': context.application.work_mode})
+
+
+class DiffMode(Resource):
+
+    def put(self):
+        is_diff_mode = request.json.get('diffmode')
+        context.application.is_diff_mode = is_diff_mode
+        return application.make_ok_response()
+
+    def get(self):
+        return application.make_ok_response(diffmode=context.application.is_diff_mode)

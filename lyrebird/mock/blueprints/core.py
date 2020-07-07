@@ -37,7 +37,7 @@ def index(path=''):
 
     mock_handler.handle(req_context)
 
-    if not req_context.flow['response']:
+    if not req_context.flow['response'] or context.application.is_diff_mode:
         flow_editor_handler.on_request_upstream_handler(req_context)
         proxy_handler.handle(req_context)
         flow_editor_handler.on_response_upstream_handler(req_context)

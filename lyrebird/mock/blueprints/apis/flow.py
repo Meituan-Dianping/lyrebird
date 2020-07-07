@@ -48,6 +48,10 @@ class FlowList(Resource):
                     modified=item['request']['headers'].get('lyrebird_modified') or item['response']['headers'].get('lyrebird_modified', '')
                 )if item.get('response') else {}
             )
+            if item.get('proxy_response'):
+                info['proxy_response'] = {
+                    'code': item['proxy_response']['code']
+                }
             req_list.append(info)
 
         def gen():

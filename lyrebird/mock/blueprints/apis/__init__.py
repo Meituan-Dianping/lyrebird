@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from flask_restful import Resource, Api
-from .common import Status, WorkMode, Manifest
+from .common import Status, WorkMode, Manifest, DiffMode
 from .flow import Flow, FlowList
 from .mock import MockData, MockGroup, ActivatedMockGroup, MockGroupByName
 from .config import Conf, ResetConf
@@ -63,6 +63,7 @@ api_source.add_resource(Qrcode, '/qrcode')
 api_source.add_resource(Conf, '/conf/<string:plugin_name>')
 api_source.add_resource(ResetConf, '/conf/<string:plugin_name>/reset')
 api_source.add_resource(WorkMode, '/mode', '/mode/<string:mode>')
+api_source.add_resource(DiffMode, '/diffmode')
 api_source.add_resource(Plugin, '/plugin', '/plugin/<string:plugin_name>')
 api_source.add_resource(Menu, '/menu')
 api_source.add_resource(Notice, '/notice')

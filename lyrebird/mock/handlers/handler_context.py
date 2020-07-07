@@ -201,15 +201,17 @@ class HandlerContext:
                 upstream.close()
         return generator
 
-    def update_response_headers_code2flow(self):
-        self.flow['response'] = {
+    def update_response_headers_code2flow(self, output_key=None):
+        output_key = output_key or 'response'
+        self.flow[output_key]  = {
             'code': self.response.status_code,
             'timestamp': round(time.time(), 3)
         }
-        HeadersHelper.origin2flow(self.response, self.flow['response'])
+        HeadersHelper.origin2flow(self.response, output=self.flow[output_key])
 
-    def update_response_data2flow(self):
-        DataHelper.origin2flow(self.response, output=self.flow['response'])
+    def update_response_data2flow(self, output_key=None):
+        output_key = output_key or 'response'
+        DataHelper.origin2flow(self.response, output=self.flow[output_key])
 
     def update_client_req_time(self):
         self.client_req_time = time.time()

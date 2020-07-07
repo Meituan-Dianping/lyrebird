@@ -245,6 +245,10 @@ class DataManager:
             if 'data' in data['response']:
                 data['response']['data'] = self._flow_data_2_str(data['response']['data'])
 
+        # proxy_response will not be saved
+        if 'proxy_response' in data:
+            del data['proxy_response']
+
         data['name'] = _data_name
         data['rule'] = _data_rule
 

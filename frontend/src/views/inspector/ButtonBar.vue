@@ -40,6 +40,15 @@
     </div>
 
     <div class="inline">
+      <Divider type="vertical"/>
+    </div>
+
+    <label>
+      <b style="padding-right:5px">Diff mode:</b>
+      <i-switch size="small" v-model="diffMode" @on-change="changeDiffMode"/>
+    </label>
+
+    <div class="inline">
       <Divider type="vertical"></Divider>
     </div>
 
@@ -100,6 +109,7 @@
 <script>
 import MockDataSelector from '@/components/SearchModal.vue'
 import Icon from 'vue-svg-icon/Icon.vue'
+import { getFlowDiffMode, setFLowDiffMode } from '@/api'
 
 let stopedStatus = {
   recording: false,
@@ -124,11 +134,13 @@ export default {
   data: function () {
     return {
       showClearModal: false,
+      diffMode: false,
       recordingBtn: stopedStatus
     };
   },
   mounted () {
     this.getRecordStatus()
+    this.getDiffModStatus()
   },
   computed: {
     showDataButtons () {
@@ -170,6 +182,18 @@ export default {
   methods: {
     showMockDataSelector () {
       this.$refs.searchModal.toggal()
+    },
+    getDiffModStatus () {
+      getFlowDiffMode()
+        .then(response => {
+          this.diffMode = response.data.diffmode
+        })
+        .catch(error => {
+          this.$bus.$emit('msg.error', 'Load diff mode status failed: ' + error.data.message)
+        })
+    },
+    changeDiffMode (payload) {
+      setFLowDiffMode(payload)
     },
     switchRecord: function () {
       if (this.recordingBtn.recording) {

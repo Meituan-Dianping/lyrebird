@@ -63,4 +63,9 @@ class ProxyHandler:
             status=r.status_code,
             headers=resp_headers)
 
-        handler_context.update_response_headers_code2flow()
+        if handler_context.flow['response'] and context.application.is_diff_mode:
+            handler_context.update_response_headers_code2flow(output_key='proxy_response')
+            handler_context.update_response_data2flow(output_key='proxy_response')
+
+        else:
+            handler_context.update_response_headers_code2flow()
