@@ -62,10 +62,3 @@ class ProxyHandler:
             stream_with_context(r.iter_content(chunk_size=handler_context.response_chunk_size)),
             status=r.status_code,
             headers=resp_headers)
-
-        if handler_context.flow['response'] and context.application.is_diff_mode:
-            handler_context.update_response_headers_code2flow(output_key='proxy_response')
-            handler_context.update_response_data2flow(output_key='proxy_response')
-
-        else:
-            handler_context.update_response_headers_code2flow()

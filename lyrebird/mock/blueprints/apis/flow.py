@@ -48,6 +48,7 @@ class FlowList(Resource):
                     modified=item['request']['headers'].get('lyrebird_modified') or item['response']['headers'].get('lyrebird_modified', '')
                 )if item.get('response') else {}
             )
+            # Add key `proxy_response` into info only if item contains proxy_response
             if item.get('proxy_response'):
                 info['proxy_response'] = {
                     'code': item['proxy_response']['code']
