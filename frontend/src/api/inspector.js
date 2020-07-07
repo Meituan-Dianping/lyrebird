@@ -1,15 +1,15 @@
 import axios from 'axios'
 
-export const getFlowDiffMode = () => {
+export const getDiffModeStatus = () => {
   return axios({
     url: '/api/diffmode'
   })
 }
 
-export const setFLowDiffMode = (diffmode) => {
+export const setDiffModeStatus = (status) => {
   return axios({
     url: '/api/diffmode',
-    data: { diffmode },
+    data: { status },
     method: 'PUT'
   })
 }

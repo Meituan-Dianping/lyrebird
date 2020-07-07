@@ -67,16 +67,17 @@
 </template>
 
 <script>
-import { timestampToTime, readablizeBytes } from '@/utils'
+import { readablizeBytes, timestampToTime } from '@/utils'
 
 export default {
   name: 'flowList',
   components: {
   },
-  data () {
+  data: function () {
     return {
       flowList: [],
       originFlowList: [],
+      foucsFlow: null,
       pageSize: 50,
       pageCount: 0,
       currentPage: 1,
@@ -132,34 +133,34 @@ export default {
   destroyed () {
     this.$io.removeListener('action', this.reload)
   },
-  mounted () {
-    this.reload()
+  mounted: function () {
+    this.reload();
   },
   computed: {
-    searchStr () {
+    searchStr: function () {
       return this.$store.state.inspector.searchStr
     },
-    selectedIds () {
+    selectedIds: function () {
       return this.$store.state.inspector.selectedIds
     }
   },
   watch: {
-    selectedIds () {
+    selectedIds: function () {
       if (this.selectedIds.length > 0) {
         this.$store.commit('showDataButtons', true)
       } else {
         this.$store.commit('showDataButtons', false)
       }
     },
-    originFlowList () {
+    originFlowList: function () {
       this.refreshFlowList()
     },
-    searchStr () {
+    searchStr: function () {
       this.refreshFlowList()
     }
   },
   methods: {
-    reload () {
+    reload: function () {
       this.$http.get("/api/flow").then(
         response => {
           this.originFlowList = []
@@ -171,21 +172,21 @@ export default {
           }
         },
         error => {
-          console.log("Inspector: reload failed", error)
+          console.log("Inspector: reload failed", error);
         }
-      )
+      );
     },
-    selectFlow (flow) {
+    selectFlow: function (flow) {
       this.$store.dispatch('focusFlow', flow)
     },
-    itemSelectChange (event) {
+    itemSelectChange: function (event) {
       let selectedIds = []
       for (const row of event) {
         selectedIds.push(row.id)
       }
       this.$store.commit('setSelectedId', selectedIds)
     },
-    refreshFlowList () {
+    refreshFlowList: function () {
       let flowList = []
       for (const flow of this.originFlowList) {
         if (flow.request.url.indexOf(this.$store.state.inspector.searchStr) >= 0) {
@@ -196,6 +197,13 @@ export default {
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
       this.flowList = flowList.slice(startIndex, endIndex)
+    },
+    rowClass: function (flow) {
+      if (flow && this.foucsFlow) {
+        return { foucs: flow.id === this.foucsFlow.id }
+      } else {
+        return { foucs: false }
+      }
     },
     readablizeBytes (size) {
       return readablizeBytes(size)
@@ -211,7 +219,7 @@ export default {
       }
     }
   }
-}
+};
 </script>
 
 <style lang="css">

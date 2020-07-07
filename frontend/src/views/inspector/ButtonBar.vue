@@ -109,7 +109,7 @@
 <script>
 import MockDataSelector from '@/components/SearchModal.vue'
 import Icon from 'vue-svg-icon/Icon.vue'
-import { getFlowDiffMode, setFLowDiffMode } from '@/api'
+import { getDiffModeStatus, setDiffModeStatus } from '@/api'
 
 let stopedStatus = {
   recording: false,
@@ -140,7 +140,7 @@ export default {
   },
   mounted () {
     this.getRecordStatus()
-    this.getDiffModStatus()
+    this.loadDiffModStatus()
   },
   computed: {
     showDataButtons () {
@@ -183,8 +183,8 @@ export default {
     showMockDataSelector () {
       this.$refs.searchModal.toggal()
     },
-    getDiffModStatus () {
-      getFlowDiffMode()
+    loadDiffModStatus () {
+      getDiffModeStatus()
         .then(response => {
           this.diffMode = response.data.diffmode
         })
@@ -193,7 +193,7 @@ export default {
         })
     },
     changeDiffMode (payload) {
-      setFLowDiffMode(payload)
+      setDiffModeStatus(payload)
     },
     switchRecord: function () {
       if (this.recordingBtn.recording) {

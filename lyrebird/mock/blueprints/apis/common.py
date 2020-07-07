@@ -40,7 +40,7 @@ class WorkMode(Resource):
 class DiffMode(Resource):
 
     def put(self):
-        is_diff_mode = request.json.get('diffmode')
+        is_diff_mode = request.json.get('status')
         context.application.is_diff_mode = is_diff_mode
         return application.make_ok_response()
 
