@@ -140,7 +140,7 @@ export default {
   },
   mounted () {
     this.getRecordStatus()
-    this.loadDiffModStatus()
+    this.loadDiffModeStatus()
   },
   computed: {
     showDataButtons () {
@@ -183,7 +183,7 @@ export default {
     showMockDataSelector () {
       this.$refs.searchModal.toggal()
     },
-    loadDiffModStatus () {
+    loadDiffModeStatus () {
       getDiffModeStatus()
         .then(response => {
           this.diffMode = response.data.diffmode
