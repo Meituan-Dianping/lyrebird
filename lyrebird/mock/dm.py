@@ -328,6 +328,9 @@ class DataManager:
         if 'children' in target_node and len(target_node['children']) > 0:
             for child in target_node['children']:
                 self._delete(child['id'])
+        # Remove from activated_group
+        if _id in self.activated_group:
+            self.activated_group.pop(_id)
         # Delete from ID mapping
         self.id_map.pop(_id)
         # Delete from file system
