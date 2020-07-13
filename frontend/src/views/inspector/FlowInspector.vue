@@ -1,14 +1,15 @@
 <template>
-  <div>
-    <Row>
-      <Col :span="listSpan">
-        <FlowList class="inspector-left"></FlowList>
-      </Col>
-      <div class="split" v-if="focusedFlow"></div>
-      <Col span="12" v-if="focusedFlow">
-        <FlowDetail class="inspector-right"></FlowDetail>
-      </Col>
-    </Row>
+  <div class="root-window">
+    <div class="flow-inspector-split">
+      <Split v-model="split">
+        <div slot="left">
+          <FlowList class="flow-inspector-left" @click.native="getfocusedFlow"></FlowList>
+        </div>
+        <div slot="right">
+          <FlowDetail class="flow-inspector-right"></FlowDetail>
+        </div>
+      </Split>
+    </div>
   </div>
 </template>
 
@@ -21,6 +22,11 @@ export default {
     FlowList,
     FlowDetail
   },
+  data () {
+    return {
+      split: 1
+    }
+  },
   computed: {
     listSpan () {
       if (this.focusedFlow) {
@@ -31,24 +37,31 @@ export default {
     },
     focusedFlow () {
       return this.$store.state.inspector.focusedFlow
-    }
-  }
+    },
+  },
+  methods: {
+    getfocusedFlow () {
+      if (this.focusedFlow) {
+        this.split = 0.5
+        return true
+      } else {
+        this.split = 1
+        return false
+      }
+    },
+  },
 }
 </script>
 
 <style scoped>
-.inspector-left {
+.flow-inspector-left {
   margin-right: 0px;
 }
-.inspector-right {
+.flow-inspector-right {
   margin-left: 5px;
 }
-.split {
-  display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  border: 1px dashed #eee;
+.flow-inspector-split {
+  height: calc(100vh - 138px);
+  border: 1px solid #dcdee2;
 }
 </style>

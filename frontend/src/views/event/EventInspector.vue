@@ -1,14 +1,15 @@
 <template>
   <div class="root-window">
-    <Row>
-      <Col :span="listSpan">
-        <EventList class="inspector-left"></EventList>
-      </Col>
-      <div class="split" v-if="eventDetail"></div>
-      <Col span="12" v-if="eventDetail">
-        <EventDetail v-model="eventDetail" class="inspector-right"></EventDetail>
-      </Col>
-    </Row>
+    <div class="event-inspector-split">
+      <Split v-model="split">
+        <div slot="left">
+          <EventList class="event-inspector-left"  @click.native="getEventDetail"></EventList>
+        </div>
+        <div v-if="eventDetail" slot="right">
+          <EventDetail v-model="eventDetail" class="event-inspector-right"></EventDetail>
+        </div>
+      </Split>
+    </div>
   </div>
 </template>
 
@@ -26,20 +27,14 @@ export default {
   data () {
     return {
       detailSplit: 0.6,
-      scrollRate: 0
+      scrollRate: 0,
+      split: 1
     }
   },
   created () {
     this.$bus.$on('eventLitScroll', this.setEventContainerScroll)
   },
   computed: {
-    listSpan () {
-      if (this.eventDetail) {
-        return '12'
-      } else {
-        return '24'
-      }
-    },
     eventDetail: {
       get () {
         return this.$store.state.event.eventDetail
@@ -50,6 +45,15 @@ export default {
     }
   },
   methods: {
+    getEventDetail () {
+      if (this.eventDetail) {
+        this.split = 0.5
+        return true
+      } else {
+        this.split = 1
+        return false
+      }
+    },
     addDescAttach (row) {
       if (this.channelAddToDesc.indexOf(row.channel) > -1) {
         this.dispatch('addIntoDesc', row.id)
@@ -86,31 +90,14 @@ export default {
 </script>
 
 <style scoped>
-.root-window {
-  height: 100%;
-  overflow-y: auto;
-  border-bottom: 1px solid #dcdee2;
-}
-.demo-split-pane {
-  padding: 10px;
-  overflow-y: auto;
-  height: 100%;
-}
-.content-pane {
-  height: calc(100% - 60px);
-}
-.inspector-left {
+.event-inspector-left {
   margin-right: 0px;
 }
-.inspector-right {
+.event-inspector-right {
   margin-left: 5px;
 }
-.split {
-  display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  border: 1px dashed #eee;
+.event-inspector-split {
+  height: calc(100vh - 138px);
+  border: 1px solid #dcdee2;
 }
 </style>
