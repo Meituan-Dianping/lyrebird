@@ -33,12 +33,12 @@ import FlowInspector from '@/views/inspector/FlowInspector.vue'
 
 export default {
   name: 'Inspector',
-  data: function () {
+  data () {
     return {
       activatedData: null,
       selectedDataGroup: '',
       selectedModeTab: 'realtime'
-    };
+    }
   },
   components: {
     ButtonBar,
