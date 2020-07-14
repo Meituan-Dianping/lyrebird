@@ -13,3 +13,18 @@ export const setDiffModeStatus = (status) => {
     method: 'PUT'
   })
 }
+
+export const getRecordMode = () => {
+  return axios({
+    url: '/api/mode'
+  })
+}
+
+export const setRecordMode = (mode) => {
+  return axios({
+    url: '/api/mode/' + mode,
+    method: 'PUT'
+  })
+}
+
+

@@ -159,6 +159,7 @@ export default {
     this.$bus.$on('msg.success', this.successMessage)
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
+    this.$bus.$on('msg.warning', this.warningMessage)
   },
   watch: {
     activeMenuItem: function (newValue, oldValue) {
@@ -166,7 +167,7 @@ export default {
       this.refreshPage(newValue)
       // :active-name 异步刷新后，需要手动更新 
       // https://github.com/iview/iview/issues/1245#issuecomment-352992001 
-      this.$nextTick(function(){
+      this.$nextTick(function () {
         this.$refs.menu.updateActiveName();
       });
     }
@@ -194,20 +195,20 @@ export default {
     activeName () {
       return this.$store.state.activeName
     },
-    bandwidth() {
+    bandwidth () {
       return this.$store.state.bandwidth.bandwidth
     },
     bandwidthTemplates () {
       return this.$store.state.bandwidth.bandwidthTemplates
     },
-    bandwidthExplanation (){
+    bandwidthExplanation () {
       for (let v of this.bandwidthTemplates) {
         if (this.bandwidth == v['bandwidth']) {
           if (this.bandwidth == -1) {
             return v['template_name']
           }
           else {
-            return `${ v['template_name'] } ( ${ v['bandwidth'] } Kb/s)`
+            return `${v['template_name']} ( ${v['bandwidth']} Kb/s)`
           }
         }
       }
@@ -281,8 +282,15 @@ export default {
         closable: true
       })
     },
-    updateBandwidth(template_name){
-        this.$store.dispatch('updateBandwidth', template_name)
+    warningMessage (msg) {
+      this.$Message.warning({
+        content: msg,
+        duration: 0,
+        closable: true
+      })
+    },
+    updateBandwidth (template_name) {
+      this.$store.dispatch('updateBandwidth', template_name)
     }
   }
 };
@@ -369,9 +377,9 @@ export default {
   background: #fff;
 }
 .bandwidth-btn-highlight {
-	background-color: #0fccbf !important;
-	color: #fff;
-	outline:none;
+  background-color: #0fccbf !important;
+  color: #fff;
+  outline: none;
 }
 </style>
 

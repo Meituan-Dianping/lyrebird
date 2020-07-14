@@ -76,7 +76,6 @@ export default {
   data: function () {
     return {
       flowList: [],
-      originFlowList: [],
       foucsFlow: null,
       pageSize: 50,
       pageCount: 0,
@@ -128,7 +127,7 @@ export default {
     }
   },
   created () {
-    this.$io.on("action", this.reload)
+    this.$io.on('action', this.reload)
   },
   destroyed () {
     this.$io.removeListener('action', this.reload)
@@ -137,6 +136,9 @@ export default {
     this.reload();
   },
   computed: {
+    originFlowList () {
+      return this.$store.state.inspector.currentFlowList
+    },
     searchStr () {
       return this.$store.state.inspector.searchStr
     },
@@ -161,15 +163,8 @@ export default {
   },
   methods: {
     reload () {
+      console.log('from reload');
       this.$store.dispatch('loadFlowList')
-      this.originFlowList = []
-      const selectedIds = this.$store.state.inspector.selectedIds
-      for (const flow of this.$store.state.inspector.currentFlowList) {
-        if (selectedIds.includes(flow.id)) {
-          flow['_checked'] = true
-        }
-        this.originFlowList.push(flow)
-      }
     },
     selectFlow (flow) {
       this.$store.dispatch('focusFlow', flow)

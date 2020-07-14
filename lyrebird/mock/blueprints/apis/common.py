@@ -29,12 +29,12 @@ class WorkMode(Resource):
     def put(self, mode=None):
         if context.Mode.contains(mode):
             context.application.work_mode = mode
-            return context.make_ok_response()
+            return application.make_ok_response(data=context.application.work_mode)
         else:
-            return context.make_fail_response(f'Unknown mode: {mode}')
+            return application.make_fail_response(f'Unknown record mode: {mode}')
 
     def get(self):
-        return jsonify({'mode': context.application.work_mode})
+        return application.make_ok_response(data=context.application.work_mode)
 
 
 class DiffMode(Resource):
