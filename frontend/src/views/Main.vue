@@ -159,7 +159,6 @@ export default {
     this.$bus.$on('msg.success', this.successMessage)
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
-    this.$bus.$on('msg.warning', this.warningMessage)
   },
   watch: {
     activeMenuItem: function (newValue, oldValue) {
@@ -277,13 +276,6 @@ export default {
     },
     errorMessage (msg) {
       this.$Message.error({
-        content: msg,
-        duration: 0,
-        closable: true
-      })
-    },
-    warningMessage (msg) {
-      this.$Message.warning({
         content: msg,
         duration: 0,
         closable: true

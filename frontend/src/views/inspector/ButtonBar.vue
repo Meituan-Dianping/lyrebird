@@ -193,15 +193,12 @@ export default {
     switchRecord () {
       if (this.$store.state.inspector.recordMode === 'record') {
         this.$store.dispatch('saveRecordMode', 'normal')
-        console.log('stop recording')
       } else {
         this.$store.dispatch('saveRecordMode', 'record')
-        console.log('start recode')
       }
     },
     getRecordStatus () {
       this.$store.dispatch('loadRecordMode')
-      console.log('get recode mode')
     },
     clearModalOk () {
       this.$store.dispatch('clearFlows')
@@ -215,7 +212,7 @@ export default {
     },
     saveSelectedFlow () {
       if (Object.keys(this.activatedGroups).length <= 0) {
-        this.$bus.$emit('msg.warning', 'Please activate a mock group before save.')
+        this.$bus.$emit('msg.error', 'Please activate a mock group before save.')
         return
       }
       this.$store.dispatch('saveSelectedFlow', this.activatedGroupId)

@@ -25,7 +25,7 @@ export const saveSelectedFlow = (ids, group) => {
   return axios({
     url: '/api/flow',
     method: 'POST',
-    data: { ids }
+    data: { ids, group }
   })
 }
 

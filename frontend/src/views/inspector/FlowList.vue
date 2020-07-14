@@ -163,7 +163,6 @@ export default {
   },
   methods: {
     reload () {
-      console.log('from reload');
       this.$store.dispatch('loadFlowList')
     },
     selectFlow (flow) {

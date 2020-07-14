@@ -93,7 +93,6 @@ export default {
       api.getFlowList()
         .then(response => {
           commit('setFlowList', response.data)
-          // commit('setOriginFlowList', [])
           let originFlowListTemp = []
           const selectedIds = state.selectedIds
           for (const flow of response.data) {
@@ -105,7 +104,6 @@ export default {
           }
         })
         .catch(error => {
-          console.log('error', error)
           bus.$emit('msg.error', 'Inspector: reload failed' + ' error: ' + error.data.message)
         })
     },
@@ -140,17 +138,14 @@ export default {
       api.saveSelectedFlow(state.selectedIds, group)
         .then(response => {
           bus.$emit('msg.success', 'HTTP flow saved')
-          console.log('POST flow', state.selectedIds, response)
         })
         .catch(error => {
-          console.log('error', error);
           bus.$emit('msg.error', 'Save HTTP flow failed' + ' error:' + error.data.message)
         })
     },
     deleteSelectedFlow ({ state, commit }) {
       api.deleteSelectedFlow(state.selectedIds)
         .then(response => {
-          console.log('DEL flow', state.selectedIds, response)
           commit('clearSelectedId')
         })
     }
