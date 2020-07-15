@@ -133,7 +133,7 @@ export default {
     this.$io.removeListener('action', this.reload)
   },
   mounted () {
-    this.reload();
+    this.reload()
   },
   computed: {
     originFlowList () {
