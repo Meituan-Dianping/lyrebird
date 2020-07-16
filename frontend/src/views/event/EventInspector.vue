@@ -1,11 +1,11 @@
 <template>
-  <div class="event-inspector-split">
+  <div class="inspector-event-split">
     <Split v-model="split">
       <div slot="left">
-        <EventList class="event-inspector-left"></EventList>
+        <EventList class="inspector-event-left"></EventList>
       </div>
       <div v-if="eventDetail" slot="right">
-        <EventDetail v-model="eventDetail" class="event-inspector-right"></EventDetail>
+        <EventDetail class="inspector-event-right"></EventDetail>
       </div>
     </Split>
   </div>
@@ -78,14 +78,21 @@ export default {
 </script>
 
 <style scoped>
-.event-inspector-left {
+.inspector-event-split {
+  height: calc(100vh - 138px);
+  /* total:100vh
+  header: 38px
+  buttonBar: 38px
+  mode-tab 34px
+  split
+  footer: 28px
+    */
+  border: 1px solid #dcdee2;
+}
+.inspector-event-left {
   margin-right: 0px;
 }
-.event-inspector-right {
+.inspector-event-right {
   margin-left: 5px;
-}
-.event-inspector-split {
-  height: calc(100vh - 138px);
-  border: 1px solid #dcdee2;
 }
 </style>

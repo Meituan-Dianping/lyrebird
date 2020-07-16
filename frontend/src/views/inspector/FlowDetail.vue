@@ -10,7 +10,7 @@
           <TabPane label="RequestBody" name="req-body"></TabPane>
           <TabPane label="Response" name="resp"></TabPane>
           <TabPane label="ResponseBody" name="resp-body"></TabPane>
-          <TabPane v-if="showProxyResponse" label="ProxyResponseBody" name="proxy-resp-body"/>
+          <TabPane v-if="showProxyResponse" label="ProxyResponseBody" name="proxy-resp-body" />
         </Tabs>
       </Col>
     </Row>

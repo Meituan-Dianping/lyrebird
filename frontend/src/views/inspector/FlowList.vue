@@ -52,7 +52,6 @@
         <template slot-scope="{ row }" slot="size">
           <span>{{readablizeBytes(row.size)}}</span>
         </template>
-
       </Table>
       <div style="float: right; margin-top: 5px">
         <Page
@@ -73,11 +72,11 @@ export default {
   name: 'flowList',
   components: {
   },
-  data: function () {
+  data () {
     return {
       flowList: [],
       foucsFlow: null,
-      pageSize: 50,
+      pageSize: 5,
       pageCount: 0,
       currentPage: 1,
       columns: [
@@ -149,9 +148,9 @@ export default {
   watch: {
     selectedIds () {
       if (this.selectedIds.length > 0) {
-        this.$store.commit('showDataButtons', true)
+        this.$store.commit('itemSeleted', true)
       } else {
-        this.$store.commit('showDataButtons', false)
+        this.$store.commit('itemSeleted', false)
       }
     },
     originFlowList () {
@@ -175,17 +174,21 @@ export default {
       }
       this.$store.commit('setSelectedId', selectedIds)
     },
+    filterMethod (value, option) {
+      return option.toUpperCase().indexOf(value.toUpperCase()) !== -1
+    },
     refreshFlowList () {
-      let flowList = []
+      let displayFlowList = []
       for (const flow of this.originFlowList) {
-        if (flow.request.url.indexOf(this.$store.state.inspector.searchStr) >= 0) {
-          flowList.push(flow)
+        let searchStr = this.$store.state.inspector.searchStr
+        if (this.filterMethod(searchStr, flow.request.url)) {
+          displayFlowList.push(flow)
         }
       }
-      this.pageCount = Math.ceil(flowList.length / this.pageSize)
+      this.pageCount = Math.ceil(displayFlowList.length / this.pageSize)
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
-      this.flowList = flowList.slice(startIndex, endIndex)
+      this.flowList = displayFlowList.slice(startIndex, endIndex)
     },
     readablizeBytes (size) {
       return readablizeBytes(size)

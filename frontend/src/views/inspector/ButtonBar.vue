@@ -1,24 +1,24 @@
 <template>
   <div class="inspector-button-bar">
-    <Tooltip v-if="showRecordMode" content="Stop recording" placement="bottom-start" :delay="500">
-      <Icon 
-        class="inspector-button" 
+    <Tooltip v-if="isRecordMode" content="Stop recording" placement="bottom-start" :delay="500">
+      <Icon
+        class="inspector-button"
         type="md-square"
         color="black"
         @click="switchRecord"
         style="margin-right:3px"
         size="18"
-        />
+      />
     </Tooltip>
     <Tooltip v-else content="record" placement="bottom-start" :delay="500">
-      <Icon 
-        class="inspector-button" 
+      <Icon
+        class="inspector-button"
         type="md-radio-button-on"
         color="red"
         @click="switchRecord"
         style="margin-right:3px"
-        size="18" 
-        />
+        size="18"
+      />
     </Tooltip>
 
     <Tooltip content="Clear" :delay="500">
@@ -27,7 +27,7 @@
       </div>
     </Tooltip>
 
-    <div class="inline" v-if="showDataButtons">
+    <div class="inline" v-if="itemSeleted">
       <div class="inline">
         <Divider type="vertical"></Divider>
       </div>
@@ -50,12 +50,12 @@
     </div>
 
     <div class="inline">
-      <Divider type="vertical"/>
+      <Divider type="vertical" />
     </div>
 
     <label>
       <b style="padding-right:5px">Diff mode:</b>
-      <i-switch size="small" v-model="diffMode" @on-change="changeDiffMode"/>
+      <i-switch size="small" v-model="diffMode" @on-change="changeDiffMode" />
     </label>
 
     <div class="inline">
@@ -81,13 +81,13 @@
     <Modal
       v-model="showClearModal"
       title="Alert"
-      @on-ok="clearModalOk"
+      @on-ok="clearAllFlow"
       @on-cancel="showClearModal=false"
     >
       <p>Clear flow list?</p>
     </Modal>
 
-    <MockDataSelector ref="searchModal" :showRoot=false>
+    <MockDataSelector ref="searchModal" :showRoot="false">
       <template #selected>
         <div v-if="activatedGroups">
           <label style="padding-right:5px">Activated Mock Group:</label>
@@ -95,7 +95,12 @@
         </div>
       </template>
       <template #searchItem="{ searchResult }">
-        <Row type="flex" align="middle" class="search-row" @click.native="onActivateClick(searchResult)">
+        <Row
+          type="flex"
+          align="middle"
+          class="search-row"
+          @click.native="onActivateClick(searchResult)"
+        >
           <Col span="22">
             <p class="search-item">
               <b class="search-item-title">{{searchResult.name}}</b>
@@ -103,12 +108,7 @@
             </p>
           </Col>
           <Col span="2" align="right">
-            <Icon
-              type="ios-play"
-              color="#19be6b"
-              size="22"
-              class="search-item-btn"
-            />
+            <Icon type="ios-play" color="#19be6b" size="22" class="search-item-btn" />
           </Col>
         </Row>
       </template>
@@ -138,15 +138,11 @@ export default {
     this.loadDiffModeStatus()
   },
   computed: {
-    showRecordMode () {
-      if (this.$store.state.inspector.recordMode === 'normal') {
-        return false
-      } else {
-        return true
-      }
+    isRecordMode () {
+      return this.$store.state.inspector.recordMode === 'record'
     },
-    showDataButtons () {
-      return this.$store.state.inspector.showDataButtons
+    itemSeleted () {
+      return this.$store.state.inspector.itemSeleted
     },
     activatedGroups () {
       return this.$store.state.inspector.activatedGroup
@@ -191,31 +187,26 @@ export default {
       setDiffModeStatus(payload)
     },
     switchRecord () {
-      if (this.$store.state.inspector.recordMode === 'record') {
-        this.$store.dispatch('saveRecordMode', 'normal')
-      } else {
-        this.$store.dispatch('saveRecordMode', 'record')
-      }
+      let mode = this.$store.state.inspector.recordMode === 'record' ? 'normal' : 'record'
+      this.$store.commit('setRecordMode', mode)
+      this.$store.dispatch('saveRecordMode')
     },
     getRecordStatus () {
       this.$store.dispatch('loadRecordMode')
     },
-    clearModalOk () {
+    clearAllFlow () {
       this.$store.dispatch('clearFlows')
-      this.selectedFlow = null
+      this.$store.commit('clearSelectedId')
     },
     resetActivatedData () {
       this.$store.dispatch('deactivateGroup')
     },
-    filterMethod (value, option) {
-      return option.toUpperCase().indexOf(value.toUpperCase()) !== -1
-    },
     saveSelectedFlow () {
       if (Object.keys(this.activatedGroups).length <= 0) {
-        this.$bus.$emit('msg.error', 'Please activate a mock group before save.')
+        this.$bus.$emit('msg.error', 'Save flow error: No activated group')
         return
       }
-      this.$store.dispatch('saveSelectedFlow', this.activatedGroupId)
+      this.$store.dispatch('saveSelectedFlow')
     },
     deleteSelectedFlow () {
       this.$store.dispatch('deleteSelectedFlow')
@@ -244,4 +235,3 @@ export default {
   float: right;
 }
 </style>
-

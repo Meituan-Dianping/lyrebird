@@ -4,22 +4,20 @@ import { bus } from '@/eventbus'
 export default {
   state: {
     activatedGroup: {},
-    showDataButtons: false,
+    itemSeleted: false,
     searchStr: '',
     selectedIds: [],
     focusedFlow: null,
     focusedFlowDetail: null,
-    groupTree: null,
     currentFlowList: [],
-    originFlowList: [],
     recordMode: ''
   },
   mutations: {
     setActivitedGroup (state, group) {
       state.activatedGroup = group
     },
-    showDataButtons (state, val) {
-      state.showDataButtons = val
+    itemSeleted (state, val) {
+      state.itemSeleted = val
     },
     search (state, val) {
       state.searchStr = val
@@ -30,17 +28,17 @@ export default {
     clearSelectedId (state) {
       state.selectedIds = []
     },
+    clearSelectedId (state) {
+      state.selectedIds = []
+    },
     setFocusedFlow (state, flow) {
       state.focusedFlow = flow
     },
     setFocusedFlowDetail (state, flowDetail) {
       state.focusedFlowDetail = flowDetail
     },
-    setFlowList (state, currentFlowList) {
+    setCurrentFlowList (state, currentFlowList) {
       state.currentFlowList = currentFlowList
-    },
-    setOriginFlowList (state, originFlowList) {
-      state.originFlowList = originFlowList
     },
     setRecordMode (state, recordMode) {
       state.recordMode = recordMode
@@ -92,14 +90,12 @@ export default {
     loadFlowList ({ state, commit }) {
       api.getFlowList()
         .then(response => {
-          let originFlowListTemp = []
           for (const flow of response.data) {
             if (state.selectedIds.includes(flow.id)) {
               flow['_checked'] = true
             }
-            originFlowListTemp.push(flow)
-          commit('setFlowList', originFlowListTemp)
           }
+          commit('setCurrentFlowList', response.data)
         })
         .catch(error => {
           bus.$emit('msg.error', 'Load flow list error: ' + error.data.message)
@@ -114,11 +110,8 @@ export default {
           bus.$emit('msg.error', 'Load record mode error: ' + error.data.message)
         })
     },
-    saveRecordMode ({ state, commit }) {
+    saveRecordMode ({ state }) {
       api.setRecordMode(state.recordMode)
-        .then(response => {
-          commit('setRecordMode', response.data.data)
-        })
         .catch(error => {
           bus.$emit('msg.error', 'Change record mode error: ' + error.data.message)
         })
@@ -144,7 +137,9 @@ export default {
     deleteSelectedFlow ({ state, commit }) {
       api.deleteSelectedFlow(state.selectedIds)
         .then(response => {
+          let selectedIdLength = state.selectedIds.length
           commit('clearSelectedId')
+          bus.$emit('msg.success', selectedIdLength + ' flow deleted!')
         })
         .catch(error => {
           bus.$emit('msg.error', 'Delete flow error: ' + error.data.message)
