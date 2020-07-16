@@ -28,9 +28,6 @@ export default {
     clearSelectedId (state) {
       state.selectedIds = []
     },
-    clearSelectedId (state) {
-      state.selectedIds = []
-    },
     setFocusedFlow (state, flow) {
       state.focusedFlow = flow
     },
