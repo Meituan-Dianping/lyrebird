@@ -92,19 +92,17 @@ export default {
     loadFlowList ({ state, commit }) {
       api.getFlowList()
         .then(response => {
-          commit('setFlowList', response.data)
           let originFlowListTemp = []
-          const selectedIds = state.selectedIds
           for (const flow of response.data) {
-            if (selectedIds.includes(flow.id)) {
+            if (state.selectedIds.includes(flow.id)) {
               flow['_checked'] = true
             }
             originFlowListTemp.push(flow)
-            commit('setOriginFlowList', originFlowListTemp)
+          commit('setFlowList', originFlowListTemp)
           }
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Inspector: reload failed' + ' error: ' + error.data.message)
+          bus.$emit('msg.error', 'Load flow list error: ' + error.data.message)
         })
     },
     loadRecordMode ({ commit, state }) {
@@ -113,34 +111,34 @@ export default {
           commit('setRecordMode', response.data.data)
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Switch start/record failed' + 'error:' + error.data.message)
+          bus.$emit('msg.error', 'Load record mode error: ' + error.data.message)
         })
     },
-    saveRecordMode ({ commit }, mode) {
-      api.setRecordMode(mode)
+    saveRecordMode ({ state, commit }) {
+      api.setRecordMode(state.recordMode)
         .then(response => {
           commit('setRecordMode', response.data.data)
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Switch start/record failed' + 'error:' + error.data.message)
+          bus.$emit('msg.error', 'Change record mode error: ' + error.data.message)
         })
     },
     clearFlows () {
-      api.deleteAllFlow(null)
+      api.deleteAllFlow()
         .then(response => {
-          bus.$emit('msg.success', 'HTTP flow cleared')
+          bus.$emit('msg.success', 'Clear flow success!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'clear failed' + 'error:' + error.data.message)
+          bus.$emit('msg.error', 'Clear flow error: ' + error.data.message)
         })
     },
-    saveSelectedFlow ({ state }, group) {
-      api.saveSelectedFlow(state.selectedIds, group)
+    saveSelectedFlow ({ state }) {
+      api.saveSelectedFlow(state.selectedIds)
         .then(response => {
-          bus.$emit('msg.success', 'HTTP flow saved')
+          bus.$emit('msg.success', state.selectedIds.length + ' flow saved!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Save HTTP flow failed' + ' error:' + error.data.message)
+          bus.$emit('msg.error', 'Save flow error: ' + error.data.message)
         })
     },
     deleteSelectedFlow ({ state, commit }) {
@@ -148,7 +146,9 @@ export default {
         .then(response => {
           commit('clearSelectedId')
         })
+        .catch(error => {
+          bus.$emit('msg.error', 'Delete flow error: ' + error.data.message)
+        })
     }
   }
 }
-

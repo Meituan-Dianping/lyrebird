@@ -1,15 +1,13 @@
 <template>
-  <div class="root-window">
-    <div class="event-inspector-split">
-      <Split v-model="split">
-        <div slot="left">
-          <EventList class="event-inspector-left"  @click.native="getEventDetail"></EventList>
-        </div>
-        <div v-if="eventDetail" slot="right">
-          <EventDetail v-model="eventDetail" class="event-inspector-right"></EventDetail>
-        </div>
-      </Split>
-    </div>
+  <div class="event-inspector-split">
+    <Split v-model="split">
+      <div slot="left">
+        <EventList class="event-inspector-left"></EventList>
+      </div>
+      <div v-if="eventDetail" slot="right">
+        <EventDetail v-model="eventDetail" class="event-inspector-right"></EventDetail>
+      </div>
+    </Split>
   </div>
 </template>
 
@@ -26,7 +24,6 @@ export default {
   },
   data () {
     return {
-      detailSplit: 0.6,
       scrollRate: 0,
       split: 1
     }
@@ -35,25 +32,16 @@ export default {
     this.$bus.$on('eventLitScroll', this.setEventContainerScroll)
   },
   computed: {
-    eventDetail: {
-      get () {
-        return this.$store.state.event.eventDetail
-      },
-      set (val) {
-
-      }
+    eventDetail () {
+      return this.$store.state.event.eventDetail
+    }
+  },
+  watch: {
+    eventDetail (val) {
+      this.split = val ? 0.5 : 1
     }
   },
   methods: {
-    getEventDetail () {
-      if (this.eventDetail) {
-        this.split = 0.5
-        return true
-      } else {
-        this.split = 1
-        return false
-      }
-    },
     addDescAttach (row) {
       if (this.channelAddToDesc.indexOf(row.channel) > -1) {
         this.dispatch('addIntoDesc', row.id)

@@ -13,19 +13,19 @@ export const getFlowList = () => {
   })
 }
 
-export const deleteAllFlow = (ids) => {
+export const deleteAllFlow = () => {
   return axios({
     url: '/api/flow',
     method: 'DELETE',
-    data: { ids }
+    data: { ids: null }
   })
 }
 
-export const saveSelectedFlow = (ids, group) => {
+export const saveSelectedFlow = (ids) => {
   return axios({
     url: '/api/flow',
     method: 'POST',
-    data: { ids, group }
+    data: { ids }
   })
 }
 

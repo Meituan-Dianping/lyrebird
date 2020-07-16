@@ -167,8 +167,8 @@ export default {
       // :active-name 异步刷新后，需要手动更新 
       // https://github.com/iview/iview/issues/1245#issuecomment-352992001 
       this.$nextTick(function () {
-        this.$refs.menu.updateActiveName();
-      });
+        this.$refs.menu.updateActiveName()
+      })
     }
   },
   computed: {
@@ -285,7 +285,7 @@ export default {
       this.$store.dispatch('updateBandwidth', template_name)
     }
   }
-};
+}
 </script>
 
 <style scoped>
