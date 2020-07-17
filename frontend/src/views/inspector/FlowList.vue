@@ -1,66 +1,64 @@
 <template>
-  <div>
-    <div class="flow-list">
-      <Table
-        highlight-row
-        size="small"
-        ref="selection"
-        :columns="columns"
-        :data="flowList"
-        @on-row-click="selectFlow"
-        @on-selection-change="itemSelectChange"
-        class="data-table"
-      >
-        <template slot-scope="{ row, index }" slot="source">
-          <Tooltip class="flow-list-item-source" :content="row.response.mock" placement="top" transfer>
-            <Tag v-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
-            <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
-            <Tag v-else size="small" class="flow-list-item-tag">pending</Tag>
-          </Tooltip>
+  <div class="flow-list">
+    <Table
+      highlight-row
+      size="small"
+      ref="selection"
+      :columns="columns"
+      :data="flowList"
+      @on-row-click="selectFlow"
+      @on-selection-change="itemSelectChange"
+      class="data-table"
+    >
+      <template slot-scope="{ row, index }" slot="source">
+        <Tooltip class="flow-list-item-source" :content="row.response.mock" placement="top" transfer>
+          <Tag v-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
+          <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
+          <Tag v-else size="small" class="flow-list-item-tag">pending</Tag>
+        </Tooltip>
 
-          <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="top" transfer>
-            <Tag size="small" class="flow-list-item-tag" color="blue">diff</Tag>
-          </Tooltip>
+        <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="top" transfer>
+          <Tag size="small" class="flow-list-item-tag" color="blue">diff</Tag>
+        </Tooltip>
 
-          <Tooltip class="flow-list-item-source" v-if="row.response.modified" content="modified" placement="top" transfer>
-            <Icon type="md-build" />
-          </Tooltip>
-        </template>
+        <Tooltip class="flow-list-item-source" v-if="row.response.modified" content="modified" placement="top" transfer>
+          <Icon type="md-build" />
+        </Tooltip>
+      </template>
 
-        <template slot-scope="{ row }" slot="method">
-          <span style="color:green">{{ row.request.method }}</span>
-        </template>
+      <template slot-scope="{ row }" slot="method">
+        <span style="color:green">{{ row.request.method }}</span>
+      </template>
 
-        <template slot-scope="{ row }" slot="status">
-          <span v-if="row.response.code === 200" style="color:green">{{ row.response.code }}</span>
-          <span v-else-if="row.response.code >= 300 && row.response.code <= 399" style="color:olive">{{ row.response.code }}</span>
-          <span v-else style="color:red">{{ row.response.code }}</span>
-        </template>
+      <template slot-scope="{ row }" slot="status">
+        <span v-if="row.response.code === 200" style="color:green">{{ row.response.code }}</span>
+        <span v-else-if="row.response.code >= 300 && row.response.code <= 399" style="color:olive">{{ row.response.code }}</span>
+        <span v-else style="color:red">{{ row.response.code }}</span>
+      </template>
 
-        <template slot-scope="{ row }" slot="request">
-          <span class="flow-list-item-url">{{ row.request.url }}</span>
-        </template>
+      <template slot-scope="{ row }" slot="request">
+        <span class="flow-list-item-url">{{ row.request.url }}</span>
+      </template>
 
-        <template slot-scope="{ row }" slot="start_time">
-          <span>{{timestampToTime(row.start_time)}}</span>
-        </template>
+      <template slot-scope="{ row }" slot="start_time">
+        <span>{{timestampToTime(row.start_time)}}</span>
+      </template>
 
-        <template slot-scope="{ row }" slot="duration">
-          <span>{{readablizeDuration(row.duration)}}</span>
-        </template>
+      <template slot-scope="{ row }" slot="duration">
+        <span>{{readablizeDuration(row.duration)}}</span>
+      </template>
 
-        <template slot-scope="{ row }" slot="size">
-          <span>{{readablizeBytes(row.size)}}</span>
-        </template>
-      </Table>
-      <div style="float: right; margin-top: 5px">
-        <Page
-          :total="originFlowList.length"
-          :page-size="pageSize"
-          :current.sync="currentPage"
-          @on-change="refreshFlowList"
-        />
-      </div>
+      <template slot-scope="{ row }" slot="size">
+        <span>{{readablizeBytes(row.size)}}</span>
+      </template>
+    </Table>
+    <div style="float: right; margin-top: 5px">
+      <Page
+        :total="originFlowList.length"
+        :page-size="pageSize"
+        :current.sync="currentPage"
+        @on-change="refreshFlowList"
+      />
     </div>
   </div>
 </template>
@@ -217,8 +215,10 @@ export default {
   /* total:100vh
   header: 38px
   buttonBar: 38px
+  divider:1px
+  mode-tag:34px
   table
-  padding: 5px
+  padding: 9px
   footer: 28px
     */
   overflow-y: auto;
