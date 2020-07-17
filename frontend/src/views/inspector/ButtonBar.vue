@@ -27,7 +27,7 @@
       </div>
     </Tooltip>
 
-    <div class="inline" v-if="itemSeleted">
+    <div class="inline" v-if="hasSelectedId">
       <div class="inline">
         <Divider type="vertical"></Divider>
       </div>
@@ -95,12 +95,7 @@
         </div>
       </template>
       <template #searchItem="{ searchResult }">
-        <Row
-          type="flex"
-          align="middle"
-          class="search-row"
-          @click.native="onActivateClick(searchResult)"
-        >
+        <Row type="flex" align="middle" class="search-row" @click.native="onActivateClick(searchResult)">
           <Col span="22">
             <p class="search-item">
               <b class="search-item-title">{{searchResult.name}}</b>
@@ -108,7 +103,12 @@
             </p>
           </Col>
           <Col span="2" align="right">
-            <Icon type="ios-play" color="#19be6b" size="22" class="search-item-btn" />
+            <Icon
+              type="ios-play"
+              color="#19be6b"
+              size="22"
+              class="search-item-btn"
+            />
           </Col>
         </Row>
       </template>
@@ -141,8 +141,8 @@ export default {
     isRecordMode () {
       return this.$store.state.inspector.recordMode === 'record'
     },
-    itemSeleted () {
-      return this.$store.state.inspector.itemSeleted
+    hasSelectedId () {
+      return this.$store.state.inspector.selectedIds.length > 0
     },
     activatedGroups () {
       return this.$store.state.inspector.activatedGroup
@@ -166,7 +166,7 @@ export default {
         return this.$store.state.inspector.searchStr
       },
       set (val) {
-        this.$store.commit('search', val)
+        this.$store.commit('setSearchstr', val)
       }
     }
   },
@@ -196,7 +196,6 @@ export default {
     },
     clearAllFlow () {
       this.$store.dispatch('clearFlows')
-      this.$store.commit('clearSelectedId')
     },
     resetActivatedData () {
       this.$store.dispatch('deactivateGroup')

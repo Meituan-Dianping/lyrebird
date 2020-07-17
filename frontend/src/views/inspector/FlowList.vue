@@ -76,7 +76,7 @@ export default {
     return {
       flowList: [],
       foucsFlow: null,
-      pageSize: 5,
+      pageSize: 50,
       pageCount: 0,
       currentPage: 1,
       columns: [
@@ -136,7 +136,7 @@ export default {
   },
   computed: {
     originFlowList () {
-      return this.$store.state.inspector.currentFlowList
+      return this.$store.state.inspector.originFlowList
     },
     searchStr () {
       return this.$store.state.inspector.searchStr
@@ -146,13 +146,6 @@ export default {
     }
   },
   watch: {
-    selectedIds () {
-      if (this.selectedIds.length > 0) {
-        this.$store.commit('itemSeleted', true)
-      } else {
-        this.$store.commit('itemSeleted', false)
-      }
-    },
     originFlowList () {
       this.refreshFlowList()
     },
