@@ -375,3 +375,8 @@ export default {
 }
 </style>
 
+<style>
+.ivu-split-pane {
+  overflow: hidden;
+}
+</style>

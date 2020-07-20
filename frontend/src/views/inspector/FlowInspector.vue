@@ -39,7 +39,7 @@ export default {
 }
 </script>
 
-<style>
+<style scope>
 .inspector-realtime-left {
   margin-right: 0px;
 }
@@ -63,9 +63,5 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-}
-.ivu-split-pane {
-  /* Global effect */
-  overflow: hidden;
 }
 </style>
