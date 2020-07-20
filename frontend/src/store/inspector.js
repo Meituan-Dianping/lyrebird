@@ -15,7 +15,7 @@ export default {
     setActivitedGroup (state, group) {
       state.activatedGroup = group
     },
-    setSearchstr (state, val) {
+    setSearchStr (state, val) {
       state.searchStr = val
     },
     setSelectedId (state, val) {

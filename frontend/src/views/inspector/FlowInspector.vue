@@ -1,11 +1,12 @@
 <template>
   <div class="inspector-realtime-split">
-    <Split v-model="split">
+    <Split v-model="split" min="0px" max="0px">
       <div slot="left">
         <FlowList class="inspector-realtime-left"></FlowList>
       </div>
-      <div v-if="focusedFlow" slot="right">
-        <FlowDetail class="inspector-realtime-right"></FlowDetail>
+      <div slot="right">
+        <FlowDetail v-if="focusedFlow" class="inspector-realtime-right"></FlowDetail>
+        <div v-else class="flow-detail-empty">No selected flow</div>
       </div>
     </Split>
   </div>
@@ -38,7 +39,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .inspector-realtime-left {
   margin-right: 0px;
 }
@@ -46,7 +47,7 @@ export default {
   margin-left: 5px;
 }
 .inspector-realtime-split {
-  height: calc(100vh - 138px); 
+  height: calc(100vh - 138px);
   /* total:100vh
   header: 38px
   buttonBar: 38px
@@ -55,5 +56,16 @@ export default {
   footer: 28px
     */
   border: 1px solid #dcdee2;
+}
+.flow-detail-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.ivu-split-pane {
+  /* Global effect */
+  overflow: hidden;
 }
 </style>

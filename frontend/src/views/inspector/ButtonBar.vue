@@ -166,7 +166,7 @@ export default {
         return this.$store.state.inspector.searchStr
       },
       set (val) {
-        this.$store.commit('setSearchstr', val)
+        this.$store.commit('setSearchStr', val)
       }
     }
   },

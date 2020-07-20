@@ -1,11 +1,12 @@
 <template>
   <div class="inspector-event-split">
-    <Split v-model="split">
+    <Split v-model="split" min="0px" max="0px">
       <div slot="left">
         <EventList class="inspector-event-left"></EventList>
       </div>
-      <div v-if="eventDetail" slot="right">
-        <EventDetail class="inspector-event-right"></EventDetail>
+      <div slot="right">
+        <EventDetail v-if="eventDetail" class="inspector-event-right"></EventDetail>
+        <div v-else class="event-detail-empty">No selected event</div>
       </div>
     </Split>
   </div>
@@ -94,5 +95,12 @@ export default {
 }
 .inspector-event-right {
   margin-left: 5px;
+}
+.event-detail-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 </style>
