@@ -14,31 +14,18 @@
 </template>
 
 <script>
-let stopedStatus = {
-  recording: false,
-  type: 'record',
-  color: 'red',
-  text: 'Start recording'
-};
-let recordingStatus = {
-  recording: true,
-  type: 'stop',
-  color: 'black',
-  text: 'Stop recording'
-};
-
 import ButtonBar from '@/views/inspector/ButtonBar.vue'
 import EventInspector from '@/views/event/EventInspector.vue'
 import FlowInspector from '@/views/inspector/FlowInspector.vue'
 
 export default {
   name: 'Inspector',
-  data: function () {
+  data () {
     return {
       activatedData: null,
       selectedDataGroup: '',
       selectedModeTab: 'realtime'
-    };
+    }
   },
   components: {
     ButtonBar,

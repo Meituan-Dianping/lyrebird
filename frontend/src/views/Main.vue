@@ -166,9 +166,9 @@ export default {
       this.refreshPage(newValue)
       // :active-name 异步刷新后，需要手动更新 
       // https://github.com/iview/iview/issues/1245#issuecomment-352992001 
-      this.$nextTick(function(){
-        this.$refs.menu.updateActiveName();
-      });
+      this.$nextTick(function () {
+        this.$refs.menu.updateActiveName()
+      })
     }
   },
   computed: {
@@ -194,20 +194,20 @@ export default {
     activeName () {
       return this.$store.state.activeName
     },
-    bandwidth() {
+    bandwidth () {
       return this.$store.state.bandwidth.bandwidth
     },
     bandwidthTemplates () {
       return this.$store.state.bandwidth.bandwidthTemplates
     },
-    bandwidthExplanation (){
+    bandwidthExplanation () {
       for (let v of this.bandwidthTemplates) {
         if (this.bandwidth == v['bandwidth']) {
           if (this.bandwidth == -1) {
             return v['template_name']
           }
           else {
-            return `${ v['template_name'] } ( ${ v['bandwidth'] } Kb/s)`
+            return `${v['template_name']} ( ${v['bandwidth']} Kb/s)`
           }
         }
       }
@@ -281,11 +281,11 @@ export default {
         closable: true
       })
     },
-    updateBandwidth(template_name){
-        this.$store.dispatch('updateBandwidth', template_name)
+    updateBandwidth (template_name) {
+      this.$store.dispatch('updateBandwidth', template_name)
     }
   }
-};
+}
 </script>
 
 <style scoped>
@@ -369,9 +369,14 @@ export default {
   background: #fff;
 }
 .bandwidth-btn-highlight {
-	background-color: #0fccbf !important;
-	color: #fff;
-	outline:none;
+  background-color: #0fccbf !important;
+  color: #fff;
+  outline: none;
 }
 </style>
 
+<style>
+.ivu-split-pane {
+  overflow: hidden;
+}
+</style>

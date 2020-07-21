@@ -1,9 +1,8 @@
 from flask_restful import Resource
 from lyrebird.mock import context
 from lyrebird import application
-from flask import request, jsonify, abort, stream_with_context
+from flask import request
 import json
-import time
 from ...handlers.encoder_decoder_handler import encoders_decoders
 
 
@@ -19,7 +18,7 @@ class Flow(Resource):
                 display_item = {}
                 encoders_decoders.decoder_handler(item, output=display_item)
                 return application.make_ok_response(data=display_item)
-        return abort(400, 'Request not found')
+        return application.make_fail_response(f'Request {id} not found')
 
 
 class FlowList(Resource):
@@ -57,7 +56,7 @@ class FlowList(Resource):
 
         def gen():
             yield json.dumps(req_list, ensure_ascii=False)
-        return context.make_streamed_response(gen)
+        return application.make_streamed_response(gen)
 
     def delete(self):
         _ids = request.json.get('ids')
@@ -66,7 +65,7 @@ class FlowList(Resource):
         else:
             context.application.cache.clear()
         context.application.socket_io.emit('action', 'delete flow log')
-        return context.make_ok_response()
+        return application.make_ok_response()
 
     def post(self):
         _ids = request.json.get('ids')
@@ -81,4 +80,4 @@ class FlowList(Resource):
         for flow in record_items:
             dm.save_data(flow)
 
-        return context.make_ok_response()
+        return application.make_ok_response()

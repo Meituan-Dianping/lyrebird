@@ -1,14 +1,14 @@
 <template>
-  <div class="root-window">
-    <Row>
-      <Col :span="listSpan">
-        <EventList class="inspector-left"></EventList>
-      </Col>
-      <div class="split" v-if="eventDetail"></div>
-      <Col span="12" v-if="eventDetail">
-        <EventDetail v-model="eventDetail" class="inspector-right"></EventDetail>
-      </Col>
-    </Row>
+  <div class="inspector-event-split">
+    <Split v-model="split" min="0px" max="0px">
+      <div slot="left">
+        <EventList class="inspector-event-left"></EventList>
+      </div>
+      <div slot="right">
+        <EventDetail v-if="eventDetail" class="inspector-event-right"></EventDetail>
+        <div v-else class="event-detail-empty">No selected event</div>
+      </div>
+    </Split>
   </div>
 </template>
 
@@ -25,28 +25,21 @@ export default {
   },
   data () {
     return {
-      detailSplit: 0.6,
-      scrollRate: 0
+      scrollRate: 0,
+      split: 1
     }
   },
   created () {
     this.$bus.$on('eventLitScroll', this.setEventContainerScroll)
   },
   computed: {
-    listSpan () {
-      if (this.eventDetail) {
-        return '12'
-      } else {
-        return '24'
-      }
-    },
-    eventDetail: {
-      get () {
-        return this.$store.state.event.eventDetail
-      },
-      set (val) {
-
-      }
+    eventDetail () {
+      return this.$store.state.event.eventDetail
+    }
+  },
+  watch: {
+    eventDetail (val) {
+      this.split = val ? 0.5 : 1
     }
   },
   methods: {
@@ -86,31 +79,28 @@ export default {
 </script>
 
 <style scoped>
-.root-window {
-  height: 100%;
-  overflow-y: auto;
-  border-bottom: 1px solid #dcdee2;
+.inspector-event-split {
+  height: calc(100vh - 138px);
+  /* total:100vh
+  header: 38px
+  buttonBar: 38px
+  mode-tab 34px
+  split
+  footer: 28px
+    */
+  border: 1px solid #dcdee2;
 }
-.demo-split-pane {
-  padding: 10px;
-  overflow-y: auto;
-  height: 100%;
-}
-.content-pane {
-  height: calc(100% - 60px);
-}
-.inspector-left {
+.inspector-event-left {
   margin-right: 0px;
 }
-.inspector-right {
+.inspector-event-right {
   margin-left: 5px;
 }
-.split {
-  display: block;
+.event-detail-empty {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 50%;
   left: 50%;
-  border: 1px dashed #eee;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 </style>

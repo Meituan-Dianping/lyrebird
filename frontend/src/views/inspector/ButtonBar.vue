@@ -1,10 +1,20 @@
 <template>
   <div class="inspector-button-bar">
-    <Tooltip :content="recordBtnTooltip" placement="bottom-start" :delay="500">
+    <Tooltip v-if="isRecordMode" content="Stop recording" placement="bottom-start" :delay="500">
       <Icon
         class="inspector-button"
-        :type="recordingBtn.type"
-        :color="recordingBtn.color"
+        type="md-square"
+        color="black"
+        @click="switchRecord"
+        style="margin-right:3px"
+        size="18"
+      />
+    </Tooltip>
+    <Tooltip v-else content="record" placement="bottom-start" :delay="500">
+      <Icon
+        class="inspector-button"
+        type="md-radio-button-on"
+        color="red"
         @click="switchRecord"
         style="margin-right:3px"
         size="18"
@@ -17,7 +27,7 @@
       </div>
     </Tooltip>
 
-    <div class="inline" v-if="showDataButtons">
+    <div class="inline" v-if="hasSelectedId">
       <div class="inline">
         <Divider type="vertical"></Divider>
       </div>
@@ -40,12 +50,12 @@
     </div>
 
     <div class="inline">
-      <Divider type="vertical"/>
+      <Divider type="vertical" />
     </div>
 
     <label>
       <b style="padding-right:5px">Diff mode:</b>
-      <i-switch size="small" v-model="diffMode" @on-change="changeDiffMode"/>
+      <i-switch size="small" v-model="diffMode" @on-change="changeDiffMode" />
     </label>
 
     <div class="inline">
@@ -71,13 +81,13 @@
     <Modal
       v-model="showClearModal"
       title="Alert"
-      @on-ok="clearModalOk"
+      @on-ok="clearAllFlow"
       @on-cancel="showClearModal=false"
     >
       <p>Clear flow list?</p>
     </Modal>
 
-    <MockDataSelector ref="searchModal" :showRoot=false>
+    <MockDataSelector ref="searchModal" :showRoot="false">
       <template #selected>
         <div v-if="activatedGroups">
           <label style="padding-right:5px">Activated Mock Group:</label>
@@ -111,40 +121,28 @@ import MockDataSelector from '@/components/SearchModal.vue'
 import Icon from 'vue-svg-icon/Icon.vue'
 import { getDiffModeStatus, setDiffModeStatus } from '@/api'
 
-let stopedStatus = {
-  recording: false,
-  type: "md-radio-button-on",
-  color: "red",
-  text: "Start recording"
-};
-
-let recordingStatus = {
-  recording: true,
-  type: "md-square",
-  color: "black",
-  text: "Stop recording"
-};
-
 export default {
   name: 'buttonBar',
   components: {
     MockDataSelector,
     'svg-icon': Icon
   },
-  data: function () {
+  data () {
     return {
       showClearModal: false,
-      diffMode: false,
-      recordingBtn: stopedStatus
-    };
+      diffMode: false
+    }
   },
   mounted () {
     this.getRecordStatus()
     this.loadDiffModeStatus()
   },
   computed: {
-    showDataButtons () {
-      return this.$store.state.inspector.showDataButtons
+    isRecordMode () {
+      return this.$store.state.inspector.recordMode === 'record'
+    },
+    hasSelectedId () {
+      return this.$store.state.inspector.selectedIds.length > 0
     },
     activatedGroups () {
       return this.$store.state.inspector.activatedGroup
@@ -168,14 +166,7 @@ export default {
         return this.$store.state.inspector.searchStr
       },
       set (val) {
-        this.$store.commit('search', val)
-      }
-    },
-    recordBtnTooltip () {
-      if (this.recordingBtn.recording) {
-        return 'Stop recording'
-      } else {
-        return 'Record'
+        this.$store.commit('setSearchStr', val)
       }
     }
   },
@@ -195,94 +186,29 @@ export default {
     changeDiffMode (payload) {
       setDiffModeStatus(payload)
     },
-    switchRecord: function () {
-      if (this.recordingBtn.recording) {
-        this.$http.put("/api/mode/normal").then(
-          response => {
-            this.recordingBtn = stopedStatus;
-            console.log("stop recording", response);
-          },
-          error => {
-            console.log("stop recording failed", response);
-          }
-        );
-      } else {
-        if (!this.activatedGroupId) {
-          this.showCreateGroupModal = true;
-        }
-        this.$http.put("/api/mode/record").then(
-          response => {
-            this.recordingBtn = recordingStatus;
-            console.log("start recode", response);
-          },
-          error => {
-            console.log("start recode failed", error);
-          }
-        );
-      }
+    switchRecord () {
+      let mode = this.$store.state.inspector.recordMode === 'record' ? 'normal' : 'record'
+      this.$store.commit('setRecordMode', mode)
+      this.$store.dispatch('saveRecordMode')
     },
-    getRecordStatus: function () {
-      this.$http.get("/api/mode").then(
-        response => {
-          if (response.data.mode === "record") {
-            this.recordingBtn = recordingStatus;
-          } else {
-            this.recordingBtn = stopedStatus;
-          }
-          console.log("get recode mode", response);
-        },
-        error => { }
-      );
+    getRecordStatus () {
+      this.$store.dispatch('loadRecordMode')
     },
-    clearModalOk: function () {
-      this.$http.delete('/api/flow', { body: { ids: null } }).then(response => {
-      });
-
-      this.selectedFlow = null;
+    clearAllFlow () {
+      this.$store.dispatch('clearFlows')
     },
-    resetActivatedData: function () {
+    resetActivatedData () {
       this.$store.dispatch('deactivateGroup')
     },
-    filterMethod: function (value, option) {
-      return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
-    },
-    saveSelectedFlow: function () {
+    saveSelectedFlow () {
       if (Object.keys(this.activatedGroups).length <= 0) {
-        this.$Message.warning('Please activate a mock group before save.')
+        this.$bus.$emit('msg.error', 'Save flow error: No activated group')
         return
       }
-      this.$http.post('/api/flow',
-        {
-          ids: this.$store.state.inspector.selectedIds,
-          group: this.activatedGroupId
-        }
-      )
-        .then(resp => {
-          if (resp.data.code === 1000) {
-            this.$Notice.success(
-              {
-                title: 'HTTP flow saved',
-                desc: resp.data.message
-              }
-            )
-          } else {
-            this.$Notice.error(
-              {
-                title: 'Save HTTP flow failed',
-                desc: resp.data.message,
-                duration: 0
-              }
-            )
-          }
-          console.log('POST flow', this.$store.state.inspector.selectedIds, resp);
-        })
+      this.$store.dispatch('saveSelectedFlow')
     },
-    deleteSelectedFlow: function () {
-      this.$http.delete('/api/flow', { body: { ids: this.$store.state.inspector.selectedIds } })
-        .then(resp => {
-          console.log('DEL flow', this.$store.state.inspector.selectedIds, resp);
-          this.$store.commit('clearSelectedId')
-        })
+    deleteSelectedFlow () {
+      this.$store.dispatch('deleteSelectedFlow')
     },
     onActivateClick (group) {
       this.$store.dispatch('activateGroup', group)
@@ -308,4 +234,3 @@ export default {
   float: right;
 }
 </style>
-

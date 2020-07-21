@@ -1,67 +1,64 @@
 <template>
-  <div>
-    <div class="flow-list">
-      <Table
-        highlight-row
-        size="small"
-        ref="selection"
-        :columns="columns"
-        :data="flowList"
-        @on-row-click="selectFlow"
-        @on-selection-change="itemSelectChange"
-        class="data-table"
-      >
-        <template slot-scope="{ row, index }" slot="source">
-          <Tooltip class="flow-list-item-source" :content="row.response.mock" placement="top" transfer>
-            <Tag v-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
-            <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
-            <Tag v-else size="small" class="flow-list-item-tag">pending</Tag>
-          </Tooltip>
+  <div class="flow-list">
+    <Table
+      highlight-row
+      size="small"
+      ref="selection"
+      :columns="columns"
+      :data="flowList"
+      @on-row-click="selectFlow"
+      @on-selection-change="itemSelectChange"
+      class="data-table"
+    >
+      <template slot-scope="{ row, index }" slot="source">
+        <Tooltip class="flow-list-item-source" :content="row.response.mock" placement="top" transfer>
+          <Tag v-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
+          <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
+          <Tag v-else size="small" class="flow-list-item-tag">pending</Tag>
+        </Tooltip>
 
-          <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="top" transfer>
-            <Tag size="small" class="flow-list-item-tag" color="blue">diff</Tag>
-          </Tooltip>
+        <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="top" transfer>
+          <Tag size="small" class="flow-list-item-tag" color="blue">diff</Tag>
+        </Tooltip>
 
-          <Tooltip class="flow-list-item-source" v-if="row.response.modified" content="modified" placement="top" transfer>
-            <Icon type="md-build" />
-          </Tooltip>
-        </template>
+        <Tooltip class="flow-list-item-source" v-if="row.response.modified" content="modified" placement="top" transfer>
+          <Icon type="md-build" />
+        </Tooltip>
+      </template>
 
-        <template slot-scope="{ row }" slot="method">
-          <span style="color:green">{{ row.request.method }}</span>
-        </template>
+      <template slot-scope="{ row }" slot="method">
+        <span style="color:green">{{ row.request.method }}</span>
+      </template>
 
-        <template slot-scope="{ row }" slot="status">
-          <span v-if="row.response.code === 200" style="color:green">{{ row.response.code }}</span>
-          <span v-else-if="row.response.code >= 300 && row.response.code <= 399" style="color:olive">{{ row.response.code }}</span>
-          <span v-else style="color:red">{{ row.response.code }}</span>
-        </template>
+      <template slot-scope="{ row }" slot="status">
+        <span v-if="row.response.code === 200" style="color:green">{{ row.response.code }}</span>
+        <span v-else-if="row.response.code >= 300 && row.response.code <= 399" style="color:olive">{{ row.response.code }}</span>
+        <span v-else style="color:red">{{ row.response.code }}</span>
+      </template>
 
-        <template slot-scope="{ row }" slot="request">
-          <span class="flow-list-item-url">{{ row.request.url }}</span>
-        </template>
+      <template slot-scope="{ row }" slot="request">
+        <span class="flow-list-item-url">{{ row.request.url }}</span>
+      </template>
 
-        <template slot-scope="{ row }" slot="start_time">
-          <span>{{timestampToTime(row.start_time)}}</span>
-        </template>
+      <template slot-scope="{ row }" slot="start_time">
+        <span>{{timestampToTime(row.start_time)}}</span>
+      </template>
 
-        <template slot-scope="{ row }" slot="duration">
-          <span>{{readablizeDuration(row.duration)}}</span>
-        </template>
+      <template slot-scope="{ row }" slot="duration">
+        <span>{{readablizeDuration(row.duration)}}</span>
+      </template>
 
-        <template slot-scope="{ row }" slot="size">
-          <span>{{readablizeBytes(row.size)}}</span>
-        </template>
-
-      </Table>
-      <div style="float: right; margin-top: 5px">
-        <Page
-          :total="originFlowList.length"
-          :page-size="pageSize"
-          :current.sync="currentPage"
-          @on-change="refreshFlowList"
-        />
-      </div>
+      <template slot-scope="{ row }" slot="size">
+        <span>{{readablizeBytes(row.size)}}</span>
+      </template>
+    </Table>
+    <div style="float: right; margin-top: 5px">
+      <Page
+        :total="originFlowList.length"
+        :page-size="pageSize"
+        :current.sync="currentPage"
+        @on-change="refreshFlowList"
+      />
     </div>
   </div>
 </template>
@@ -73,10 +70,9 @@ export default {
   name: 'flowList',
   components: {
   },
-  data: function () {
+  data () {
     return {
       flowList: [],
-      originFlowList: [],
       foucsFlow: null,
       pageSize: 50,
       pageCount: 0,
@@ -128,82 +124,62 @@ export default {
     }
   },
   created () {
-    this.$io.on("action", this.reload)
+    this.$io.on('action', this.reload)
   },
   destroyed () {
     this.$io.removeListener('action', this.reload)
   },
-  mounted: function () {
-    this.reload();
+  mounted () {
+    this.reload()
   },
   computed: {
-    searchStr: function () {
+    originFlowList () {
+      return this.$store.state.inspector.originFlowList
+    },
+    searchStr () {
       return this.$store.state.inspector.searchStr
     },
-    selectedIds: function () {
+    selectedIds () {
       return this.$store.state.inspector.selectedIds
     }
   },
   watch: {
-    selectedIds: function () {
-      if (this.selectedIds.length > 0) {
-        this.$store.commit('showDataButtons', true)
-      } else {
-        this.$store.commit('showDataButtons', false)
-      }
-    },
-    originFlowList: function () {
+    originFlowList () {
       this.refreshFlowList()
     },
-    searchStr: function () {
+    searchStr () {
       this.refreshFlowList()
     }
   },
   methods: {
-    reload: function () {
-      this.$http.get("/api/flow").then(
-        response => {
-          this.originFlowList = []
-          const selectedIds = this.$store.state.inspector.selectedIds
-          for (const flow of response.data) {
-            if (selectedIds.includes(flow.id))
-              flow['_checked'] = true
-            this.originFlowList.push(flow)
-          }
-        },
-        error => {
-          console.log("Inspector: reload failed", error);
-        }
-      );
+    reload () {
+      this.$store.dispatch('loadFlowList')
     },
-    selectFlow: function (flow) {
+    selectFlow (flow) {
       this.$store.dispatch('focusFlow', flow)
     },
-    itemSelectChange: function (event) {
+    itemSelectChange (event) {
       let selectedIds = []
       for (const row of event) {
         selectedIds.push(row.id)
       }
       this.$store.commit('setSelectedId', selectedIds)
     },
-    refreshFlowList: function () {
-      let flowList = []
+    filterMethod (value, option) {
+      return option.toUpperCase().indexOf(value.toUpperCase()) !== -1
+    },
+    refreshFlowList () {
+      let displayFlowList = []
       for (const flow of this.originFlowList) {
-        if (flow.request.url.indexOf(this.$store.state.inspector.searchStr) >= 0) {
-          flowList.push(flow)
+        let searchStr = this.$store.state.inspector.searchStr
+        if (this.filterMethod(searchStr, flow.request.url)) {
+          displayFlowList.push(flow)
         }
       }
-      this.pageCount = Math.ceil(flowList.length / this.pageSize)
+      this.pageCount = Math.ceil(displayFlowList.length / this.pageSize)
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
-      this.flowList = flowList.slice(startIndex, endIndex)
-    },
-    rowClass: function (flow) {
-      if (flow && this.foucsFlow) {
-        return { foucs: flow.id === this.foucsFlow.id }
-      } else {
-        return { foucs: false }
-      }
+      this.flowList = displayFlowList.slice(startIndex, endIndex)
     },
     readablizeBytes (size) {
       return readablizeBytes(size)
@@ -239,8 +215,10 @@ export default {
   /* total:100vh
   header: 38px
   buttonBar: 38px
+  divider:1px
+  mode-tag:34px
   table
-  padding: 5px
+  padding: 9px
   footer: 28px
     */
   overflow-y: auto;

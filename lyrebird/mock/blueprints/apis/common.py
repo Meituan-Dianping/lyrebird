@@ -1,19 +1,21 @@
 from flask_restful import Resource
 from lyrebird.mock import context
-from flask import request, jsonify
+from flask import request
 from lyrebird import version
 from lyrebird import application
+
 
 class Status(Resource):
 
     def get(self):
         conf = context.application.conf
         return context.make_ok_response(
-            **{'ip':conf.get('ip', 'unknown ip'), 
-            'mock.port':conf['mock.port'], 
-            'proxy.port':conf['proxy.port'],
-            'version': version.VERSION
-            })
+            **{'ip': conf.get('ip', 'unknown ip'),
+               'mock.port': conf['mock.port'],
+               'proxy.port': conf['proxy.port'],
+               'version': version.VERSION
+               })
+
 
 class Manifest(Resource):
 
@@ -21,7 +23,7 @@ class Manifest(Resource):
         conf = context.application.conf
         return context.make_ok_response(
             **{'manifest': conf.get('manifest', [])
-            })
+               })
 
 
 class WorkMode(Resource):
@@ -29,12 +31,12 @@ class WorkMode(Resource):
     def put(self, mode=None):
         if context.Mode.contains(mode):
             context.application.work_mode = mode
-            return context.make_ok_response()
+            return application.make_ok_response()
         else:
-            return context.make_fail_response(f'Unknown mode: {mode}')
+            return application.make_fail_response(f'Unknown record mode: {mode}')
 
     def get(self):
-        return jsonify({'mode': context.application.work_mode})
+        return application.make_ok_response(data=context.application.work_mode)
 
 
 class DiffMode(Resource):

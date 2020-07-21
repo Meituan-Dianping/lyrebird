@@ -10,7 +10,7 @@
           <TabPane label="RequestBody" name="req-body"></TabPane>
           <TabPane label="Response" name="resp"></TabPane>
           <TabPane label="ResponseBody" name="resp-body"></TabPane>
-          <TabPane v-if="showProxyResponse" label="ProxyResponseBody" name="proxy-resp-body"/>
+          <TabPane v-if="showProxyResponse" label="ProxyResponseBody" name="proxy-resp-body" />
         </Tabs>
       </Col>
     </Row>
@@ -26,7 +26,7 @@ export default {
   components: {
     CodeEditor
   },
-  data: function () {
+  data () {
     return {
       codeType: 'json',
       currentTab: 'req'
@@ -39,28 +39,28 @@ export default {
     codeContent () {
       let codeContent = ''
       if (this.currentTab === 'req') {
-        codeContent = JSON.stringify(this.flowDetail.request, null, 4);
-        this.codeType = 'json';
+        codeContent = JSON.stringify(this.flowDetail.request, null, 4)
+        this.codeType = 'json'
       } else if (this.currentTab === 'req-body') {
         if (this.flowDetail.request.data) {
-          codeContent = this.parseJsonData(this.flowDetail.request.data);
-          this.codeType = 'json';
+          codeContent = this.parseJsonData(this.flowDetail.request.data)
+          this.codeType = 'json'
         } else {
-          codeContent = '';
-          this.codeType = 'text';
+          codeContent = ''
+          this.codeType = 'text'
         }
       } else if (this.currentTab === 'resp') {
         const respInfo = {
           code: this.flowDetail.response.code,
           headers: this.flowDetail.response.headers
         }
-        codeContent = JSON.stringify(respInfo, null, 4);
-        this.codeType = 'json';
+        codeContent = JSON.stringify(respInfo, null, 4)
+        this.codeType = 'json'
       } else if (this.currentTab === 'resp-body') {
         codeContent = this.parseResponseByContentType(this.flowDetail.response)
       } else if (this.currentTab === 'proxy-resp-body') {
         codeContent = this.parseResponseByContentType(this.flowDetail.proxy_response)
-      } else {}
+      } else { }
       return codeContent
     },
     showProxyResponse () {
@@ -74,31 +74,31 @@ export default {
     dismiss () {
       this.$store.commit('setFocusedFlow', null)
     },
-    switchTab: function (name) {
-      this.currentTab = name;
+    switchTab (name) {
+      this.currentTab = name
     },
     parseNullData (data) {
       this.codeType = 'text'
       return ''
     },
-    parseJsonData: function (data) {
-      this.codeType = 'json';
+    parseJsonData (data) {
+      this.codeType = 'json'
       if (typeof data === 'object') {
         return JSON.stringify(data, null, 4)
       } else {
         return data
       }
     },
-    parseHtmlData: function (data) {
-      this.codeType = 'html';
+    parseHtmlData (data) {
+      this.codeType = 'html'
       return data
     },
-    parseXmlData: function (data) {
-      this.codeType = 'xml';
+    parseXmlData (data) {
+      this.codeType = 'xml'
       return data
     },
-    parseTextData: function (data) {
-      this.codeType = 'text';
+    parseTextData (data) {
+      this.codeType = 'text'
       return data
     },
     parseResponseByContentType (response) {
@@ -122,7 +122,7 @@ export default {
       return codeContent
     }
   }
-};
+}
 </script>
 
 <style lang="css">

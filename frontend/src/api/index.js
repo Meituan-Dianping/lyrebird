@@ -13,7 +13,7 @@ export * from '@/api/inspector.js'
 
 const successHandler = (response) => {
   if (!response.data.hasOwnProperty('code')) {
-    return Promise.reject(response)
+    return response
   }
   if (response.data.code !== 1000) {
     return Promise.reject(response)
