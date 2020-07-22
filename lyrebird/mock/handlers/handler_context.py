@@ -44,6 +44,7 @@ class HandlerContext:
         self.is_request_edited = False
         self.is_response_edited = False
         self.response_source = ''
+        self.is_proxiable = True
         self.response_chunk_size = 2048
         self._parse_request()
 
