@@ -37,7 +37,7 @@ def client():
 
 def test_mock_api(client):
     resp = client.get('/mock/http://www.google.com')
-    assert resp.status_code == 200
+    assert 200<= resp.status_code <= 400
 
 
 def test_status_api(client):
