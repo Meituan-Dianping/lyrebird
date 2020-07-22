@@ -6,6 +6,7 @@ from .. import context
 from lyrebird import application
 from lyrebird.log import get_logger
 from .duplicate_request_handler import DuplicateRequest
+from .unproxy_request_handler import UnproxyRequest
 
 # 关闭ssl警告
 urllib3.disable_warnings()
@@ -28,10 +29,12 @@ class ProxyHandler:
         logger.info(f'<Proxy> {origin_url}')
 
         if not origin_url:
+            UnproxyRequest().handle(handler_context)
             return
 
         parsed_url = urllib.parse.urlparse(origin_url)
         if not parsed_url.hostname:
+            UnproxyRequest().handle(handler_context)
             return
         elif parsed_url.hostname in ['localhost', '127.0.0.1', ] and parsed_url.port == application.config["mock.port"]:
             DuplicateRequest().handle(handler_context)

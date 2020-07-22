@@ -79,8 +79,9 @@ def index(path=''):
 
     if context.application.is_diff_mode and req_context.response_source == 'mock':
         proxy_handler.handle(req_context)
-        req_context.update_response_headers_code2flow(output_key='proxy_response')
-        req_context.update_response_data2flow(output_key='proxy_response')
+        if req_context.is_proxiable:
+            req_context.update_response_headers_code2flow(output_key='proxy_response')
+            req_context.update_response_data2flow(output_key='proxy_response')
 
     context.emit('action', 'add flow log')
 
