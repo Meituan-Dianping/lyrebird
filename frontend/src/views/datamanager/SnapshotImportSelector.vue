@@ -1,9 +1,24 @@
 <template>
   <div class>
-    <MockDataSelector ref="searchModal" :showRoot="true">
-      <template slot="modalHeader">
+    <MockDataSelector :title="snapshotTitle" ref="searchModal" :showRoot="true">
+      <template slot="selected">
+        <Row type="flex" justify="center" align="middle">
+          <i-col span="2">
+            <span>Name:</span>
+          </i-col>
+          <i-col span=21 offset="1">
+            <i-input v-model="setMockDataName" size="small" />
+          </i-col>
+        </Row>
         <div>
-          <Alert show-icon>{{titleMsg}}</Alert>
+          <Row style="padding-top:10px;word-break:break-all" type="flex" justify="center" align="middle">
+            <i-col span="2">
+              <span>Save to:</span>
+            </i-col>
+            <i-col span="21" offset="1">
+              <b v-if="selected">{{selected.abs_parent_path}}</b>
+            </i-col>
+          </Row>
         </div>
       </template>
       <template #searchItem="{ searchResult }">
@@ -24,17 +39,9 @@
       </template>
       <template slot="modalFooter">
         <Divider />
-        <Row>
-          <i-col span="14">
-            <span>You Selected: {{importSnapshotParentNodeDisplay}}</span>
-          </i-col>
-          <i-col span="2" offset="1">
-            <Button long @click="clearImportSnapshotParentNode">clear</Button>
-          </i-col>
-          <i-col span="6" offset="1">
-            <Button type="success" long @click="importSnapshot()">add</Button>
-          </i-col>
-        </Row>
+        <Button size="large" type="primary" long @click="importSnapshot()">
+          <span>Save</span>
+        </Button>
       </template>
     </MockDataSelector>
   </div>
@@ -50,13 +57,22 @@ export default {
   },
   data () {
     return {
+      snapshotTitle: 'Mock data selector for snapshot import',
+      selected: '',
       titleMsg: 'please select a parent node, it will be used to save snapshot mock data',
     }
   },
+  created () {
+    this.$store.dispatch('loadSnapshotName')
+  },
   computed: {
-    importSnapshotParentNodeDisplay () {
-      let node = this.$store.state.dataManager.importSnapshotParentNode
-      return Object.keys(node).length == 0  ? '' : `【${node['id']}】+【${node['name']}】`
+    setMockDataName: {
+      get () {
+        return this.$store.state.dataManager.snapshotName
+      },
+      set (val) {
+        this.$store.commit('setSnapshotName', val)
+      }
     },
     parentNode () {
       return this.$store.state.dataManager.importSnapshotParentNode
@@ -79,10 +95,9 @@ export default {
     importSnapshot () {
       this.$store.commit('setSpinDisplay', true)
       this.changeSearchModalOpenState()
-      this.$store.dispatch('importSnapshot',this.parentNode)
-      this.$router.push({ name: "datamanager" });
-      
-    },
+      this.$store.dispatch('importSnapshot', this.parentNode)
+      this.$router.push({ name: "datamanager" })
+    }
   },
   mounted () {
     if (this.$route.path == '/datamanager/import') {
@@ -91,3 +106,9 @@ export default {
   }
 }
 </script>
+<style scoped>
+.ivu-divider-horizontal {
+  margin-top: 12px;
+  margin-bottom: 10px;
+}
+</style>
