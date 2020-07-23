@@ -269,7 +269,7 @@ export default {
     loadSnapshotName ({ commit }) {
       api.getSnapShotName()
         .then((res) => {
-          let snapshotName = res.data.data
+          let snapshotName = res.data.data['name']
           commit('setSnapshotName', snapshotName)
         })
     }

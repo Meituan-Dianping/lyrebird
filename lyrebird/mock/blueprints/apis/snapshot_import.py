@@ -1,4 +1,4 @@
-from flask import redirect, url_for
+from flask import redirect
 from ....version import VERSION
 from lyrebird import application
 from flask_restful import Resource, request
@@ -22,5 +22,6 @@ class SanpshotImport(Resource):
 
 class GetSnapShotName(Resource):
     def get(self):
-        snapshot_name = context.application.data_manager.decompress_snapshot()['snapshot_detail']['name']
-        return application.make_ok_response(data=snapshot_name)
+        snapshot_detail = context.application.data_manager.decompress_snapshot()['snapshot_detail']
+        snapshot_detail.pop('children')
+        return application.make_ok_response(data=snapshot_detail)
