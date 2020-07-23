@@ -106,9 +106,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-.ivu-divider-horizontal {
-  margin-top: 12px;
-  margin-bottom: 10px;
-}
-</style>
