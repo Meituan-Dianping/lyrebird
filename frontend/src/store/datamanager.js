@@ -252,9 +252,9 @@ export default {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' paste error: ' + error.data.message)
         })
     },
-    importSnapshot ({ state, commit, dispatch }, parentNode) {
+    importSnapshot ({ state, commit, dispatch }) {
       api
-        .importSnapshot(parentNode,state.snapshotName)
+        .importSnapshot(state.importSnapshotParentNode, state.snapshotName)
         .then((res) => {
           commit('setSpinDisplay', false)
           dispatch('loadDataMap')
@@ -271,6 +271,9 @@ export default {
         .then((res) => {
           let snapshotName = res.data.data['name']
           commit('setSnapshotName', snapshotName)
+        })
+        .catch((err) => { 
+          bus.$emit('msg.error', 'Get snapshot name error' + err.data.message)
         })
     }
   }
