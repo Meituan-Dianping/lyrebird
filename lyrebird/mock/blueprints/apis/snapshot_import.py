@@ -9,8 +9,7 @@ class SanpshotImport(Resource):
     def get(self, url):
         global snapshot_import_uri
         snapshot_import_uri = url
-        # return redirect(f"/ui/?v={VERSION}#/datamanager/import")
-        return redirect(f"http://127.0.0.1:8080/ui/?v={VERSION}#/datamanager/import")
+        return redirect(f"/ui/?v={VERSION}#/datamanager/import")
 
     def post(self):
         parent_node = request.json.get("parentNode")
