@@ -35,14 +35,7 @@ export default {
     searchGroup () {
       searchGroupByName(this.searchStr)
         .then(response => {
-          let rootId = this.$store.state.dataManager.groupList[0].id
           this.searchResults = response.data.data
-          for (const searchItem in this.searchResults) {
-            if (this.searchResults[searchItem].id === rootId) {
-              this.$store.commit('setImportSnapshotParentNode',this.searchResults[searchItem])
-              break
-            }
-          }
           if (!this.showRoot) {
             for (const index in this.searchResults) {
               if (!this.searchResults[index].parent_id) {

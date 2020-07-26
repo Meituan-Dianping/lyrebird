@@ -61,9 +61,6 @@ export default {
       titleMsg: 'please select a parent node, it will be used to save snapshot mock data',
     }
   },
-  created () {
-    this.$store.dispatch('loadSnapshotName')
-  },
   computed: {
     setMockDataName: {
       get () {
@@ -100,6 +97,7 @@ export default {
   mounted () {
     if (this.$route.path == '/datamanager/import') {
       this.changeSearchModalOpenState()
+      this.$store.dispatch('loadSnapshotName')
     }
   }
 }

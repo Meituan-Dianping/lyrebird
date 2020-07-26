@@ -26,7 +26,7 @@ export default {
     SnapshotImportSelector,
     SnapshotImportSpin
   },
-  created() {
+  mounted() {
     this.$store.dispatch('loadDataMap')
   },
   computed: {
