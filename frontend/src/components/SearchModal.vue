@@ -36,12 +36,18 @@ export default {
       searchGroupByName(this.searchStr)
         .then(response => {
           this.searchResults = response.data.data
+          for (const searchItem in this.searchResults) {
+            if (!this.searchResults[searchItem].parent_id) {
+              this.$store.commit('setImportSnapshotParentNode',this.searchResults[searchItem])
+              break
+            }
+          }
           if (!this.showRoot) {
             for (const index in this.searchResults) {
               if (!this.searchResults[index].parent_id) {
                 this.searchResults.splice(index, 1)
                 break
-              } 
+              }
             }
           }
         }).catch(error => { })
