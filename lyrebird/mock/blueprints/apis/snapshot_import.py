@@ -20,7 +20,7 @@ class SanpshotImport(Resource):
         return application.make_ok_response()
 
 
-class SnapShotImportName(Resource):
+class SnapShotImportDetail(Resource):
     def get(self):
         snapshot_detail = context.application.data_manager.decompress_snapshot()['snapshot_detail']
         snapshot_detail.pop('children')

@@ -267,10 +267,9 @@ export default {
         })
     },
     loadSnapshotName ({ commit }) {
-      api.getSnapShotName()
+      api.getSnapShotDetail()
         .then((res) => {
-          let snapshotName = res.data.data['name']
-          commit('setSnapshotName', snapshotName)
+          commit('setSnapshotName', res.data.data.name)
         })
         .catch((err) => { 
           bus.$emit('msg.error', 'Get snapshot name error' + err.data.message)

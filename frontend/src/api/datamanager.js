@@ -107,8 +107,8 @@ export const importSnapshot = (parentNode, snapshotName) => {
   })
 }
 
-export const getSnapShotName = () => { 
+export const getSnapShotDetail = () => { 
   return axios({
-    url: '/api/snapshot/name'
+    url: '/api/snapshot/detail'
   })
 }
