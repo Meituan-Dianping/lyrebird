@@ -91,7 +91,7 @@ export default {
       this.$store.commit('setSpinDisplay', true)
       this.changeSearchModalOpenState()
       this.$store.dispatch('importSnapshot')
-      this.$router.push({ name: "datamanager" })
+      this.$router.push({ name: 'datamanager' })
     }
   },
   mounted () {
