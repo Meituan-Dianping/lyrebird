@@ -64,6 +64,7 @@ def main():
 
     parser.add_argument('-V', '--version', dest='version', action='store_true', help='show lyrebird version')
     parser.add_argument('-v', dest='verbose', action='count', default=0, help='Show verbose log')
+    parser.add_argument('--ip', dest='ip', help='Set device ip')
     parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 4272')
     parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 9090')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
@@ -95,10 +96,13 @@ def main():
         application._cm = ConfigManager()
 
     # set current ip to config
-    try:
-        application._cm.config['ip'] = _get_ip()
-    except socket.gaierror as e:
-        logger.error('Failed to get local IP address, error occurs on %s' % e)
+    if args.ip:
+        application._cm.config['ip'] = args.ip
+    else:
+        try:
+            application._cm.config['ip'] = _get_ip()
+        except socket.gaierror as e:
+            logger.error(f'Failed to get local IP address, error occurs on {e}')
 
     # init file logger after config init
     application._cm.config['verbose'] = args.verbose
