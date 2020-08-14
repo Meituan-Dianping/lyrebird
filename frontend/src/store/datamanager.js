@@ -16,6 +16,7 @@ export default {
     pasteTarget: null,
     importSnapshotParentNode: {},
     spinDisplay: false,
+    snapshotName: '',
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -77,6 +78,9 @@ export default {
     setSpinDisplay (state, spinDisplay) {
       state.spinDisplay = spinDisplay
     },
+    setSnapshotName (state, snapshotName) {
+      state.snapshotName = snapshotName
+    }
   },
   actions: {
     loadDataMap ({ state, commit }) {
@@ -248,9 +252,9 @@ export default {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' paste error: ' + error.data.message)
         })
     },
-    importSnapshot ({ commit, dispatch }, parentNode) {
+    importSnapshot ({ state, commit, dispatch }) {
       api
-        .importSnapshot(parentNode)
+        .importSnapshot(state.importSnapshotParentNode, state.snapshotName)
         .then((res) => {
           commit('setSpinDisplay', false)
           dispatch('loadDataMap')
@@ -260,6 +264,15 @@ export default {
           commit('setSpinDisplay', false)
           dispatch('loadDataMap')
           bus.$emit('msg.error', err.data.message)
+        })
+    },
+    loadSnapshotName ({ commit }) {
+      api.getSnapShotDetail()
+        .then((res) => {
+          commit('setSnapshotName', res.data.data.name)
+        })
+        .catch((err) => { 
+          bus.$emit('msg.error', 'Get snapshot name error' + err.data.message)
         })
     }
   }

@@ -13,8 +13,15 @@ class SanpshotImport(Resource):
 
     def post(self):
         parent_node = request.json.get("parentNode")
+        snapshot_name = request.json.get('snapshotName', '')
         if "id" not in parent_node:
             return application.make_fail_response(msg="object has no attribute : parentNode.id")
-        context.application.data_manager.import_snapshot(parent_node["id"])
+        context.application.data_manager.import_snapshot(parent_node["id"], snapshot_name)
         return application.make_ok_response()
 
+
+class SnapShotImportDetail(Resource):
+    def get(self):
+        snapshot_detail = context.application.data_manager.decompress_snapshot()['snapshot_detail']
+        snapshot_detail.pop('children')
+        return application.make_ok_response(data=snapshot_detail)

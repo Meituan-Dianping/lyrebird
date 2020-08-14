@@ -39,7 +39,11 @@ export default {
   },
   watch: {
     eventDetail (val) {
-      this.split = val ? 0.5 : 1
+      if (!val) {
+        this.split = 1
+      } else if (this.split === 1) {
+        this.split = 0.5
+      } else { }
     }
   },
   methods: {
