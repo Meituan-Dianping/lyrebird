@@ -1,6 +1,5 @@
 import imp
 import codecs
-
 import shutil
 from pathlib import Path
 import lyrebird
