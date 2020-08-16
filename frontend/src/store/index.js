@@ -11,7 +11,6 @@ import bandwidth from '@/store/bandwidth'
 import statusbar from '@/store/statusbar'
 import { bus } from '@/eventbus'
 
-
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -74,7 +73,7 @@ export default new Vuex.Store({
           commit('setActiveName', activeMenuItem.title)
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Load ' + payload.name + ' update error: ' + error)
+          bus.$emit('msg.error', 'Load ' + activeMenuItem.title + ' error: ' + error)
         })
     },
   }
