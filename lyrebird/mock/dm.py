@@ -380,16 +380,19 @@ class DataManager:
             _parent_node['children'].insert(0, _node)
             _node['parent_id'] = parent_id
         elif self.clipboard['type'] == 'copy':
-            self._copy_node(_parent_node, _node, **kwargs)
+            new_name = _node['name'] + ' - copy'
+            self._copy_node(_parent_node, _node, new_name=new_name, **kwargs)
         elif self.clipboard['type'] == 'import':
             self._copy_node(_parent_node, _node, **kwargs)
         self._save_prop()
 
-    def _copy_node(self, parent_node, node, **kwargs):
+    def _copy_node(self, parent_node, node, new_name='', **kwargs):
         new_node = {}
         new_node.update(node)
         new_node['id'] = str(uuid.uuid4())
         new_node['parent_id'] = parent_node['id']
+        if new_name:
+            new_node['name'] = new_name
         # Add to target node
         if not parent_node.get('children'):
             parent_node['children'] = []
