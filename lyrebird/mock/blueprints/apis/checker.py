@@ -41,18 +41,11 @@ class Checker(Resource):
         if not _checker_data:
             return application.make_fail_response(f'Checker {checker_id} data not found')
 
-        origin_activate_status = _checker.activated
-        if origin_activate_status:
-            _checker.deactivate()
-
         origin_checker_detail = _checker.read()
-        _checker.write(_checker_data)
         try:
-            _checker._load_checker()
+            _checker.write(_checker_data)
         except Exception as e:
             _checker.write(origin_checker_detail)
             return application.make_fail_response(f'Save checker {checker_id} failure: {str(e)}')
 
-        if origin_activate_status:
-            _checker.activate()
         return application.make_ok_response()

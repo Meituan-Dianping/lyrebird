@@ -216,8 +216,16 @@ class Checker:
         return content
 
     def write(self, data):
+        origin_activate_status = self.activated
+        if origin_activate_status:
+            self.deactivate()
+
         with codecs.open(self.path, 'w', 'utf-8') as f:
             content = f.write(data)
+        self._load_checker()
+
+        if origin_activate_status:
+            self.activate()
 
     def json(self):
         return {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
