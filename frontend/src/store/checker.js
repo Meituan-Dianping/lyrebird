@@ -1,5 +1,5 @@
 import * as api from '@/api'
-import { bus } from '@/eventbus'
+import {bus} from '@/eventbus'
 
 export default {
   state: {

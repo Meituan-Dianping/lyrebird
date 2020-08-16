@@ -221,7 +221,7 @@ class Checker:
             self.deactivate()
 
         with codecs.open(self.path, 'w', 'utf-8') as f:
-            content = f.write(data)
+            f.write(data)
         self._load_checker()
 
         if origin_activate_status:
