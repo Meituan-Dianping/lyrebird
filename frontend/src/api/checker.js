@@ -5,9 +5,9 @@ import axios from 'axios'
 Get checkers list
 */
 export const getCheckers = () => {
-    return axios({
-        url: '/api/checker'
-    })
+  return axios({
+    url: '/api/checker'
+  })
 }
 
 //------Checker manager------
@@ -15,9 +15,21 @@ export const getCheckers = () => {
 Get checkers content
 */
 export const getCheckerDetail = (checkerId) => {
-    return axios({
-        url: '/api/checker/' + checkerId
-    })
+  return axios({
+    url: '/api/checker/' + checkerId
+  })
+}
+
+//------Checker manager------
+/**
+Save checkers content
+*/
+export const saveCheckerDetail = (checkerId, data) => {
+  return axios({
+    url: '/api/checker/' + checkerId,
+    method: 'POST',
+    data: { data }
+  })
 }
 
 //------Checker manager------
@@ -25,9 +37,9 @@ export const getCheckerDetail = (checkerId) => {
 Change checkers activate status by checker_id
 */
 export const updateCheckerStatus = (checkerId, status) => {
-    return axios({
-        url: '/api/checker/' + checkerId,
-        method: 'PUT',
-        data: { status }
-    })
+  return axios({
+    url: '/api/checker/' + checkerId,
+    method: 'PUT',
+    data: { status }
+  })
 }

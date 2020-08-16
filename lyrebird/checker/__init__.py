@@ -1,4 +1,6 @@
 import imp
+import codecs
+
 import shutil
 from pathlib import Path
 import lyrebird
@@ -106,10 +108,8 @@ class LyrebirdCheckerServer(ThreadServer):
             shutil.copy(example, dst)
 
     def init_checker(self, name, path):
-        if name not in self.checkers:
-            checker = Checker(name, path)
-            self.checkers[name] = checker
-        self.checkers[name].update = True
+        checker = Checker(name, path)
+        self.checkers[name] = checker
 
     def delete_unupdated_checker(self):
         del_name_list = []
@@ -152,7 +152,10 @@ class Checker:
         self._update = False
         self._funcs_map = {}
 
-        self._load_checker()
+        try:
+            self._load_checker()
+        except Exception as e:
+            logger.error(f'Load checker {self.name} error:\n{e}\nfile path: {self.path}')
 
     @property
     def update(self):
@@ -163,7 +166,13 @@ class Checker:
         self._update = val
 
     def _load_checker(self):
-        self._module = imp.load_source(self.name, self.path)
+        try:
+            self._module = imp.load_source(self.name, self.path)
+        except Exception as e:
+            self.update = False
+            raise CheckerIllegal(e)
+
+        self.update = True
         self._checker_detection()
         global scripts_tmp_storage
         for func_type, func_list in scripts_tmp_storage.items():
@@ -172,10 +181,10 @@ class Checker:
 
     def _checker_detection(self):
         if hasattr(self._module, TYPE_ENCODER) and not hasattr(self._module, TYPE_DECODER):
-            logger.warning(f'Encoder contains, but decoder not found!')
+            logger.warning(f'Load checker {self.name} error: Encoder contains, but decoder not found!')
 
         if hasattr(self._module, TYPE_DECODER) and not hasattr(self._module, TYPE_ENCODER):
-            logger.warning(f'Decoder contains, but encoder not found!')
+            logger.warning(f'Load checker {self.name} error: Decoder contains, but encoder not found!')
 
     def activate(self):
         for func_type, func_list in self._funcs_map.items():
@@ -201,5 +210,18 @@ class Checker:
 
         self.activated = False
 
+    def read(self):
+        content = ''
+        with codecs.open(self.path, 'r', 'utf-8') as f:
+            content = f.read()
+        return content
+
+    def write(self, data):
+        with codecs.open(self.path, 'w', 'utf-8') as f:
+            content = f.write(data)
+
     def json(self):
         return {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
+
+class CheckerIllegal(Exception):
+    pass
