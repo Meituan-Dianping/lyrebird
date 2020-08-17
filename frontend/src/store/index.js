@@ -9,7 +9,7 @@ import checker from '@/store/checker'
 import event from '@/store/event'
 import bandwidth from '@/store/bandwidth'
 import statusbar from '@/store/statusbar'
-import {bus} from '@/eventbus'
+import { bus } from '@/eventbus'
 
 Vue.use(Vuex)
 
