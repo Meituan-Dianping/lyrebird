@@ -1,4 +1,5 @@
 import * as api from '@/api'
+import { bus } from '@/eventbus'
 
 export default {
   state: {
@@ -25,7 +26,7 @@ export default {
     }
   },
   actions: {
-    loadCheckers ({ state, commit }) {
+    loadCheckers ({ commit }) {
       api.getCheckers()
         .then(response => {
           commit('setCheckers', response.data.data)
@@ -37,6 +38,15 @@ export default {
           commit('setFocusCheckerDetail', response.data.data)
         })
         .catch(error => console.log(error))
+    },
+    saveCheckerDetail ({ state }) {
+      api.saveCheckerDetail(state.focusChecker, state.focusCheckerDetail)
+        .then(_ => {
+          bus.$emit('msg.success', 'Checker ' + state.focusChecker + ' saved!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Save checker failed: ' + error.data.message)
+        })
     },
     updateCheckerStatus ({ }, checker) {
       api.updateCheckerStatus(checker.name, checker.activated)
