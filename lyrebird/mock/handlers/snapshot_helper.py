@@ -23,7 +23,7 @@ class SnapshotHelper():
         return snapshot_path
 
     def save_compressed_file(self, snapshot_path):
-        from lyrebird.mock.blueprints.apis.snapshot_import import snapshot_import_uri
+        snapshot_import_uri = application.snapshot_import_uri
         if not snapshot_import_uri:
             raise SnapshotImportUriNotFound
         parsed_uri = urlparse(snapshot_import_uri)

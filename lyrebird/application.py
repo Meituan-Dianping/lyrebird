@@ -34,6 +34,9 @@ _src = None
 
 server = {}
 plugins = {}
+active_menu = {}
+
+snapshot_import_uri = ''
 
 
 notice = None
