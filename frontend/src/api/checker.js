@@ -24,11 +24,11 @@ export const getCheckerDetail = (checkerId) => {
 /**
 Save checkers content
 */
-export const saveCheckerDetail = (checkerId, data) => {
+export const saveCheckerDetail = (checkerId, content) => {
   return axios({
     url: '/api/checker/' + checkerId,
     method: 'POST',
-    data: { data }
+    data: { content }
   })
 }
 
