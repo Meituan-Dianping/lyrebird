@@ -28,12 +28,28 @@ const errorHandler = (error) => {
 axios.interceptors.response.use(successHandler, errorHandler)
 
 
+//------Lyrebird menu--------
+/**
+  Get lyrebird selected menu
+  {
+    code: 1000,
+    message: 'success',
+    data:{
+      menu: [],
+      activeMenuItem: '',
+      activeName: ''
+    }
+  }
+*/
 export const getMenu = () => {
   return axios({
     url: '/api/menu'
   })
 }
 
+/**
+  Save lyrebird selected menu
+*/
 export const setActiveMenuItem = (activeMenuItem) => {
   return axios({
     url: '/api/menu',
