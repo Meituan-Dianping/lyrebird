@@ -3,12 +3,17 @@ from ....version import VERSION
 from lyrebird import application
 from flask_restful import Resource, request
 from lyrebird.mock import context
-snapshot_import_uri = None
+
 
 class SanpshotImport(Resource):
     def get(self, url):
-        global snapshot_import_uri
-        snapshot_import_uri = url
+        application.snapshot_import_uri = url
+        application.active_menu = {
+            'name': 'datamanager',
+            'title': 'DataManager',
+            'type': 'router',
+            'path': '/datamanager'
+        }
         return redirect(f"/ui/?v={VERSION}#/datamanager/import")
 
     def post(self):

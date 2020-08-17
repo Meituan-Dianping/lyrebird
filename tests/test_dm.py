@@ -334,7 +334,7 @@ def test_copy_and_paste(data_manager):
     assert len(group_c['children']) == 1
     new_group = group_c['children'][0]
     assert new_group['id'] != 'groupA-UUID'
-    assert new_group['name'] == 'groupA'
+    assert new_group['name'] == 'groupA - copy'
 
 
 def test_prop_writer():
