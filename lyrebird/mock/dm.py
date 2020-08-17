@@ -422,8 +422,7 @@ class DataManager:
 
     def _get_copy_node_new_name(self, _node):
         COPY_NODE_NAME_SUFFIX = ' - copy'
-        new_name = _node['name'] + COPY_NODE_NAME_SUFFIX
-        return new_name
+        return _node['name'] + COPY_NODE_NAME_SUFFIX
 
     def _save_prop(self):
         self._sort_children_by_name()
