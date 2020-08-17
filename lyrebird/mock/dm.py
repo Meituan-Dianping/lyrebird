@@ -380,7 +380,8 @@ class DataManager:
             _parent_node['children'].insert(0, _node)
             _node['parent_id'] = parent_id
         elif self.clipboard['type'] == 'copy':
-            self._copy_node(_parent_node, _node, **kwargs)
+            new_name = self._get_copy_node_new_name(_node)
+            self._copy_node(_parent_node, _node, name=new_name, **kwargs)
         elif self.clipboard['type'] == 'import':
             self._copy_node(_parent_node, _node, **kwargs)
         self._save_prop()
@@ -390,6 +391,8 @@ class DataManager:
         new_node.update(node)
         new_node['id'] = str(uuid.uuid4())
         new_node['parent_id'] = parent_node['id']
+        if kwargs.get('name'):
+            new_node['name'] = kwargs.pop('name')
         # Add to target node
         if not parent_node.get('children'):
             parent_node['children'] = []
@@ -416,6 +419,10 @@ class DataManager:
             prop['id'] = new_file_id
             new_prop_text = json.dumps(prop, ensure_ascii=False)
             outputfile.write(new_prop_text)
+
+    def _get_copy_node_new_name(self, _node):
+        COPY_NODE_NAME_SUFFIX = ' - copy'
+        return _node['name'] + COPY_NODE_NAME_SUFFIX
 
     def _save_prop(self):
         self._sort_children_by_name()
