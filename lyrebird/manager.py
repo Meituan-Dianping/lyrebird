@@ -10,7 +10,7 @@ import traceback
 from pathlib import Path
 from lyrebird import log
 from lyrebird import application
-from lyrebird.config import Rescource, ConfigManager
+from lyrebird.config import ConfigManager
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
