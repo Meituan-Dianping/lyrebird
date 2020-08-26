@@ -27,10 +27,6 @@ FROM python:3.7.5-slim
 COPY --from=pyos /usr/local/lib/python3.7/site-packages /usr/local/lib/python3.7/site-packages
 COPY --from=pyos /usr/local/bin /usr/local/bin
 
-RUN apt-get update && apt-get install -y --no-install-recommends git=1:2.20.1-2 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
 EXPOSE 9090
 EXPOSE 4272
 

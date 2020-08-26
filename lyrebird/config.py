@@ -64,7 +64,8 @@ class ConfigManager():
     def read_config(self):
         template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.config_root)))
         template = template_env.get_template(self.conf_file.name)
-        loaded_config = json.loads(template.render(current_dir=str(self.config_root), download_dir=str(self.ROOT/'downloads')))
+        loaded_config = json.loads(template.render(current_dir=str(
+            self.config_root), download_dir=str(self.ROOT/'downloads')))
         self.config.update(loaded_config)
 
     def write_config(self):
@@ -83,71 +84,4 @@ class ConfigManager():
 
 
 class ConfigException(Exception):
-    pass
-
-
-resource_template = {
-    'uri': None,
-    'config': None
-}
-
-
-class Rescource:
-    cache_filename = 'resource.json'
-    download_dirname = 'downloads'
-
-    def __init__(self, conf_root_path='~/.lyrebird'):
-        self.root = Path(conf_root_path).expanduser().absolute()
-        self.cache_file = self.root / self.cache_filename
-        self.download_dir = self.root / self.download_dirname
-        self.cache = None
-        # load cache
-        self.load()
-
-    def load(self):
-        if self.cache_file.exists():
-            with codecs.open(self.cache_file, 'r', 'utf-8') as f:
-                try:
-                    self.cache = json.load(f)
-                except Exception:
-                    self.cache = resource_template
-        else:
-            self.cache = resource_template
-
-    def save(self):
-        with codecs.open(self.cache_file, 'w', 'utf-8') as f:
-            f.write(json.dumps(self.cache, ensure_ascii=False, indent=4))
-            f.close()
-
-    def download(self, uri):
-        self.cache['uri'] = uri
-        self.save()
-
-        if self.download_dir.exists():
-            shutil.rmtree(self.download_dir.absolute())
-        self.download_dir.mkdir(exist_ok=True)
-
-        uri = urlparse(self.cache.get('uri'))
-        if uri.scheme == 'http' or uri.scheme == 'https':
-            self._http()
-        elif uri.scheme.startswith('git+'):
-            self._git()
-        else:
-            raise RescourceException(f'Unknown scheme {self.cache}')
-
-    def _git(self):
-        git_url = self.cache.get('uri')[4:]
-        p = subprocess.run(f'git clone {git_url} {self.download_dir.absolute()}', shell=True)
-        p.check_returncode()
-        logger.warning(f'Source downloaded to {str(self.download_dir.absolute())}')
-
-    def _http(self):
-        # resp = requests.get(self.cache.get('uri'), allow_redirects=True)
-        # TODO support http download
-        # 1. download gzip file and unzip it
-        # 2. download from git repo
-        pass
-
-
-class RescourceException(Exception):
     pass
