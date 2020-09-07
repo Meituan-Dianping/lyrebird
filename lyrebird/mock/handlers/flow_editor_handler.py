@@ -19,7 +19,7 @@ class FlowEditorHandler:
         if not matched_funcs:
             return
 
-        FlowEditorHandler._func_handler(matched_funcs, handler_context)
+        FlowEditorHandler._func_handler(matched_funcs, handler_context.flow)
         handler_context.set_request_edited()
         handler_context.flow['request']['headers']['lyrebird_modified'] = 'modified'
 
@@ -28,7 +28,7 @@ class FlowEditorHandler:
         if not matched_funcs:
             return
 
-        FlowEditorHandler._func_handler(matched_funcs, handler_context)
+        FlowEditorHandler._func_handler(matched_funcs, handler_context.flow)
         handler_context.set_request_edited()
         handler_context.flow['request']['headers']['lyrebird_modified'] = 'modified'
 
@@ -40,7 +40,7 @@ class FlowEditorHandler:
         if not handler_context.flow['response'].get('data'):
             handler_context.update_response_data2flow()
 
-        FlowEditorHandler._func_handler(matched_funcs, handler_context)
+        FlowEditorHandler._func_handler(matched_funcs, handler_context.flow)
         handler_context.set_response_edited()
         handler_context.flow['response']['headers']['lyrebird_modified'] = 'modified'
 
@@ -52,22 +52,25 @@ class FlowEditorHandler:
         if not handler_context.flow['response'].get('data'):
             handler_context.update_response_data2flow()
 
-        FlowEditorHandler._func_handler(matched_funcs, handler_context)
+        FlowEditorHandler._func_handler(matched_funcs, handler_context.flow)
         handler_context.set_response_edited()
         handler_context.flow['response']['headers']['lyrebird_modified'] = 'modified'
 
     @staticmethod
-    def _func_handler(func_list, handler_context):
+    def _func_handler(func_list, flow):
         for func_info in func_list:
             handler_fn = func_info['func']
             try:
-                handler_fn(handler_context.flow)
+                handler_fn(flow)
                 # TODO: The flow is changed or not?
                 action = {
                     'id': 'flow_editor',
                     'name': func_info['name']
                 }
-                handler_context.add_flow_action(action)
+                if flow.get('action'):
+                    flow['action'].append(action)
+                else:
+                    flow['action'] = [action]
             except Exception:
                 logger.error(traceback.format_exc())
 
