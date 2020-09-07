@@ -11,18 +11,22 @@
       class="data-table"
     >
       <template slot-scope="{ row, index }" slot="source">
-        <Tooltip class="flow-list-item-source" :content="row.response.mock" placement="top" transfer>
+        <Tooltip class="flow-list-item-source" :content="row.response.mock" :disabled="!row.response.mock" placement="bottom-start" transfer>
           <Tag v-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
           <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
           <Tag v-else size="small" class="flow-list-item-tag">pending</Tag>
         </Tooltip>
 
-        <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="top" transfer>
+        <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="bottom-start" transfer>
           <Tag size="small" class="flow-list-item-tag" color="blue">diff</Tag>
         </Tooltip>
 
-        <Tooltip class="flow-list-item-source" v-if="row.response.modified" content="modified" placement="top" transfer>
+        <Tooltip class="flow-list-item-source" v-if="getRequestEditors(row).length" placement="bottom-start" transfer>
           <Icon type="md-build" />
+          <div slot="content">
+            <p>Request modification:</p>
+            <p v-for="(value, index) in getRequestEditors(row)">{{index + 1}}. {{value.name}}</p>
+          </div>
         </Tooltip>
       </template>
 
@@ -181,6 +185,16 @@ export default {
       const endIndex = startIndex + this.pageSize
       this.flowList = displayFlowList.slice(startIndex, endIndex)
     },
+    getRequestEditors (row) {
+      let displayRowAction = []
+      for (const action of row.action) {
+        if (action.id === 'mock') {
+          continue
+        }
+        displayRowAction.push(action)
+      }
+      return displayRowAction
+    },
     readablizeBytes (size) {
       return readablizeBytes(size)
     },
@@ -195,7 +209,7 @@ export default {
       }
     }
   }
-};
+}
 </script>
 
 <style lang="css">
