@@ -289,7 +289,7 @@ class HandlerContext:
         #                                       flow=self.flow))
 
     def add_flow_action(self, action):
-            if self.flow.get('action'):
-                self.flow['action'].append(action)
-            else:
-                self.flow['action'] = [action]
+        if self.flow.get('action'):
+            self.flow['action'].append(action)
+        else:
+            self.flow['action'] = [action]
