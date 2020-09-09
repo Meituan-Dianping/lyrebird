@@ -113,7 +113,7 @@ def main():
     if args.proxy:
         application._cm.config['proxy.port'] = args.proxy
     if args.data:
-        application._cm.config['mock.data'] = args.data
+        application._cm.config['mock.data'] = str(Path(args.data).expanduser().absolute())
 
     logger.debug(f'Read args: {args}')
 
