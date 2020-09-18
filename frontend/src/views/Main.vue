@@ -39,7 +39,7 @@
           <notice-center></notice-center>
         </Header>
         <Content>
-          <div class="main-container" style="padding:0px;">
+          <div class="main-container">
             <router-view></router-view>
           </div>
         </Content>
@@ -362,8 +362,6 @@ export default {
   transition: width 0.2s ease 0.2s;
 }
 .main-container {
-  padding-left: 5px;
-  padding-right: 5px;
   height: calc(100vh - 66px);
   background: #fff;
 }
