@@ -39,7 +39,7 @@
           <notice-center></notice-center>
         </Header>
         <Content>
-          <div class="main-container">
+          <div class="main-container" style="padding:0px;">
             <router-view></router-view>
           </div>
         </Content>
@@ -162,7 +162,6 @@ export default {
   },
   watch: {
     activeMenuItem: function (newValue, oldValue) {
-      console.log(`activeMenuItem :  ${newValue.title}`)
       this.refreshPage(newValue)
       // :active-name 异步刷新后，需要手动更新 
       // https://github.com/iview/iview/issues/1245#issuecomment-352992001 
