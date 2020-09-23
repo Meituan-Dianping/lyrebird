@@ -155,7 +155,7 @@ export default {
       this.isContextMenuShown = false
     },
     ts2String (timeStamp) {
-      const localOffset=new Date().getTimezoneOffset()*60000
+      const localOffset = new Date().getTimezoneOffset() * 60 * 1000
       let date = new Date(timeStamp * 1000 - localOffset)
       let hour = date.getHours() + ':'
       let minute = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
