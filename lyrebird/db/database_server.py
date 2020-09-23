@@ -146,7 +146,7 @@ class JSONFormat:
             if prop.startswith('_'):
                 continue
             prop_obj = getattr(self, prop)
-            if isinstance(prop_obj, (str, int, bool,float)):
+            if isinstance(prop_obj, (str, int, bool, float)):
                 prop_collection[prop] = prop_obj
             elif isinstance(prop_obj, datetime.datetime):
                 prop_collection[prop] = prop_obj.timestamp()
@@ -160,7 +160,7 @@ class Event(Base, JSONFormat):
     channel = Column(String(16), index=True)
     event_id = Column(String(32), index=True)
     content = Column(Text)
-    _timestamp = Column("timestamp",DateTime(timezone=True), default=datetime.datetime.utcnow)
+    _timestamp = Column('timestamp', DateTime(timezone=True), default=datetime.datetime.utcnow)
 
     @hybrid_property
     def timestamp(self):
