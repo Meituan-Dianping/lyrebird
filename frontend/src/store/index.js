@@ -9,7 +9,7 @@ import checker from '@/store/checker'
 import event from '@/store/event'
 import bandwidth from '@/store/bandwidth'
 import statusbar from '@/store/statusbar'
-
+import { bus } from '@/eventbus'
 
 Vue.use(Vuex)
 
@@ -68,11 +68,13 @@ export default new Vuex.Store({
     },
     updateActiveMenuItem ({ commit }, activeMenuItem) {
       api.setActiveMenuItem(activeMenuItem)
-        .then(response => {
-          commit('setActiveMenuItem', response.data.activeMenuItem)
-          commit('setActiveName', response.data.activeName)
+        .then(_ => {
+          commit('setActiveMenuItem', activeMenuItem)
+          commit('setActiveName', activeMenuItem.title)
         })
-        .catch(error => console.log(error))
+        .catch(error => {
+          bus.$emit('msg.error', 'Load ' + activeMenuItem.title + ' error: ' + error)
+        })
     },
   }
 })

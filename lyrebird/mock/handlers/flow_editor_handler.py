@@ -62,6 +62,15 @@ class FlowEditorHandler:
             handler_fn = func_info['func']
             try:
                 handler_fn(flow)
+                # TODO: The flow is changed or not?
+                action = {
+                    'id': 'flow_editor',
+                    'name': func_info['name']
+                }
+                if flow.get('action'):
+                    flow['action'].append(action)
+                else:
+                    flow['action'] = [action]
             except Exception:
                 logger.error(traceback.format_exc())
 

@@ -1,3 +1,4 @@
+from pathlib import Path
 from lyrebird.mock import context
 from lyrebird.log import get_logger
 from .mock_data_helper import MockDataHelper
@@ -33,4 +34,9 @@ class MockHandler:
         handler_context.set_response_source_mock()
         handler_context.flow['response']['headers']['isMocked'] = 'True'
         handler_context.flow['response']['headers']['lyrebird'] = 'mock'
+        handler_context.add_flow_action({
+            'id': 'mock',
+            'name': Path(__file__).name,
+            'mock_id': hit_data['id']
+        })
         MockDataHelper.read_mock_data(handler_context)

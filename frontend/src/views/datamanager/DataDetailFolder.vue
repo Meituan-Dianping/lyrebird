@@ -65,7 +65,7 @@
       </tab-pane>
     </tabs>
     <div class="save-btn" v-if="groupInfo">
-      <Tooltip content="Save" placement="top" :delay="500">
+      <Tooltip content="Save (⌘+s)" placement="top" :delay="500">
         <Button type="primary" shape="circle" @click="saveGroupDetail">
           <icon name="md-save" scale="4"></icon>
         </Button>

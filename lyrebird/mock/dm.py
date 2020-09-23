@@ -21,11 +21,11 @@ class DataManager:
     def __init__(self):
         self.root_path: Path = None
         self.root = {
-            "id": str(uuid.uuid4()),
-            "name": "$",
-            "type": "group",
-            "parent_id": None,
-            "children": []
+            'id': str(uuid.uuid4()),
+            'name': '$',
+            'type': 'group',
+            'parent_id': None,
+            'children': []
         }
         self.id_map = {}
         self.activated_data = {}
@@ -361,7 +361,7 @@ class DataManager:
     def import_(self, node):
         self.clipboard = {
             'type': 'import',
-            'id': node["id"],
+            'id': node['id'],
             'node': node
         }
 
@@ -380,7 +380,8 @@ class DataManager:
             _parent_node['children'].insert(0, _node)
             _node['parent_id'] = parent_id
         elif self.clipboard['type'] == 'copy':
-            self._copy_node(_parent_node, _node, **kwargs)
+            new_name = self._get_copy_node_new_name(_node)
+            self._copy_node(_parent_node, _node, name=new_name, **kwargs)
         elif self.clipboard['type'] == 'import':
             self._copy_node(_parent_node, _node, **kwargs)
         self._save_prop()
@@ -390,6 +391,8 @@ class DataManager:
         new_node.update(node)
         new_node['id'] = str(uuid.uuid4())
         new_node['parent_id'] = parent_node['id']
+        if kwargs.get('name'):
+            new_node['name'] = kwargs.pop('name')
         # Add to target node
         if not parent_node.get('children'):
             parent_node['children'] = []
@@ -416,6 +419,10 @@ class DataManager:
             prop['id'] = new_file_id
             new_prop_text = json.dumps(prop, ensure_ascii=False)
             outputfile.write(new_prop_text)
+
+    def _get_copy_node_new_name(self, _node):
+        COPY_NODE_NAME_SUFFIX = ' - copy'
+        return _node['name'] + COPY_NODE_NAME_SUFFIX
 
     def _save_prop(self):
         self._sort_children_by_name()
@@ -578,34 +585,39 @@ class DataManager:
         prop_str = PropWriter().parse(node)
 
         prop_file = outfile_path / PROP_FILE_NAME
-        with codecs.open(prop_file, "w") as f:
+        with codecs.open(prop_file, 'w') as f:
             f.write(prop_str)
 
     def _write_file_to_custom_path(self, outfile_path, file_content):
-        with codecs.open(outfile_path / file_content['id'], "w") as f:
+        with codecs.open(outfile_path / file_content['id'], 'w') as f:
             f.write(json.dumps(file_content, ensure_ascii=False))
 
-    def import_snapshot(self, parent_id):
+    def decompress_snapshot(self):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
         self.snapshot_helper.save_compressed_file(snapshot_path)
-        self.snapshot_helper.decompress_snapshot(f"{snapshot_path}.lb", f"{snapshot_path}-decompressed")
-        if not Path(f"{snapshot_path}-decompressed/{PROP_FILE_NAME}").exists():
+        self.snapshot_helper.decompress_snapshot(f'{snapshot_path}.lb', f'{snapshot_path}-decompressed')
+        if not Path(f'{snapshot_path}-decompressed/{PROP_FILE_NAME}').exists():
             raise LyrebirdPropNotExists
-        with codecs.open(f"{snapshot_path}-decompressed/{PROP_FILE_NAME}") as f:
+        with codecs.open(f'{snapshot_path}-decompressed/{PROP_FILE_NAME}') as f:
             _prop = json.load(f)
-        self.import_(node=_prop)
-        self.paste(parent_id=parent_id, custom_input_file_path=f"{snapshot_path}-decompressed")
+        return {'snapshot_detail': _prop, 'snapshot_storage_path': f'{snapshot_path}-decompressed'}
+
+    def import_snapshot(self, parent_id, snapshot_name):
+        snapshot_info = self.decompress_snapshot()
+        snapshot_info['snapshot_detail']['name'] = snapshot_name
+        self.import_(node=snapshot_info['snapshot_detail'])
+        self.paste(parent_id=parent_id, custom_input_file_path=snapshot_info['snapshot_storage_path'])
 
     def export_snapshot_from_event(self, event_json):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
-        if not event_json.get("snapshot") or not event_json.get("events"):
+        if not event_json.get('snapshot') or not event_json.get('events'):
             raise SnapshotEventNotInCorrectFormat
-        _prop = event_json.get("snapshot")
+        _prop = event_json.get('snapshot')
         self._write_prop_to_custom_path(snapshot_path, _prop)
-        for mock_data in event_json.get("events"):
+        for mock_data in event_json.get('events'):
             self._write_file_to_custom_path(snapshot_path, mock_data)
         self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
-        return f"{snapshot_path}.lb"
+        return f'{snapshot_path}.lb'
 
     def export_snapshot_from_dm(self, node_id):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
@@ -616,7 +628,7 @@ class DataManager:
         for mock_data_id in data_id_map:
             shutil.copy(self.root_path / mock_data_id, snapshot_path / mock_data_id)
         self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
-        return f"{snapshot_path}.lb"
+        return f'{snapshot_path}.lb'
 
 
 # -----------------
@@ -734,7 +746,7 @@ class PropWriter:
         return json.dumps(val)
 
     def none_parser(self, val):
-        return "null"
+        return 'null'
 
     def children_parser(self, val):
         self.indent += 1

@@ -5,12 +5,12 @@ import socket
 import threading
 import signal
 import os
-import resource
+import platform
 import traceback
 from pathlib import Path
 from lyrebird import log
 from lyrebird import application
-from lyrebird.config import Rescource, ConfigManager
+from lyrebird.config import ConfigManager
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
@@ -113,7 +113,7 @@ def main():
     if args.proxy:
         application._cm.config['proxy.port'] = args.proxy
     if args.data:
-        application._cm.config['mock.data'] = args.data
+        application._cm.config['mock.data'] = str(Path(args.data).expanduser().absolute())
 
     logger.debug(f'Read args: {args}')
 
@@ -126,12 +126,15 @@ def main():
 
 
 def run(args: argparse.Namespace):
-    # Set file descriptors
-    try:
-        resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
-    except Exception:
-        traceback.print_exc()
-        logger.warning('Set file descriptors failed\nPlease set it by your self, use "ulimit -n 8192" with root account')
+    sys_name = platform.system()
+    if sys_name.lower() != 'windows':
+        import resource
+        # Set file descriptors
+        try:
+            resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
+        except Exception:
+            traceback.print_exc()
+            logger.warning('Set file descriptors failed\nPlease set it by your self, use "ulimit -n 8192" with root account')
     # Check mock data group version. Update if is older than 1.x
     data_path = application._cm.config['mock.data']
     Path(data_path).mkdir(parents=True, exist_ok=True)

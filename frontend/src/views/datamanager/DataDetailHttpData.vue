@@ -16,7 +16,7 @@
       ></CodeEditor>
     </div>
     <div class="save-btn" v-if="dataDetail">
-      <Tooltip content="Save" placement="top" :delay="500">
+      <Tooltip content="Save (⌘+s)" placement="top" :delay="500">
         <Button type="primary" shape="circle" @click="save">
           <svg-icon name="md-save" scale="4"></svg-icon>
         </Button>

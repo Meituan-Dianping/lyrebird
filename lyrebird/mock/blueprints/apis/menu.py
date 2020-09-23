@@ -4,8 +4,7 @@ from lyrebird.mock import context
 from lyrebird.mock import plugin_manager
 from lyrebird import application
 
-activeMenuItem = None
-activeName = None
+
 class Menu(Resource):
 
     def get(self):
@@ -63,10 +62,12 @@ class Menu(Resource):
                     'name': name
                 }
             })
-        return context.make_ok_response(menu=menu, activeMenuItem=activeMenuItem, activeName=activeName)
+        # When there is no actived menu, the first one is displayed by default
+        active_menu = application.active_menu or menu[0]
+        active_name = active_menu.get('title', '')
+        return context.make_ok_response(menu=menu, activeMenuItem=active_menu, activeName=active_name)
 
     def put(self):
-        global activeMenuItem, activeName
-        activeMenuItem = request.json.get('activeMenuItem')
-        activeName = activeMenuItem["title"]
-        return context.make_ok_response(activeMenuItem=activeMenuItem, activeName=activeName)
+        active_menu = request.json.get('activeMenuItem')
+        application.active_menu = active_menu
+        return context.make_ok_response()

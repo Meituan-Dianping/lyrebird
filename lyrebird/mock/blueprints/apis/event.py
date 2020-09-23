@@ -1,4 +1,5 @@
 import json
+import time
 from flask_restful import Resource
 from flask import jsonify, request
 from lyrebird import application
@@ -28,6 +29,8 @@ class Event(Resource):
                 content = json.loads(event_str['content'])
                 encoders_decoders.decoder_handler(content['flow'])
                 event_str['content'] = json.dumps(content, ensure_ascii=False)
+                seconds_offset = time.localtime().tm_gmtoff
+                event_str['timestamp'] += seconds_offset
 
             result.append(event_str)
         return application.make_ok_response(events=result, page=page, page_count=page_count, page_size=PAGE_SIZE)
