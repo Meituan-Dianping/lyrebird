@@ -158,4 +158,4 @@ class Event(Base, JSONFormat):
     channel = Column(String(16), index=True)
     event_id = Column(String(32), index=True)
     content = Column(Text)
-    timestamp = Column(DateTime(timezone=True), default=datetime.datetime.now)
+    timestamp = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
