@@ -162,7 +162,6 @@ export default {
   },
   watch: {
     activeMenuItem: function (newValue, oldValue) {
-      console.log(`activeMenuItem :  ${newValue.title}`)
       this.refreshPage(newValue)
       // :active-name 异步刷新后，需要手动更新 
       // https://github.com/iview/iview/issues/1245#issuecomment-352992001 
@@ -363,8 +362,6 @@ export default {
   transition: width 0.2s ease 0.2s;
 }
 .main-container {
-  padding-left: 5px;
-  padding-right: 5px;
   height: calc(100vh - 66px);
   background: #fff;
 }
