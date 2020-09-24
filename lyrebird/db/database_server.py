@@ -167,6 +167,3 @@ class Event(Base, JSONFormat):
         seconds_offset = time.localtime().tm_gmtoff
         return self._timestamp.timestamp() + seconds_offset
 
-    @timestamp.setter
-    def timestamp(self, timestamp):
-        self._timestamp = timestamp
