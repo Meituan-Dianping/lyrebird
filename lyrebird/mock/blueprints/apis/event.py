@@ -28,7 +28,7 @@ class Event(Resource):
                 content = json.loads(event_str['content'])
                 encoders_decoders.decoder_handler(content['flow'])
                 event_str['content'] = json.dumps(content, ensure_ascii=False)
-                
+
             result.append(event_str)
         return application.make_ok_response(events=result, page=page, page_count=page_count, page_size=PAGE_SIZE)
 
