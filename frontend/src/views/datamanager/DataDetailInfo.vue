@@ -1,6 +1,6 @@
 <template>
   <Row type="flex" align="middle" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" style="margin-bottom:10px;word-break:break-all;">
-    <Col span="5" align="right" style="padding:0px 10px 0px 0px">
+    <Col span="4" align="right" style="padding:0px 10px 0px 0px">
       <Tooltip :content="deletable ? 'Delete': 'Undeletable key'" :delay="500" placement="bottom-start">
         <Icon 
           type="md-remove-circle" 
@@ -12,7 +12,7 @@
       </Tooltip>
       <span>{{infoKey}}</span>
     </Col>
-    <Col span="19" style="padding:0px 0px 0px 10px">
+    <Col span="20" style="padding:0px 0px 0px 10px">
       <span v-if="inputValueType === 'link'">
         <Input v-model="inputValue" type="textarea" :autosize="{ minRows: 1 }" size="small" style="width:calc(100% - 30px);"/>
         <Poptip placement="bottom" width="382" word-wrap @on-popper-show="loadQrcodeImg">
@@ -21,6 +21,16 @@
             <img :src="imgData" style="width:100%">
           </div>
         </Poptip>
+      </span>
+      <span v-else-if="inputValueType === 'label'">
+        <LabelDropdown :initLabels="infoValue" :placement="'bottom-start'" @onLabelChange="editLabel">
+          <template #dropdownButton>
+            <span v-for="(label, index) in infoValue">
+              <span class="data-label" :style="'background-color:'+(label.color)">{{label.name}}</span>
+            </span>
+            <Icon type="md-settings" size="14" style="padding-left:5px"/>
+          </template>
+        </LabelDropdown>
       </span>
       <span v-else-if="inputValueType === 'input'">
         <Input v-model="inputValue" type="textarea" :autosize="{ minRows: 1 }" size="small"/>
@@ -35,11 +45,13 @@
 <script>
 import svgIcon from 'vue-svg-icon/Icon.vue'
 import { getQrcodeImg } from '@/api'
+import LabelDropdown from '@/components/LabelDropdown.vue'
 
 export default {
   props: ['infoKey', 'editable', 'deletable'],
   components: {
-    svgIcon
+    svgIcon,
+    LabelDropdown
   },
   data() {
     return {
@@ -63,6 +75,9 @@ export default {
         this.$store.commit('setGroupDetailItem', { key: this.infoKey, value: val })
       }
     },
+    infoValue () {
+      return this.$store.state.dataManager.groupDetail[this.infoKey]
+    },
     buttonClass () {
       if (this.deletable) {
         return ['enable-button']
@@ -73,6 +88,8 @@ export default {
     inputValueType () {
       if (String(this.inputValue).match('(?=.*://)')) {
         return 'link'
+      } else if (this.infoKey === 'label') {
+        return 'label'
       } else if (this.editable) {
         return 'input'
       } else {
@@ -85,6 +102,33 @@ export default {
       if (this.deletable) {
         this.$store.commit('deleteGroupDetailItem', this.infoKey)
       }
+    },
+    editLabel (payload) {
+      let labels = this.$store.state.dataManager.groupDetail[this.infoKey]
+      if (labels === null || labels === '') {
+        // 用户手动在group属性中输入的label，此时存储的label的value是空字符串
+        this.$store.state.dataManager.groupDetail[this.infoKey] = []
+        labels = this.$store.state.dataManager.groupDetail[this.infoKey]
+      }
+      if (payload.action === 'add') {
+        let labelInfo = this.$store.state.dataManager.labels[payload.id]
+        labels.push({
+          name: labelInfo.name,
+          color: labelInfo.color,
+          description: labelInfo.description
+        })
+      } else if (payload.action === 'remove') {
+        let target = ''
+        for (const index in labels) {
+          if (labels[index].name === payload.name) {
+            target = index
+            break
+          }
+        }
+        labels.splice(target, 1)
+      } else { }
+      this.$store.commit('setGroupDetailItem', { key: this.infoKey, value: labels })
+      this.$store.dispatch('loadDataLabel')
     },
     loadQrcodeImg () {
       this.$store.dispatch('activateGroup', this.$store.state.dataManager.focusNodeInfo)
@@ -107,5 +151,19 @@ export default {
 }
 .disable-button {
   color: #c5c8ce;
+}
+.data-label {
+  font-size: 12px;
+  padding: 0px 6px;
+  margin: 0px 3px;
+  color:white;
+  border-radius: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  max-width: 200px;
+  vertical-align: bottom;
+  font-weight: 500;
 }
 </style>

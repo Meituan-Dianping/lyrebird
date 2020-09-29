@@ -50,6 +50,8 @@ on_response_upstream = []
 encoder = []
 decoder = []
 
+labels = None
+
 def start_server():
     for name in server:
         server[name].start()

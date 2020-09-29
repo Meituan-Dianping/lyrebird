@@ -20,10 +20,10 @@
               />
             </div>
             <Row>
-              <Col span="5" offset="0" align="right" style="padding:0px 10px">
+              <Col span="4" offset="0" align="right" style="padding:0px 10px">
                 <Input v-model="newPropKey" placeholder="Input new property" size="small" />
               </Col>
-              <Col span="19" style="padding:0px 0px 0px 10px">
+              <Col span="20" style="padding:0px 0px 0px 10px">
                 <Input
                   size="small"
                   v-model="newPropValue"
@@ -89,9 +89,9 @@ export default {
     return {
       currentTab: "information",
       undisplayedKey: ['children', 'type', 'parent_id'],
-      undeletableKey: ['id', 'rule', 'super_id', 'name'],
+      undeletableKey: ['id', 'rule', 'super_id', 'name', 'label'],
       uneditableKey: ['id', 'rule'],
-      stickyTopKey: ['id', 'rule', 'super_id', 'name'],
+      stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label'],
       conflictCheckNode: {},
       newPropKey: '',
       newPropValue: ''

@@ -16,6 +16,7 @@ from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.notice_center import NoticeCenter
+from lyrebird.mock.dm.label import LabelHandler
 from lyrebird.db.database_server import LyrebirdDatabaseServer
 from lyrebird.plugins import PluginManager
 from lyrebird.checker import LyrebirdCheckerServer
@@ -169,6 +170,9 @@ def run(args: argparse.Namespace):
     reporter.start()
     # activate notice center
     application.notice = NoticeCenter()
+
+    # init label handler
+    application.labels = LabelHandler()
 
     # load debug plugin
     # TODO

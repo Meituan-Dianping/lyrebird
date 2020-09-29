@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from flask_restful import Resource, Api
 from .common import Status, WorkMode, Manifest, DiffMode
 from .flow import Flow, FlowList
-from .mock import MockData, MockGroup, ActivatedMockGroup, MockGroupByName
+from .mock import MockData, MockGroup, ActivatedMockGroup, MockGroupByName, MockDataLabel
 from .config import Conf, ResetConf
 from .plugin import Plugin
 from .menu import Menu
@@ -52,13 +52,14 @@ api_source.add_resource(FlowList, '/flow')
 api_source.add_resource(Cut, '/cut/<string:_id>')
 api_source.add_resource(Copy, '/copy/<string:_id>')
 api_source.add_resource(Paste, '/paste/<string:_id>')
-api_source.add_resource(MockGroup, '/group', '/group/<string:group_id>')
+api_source.add_resource(MockGroup, '/group', '/group/<string:group_id>', '/group/label/<string:label>')
 api_source.add_resource(MockData, '/data', '/data/<string:_id>')
 api_source.add_resource(SearchMockDataByName, '/search/group/name/', '/search/group/name/<string:search_str>')
 api_source.add_resource(ConflictCheck, '/conflict/id/<string:group_id>')
 api_source.add_resource(ActivatedDataConflictCheck, '/conflict/activated')
 api_source.add_resource(ActivatedMockGroup, '/mock/activated', '/mock/<string:group_id>/<string:action>')
 api_source.add_resource(MockGroupByName, '/mock_by_name')
+api_source.add_resource(MockDataLabel, '/label')
 api_source.add_resource(Qrcode, '/qrcode')
 api_source.add_resource(Conf, '/conf/<string:plugin_name>')
 api_source.add_resource(ResetConf, '/conf/<string:plugin_name>/reset')

@@ -63,7 +63,7 @@ class Menu(Resource):
                 }
             })
         # When there is no actived menu, the first one is displayed by default
-        active_menu = application.active_menu or menu[0]
+        active_menu = application.active_menu or menu[1] # TODO redo [0]
         active_name = active_menu.get('title', '')
         return context.make_ok_response(menu=menu, activeMenuItem=active_menu, activeName=active_name)
 

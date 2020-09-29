@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="data-load-spin-container">
     <Row class="button-bar">
       <span>
         <b style="padding-left:5px">Mock Data</b>
@@ -25,8 +25,22 @@
           </Dropdown>
         </span>
       </span>
+      <span class="button-bar-group-right">
+        <LabelDropdown :initLabels="selectedLabel" :placement="'bottom-end'" @onLabelChange="editLabel">
+          <template #dropdownButton>
+            <span style="cursor:pointer;">
+              Label
+              <Icon type="md-arrow-dropdown" size="14"/>
+            </span>
+          </template>
+        </LabelDropdown>
+      </span>
     </Row>
-    <DocumentTree :treeData="treeData" class="data-list" />
+    <Spin fix v-if="spinShow">
+      <Icon type="ios-loading" size=18 class="data-load-spin-icon-load"/>
+      <div>Loading Mock Data</div>
+    </Spin>
+    <DocumentTree :treeData="treeData" class="data-list" @treeChange=""/>
     <MockDataSelector ref="searchModal" :showRoot=true>
       <template #searchItem="{ searchResult }">
         <Row type="flex" align="middle" class="search-row" @click.native="showNode(searchResult)">
@@ -45,17 +59,25 @@
 
 <script>
 import { breadthFirstSearch } from 'tree-helper'
+import LabelDropdown from '@/components/LabelDropdown.vue'
 import DocumentTree from '@/components/DocumentTree.vue'
 import MockDataSelector from '@/components/SearchModal.vue'
 
 export default {
   components: {
+    LabelDropdown,
     DocumentTree,
     MockDataSelector
   },
   computed: {
     treeData () {
       return this.$store.state.dataManager.groupList
+    },
+    spinShow () {
+      return this.$store.state.dataManager.isLoading
+    },
+    selectedLabel () {
+      return this.$store.state.dataManager.dataListSelectedLabel
     }
   },
   methods: {
@@ -91,6 +113,16 @@ export default {
       } else if (payload.type === 'data') {
         this.$store.dispatch('loadDataDetail', payload)
       } else { }
+    },
+    editLabel (payload) {
+      this.$store.commit('setDataListSelectedLabel', {})
+      let labels = []
+      for (const id of payload.labels) {
+        const label = this.$store.state.dataManager.labels[id]
+        labels.push(label)
+      }
+      this.$store.commit('setDataListSelectedLabel', labels)
+      this.$store.dispatch('loadDataMap')
     }
   }
 }
@@ -124,5 +156,11 @@ export default {
 }
 .button-bar-btn img {
   width: 18px;
+}
+.data-load-spin-container{
+  position: relative;
+}
+.data-load-spin-icon-load{
+  animation: ani-demo-spin 1s linear infinite;
 }
 </style>
