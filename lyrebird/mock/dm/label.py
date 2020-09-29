@@ -75,7 +75,7 @@ class LabelHandler:
                 'groups': []
             }
         }
-        self.isolated_label_ids.add(label['name'])
+        self.isolated_label_ids.add(label_id)
         self.label_map.update(new_label)
 
     def update_label(self, update_label):
@@ -120,9 +120,8 @@ class LabelHandler:
             self.label_map[new_label_id] = self.label_map[target_label_id]
             self.label_map.pop(target_label_id)
 
-    def delete_label(self, delete_label):
-        target_label_id = delete_label['id']
-        target_label = self.label_map.get(target_label_id)
+    def delete_label(self, label_id):
+        target_label = self.label_map.get(label_id)
         groups = target_label.get('groups') or []
         for group_id in groups:
             _group = context.application.data_manager.id_map.get(group_id)
@@ -132,7 +131,7 @@ class LabelHandler:
 
             for label in label_list[::-1]:
                 label_id = self._get_label_name_md5(label)
-                if label_id != target_label_id:
+                if label_id != label_id:
                     continue
                 label_list.remove(label)
                 break
@@ -144,9 +143,9 @@ class LabelHandler:
             context.application.data_manager.reload()
 
         # update data_map
-        self.label_map.pop(target_label_id)
-        if target_label_id in self.isolated_label_ids:
-            self.isolated_label_ids.remove(target_label_id)
+        self.label_map.pop(label_id)
+        if label_id in self.isolated_label_ids:
+            self.isolated_label_ids.remove(label_id)
 
     def _get_label_name_md5(self, label):
         keyword = label['name']

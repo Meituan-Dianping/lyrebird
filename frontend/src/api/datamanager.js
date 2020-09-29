@@ -121,11 +121,11 @@ export const updateLabel = (label) => {
   })
 }
 
-export const deleteLabel = (label) => {
+export const deleteLabel = (id) => {
   return axios({
     url: '/api/label',
     method: 'DELETE',
-    data: { label }
+    data: { id }
   })
 }
 

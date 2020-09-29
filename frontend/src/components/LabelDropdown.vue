@@ -28,9 +28,7 @@
             >
               {{label.name}}
             </span>
-            <span
-              style="color:#808695;padding-left:10px;line-height:18px;"
-            >
+            <span style="color:#808695;padding-left:10px;line-height:18px;">
               {{label.description}}
             </span>
             <Icon
@@ -93,6 +91,17 @@ export default {
     }
   },
   methods: {
+    initSelectedLabel () {
+      this.selectedLabel = []
+      this.searchStr = ''
+      if (!this.initLabels || !this.initLabels.length) {
+        return
+      }
+      for (const label of this.initLabels) {
+        let target_label = this.getLabelByName(label.name)
+        this.selectedLabel.push(target_label.id)
+      }
+    },
     refreshLabelList () {
       this.labels = []
       for (const key in this.$store.state.dataManager.labels) {
@@ -110,18 +119,6 @@ export default {
         if (label.name == name) {
           return label
         }
-      }
-    },
-    initSelectedLabel () {
-      this.selectedLabel = []
-      this.searchStr = ''
-      if (!this.initLabels || !this.initLabels.length) {
-        return
-      }
-      console.log('this.initLabels', this.initLabels);
-      for (const label of this.initLabels) {
-        let target_label = this.getLabelByName(label.name)
-        this.selectedLabel.push(target_label.id)
       }
     },
     onDropdownMenuClick (name) {

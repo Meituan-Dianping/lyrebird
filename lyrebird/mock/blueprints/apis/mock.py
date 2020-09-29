@@ -136,7 +136,8 @@ class MockDataLabel(Resource):
         if not label_name:
             return application.make_fail_response('Label name is required!')
 
-        if label_name in application.labels.label_map:
+        label_id = application.labels._get_label_name_md5(label)
+        if label_id in application.labels.label_map:
             return application.make_fail_response(f'Label {label_name} existed!')
 
         application.labels.create_label(label)
@@ -144,10 +145,12 @@ class MockDataLabel(Resource):
 
     def put(self):
         label = request.json.get('label')
+        if not label['id'] in application.labels.label_map:
+            return application.make_fail_response(f'Label {label.get("name")} not found!')
         application.labels.update_label(label)
         return context.make_ok_response()
 
     def delete(self):
-        delete_label = request.json.get('label')
-        application.labels.delete_label(delete_label)
+        label_id = request.json.get('id')
+        application.labels.delete_label(label_id)
         return context.make_ok_response()

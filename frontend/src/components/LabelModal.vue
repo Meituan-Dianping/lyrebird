@@ -17,7 +17,7 @@
       <Table
         v-if="isAddingNewLabel"
         :columns="newLabelColumns"
-        :data="newLabel"
+        :data="[{}]"
         disabled-hover
         :show-header="false"
         :row-class-name="getRowClassName"
@@ -198,23 +198,17 @@ import { createLabels, updateLabel, deleteLabel } from '@/api'
 export default {
   data () {
     return {
-      title: 'Label Editor',
-      isAddingNewLabel: false,
+      shown: false,
       labelList: [],
-      addingNewLabelModalHeight: 80,
+      searchStr: '',
       editIndex: -1,
       deleteIndex: -1,
       editName: '',
       editColor: '',
       editDescription: '', 
-      searchStr: '',
       newLabelName: '',
       newLabelColor: '',
-      newLabel: [{
-        name: '',
-        color: '',
-        description: ''
-      }],
+      newLabelDescription: '', 
       defaultLabelColor: [
         '#2b85e4',
         '#808695',
@@ -222,14 +216,15 @@ export default {
         '#ed4014',
         '#ff9900',
         '#19be6b',
-        '#2db7f5'
+        '#2db7f5',
+        '#19bebf',
+        '#f3c045'
       ],
-      newLabelDescription: '', 
-      shown: false,
       isSaving: false,
       isDeleting: false,
       showSaveModal: false,
       showDeleteModal: false,
+      isAddingNewLabel: false,
       labelColumnsName: {
         title: 'Name',
         slot: 'name',
@@ -296,7 +291,6 @@ export default {
   },
   methods: {
     toggal () {
-      console.log('this.shown',this.shown);
       this.shown = !this.shown
     },
     handleCreate () {
@@ -375,7 +369,7 @@ export default {
     removeLabel () {
       const label = this.labelList[this.deleteIndex]
       this.isDeleting = true
-      deleteLabel(label)
+      deleteLabel(label.id)
         .then(_ => {
           this.$store.dispatch('loadDataMap')
           this.$store.dispatch('loadDataLabel')
