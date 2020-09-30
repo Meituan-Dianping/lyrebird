@@ -98,8 +98,8 @@ export default {
         return
       }
       for (const label of this.initLabels) {
-        let target_label = this.getLabelByName(label.name)
-        this.selectedLabel.push(target_label.id)
+        let targetLabel = this.getLabelByName(label.name)
+        this.selectedLabel.push(targetLabel.id)
       }
     },
     refreshLabelList () {
@@ -122,12 +122,12 @@ export default {
       }
     },
     onDropdownMenuClick (name) {
-      let target_label = this.getLabelByName(name)
-      let emitInfo = { name, id: target_label.id }
+      let targetLabel = this.getLabelByName(name)
+      let emitInfo = { name, id: targetLabel.id }
 
-      const index = this.selectedLabel.indexOf(target_label.id)
+      const index = this.selectedLabel.indexOf(targetLabel.id)
       if (index === -1) {
-        this.selectedLabel.push(target_label.id)
+        this.selectedLabel.push(targetLabel.id)
         emitInfo.action = 'add'
       } else {
         this.selectedLabel.splice(index, 1)

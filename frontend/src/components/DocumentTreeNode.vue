@@ -121,7 +121,8 @@ export default {
       shownDeleteModal: false,
       shownCreateModal: false,
       createName: null,
-      createType: null
+      createType: null,
+      minLoadAnimationCount: 20
     }
   },
   computed: {
@@ -200,17 +201,15 @@ export default {
     },
     onToggleStatusChange () {
       const enableIsLoading = (Boolean(this.data.children) &&
-        this.data.children.length > this.$store.state.dataManager.countEnableIsLoading)
+        this.data.children.length > this.minLoadAnimationCount)
       if (enableIsLoading) {
         this.$store.commit('setIsLoading', true)
       }
       setTimeout( () => {
         this.treestore.toggleOpen(this.data)
-        if (enableIsLoading) {
-          this.$nextTick(function(){
-            this.$store.commit('setIsLoading', false)
-          })
-        }
+        this.$nextTick(function(){
+          this.$store.commit('setIsLoading', false)
+        })
         if (this.data.open === true) {
           this.$store.commit('addGroupListOpenNode', this.data.id)
         } else {

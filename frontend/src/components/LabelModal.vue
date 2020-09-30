@@ -2,7 +2,7 @@
   <div>
     <Modal v-model="shown" width="70%" :styles="{top: '80px'}" :footer-hide=true >
 
-      <p style="font-size:14px;padding:25px 0px 10px 2px;">
+      <p class="modal-title">
         <b>{{labelList.length}} labels</b>
         <Button
           type="success"
@@ -395,6 +395,10 @@ export default {
 </script>
 
 <style>
+.modal-title {
+  font-size: 14px;
+  padding: 25px 0px 10px 2px;
+}
 .modal-label {
   font-size: 12px;
   padding: 2px 6px;

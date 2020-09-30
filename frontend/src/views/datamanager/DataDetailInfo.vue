@@ -26,7 +26,7 @@
         <LabelDropdown :initLabels="infoValue" :placement="'bottom-start'" @onLabelChange="editLabel">
           <template #dropdownButton>
             <span v-for="(label, index) in infoValue">
-              <span class="data-label" :style="'background-color:'+(label.color)">{{label.name}}</span>
+              <span class="data-label" :style="'background-color:'+(label.color?label.color:'#808695')">{{label.name}}</span>
             </span>
             <Icon type="md-settings" size="14" style="padding-left:5px"/>
           </template>
