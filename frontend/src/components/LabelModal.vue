@@ -24,7 +24,7 @@
       >
 
         <template slot="name">
-          <p style="margin:12px 0px;">
+          <p class="new-label-title">
             <span style="color:red;font-size:12px;padding-right:3px;">*</span>
             <b>Label name</b>
           </p>
@@ -33,12 +33,14 @@
             size="small"
             v-model="newLabelName"
             placeholder="Label name"
-            style="margin-bottom:12px;"
+            class="new-label-input"
           />
         </template>
 
         <template slot="color">
-          <p style="margin:12px 0px;"><b>Color</b></p>
+          <p class="new-label-title">
+            <b>Color</b>
+          </p>
           <Button size="small" icon="md-refresh" shape="circle"
             :style="'margin-bottom:12px;color:white;background-color:' + newLabelColor" 
             @click="getRandomColor"
@@ -48,24 +50,29 @@
             size="small"
             v-model="newLabelColor"
             placeholder="RGB #ff6600"
-            style="margin-bottom:12px;width:80px;"
+            class="new-label-input"
+            style="width:80px;"
           />
         </template>
 
         <template slot="description">
-          <p style="margin:12px 0px;"><b>Description</b></p>
+          <p class="new-label-title">
+            <b>Description</b>
+          </p>
           <Input
             type="text"
             size="small"
             v-model="newLabelDescription"
             placeholder="Label description"
-            style="margin-bottom:12px;"
+            class="new-label-input"
           />
         </template>
 
         <template slot="preview">
-          <p style="margin:12px 0px;"><b>Preview</b></p>
-          <p style="margin-bottom:12px;">
+          <p class="new-label-title">
+            <b>Preview</b>
+          </p>
+          <p class="new-label-input">
             <p
               class="modal-label"
               :style="'background-color:'+(newLabelColor?newLabelColor:'#808695')">
@@ -88,7 +95,7 @@
         :data="labelList"
         disabled-hover
         :max-height="isAddingNewLabel?(500-80):500"
-        style="margin-top:16px;"
+        style="margin-top:16px;width:100%"
       >
 
         <template slot-scope="{ row, index }" slot="name">
@@ -199,7 +206,6 @@ export default {
   data () {
     return {
       shown: false,
-      labelList: [],
       searchStr: '',
       editIndex: -1,
       deleteIndex: -1,
@@ -276,17 +282,13 @@ export default {
         this.labelColumnsAction
       ]
     },
-    originLabelList () {
-      return this.$store.state.dataManager.labels
-    }
-  },
-  watch: {
-    originLabelList (val) {
-      this.labelList = []
+    labelList() {
+      let labelList = []
       const labels = this.$store.state.dataManager.labels
       for (const key in labels) {
-        this.labelList.push(labels[key])
+        labelList.push(labels[key])
       }
+      return labelList
     }
   },
   methods: {
@@ -398,6 +400,12 @@ export default {
 .modal-title {
   font-size: 14px;
   padding: 25px 0px 10px 2px;
+}
+.new-label-title {
+  margin:12px 0px;
+}
+.new-label-input {
+  margin-bottom: 12px;
 }
 .modal-label {
   font-size: 12px;

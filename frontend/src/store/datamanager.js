@@ -18,7 +18,6 @@ export default {
     spinDisplay: false,
     snapshotName: '',
     labels: [],
-    countEnableIsLoading: 20,
     isLoading: false,
     dataListSelectedLabel: []
   },

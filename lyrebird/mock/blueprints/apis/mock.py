@@ -10,7 +10,7 @@ class MockGroup(Resource):
     mock数据组
     """
 
-    def get(self, group_id=None, action=None, label=None):
+    def get(self, group_id=None, label=None):
         if group_id:
             _group = context.application.data_manager.id_map.get(group_id)
             if not _group:
@@ -22,6 +22,7 @@ class MockGroup(Resource):
         if not label:
             return application.make_ok_response(data=root)
 
+        # update mock data tree with label
         groups_set = set()
 
         label_list = label.split('+')
@@ -123,7 +124,7 @@ class MockGroupByName(Resource):
 
 class MockDataLabel(Resource):
     """
-    mock数据便签
+    mock数据标签
     """
 
     def get(self):

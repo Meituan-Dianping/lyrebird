@@ -21,7 +21,7 @@ class LabelHandler:
 
         # init label_map
         self.label_map = {}
-        self.collect_label(node)
+        self._collect_label(node)
 
         # add isolated_label
         for key in self.label_map:
@@ -29,9 +29,9 @@ class LabelHandler:
                 isolated_labels.pop(key)
         self.label_map.update(isolated_labels)
 
-    def _add_label(self, _group):
-        group_id = _group['id']
-        label_list = _group.get('label')
+    def _make_label_info(self, group):
+        group_id = group['id']
+        label_list = group.get('label')
         if not isinstance(label_list, list):
             return
 
@@ -51,12 +51,12 @@ class LabelHandler:
                     'groups': [group_id]
                 }
 
-    def collect_label(self, node):
+    def _collect_label(self, node):
         if node['type'] == 'group' and 'label' in node:
-            self._add_label(node)
+            self._make_label_info(node)
         if 'children' in node:
             for child in node['children']:
-                self.collect_label(child)
+                self._collect_label(child)
 
     def create_label(self, label):
         label_name = label.get('name')
