@@ -292,6 +292,7 @@ export default {
   methods: {
     toggal () {
       this.shown = !this.shown
+      this.isAddingNewLabel = false
     },
     handleCreate () {
       const label = {
