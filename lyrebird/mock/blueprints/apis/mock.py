@@ -132,21 +132,27 @@ class MockDataLabel(Resource):
 
     def post(self):
         label = request.json.get('label')
-        label_name = label.get('name')
-        if not label_name:
-            return application.make_fail_response('Label name is required!')
+        required_key = ['name']
+        missed_required_key = [key for key in required_key if not label.get(key)]
+        if missed_required_key:
+            return application.make_fail_response(f'Label {" ".join(missed_required_key)} are required!')
 
         label_id = application.labels._get_label_name_md5(label)
         if label_id in application.labels.label_map:
-            return application.make_fail_response(f'Label {label_name} existed!')
+            return application.make_fail_response(f'Label {label["name"]} existed!')
 
         application.labels.create_label(label)
         return context.make_ok_response()
 
     def put(self):
         label = request.json.get('label')
+        label_id = label.get('id')
+        if not label_id:
+            return application.make_fail_response('Label id is required!')
+
         if not label['id'] in application.labels.label_map:
             return application.make_fail_response(f'Label {label.get("name")} not found!')
+
         application.labels.update_label(label)
         return context.make_ok_response()
 

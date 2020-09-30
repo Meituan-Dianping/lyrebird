@@ -341,14 +341,16 @@ export default {
       this.isSaving = true
       updateLabel(label)
         .then(_ => {
-          this.$store.dispatch('loadDataMap')
-          this.$store.dispatch('loadDataLabel')
+          this.$store.commit('setDataListSelectedLabel', [])
           this.isSaving = false
-          this.editIndex = -1
           this.showSaveModal = false
+          this.shown = false
+          this.editIndex = -1
           this.editName = ''
           this.editColor = ''
           this.editDescription = ''
+          this.$store.dispatch('loadDataMap')
+          this.$store.dispatch('loadDataLabel')
           if (this.$store.state.dataManager.groupDetail.id) {
             this.$store.dispatch('loadGroupDetail', this.$store.state.dataManager.groupDetail)
           }

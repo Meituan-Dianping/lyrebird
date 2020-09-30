@@ -199,7 +199,8 @@ export default {
       } else { }
     },
     onToggleStatusChange () {
-      const enableIsLoading = Boolean(this.data.children) && this.data.children.length > this.$store.state.dataManager.countEnableIsLoading
+      const enableIsLoading = (Boolean(this.data.children) &&
+        this.data.children.length > this.$store.state.dataManager.countEnableIsLoading)
       if (enableIsLoading) {
         this.$store.commit('setIsLoading', true)
       }
@@ -214,9 +215,6 @@ export default {
           this.$store.commit('addGroupListOpenNode', this.data.id)
         } else {
           this.$store.commit('deleteGroupListOpenNode', this.data.id)
-        }
-        if (enableIsLoading) {
-          this.$store.commit('setIsLoading', false)
         }
       }, 1)
     },
