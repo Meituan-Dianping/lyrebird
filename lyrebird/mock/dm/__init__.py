@@ -118,8 +118,10 @@ class DataManager:
                     new_node = {k:v for k,v in node.items() if k != 'children'}
                     new_node['children'] = []
                     map_pointer.append(new_node)
-                    map_pointer = map_pointer[-1]['children'] # 因为上一句是append，所以移动到最后一个节点的children
-                    map_pointer.sort(key=lambda x:x.get('name', '')) # 先移动pointer，再排序，不会影响pointer的指向的对象
+                    # Because of new_node is `append` into map_pointer, new_node is the last child of map_pointer
+                    # move map_pointer first, sort after
+                    map_pointer = map_pointer[-1]['children']
+                    map_pointer.sort(key=lambda x:x.get('name', ''))
 
             # update node and node's children
             node = self.id_map.get(group_id)
