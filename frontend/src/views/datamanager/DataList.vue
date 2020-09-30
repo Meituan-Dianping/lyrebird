@@ -40,7 +40,7 @@
       <Icon type="ios-loading" size=18 class="data-load-spin-icon-load"/>
       <div>Loading Mock Data</div>
     </Spin>
-    <DocumentTree :treeData="treeData" class="data-list" @treeChange=""/>
+    <DocumentTree :treeData="treeData" class="data-list" />
     <MockDataSelector ref="searchModal" :showRoot=true>
       <template #searchItem="{ searchResult }">
         <Row type="flex" align="middle" class="search-row" @click.native="showNode(searchResult)">

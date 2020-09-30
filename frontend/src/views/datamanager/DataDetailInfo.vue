@@ -105,8 +105,8 @@ export default {
     },
     editLabel (payload) {
       let labels = this.$store.state.dataManager.groupDetail[this.infoKey]
+      // Value of manually entered label is empty string
       if (labels === null || labels === '') {
-        // 用户手动在group属性中输入的label，此时存储的label的value是空字符串
         this.$store.state.dataManager.groupDetail[this.infoKey] = []
         labels = this.$store.state.dataManager.groupDetail[this.infoKey]
       }
