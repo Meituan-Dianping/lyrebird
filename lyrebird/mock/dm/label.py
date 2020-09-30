@@ -46,8 +46,8 @@ class LabelHandler:
                 self.label_map[label_id] = {
                     'id': label_id,
                     'name': label['name'],
-                    'color': label.get('color') or self.self.default_color,
-                    'description': label.get('description', ''),
+                    'color': label.get('color') or self.default_color,
+                    'description': label.get('description') or '',
                     'groups': [group_id]
                 }
 
@@ -84,8 +84,8 @@ class LabelHandler:
         if not update_name:
             raise LabelNameNotFound
 
-        label = self.label_map.get(target_label_id)
-        groups = label.get('groups') or []
+        target_label = self.label_map.get(target_label_id)
+        groups = target_label.get('groups') or []
         for group_id in groups:
             _group = context.application.data_manager.id_map.get(group_id)
             label_list = _group.get('label')
