@@ -10,17 +10,35 @@ class MockGroup(Resource):
     mock数据组
     """
 
-    def get(self, group_id=None):
-        if not group_id:
-            root = context.application.data_manager.root
+    def get(self, group_id=None, label=None):
+        if group_id:
+            _group = context.application.data_manager.id_map.get(group_id)
+            if not _group:
+                return context.make_fail_response('Not found group')
+
+            return application.make_ok_response(data=_group)
+
+        root = context.application.data_manager.root
+        if not label:
             return application.make_ok_response(data=root)
 
-        # 返回数据组中数据列表
-        _group = context.application.data_manager.id_map.get(group_id)
-        if not _group:
-            return context.make_fail_response('Not found group')
+        # update mock data tree with label
+        groups_set = set()
 
-        return application.make_ok_response(data=_group)
+        label_list = label.split('+')
+        for label_id in label_list:
+            label = application.labels.label_map.get(label_id)
+            if not label:
+                return application.make_fail_response(f'Label {label_id} is not found!')
+
+            if not groups_set:
+                groups_set = set(label['groups'])
+            else:
+                groups_set = groups_set & set(label['groups'])
+
+        data_map = context.application.data_manager.make_data_map_by_group(groups_set)
+        return application.make_ok_response(data=data_map)
+
 
     def post(self):
         name = request.json.get('name')
@@ -102,3 +120,48 @@ class MockGroupByName(Resource):
                     context.application.data_manager.deactivate()
                 return context.make_ok_response()
         return context.make_fail_response(f'Group not found. name={group_name}')
+
+
+class MockDataLabel(Resource):
+    """
+    mock数据标签
+    """
+
+    def get(self):
+        application.labels.get_label(context.application.data_manager.root)
+        return application.make_ok_response(labels=application.labels.label_map)
+
+    def post(self):
+        label = request.json.get('label')
+        required_key = ['name']
+        missed_required_key = [key for key in required_key if not label.get(key)]
+        if missed_required_key:
+            return application.make_fail_response(f'Label {" ".join(missed_required_key)} are required!')
+
+        label_id = application.labels._get_label_name_md5(label)
+        if label_id in application.labels.label_map:
+            return application.make_fail_response(f'Label {label["name"]} existed!')
+
+        application.labels.create_label(label)
+        return context.make_ok_response()
+
+    def put(self):
+        label = request.json.get('label')
+        label_id = label.get('id')
+        if not label_id:
+            return application.make_fail_response('Label id is required!')
+        if not label_id in application.labels.label_map:
+            return application.make_fail_response(f'Label {label.get("name")} not found!')
+
+        application.labels.update_label(label)
+        return context.make_ok_response()
+
+    def delete(self):
+        label_id = request.json.get('id')
+        if not label_id:
+            return application.make_fail_response('Label id is required!')
+        if not label_id in application.labels.label_map:
+            return application.make_fail_response(f'Label {label_id} not found!')
+
+        application.labels.delete_label(label_id)
+        return context.make_ok_response()

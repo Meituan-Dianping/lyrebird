@@ -170,7 +170,7 @@ class HandlerContext:
     def _generator_bytes(self):
         def generator():
             try:
-                _resp_data = DataHelper.flow2origin(self.flow['response'])
+                _resp_data = DataHelper.flow2origin(self.flow['response']) or ''
                 length = len(_resp_data)
                 size = self.response_chunk_size
                 bandwidth = config.bandwidth

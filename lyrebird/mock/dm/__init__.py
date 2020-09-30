@@ -25,8 +25,10 @@ class DataManager:
             'name': '$',
             'type': 'group',
             'parent_id': None,
+            'label': [],
             'children': []
         }
+        self.display_data_map = {}
         self.id_map = {}
         self.activated_data = {}
         self.activated_group = {}
@@ -34,7 +36,7 @@ class DataManager:
         self.LEVEL_SECONDARY_ACTIVATED = 2
         self.clipboard = None
         self.save_to_group_id = None
-        self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'children': []}
+        self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'label': [], 'children': []}
         self.snapshot_helper = snapshot_helper.SnapshotHelper()
 
     def set_root(self, root_path):
@@ -88,6 +90,44 @@ class DataManager:
     # -----
     # Mock operations
     # -----
+
+    def make_data_map_by_group(self, group_ids):
+        self.display_data_map = {k:v for k,v in self.root.items() if k!='children'}
+        self.display_data_map['children'] = []
+
+        for group_id in group_ids:
+            map_pointer = self.display_data_map['children']
+
+            group = self.id_map.get(group_id)
+            group_abs_parent_obj = self._get_abs_parent_obj(group)
+
+            # init parent
+            # the last node in group['abs_parent_path'] is node itself, expand node itself
+            # expand root which is already in the data_map
+            for group_info in group_abs_parent_obj[1:-1]:
+                parent_id = group_info['id']
+
+                for index, child in enumerate(map_pointer):
+                    if parent_id == child['id']:
+                        map_pointer = map_pointer[index]['children']
+                        break
+
+                else:
+                    node = self.id_map.get(parent_id)
+
+                    new_node = {k:v for k,v in node.items() if k != 'children'}
+                    new_node['children'] = []
+                    map_pointer.append(new_node)
+                    # Because of new_node is `append` into map_pointer, new_node is the last child of map_pointer
+                    # move map_pointer first, sort after
+                    map_pointer = map_pointer[-1]['children']
+                    map_pointer.sort(key=lambda x:x.get('name', ''))
+
+            # update node and node's children
+            node = self.id_map.get(group_id)
+            map_pointer.append(node)
+
+        return self.display_data_map
 
     def activate(self, _id):
         """
@@ -293,6 +333,7 @@ class DataManager:
             'name': name,
             'type': 'group',
             'parent_id': parent_id,
+            'label': [],
             'children': [],
             'super_id': None
         }
@@ -550,7 +591,7 @@ class DataManager:
     # Editor
     # -----
 
-    def update_group(self, _id, data):
+    def update_group(self, _id, data, save=True):
         ignore_keys = ['id', 'parent_id', 'type', 'children']
         node = self.id_map.get(_id)
         if not node:
@@ -562,7 +603,14 @@ class DataManager:
         delete_keys = [k for k in node if k not in data and k not in ignore_keys]
         for key in delete_keys:
             node.pop(key)
-        self._save_prop()
+
+        # labels are ordered, sorted by label name
+        if 'label' not in node:
+            node['label'] = []
+        elif 'label' in node and isinstance(node['label'], list):
+            node['label'].sort(key=lambda x:x.get('name', '').lower())
+        if save:
+            self._save_prop()
 
     def update_data(self, _id, data):
         node = self.id_map.get(_id)
