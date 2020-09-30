@@ -88,9 +88,6 @@ export default {
     setLabels (state, labels) {
       state.labels = labels
     },
-    addLabel (state, label) {
-      state.labels[label.name] = label
-    },
     setIsLoading (state, isLoading) {
       state.isLoading = isLoading
     },
@@ -137,7 +134,7 @@ export default {
           commit('setGroupDetail', response.data.data)
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error.data.message)
+          bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error)
         })
     },
     saveDataDetail ({ dispatch }, payload) {
@@ -174,7 +171,7 @@ export default {
           bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Group ' + payload.name + ' update error: ' + error.data.message)
+          bus.$emit('msg.error', 'Group ' + payload.name + ' update error: ' + error)
         })
     },
     deleteGroup ({ state, commit, dispatch }, payload) {
