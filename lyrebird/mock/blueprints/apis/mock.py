@@ -149,8 +149,7 @@ class MockDataLabel(Resource):
         label_id = label.get('id')
         if not label_id:
             return application.make_fail_response('Label id is required!')
-
-        if not label['id'] in application.labels.label_map:
+        if not label_id in application.labels.label_map:
             return application.make_fail_response(f'Label {label.get("name")} not found!')
 
         application.labels.update_label(label)
@@ -158,5 +157,10 @@ class MockDataLabel(Resource):
 
     def delete(self):
         label_id = request.json.get('id')
+        if not label_id:
+            return application.make_fail_response('Label id is required!')
+        if not label_id in application.labels.label_map:
+            return application.make_fail_response(f'Label {label_id} not found!')
+
         application.labels.delete_label(label_id)
         return context.make_ok_response()

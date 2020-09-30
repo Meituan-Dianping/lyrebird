@@ -23,7 +23,7 @@
         :row-class-name="getRowClassName"
       >
 
-        <template slot-scope="{ row, index }" slot="name">
+        <template slot="name">
           <p style="margin:12px 0px;">
             <span style="color:red;font-size:12px;padding-right:3px;">*</span>
             <b>Label name</b>
@@ -37,7 +37,7 @@
           />
         </template>
 
-        <template slot-scope="{ row, index }" slot="color">
+        <template slot="color">
           <p style="margin:12px 0px;"><b>Color</b></p>
           <Button size="small" icon="md-refresh" shape="circle"
             :style="'margin-bottom:12px;color:white;background-color:' + newLabelColor" 
@@ -52,7 +52,7 @@
           />
         </template>
 
-        <template slot-scope="{ row, index }" slot="description">
+        <template slot="description">
           <p style="margin:12px 0px;"><b>Description</b></p>
           <Input
             type="text"
@@ -63,7 +63,7 @@
           />
         </template>
 
-        <template slot-scope="{ row, index }" slot="preview">
+        <template slot="preview">
           <p style="margin:12px 0px;"><b>Preview</b></p>
           <p style="margin-bottom:12px;">
             <p
@@ -342,6 +342,7 @@ export default {
       updateLabel(label)
         .then(_ => {
           this.$store.commit('setDataListSelectedLabel', [])
+          this.$store.dispatch('loadDataLabel')
           this.isSaving = false
           this.showSaveModal = false
           this.shown = false
@@ -350,7 +351,6 @@ export default {
           this.editColor = ''
           this.editDescription = ''
           this.$store.dispatch('loadDataMap')
-          this.$store.dispatch('loadDataLabel')
           if (this.$store.state.dataManager.groupDetail.id) {
             this.$store.dispatch('loadGroupDetail', this.$store.state.dataManager.groupDetail)
           }
@@ -374,11 +374,11 @@ export default {
       this.isDeleting = true
       deleteLabel(label.id)
         .then(_ => {
-          this.$store.dispatch('loadDataMap')
           this.$store.dispatch('loadDataLabel')
           this.deleteIndex = -1
           this.showDeleteModal = false
           this.isDeleting = false
+          this.$store.dispatch('loadDataMap')
           if (this.$store.state.dataManager.groupDetail.id) {
             this.$store.dispatch('loadGroupDetail', this.$store.state.dataManager.groupDetail)
           }
