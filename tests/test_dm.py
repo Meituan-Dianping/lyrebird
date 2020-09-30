@@ -446,4 +446,4 @@ def test_make_data_map_by_group(data_manager):
     }
     node_str = json.dumps(node)
     prop_str = json.dumps(prop)
-    len(node_str) == len(prop_str)
+    assert len(node_str) == len(prop_str)
