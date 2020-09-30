@@ -2,7 +2,6 @@ import pytest
 import codecs
 import json
 from typing import NamedTuple
-from urllib.parse import urlparse
 from lyrebird.mock import dm
 from lyrebird.mock.dm import label as lb
 from lyrebird import application

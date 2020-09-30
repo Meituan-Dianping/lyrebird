@@ -1,5 +1,4 @@
 import hashlib
-from lyrebird import application
 from lyrebird.mock import context
 
 
@@ -112,7 +111,7 @@ class LabelHandler:
         self.label_map[target_label_id]['name'] = update_name
         self.label_map[target_label_id]['color'] = update_color
         self.label_map[target_label_id]['description'] = update_description
-        
+
         # update label_map id if label_id is changed
         new_label_id = self._get_label_name_md5(update_label)
         if new_label_id != target_label_id:
