@@ -134,7 +134,7 @@ export default {
           commit('setGroupDetail', response.data.data)
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error)
+          bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error.data.message)
         })
     },
     saveDataDetail ({ dispatch }, payload) {
@@ -145,7 +145,7 @@ export default {
           bus.$emit('msg.success', 'Data ' + payload.name + ' update!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Data ' + payload.name + ' update error: ' + error.data.message)
+          bus.$emit('msg.error', 'Data ' + payload.name + ' update error: ' + error)
         })
     },
     createGroup ({ dispatch }, { groupName, parentId }) {
