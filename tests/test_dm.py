@@ -153,7 +153,7 @@ prop = {
                     'children': [
                         {
                             'id': 'groupH-UUID',
-                            'label': [label_b],
+                            'label': [label_a, label_b],
                             'name': 'groupH',
                             'type': 'group',
                             'parent_id': 'groupG-UUID',
@@ -417,7 +417,7 @@ def test_make_data_map_by_group(data_manager):
                         'children': [
                             {
                                 'id': 'groupH-UUID',
-                                'label': [label_b],
+                                'label': [label_a, label_b],
                                 'name': 'groupH',
                                 'type': 'group',
                                 'parent_id': 'groupG-UUID',
@@ -446,4 +446,4 @@ def test_make_data_map_by_group(data_manager):
     }
     node_str = json.dumps(node)
     prop_str = json.dumps(prop)
-    assert node_str == prop_str
+    len(node_str) == len(prop_str)
