@@ -1,7 +1,6 @@
 import hashlib
 from lyrebird import application
 from lyrebird.mock import context
-import time
 
 
 class LabelHandler:
@@ -48,7 +47,7 @@ class LabelHandler:
                 self.label_map[label_id] = {
                     'id': label_id,
                     'name': label['name'],
-                    'color': label.get('color') or '#808695', # TODO
+                    'color': label.get('color') or self.self.default_color,
                     'description': label.get('description', ''),
                     'groups': [group_id]
                 }
@@ -70,7 +69,7 @@ class LabelHandler:
             label_id: {
                 'id': label_id,
                 'name': label['name'],
-                'color': label.get('color') or '#808695',
+                'color': label.get('color') or self.default_color,
                 'description': label.get('description') or '',
                 'groups': []
             }
@@ -86,7 +85,8 @@ class LabelHandler:
         if not update_name:
             raise LabelNameNotFound
 
-        groups = update_label.get('groups') or []
+        label = self.label_map.get(target_label_id)
+        groups = label.get('groups') or []
         for group_id in groups:
             _group = context.application.data_manager.id_map.get(group_id)
             label_list = _group.get('label')
@@ -120,8 +120,8 @@ class LabelHandler:
             self.label_map[new_label_id] = self.label_map[target_label_id]
             self.label_map.pop(target_label_id)
 
-    def delete_label(self, label_id):
-        target_label = self.label_map.get(label_id)
+    def delete_label(self, target_label_id):
+        target_label = self.label_map.get(target_label_id)
         groups = target_label.get('groups') or []
         for group_id in groups:
             _group = context.application.data_manager.id_map.get(group_id)
@@ -131,7 +131,7 @@ class LabelHandler:
 
             for label in label_list[::-1]:
                 label_id = self._get_label_name_md5(label)
-                if label_id != label_id:
+                if label_id != target_label_id:
                     continue
                 label_list.remove(label)
                 break
@@ -143,9 +143,9 @@ class LabelHandler:
             context.application.data_manager.reload()
 
         # update data_map
-        self.label_map.pop(label_id)
-        if label_id in self.isolated_label_ids:
-            self.isolated_label_ids.remove(label_id)
+        self.label_map.pop(target_label_id)
+        if target_label_id in self.isolated_label_ids:
+            self.isolated_label_ids.remove(target_label_id)
 
     def _get_label_name_md5(self, label):
         keyword = label['name']

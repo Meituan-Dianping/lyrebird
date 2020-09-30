@@ -51,9 +51,13 @@ dataD = {
     }
 }
 
+label_a = {'name':'label_a','color':'red','description':'description label_a'}
+label_b = {'name':'label_b','color':'green','description':'description label_b'}
 
 prop = {
     'id': 'root',
+    'name': 'root',
+    'type': 'group',
     'parent_id': None,
     'children': [
         {
@@ -132,6 +136,45 @@ prop = {
                     'name': 'dataD',
                     'type': 'data',
                     'parent_id': 'groupE-UUID'
+                }
+            ]
+        },
+        {
+            'id': 'groupF-UUID',
+            'name': 'groupF',
+            'type': 'group',
+            'parent_id': 'root',
+            'children': [
+                {
+                    'id': 'groupG-UUID',
+                    'name': 'groupG',
+                    'type': 'group',
+                    'parent_id': 'groupF-UUID',
+                    'children': [
+                        {
+                            'id': 'groupH-UUID',
+                            'label': [label_b],
+                            'name': 'groupH',
+                            'type': 'group',
+                            'parent_id': 'groupG-UUID',
+                            'children': []
+                        }
+                    ]
+                },
+                {
+                    'id': 'groupI-UUID',
+                    'label': [label_a],
+                    'name': 'groupI',
+                    'type': 'group',
+                    'parent_id': 'groupF-UUID',
+                    'children': [
+                        {
+                            'id': 'dataD-UUID',
+                            'name': 'dataD',
+                            'type': 'data',
+                            'parent_id': 'groupJ-UUID'
+                        }
+                    ]
                 }
             ]
         }
@@ -347,3 +390,60 @@ def test_prop_writer():
     )
     assert prop_str == '{"url":"<\\"test\\">","description":"a\\nb\\nc"}'
     json.loads(prop_str)
+
+
+def test_make_data_map_by_group(data_manager):
+    group_set = set(['groupH-UUID', 'groupI-UUID'])
+
+    node = data_manager.make_data_map_by_group(group_set)
+
+    prop = {
+        'id': 'root',
+        'name': 'root',
+        'type': 'group',
+        'parent_id': None,
+        'children': [
+            {
+                'id': 'groupF-UUID',
+                'name': 'groupF',
+                'type': 'group',
+                'parent_id': 'root',
+                'children': [
+                    {
+                        'id': 'groupG-UUID',
+                        'name': 'groupG',
+                        'type': 'group',
+                        'parent_id': 'groupF-UUID',
+                        'children': [
+                            {
+                                'id': 'groupH-UUID',
+                                'label': [label_b],
+                                'name': 'groupH',
+                                'type': 'group',
+                                'parent_id': 'groupG-UUID',
+                                'children': []
+                            }
+                        ]
+                    },
+                    {
+                        'id': 'groupI-UUID',
+                        'label': [label_a],
+                        'name': 'groupI',
+                        'type': 'group',
+                        'parent_id': 'groupF-UUID',
+                        'children': [
+                            {
+                                'id': 'dataD-UUID',
+                                'name': 'dataD',
+                                'type': 'data',
+                                'parent_id': 'groupJ-UUID'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+    node_str = json.dumps(node)
+    prop_str = json.dumps(prop)
+    assert node_str == prop_str
