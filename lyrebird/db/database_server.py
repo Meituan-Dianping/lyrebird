@@ -2,6 +2,7 @@ import json
 import math
 import datetime
 import traceback
+import time
 from queue import Queue
 from pathlib import Path
 from lyrebird import application
@@ -9,6 +10,7 @@ from lyrebird import log
 from lyrebird.base_server import ThreadServer
 from sqlalchemy import event
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine
 from ..mock.handlers.encoder_decoder_handler import encoders_decoders
@@ -144,7 +146,7 @@ class JSONFormat:
             if prop.startswith('_'):
                 continue
             prop_obj = getattr(self, prop)
-            if isinstance(prop_obj, (str, int, bool)):
+            if isinstance(prop_obj, (str, int, bool, float)):
                 prop_collection[prop] = prop_obj
             elif isinstance(prop_obj, datetime.datetime):
                 prop_collection[prop] = prop_obj.timestamp()
@@ -158,4 +160,10 @@ class Event(Base, JSONFormat):
     channel = Column(String(16), index=True)
     event_id = Column(String(32), index=True)
     content = Column(Text)
-    timestamp = Column(DateTime(timezone=True), default=datetime.datetime.now)
+    _timestamp = Column('timestamp', DateTime(timezone=True), default=datetime.datetime.utcnow)
+
+    @hybrid_property
+    def timestamp(self):
+        seconds_offset = time.localtime().tm_gmtoff
+        return self._timestamp.timestamp() + seconds_offset
+
