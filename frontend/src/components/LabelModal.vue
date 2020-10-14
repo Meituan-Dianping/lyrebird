@@ -127,7 +127,7 @@
 
         <template slot-scope="{ row, index }" slot="info">
           <Tooltip 
-            content="No group related, this label will disappear when Lyrebird restart."
+            content="No group related, this label will disappear when Lyrebird restarts."
             max-width="350"
             placement="bottom-end"
           >
