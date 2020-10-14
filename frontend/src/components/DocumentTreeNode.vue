@@ -20,7 +20,7 @@
         <Icon v-else type="ios-home" />
       </span>
       <span v-if="data.label">
-        <span v-for="(label, index) in data.label">
+        <span v-for="(label, index) in data.label" class="tree-node-inner-button">
           <span class="tree-node-inner-tag" :style="'background-color:'+(label.color?label.color:'#808695')">{{label.name}}</span>
         </span>
       </span>
@@ -281,17 +281,14 @@ export default {
 .tree-node-inner-tag {
   font-size: 12px;
   max-width: 200px;
-  margin-left: 5px;
-  padding: 0px 6px;
-  display: inline;
+  margin-left: 4px;
+  padding: 0px 4px;
   color:white;
-  font-weight: 500;
   border-radius: 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: inline-block;
-  vertical-align: bottom;
+  display: table-cell;
 }
 .tree-node-inner-button-empty {
   padding-left: 5px;

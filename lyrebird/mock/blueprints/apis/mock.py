@@ -136,7 +136,7 @@ class MockDataLabel(Resource):
         required_key = ['name']
         missed_required_key = [key for key in required_key if not label.get(key)]
         if missed_required_key:
-            return application.make_fail_response(f'Label {" ".join(missed_required_key)} are required!')
+            return application.make_fail_response(f'Label {" ".join(missed_required_key)} is required!')
 
         label_id = application.labels._get_label_name_md5(label)
         if label_id in application.labels.label_map:

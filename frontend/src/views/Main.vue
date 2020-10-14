@@ -89,7 +89,7 @@
                 <b style="color:#f8f8f9">&nbsp;&nbsp;Version {{status.version}}</b>
               </a>
               <div slot="title">
-                <b>💡Status</b>
+                <b>Lyrebird {{status.version}}</b>
               </div>
               <div slot="content">
                 <Row v-for="key in showedStatus" :key="key">
@@ -100,13 +100,10 @@
                 </Row>
                 <Divider style="margin:10px 0;"/>
                 <div style="text-align:center">
-                  <strong >
+                  <strong>
                     Copyright &copy; 2018-present 
                     <a href="https://meituan-dianping.github.io/lyrebird" target="_blank" >Meituan</a>.
                   </strong>
-                </div>
-                <div style="text-align:center"> 
-                  <span> All rights reserved.</span>
                 </div>
               </div>
             </Poptip>
@@ -137,7 +134,7 @@ export default {
   data () {
     return {
       isCollapsed: true,
-      showedStatus: ["ip", "mock.port", "proxy.port", "version"]
+      showedStatus: ["ip", "mock.port", "proxy.port"]
     }
   },
   mounted () {
