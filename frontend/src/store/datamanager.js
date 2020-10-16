@@ -110,7 +110,6 @@ export default {
             }
           })
           commit('setGroupList', [response.data.data])
-          commit('setFocusNodeInfo', {})
           commit('setIsLoading', false)
         })
         .catch(error => {

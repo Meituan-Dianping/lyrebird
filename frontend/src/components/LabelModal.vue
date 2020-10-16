@@ -127,7 +127,7 @@
 
         <template slot-scope="{ row, index }" slot="info">
           <Tooltip 
-            content="This label related with no group, it will disappear when Lyrebird shut down."
+            content="No group related, this label will disappear when Lyrebird restarts."
             max-width="350"
             placement="bottom-end"
           >
@@ -169,7 +169,7 @@
         <p>
           Are you sure you want to delete label <b>{{deleteIndex>-1?labelList[deleteIndex].name:''}}</b>?
         </p>
-        <p><b>{{deleteIndex>-1?labelList[deleteIndex].groups.length:''}} related groups</b> would delete this label!</p>
+        <p><b>{{deleteIndex>-1?labelList[deleteIndex].groups.length:''}} related groups</b> will delete this label!</p>
       </div>
       <div slot="footer">
         <Button size="small" type="primary" @click="showDeleteModal=false">Cancel</Button>
@@ -187,7 +187,7 @@
         <p>
           Are you sure you want to change label <b>{{editIndex>-1?labelList[editIndex].name:''}}</b>?
         </p>
-        <p><b>{{editIndex>-1?labelList[editIndex].groups.length:''}} related groups</b> would be changed!</p>
+        <p><b>{{editIndex>-1?labelList[editIndex].groups.length:''}} related groups</b> will be changed!</p>
       </div>
       <div slot="footer">
         <Button size="small" type="primary" @click="showSaveModal=false">Cancel</Button>

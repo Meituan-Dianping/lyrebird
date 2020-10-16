@@ -29,7 +29,7 @@
         <LabelDropdown :initLabels="selectedLabel" :placement="'bottom-end'" @onLabelChange="editLabel">
           <template #dropdownButton>
             <span style="cursor:pointer;">
-              Label
+              Labels
               <Icon type="md-arrow-dropdown" size="14"/>
             </span>
           </template>

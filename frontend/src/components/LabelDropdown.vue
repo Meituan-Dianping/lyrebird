@@ -42,10 +42,10 @@
         </div>
         <p style="padding:8px 16px 0px;font-size:12px;">
           <a v-if="selectedLabel.length" @click="clearSelectedLabels" style="font-size:12px;">
-            Clear select labels
+            Clear selected
           </a>
           <a @click="changeLabelModalOpenState" style="float:right;font-size:12px;">
-            Edit all labels
+            Edit labels
           </a>
         </p>
       </DropdownMenu>
