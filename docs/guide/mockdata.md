@@ -117,7 +117,7 @@ label | 数据组标签，可用于搜索 | True | False
 
 #### 按name或id搜索
 
-点击左侧文件树顶部的搜索按钮<img src="../img/datamanager/icon-search.png" width=15>展开搜索弹框。搜索时支持搜索数据组name和id。
+点击左侧文件树顶部的搜索按钮<img src="../img/datamanager/icon-search.png" width=15>展开搜索弹框。搜索时支持输入数据组name和id。
 
 <img src="../img/datamanager/search-modal-result.png" width=400>
 
@@ -125,7 +125,7 @@ label | 数据组标签，可用于搜索 | True | False
 
 #### 按标签搜索
 
-进入DataManager，点击左侧文件树顶部的标签按钮<img src="../img/datamanager/icon-labels.png" width=60>展开下拉菜单。[🔍如何新增标签？](./mockdata.html#标签)
+进入DataManager，点击左侧文件树顶部的标签按钮<img src="../img/datamanager/icon-labels.png" width=60>展开下拉菜单。选择菜单中的标签后，文件树将展示添加了所选标签的数据组。[🔍如何新增标签？](./mockdata.html#标签)
 
 <img src="../img/datamanager/label-data-list.png" width=400>
 
