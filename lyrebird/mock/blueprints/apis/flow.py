@@ -3,7 +3,6 @@ from lyrebird.mock import context
 from lyrebird import application
 from flask import request
 import json
-from ...handlers.encoder_decoder_handler import encoders_decoders
 
 
 class Flow(Resource):
@@ -16,7 +15,7 @@ class Flow(Resource):
             if item['id'] == id:
                 # Import decoder for decoding the requested content
                 display_item = {}
-                encoders_decoders.decoder_handler(item, output=display_item)
+                application.encoders_decoders.decoder_handler(item, output=display_item)
                 return application.make_ok_response(data=display_item)
         return application.make_fail_response(f'Request {id} not found')
 

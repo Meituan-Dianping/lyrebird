@@ -2,7 +2,6 @@ import json
 from flask_restful import Resource
 from flask import jsonify, request
 from lyrebird import application
-from ...handlers.encoder_decoder_handler import encoders_decoders
 
 # Default event page size
 PAGE_SIZE = 20
@@ -26,7 +25,7 @@ class Event(Resource):
             # Import decoder for decoding the requested content
             if event_str.get('channel') == 'flow':
                 content = json.loads(event_str['content'])
-                encoders_decoders.decoder_handler(content['flow'])
+                application.encoders_decoders.decoder_handler(content['flow'])
                 event_str['content'] = json.dumps(content, ensure_ascii=False)
 
             result.append(event_str)

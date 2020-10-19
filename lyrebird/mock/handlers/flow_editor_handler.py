@@ -1,12 +1,8 @@
-import re
-import traceback
 from lyrebird import application
-from lyrebird.log import get_logger
-
-logger = get_logger()
+from .function_executor import FunctionExecutor
 
 
-class FlowEditorHandler:
+class FlowEditorHandler(FunctionExecutor):
 
     def __init__(self):
         self.on_request = application.on_request
@@ -19,7 +15,7 @@ class FlowEditorHandler:
         if not matched_funcs:
             return
 
-        FlowEditorHandler._func_handler(matched_funcs, handler_context.flow)
+        self.script_executor(matched_funcs, handler_context.flow)
         handler_context.set_request_edited()
         handler_context.flow['request']['headers']['lyrebird_modified'] = 'modified'
 
@@ -28,7 +24,7 @@ class FlowEditorHandler:
         if not matched_funcs:
             return
 
-        FlowEditorHandler._func_handler(matched_funcs, handler_context.flow)
+        self.script_executor(matched_funcs, handler_context.flow)
         handler_context.set_request_edited()
         handler_context.flow['request']['headers']['lyrebird_modified'] = 'modified'
 
@@ -40,7 +36,7 @@ class FlowEditorHandler:
         if not handler_context.flow['response'].get('data'):
             handler_context.update_response_data2flow()
 
-        FlowEditorHandler._func_handler(matched_funcs, handler_context.flow)
+        self.script_executor(matched_funcs, handler_context.flow)
         handler_context.set_response_edited()
         handler_context.flow['response']['headers']['lyrebird_modified'] = 'modified'
 
@@ -52,52 +48,12 @@ class FlowEditorHandler:
         if not handler_context.flow['response'].get('data'):
             handler_context.update_response_data2flow()
 
-        FlowEditorHandler._func_handler(matched_funcs, handler_context.flow)
+        self.script_executor(matched_funcs, handler_context.flow)
         handler_context.set_response_edited()
         handler_context.flow['response']['headers']['lyrebird_modified'] = 'modified'
 
     @staticmethod
-    def _func_handler(func_list, flow):
-        for func_info in func_list:
-            handler_fn = func_info['func']
-            try:
-                handler_fn(flow)
-                # TODO: The flow is changed or not?
-                action = {
-                    'id': 'flow_editor',
-                    'name': func_info['name']
-                }
-                if flow.get('action'):
-                    flow['action'].append(action)
-                else:
-                    flow['action'] = [action]
-            except Exception:
-                logger.error(traceback.format_exc())
-
-    @staticmethod
-    def _get_matched_handler(func_list, flow):
-        matched_func = []
-        for func in func_list:
-            rules = func['rules']
-            if not rules or FlowEditorHandler._is_req_match_rule(rules, flow):
-                matched_func.append(func)
-        return matched_func
-
-    @staticmethod
-    def _is_req_match_rule(rules, flow):
-        for rule_key in rules:
-            pattern = rules[rule_key]
-            target = FlowEditorHandler._get_rule_target(rule_key, flow)
-            if not target or not re.search(pattern, target):
-                return False
-        return True
-
-    @staticmethod
-    def _get_rule_target(rule_key, flow):
-        prop_keys = rule_key.split('.')
-        result = flow
-        for prop_key in prop_keys:
-            result = result.get(prop_key)
-            if not result:
-                return None
-        return result
+    def script_executor(func_list, flow):
+        application.encoders_decoders.decoder_handler(flow)
+        FlowEditorHandler._func_handler(func_list, flow)
+        application.encoders_decoders.encoder_handler(flow)
