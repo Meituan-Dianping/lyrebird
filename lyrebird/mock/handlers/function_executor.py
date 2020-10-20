@@ -8,14 +8,14 @@ logger = get_logger()
 class FunctionExecutor:
 
     @staticmethod
-    def _func_handler(func_list, flow, handler_name='flow_editor'):
+    def _func_handler(func_list, flow, handler_type='flow_editor'):
         for func_info in func_list:
             handler_fn = func_info['func']
             try:
                 handler_fn(flow)
                 # TODO: The flow is changed or not?
                 action = {
-                    'id': handler_name,
+                    'id': handler_type,
                     'name': func_info['name']
                 }
                 if flow.get('action'):
