@@ -52,6 +52,8 @@ decoder = []
 
 labels = None
 
+encoders_decoders = None
+
 def start_server():
     for name in server:
         server[name].start()

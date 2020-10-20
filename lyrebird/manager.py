@@ -17,6 +17,7 @@ from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.notice_center import NoticeCenter
 from lyrebird.mock.dm.label import LabelHandler
+from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 from lyrebird.db.database_server import LyrebirdDatabaseServer
 from lyrebird.plugins import PluginManager
 from lyrebird.checker import LyrebirdCheckerServer
@@ -173,6 +174,9 @@ def run(args: argparse.Namespace):
 
     # init label handler
     application.labels = LabelHandler()
+
+    # init encoder&decoder
+    application.encoders_decoders = EncoderDecoder()
 
     # load debug plugin
     # TODO

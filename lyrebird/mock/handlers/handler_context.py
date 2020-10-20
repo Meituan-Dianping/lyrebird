@@ -10,7 +10,6 @@ from lyrebird.mock.blueprints.apis.bandwidth import config
 from urllib.parse import urlparse, unquote
 from .http_data_helper import DataHelper
 from .http_header_helper import HeadersHelper
-from .encoder_decoder_handler import encoders_decoders
 
 
 logger = get_logger()
@@ -256,7 +255,7 @@ class HandlerContext:
 
         # Import decoder for decoding the requested content
         decode_flow = {}
-        encoders_decoders.decoder_handler(self.flow, output=decode_flow)
+        application.encoders_decoders.decoder_handler(self.flow, output=decode_flow)
 
         context.application.event_bus.publish(
             'flow',

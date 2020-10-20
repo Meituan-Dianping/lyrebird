@@ -13,7 +13,6 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine
-from ..mock.handlers.encoder_decoder_handler import encoders_decoders
 
 
 """
@@ -74,7 +73,7 @@ class LyrebirdDatabaseServer(ThreadServer):
         # event is decoded , which should be encoded when save
         # event is deepcopy when created, no needs to copy again
         if channel == 'flow':
-            encoders_decoders.encoder_handler(event['flow'])
+            application.encoders_decoders.encoder_handler(event['flow'])
 
         content = json.dumps(event, ensure_ascii=False)
         flow = Event(event_id=event_id, channel=channel, content=content)
