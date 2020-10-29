@@ -1,5 +1,6 @@
 from .manager import main, run
 from .mock import context
+from .mock.dm.jsonpath import jsonpath
 from .mock.plugin_manager import PluginView, caller_info
 from .mock.handlers.handler_context import HandlerContext
 from .mock import plugin_manager
