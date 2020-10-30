@@ -6,7 +6,6 @@ logger = get_logger()
 
 class Jsonpath:
     def __init__(self):
-        self.DICT_SPLIT = '.'
         self.PATH_ROOT = '$'
         self.result = []
 
@@ -33,7 +32,7 @@ class Jsonpath:
         keys = re.split(pattern, path)
 
         if keys[0] != self.PATH_ROOT:
-            logger.warning(f'jsonpath error! Jsonpath {path} does not start with `$` or `$[*]`!')
+            logger.warning(f'jsonpath error! Jsonpath {path} does not start with `$`!')
             return
 
         self._jsonpath_iterator(root, keys[1:])
