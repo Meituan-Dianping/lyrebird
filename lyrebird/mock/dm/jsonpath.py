@@ -29,7 +29,7 @@ class Jsonpath:
         # EXAMPLE
         # path = '$.data[0][1].name'
         # keys = ['$', 'data', '[0]', '[1]', 'name']
-        pattern = r'(?:\.)|(?=\[.*\])' 
+        pattern = r'(?:\.)|(?=\[.*\])'
         keys = re.split(pattern, path)
 
         if keys[0] != self.PATH_ROOT:
