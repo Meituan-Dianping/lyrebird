@@ -4,23 +4,20 @@ from lyrebird.log import get_logger
 logger = get_logger()
 
 
-class Jsonpath:
-    def __init__(self):
-        self.PATH_ROOT = '$'
-        self.result = []
+class JSONPath:
 
-    def search(self, root, path:str):
-        """ Find JSON object in object (a ``list`` or ``dict`` JSON object) file by jsonpath
+    @staticmethod
+    def search(root, path:str):
+        """ Find JSON object in object (a ``list`` or ``dict`` JSON object) file by JSONPath
 
         ``root`` <list> or <dict> an object containing data
 
-        ``jsonpath`` <str> describe jsonpath of the target data, and must follow rules:
+        ``path`` <str> describe JSONPath of the target data, and must follow rules:
         1. Start with `$`
         2. Fuzzy search is not supported
 
         """
 
-        self.result = []
         if not path or not isinstance(path, str) or not isinstance(root, (list, dict)):
             return
 
@@ -30,32 +27,33 @@ class Jsonpath:
         # keys = ['$', 'data', '[0]', '[1]', 'name']
         pattern = r'(?:\.)|(?=\[.*\])'
         keys = re.split(pattern, path)
-
-        if keys[0] != self.PATH_ROOT:
-            logger.warning(f'jsonpath error! Jsonpath {path} does not start with `$`!')
+        if not keys or not len(keys):
             return
 
-        self._jsonpath_iterator(root, keys[1:])
-        return self.result
+        if keys[0] != '$':
+            logger.warning(f'JSONPath error! JSONPath {path} does not start with `$`!')
+            return
 
-    def _jsonpath_iterator(self, root, prop_keys):
+        result = []
+        JSONPath._search_iterator(root, keys[1:], result)
+        return result
+
+    @staticmethod
+    def _search_iterator(root, prop_keys, result):
         current_key = prop_keys[0]
 
-        keys = self.get_target_keys(root, current_key)
+        keys = JSONPath.get_target_keys(root, current_key)
         for key in keys:
-            self._collect_result(root, key) if len(prop_keys) == 1 else self._jsonpath_iterator(root[key], prop_keys[1:])
+            if len(prop_keys) == 1:
+                result.append(Node(root, key))
+            else:
+                JSONPath._search_iterator(root[key], prop_keys[1:], result)
 
     @staticmethod
-    def is_key_list(key): # new
+    def get_target_keys(root, key):
         # EXAMPLE
-        # [0], [10], [*]
-        pattern = '\[(\d+|\*)\]'
-        res = re.match(pattern, key)
-        return res
-
-    @staticmethod
-    def get_target_keys(root, key): # new
-        is_list = Jsonpath.is_key_list(key)
+        # matched [0], [10], [*]
+        is_list = re.match('\[(\d+|\*)\]', key)
 
         if not is_list:
             if isinstance(root, dict) and root.get(key):
@@ -73,10 +71,6 @@ class Jsonpath:
 
         return ()
 
-    def _collect_result(self, parent, key):
-        node = Node(parent, key)
-        self.result.append(node)
-
 
 class Node:
     def __init__(self, parent, key):
@@ -84,4 +78,4 @@ class Node:
         self.node = parent[key]
         self.key = key
 
-jsonpath = Jsonpath()
+jsonpath = JSONPath()
