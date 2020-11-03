@@ -42,5 +42,4 @@ def render_with_plugin(template_name_or_list, **context):
 
 @ui.route('/')
 def index():
-    reporter.page_in('inspector')
     return send_file(str(CLIENT_ROOT_DIR/'index.html'))
