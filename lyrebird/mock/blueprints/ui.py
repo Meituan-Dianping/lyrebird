@@ -3,7 +3,6 @@ import traceback
 from lyrebird.mock import context
 from lyrebird import log
 from ... import version
-# from .. import plugin_manager
 from pathlib import Path
 
 
