@@ -1,11 +1,10 @@
 from .manager import main, run
 from .mock import context
 from .mock.dm.jsonpath import jsonpath
-from .mock.plugin_manager import PluginView, caller_info
 from .mock.handlers.handler_context import HandlerContext
-from .mock import plugin_manager
-from blinker import Signal
 import os
+import inspect
+from collections import namedtuple
 from .event import CustomEventReceiver
 from .checker import event
 from .checker import encoder, decoder
@@ -41,12 +40,24 @@ def get_plugin_storage():
 
     :return: ~/.lyrebird/plugins/<plugin_name>
     """
-    info = caller_info(index=2)
+    info = _caller_info(index=2)
     storage_name = info.top_module_name
     plugin_storage_dir = os.path.abspath(os.path.join(APPLICATION_CONF_DIR, 'plugins/%s' % storage_name))
     if not os.path.exists(plugin_storage_dir):
         os.makedirs(plugin_storage_dir)
     return plugin_storage_dir
+
+
+def _caller_info(index=1):
+    stack = inspect.stack()
+    caller_module = inspect.getmodule(stack[index].frame)
+    caller_module_name = caller_module.__name__
+    if caller_module_name.find('.') > 0:
+        caller_top_module_name = caller_module_name.split('.')[0]
+    else:
+        caller_top_module_name = caller_module_name
+    CallerInfo = namedtuple('CallerInfo', 'top_module_name module_name')
+    return CallerInfo(module_name=caller_module_name, top_module_name=caller_top_module_name)
 
 
 def subscribe(channel, func, *args, **kwargs):
@@ -81,11 +92,6 @@ def add_background_task(name, func):
     """
     application.server['task'].add_task(name, func)
 
-
-def get_plugin_conf():
-    info = caller_info(index=2)
-    plugin_name = info.top_module_name
-    return plugin_manager.get_conf(plugin_name)
 
 
 """

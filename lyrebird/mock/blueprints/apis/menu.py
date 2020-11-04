@@ -1,7 +1,6 @@
 from flask_restful import Resource
-from flask import jsonify,request
+from flask import request
 from lyrebird.mock import context
-from lyrebird.mock import plugin_manager
 from lyrebird import application, reporter
 
 
@@ -38,28 +37,6 @@ class Menu(Resource):
                 'params': {
                     'src': f'/plugins/{plugin_id}',
                     'name': plugin_id
-                }
-            })
-        # Load old plugins
-        # TODO remove after all plugin use new manifest function
-        for plugin_key in plugin_manager.plugins:
-            plugin = plugin_manager.plugins[plugin_key]
-            if 'beta_web' not in plugin:
-                continue
-            web = plugin['beta_web']
-            name = plugin['name']
-            if hasattr(web, 'get_title'):
-                title = web.get_title()
-            else:
-                title = name[0].upper() + name[1:]
-            menu.append({
-                'name': 'plugin-view',
-                'title': title,
-                'type': 'router',
-                'path': '/plugin',
-                'params': {
-                    'src': f'/plugin/{plugin["project_name"]}',
-                    'name': name
                 }
             })
         # When there is no actived menu, the first one is displayed by default
