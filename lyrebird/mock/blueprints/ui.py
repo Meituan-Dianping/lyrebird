@@ -1,8 +1,5 @@
-from flask import render_template, Blueprint, send_file
-import traceback
-from lyrebird.mock import context
+from flask import Blueprint, send_file
 from lyrebird import log
-from ... import version
 from pathlib import Path
 
 
