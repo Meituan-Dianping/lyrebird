@@ -1,4 +1,5 @@
 import os
+import inspect
 import imp
 import inspect
 from pathlib import Path
@@ -145,8 +146,8 @@ def get_plugin_storage():
     """
     info = _caller_info(index=2)
     storage_name = info.top_module_name
-    application_conf_dir = Path('~/.lyrebird').expanduser().absolute()
-    plugin_storage_dir = application_conf_dir/'plugins'/storage_name
+    application_conf_dir = os.path.join(os.path.expanduser('~'), '.lyrebird')
+    plugin_storage_dir = os.path.abspath(os.path.join(application_conf_dir, 'plugins/%s' % storage_name))
     if not os.path.exists(plugin_storage_dir):
         os.makedirs(plugin_storage_dir)
     return plugin_storage_dir

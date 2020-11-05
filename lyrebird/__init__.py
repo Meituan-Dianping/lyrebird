@@ -1,8 +1,8 @@
-import os
 from .manager import main, run
 from .mock import context
 from .mock.dm.jsonpath import jsonpath
 from .mock.handlers.handler_context import HandlerContext
+import os
 from .event import CustomEventReceiver
 from .checker import event
 from .checker import encoder, decoder
