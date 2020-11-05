@@ -1,14 +1,13 @@
+import os
 from .manager import main, run
 from .mock import context
 from .mock.dm.jsonpath import jsonpath
 from .mock.handlers.handler_context import HandlerContext
-import os
-import inspect
-from collections import namedtuple
 from .event import CustomEventReceiver
 from .checker import event
 from .checker import encoder, decoder
 from .checker import on_request, on_response, on_request_upstream, on_response_upstream
+from .plugins import get_plugin_storage
 from lyrebird import application
 from lyrebird.log import get_logger
 
@@ -32,32 +31,6 @@ def emit(event, *args, **kwargs):
 
     """
     context.application.socket_io.emit(event, *args, **kwargs)
-
-
-def get_plugin_storage():
-    """
-    Get plugins storage dir path
-
-    :return: ~/.lyrebird/plugins/<plugin_name>
-    """
-    info = _caller_info(index=2)
-    storage_name = info.top_module_name
-    plugin_storage_dir = os.path.abspath(os.path.join(APPLICATION_CONF_DIR, 'plugins/%s' % storage_name))
-    if not os.path.exists(plugin_storage_dir):
-        os.makedirs(plugin_storage_dir)
-    return plugin_storage_dir
-
-
-def _caller_info(index=1):
-    stack = inspect.stack()
-    caller_module = inspect.getmodule(stack[index].frame)
-    caller_module_name = caller_module.__name__
-    if caller_module_name.find('.') > 0:
-        caller_top_module_name = caller_module_name.split('.')[0]
-    else:
-        caller_top_module_name = caller_module_name
-    CallerInfo = namedtuple('CallerInfo', 'top_module_name module_name')
-    return CallerInfo(module_name=caller_module_name, top_module_name=caller_top_module_name)
 
 
 def subscribe(channel, func, *args, **kwargs):
