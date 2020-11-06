@@ -58,7 +58,7 @@
     </Table>
     <div style="float: right; margin-top: 5px">
       <Page
-        :total="originFlowList.length"
+        :total="displayFlowCount"
         :page-size="pageSize"
         :current.sync="currentPage"
         @on-change="refreshFlowList"
@@ -78,6 +78,7 @@ export default {
     return {
       flowList: [],
       foucsFlow: null,
+      displayFlowCount: 0,
       pageSize: 50,
       pageCount: 0,
       currentPage: 1,
@@ -180,7 +181,8 @@ export default {
           displayFlowList.push(flow)
         }
       }
-      this.pageCount = Math.ceil(displayFlowList.length / this.pageSize)
+      this.displayFlowCount = displayFlowList.length
+      this.pageCount = Math.ceil(this.displayFlowCount / this.pageSize)
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
       this.flowList = displayFlowList.slice(startIndex, endIndex)
