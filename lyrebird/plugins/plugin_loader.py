@@ -1,6 +1,8 @@
+import os
 import imp
 import inspect
 from pathlib import Path
+from collections import namedtuple
 
 import pkg_resources
 import setuptools
@@ -134,3 +136,28 @@ def load_from_path(plugin_path):
     plugin = Plugin(manifest['id'], **manifest)
     plugin.location = str(Path(caller_info.filename).parent)
     return plugin
+
+def get_plugin_storage():
+    """
+    Get plugins storage dir path
+
+    :return: ~/.lyrebird/plugins/<plugin_name>
+    """
+    info = _caller_info(index=2)
+    storage_name = info.top_module_name
+    application_conf_dir = os.path.join(os.path.expanduser('~'), '.lyrebird')
+    plugin_storage_dir = os.path.abspath(os.path.join(application_conf_dir, 'plugins/%s' % storage_name))
+    if not os.path.exists(plugin_storage_dir):
+        os.makedirs(plugin_storage_dir)
+    return plugin_storage_dir
+
+def _caller_info(index=1):
+    stack = inspect.stack()
+    caller_module = inspect.getmodule(stack[index].frame)
+    caller_module_name = caller_module.__name__
+    if caller_module_name.find('.') > 0:
+        caller_top_module_name = caller_module_name.split('.')[0]
+    else:
+        caller_top_module_name = caller_module_name
+    CallerInfo = namedtuple('CallerInfo', 'top_module_name module_name')
+    return CallerInfo(module_name=caller_module_name, top_module_name=caller_top_module_name)
