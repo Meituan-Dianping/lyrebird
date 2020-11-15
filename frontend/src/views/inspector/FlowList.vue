@@ -221,11 +221,11 @@ export default {
         return (duration * 1000).toFixed(0) + 'ms'
       }
     },
-    onUrlCopy (e) {
+    onUrlCopy () {
       this.$bus.$emit('msg.success', 'URL copied!')
     },
     onUrlCopyError (e) {
-      this.$bus.$emit('msg.error', 'Copy url on Clipboard error:' + e)
+      this.$bus.$emit('msg.error', 'Copy url error:' + e)
     }
   }
 }
