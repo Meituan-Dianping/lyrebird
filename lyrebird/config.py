@@ -2,14 +2,7 @@ from pathlib import Path
 import codecs
 import json
 from packaging import version
-from urllib.parse import urlparse
-import requests
-import subprocess
-import time
-import shutil
 import jinja2
-import json
-import os
 from lyrebird import log as nlog
 
 

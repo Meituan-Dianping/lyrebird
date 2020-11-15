@@ -3,8 +3,7 @@ from flask_restful import Resource, Api
 from .common import Status, WorkMode, Manifest, DiffMode
 from .flow import Flow, FlowList
 from .mock import MockData, MockGroup, ActivatedMockGroup, MockGroupByName, MockDataLabel
-from .config import Conf, ResetConf
-from .plugin import Plugin
+from .config import Conf
 from .menu import Menu
 from .notice import Notice
 from .checker import Checker
@@ -61,11 +60,9 @@ api_source.add_resource(ActivatedMockGroup, '/mock/activated', '/mock/<string:gr
 api_source.add_resource(MockGroupByName, '/mock_by_name')
 api_source.add_resource(MockDataLabel, '/label')
 api_source.add_resource(Qrcode, '/qrcode')
-api_source.add_resource(Conf, '/conf/<string:plugin_name>')
-api_source.add_resource(ResetConf, '/conf/<string:plugin_name>/reset')
+api_source.add_resource(Conf, '/conf')
 api_source.add_resource(WorkMode, '/mode', '/mode/<string:mode>')
 api_source.add_resource(DiffMode, '/diffmode')
-api_source.add_resource(Plugin, '/plugin', '/plugin/<string:plugin_name>')
 api_source.add_resource(Menu, '/menu')
 api_source.add_resource(Notice, '/notice')
 api_source.add_resource(Checker, '/checker', '/checker/<string:checker_id>')

@@ -1,8 +1,7 @@
 from flask_restful import Resource
-from flask import jsonify,request
+from flask import request
 from lyrebird.mock import context
-from lyrebird.mock import plugin_manager
-from lyrebird import application
+from lyrebird import application, reporter
 
 
 class Menu(Resource):
@@ -40,34 +39,22 @@ class Menu(Resource):
                     'name': plugin_id
                 }
             })
-        # Load old plugins
-        # TODO remove after all plugin use new manifest function
-        for plugin_key in plugin_manager.plugins:
-            plugin = plugin_manager.plugins[plugin_key]
-            if 'beta_web' not in plugin:
-                continue
-            web = plugin['beta_web']
-            name = plugin['name']
-            if hasattr(web, 'get_title'):
-                title = web.get_title()
-            else:
-                title = name[0].upper() + name[1:]
-            menu.append({
-                'name': 'plugin-view',
-                'title': title,
-                'type': 'router',
-                'path': '/plugin',
-                'params': {
-                    'src': f'/plugin/{plugin["project_name"]}',
-                    'name': name
-                }
-            })
         # When there is no actived menu, the first one is displayed by default
-        active_menu = application.active_menu or menu[0]
+        if not application.active_menu:
+            self.set_active_menu(menu[0])
+        active_menu = application.active_menu
         active_name = active_menu.get('title', '')
         return context.make_ok_response(menu=menu, activeMenuItem=active_menu, activeName=active_name)
 
     def put(self):
         active_menu = request.json.get('activeMenuItem')
-        application.active_menu = active_menu
+        self.set_active_menu(active_menu)
         return context.make_ok_response()
+
+    def set_active_menu(self, menu):
+        application.active_menu = menu
+        if menu.get('params', {}).get('name'):
+            menu_name = menu['params']['name']
+        else:
+            menu_name = menu['name']
+        reporter.page_in(menu_name)

@@ -1,12 +1,5 @@
-import os
-import json
-import socket
-import datetime
-import subprocess
-from . import plugin_manager
-from flask import Flask, request, redirect, url_for, Response, Blueprint, send_file
+from flask import Flask, redirect, url_for
 from . import context
-from .blueprints.plugin import plugin
 from .blueprints.apis import api
 from .blueprints.ui import ui
 from .blueprints.core import core
@@ -54,19 +47,6 @@ class LyrebirdMockServer(ThreadServer):
 
         self.app.env = 'development'
 
-        self.app.jinja_env.block_start_string = '[%'
-        self.app.jinja_env.block_end_string = '%]'
-        self.app.jinja_env.variable_start_string = '[['
-        self.app.jinja_env.variable_end_string = ']]'
-        self.app.jinja_env.comment_start_string = '[#'
-        self.app.jinja_env.comment_end_string = '#]'
-
-        # TODO delete
-        # Add global function for templates
-        # self.app.jinja_env.globals['time'] = time.time
-        # self.app.jinja_env.globals['datetime'] = datetime.datetime
-        # self.app.jinja_env.globals['version'] = VERSION
-
         # async_mode = threading / eventlet / gevent / gevent_uwsgi
         self.socket_io = SocketIO(self.app, async_mode='threading', logger=False, cors_allowed_origins='*')
 
@@ -82,19 +62,10 @@ class LyrebirdMockServer(ThreadServer):
             raise SyntaxError('Can not start mock server without config file.'
                               ' Default config file path = api-mock/conf.json')
 
-        # Plugin
-        # init plugin
-        plugin_manager.load()
-        # load plugin frontend
-        plugin_manager.add_view_to_blueprint(ui)
-        plugin_manager.add_view_to_blueprint(plugin)
-        # Register event socket
-        plugin_manager.add_event_rules(self.socket_io)
         # Register blueprints
         self.app.register_blueprint(api)
         self.app.register_blueprint(core)
         self.app.register_blueprint(ui)
-        self.app.register_blueprint(plugin)
 
         @self.app.route('/')
         def index():
