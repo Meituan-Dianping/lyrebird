@@ -36,8 +36,10 @@ class FlowList(Resource):
                 start_time=item['start_time'],
                 request=dict(
                     url=item['request'].get('url'),
-                    path=item['request'].get('path'),
+                    scheme=item['request'].get('scheme'),
                     host=item['request'].get('host'),
+                    path=item['request'].get('path'),
+                    params='&'.join([k+'='+v for k,v in dict(item['request']['query']).items()]),
                     method=item['request'].get('method')
                 ),
                 response=dict(
