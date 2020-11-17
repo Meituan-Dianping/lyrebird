@@ -41,7 +41,6 @@ class FlowList(Resource):
                     host=item['request'].get('host'),
                     path=item['request'].get('path'),
                     params=unquote(urlencode(item['request']['query'])),
-                    # params='&'.join([k+'='+v for k,v in dict(item['request']['query']).items()]),
                     method=item['request'].get('method')
                 ),
                 response=dict(
