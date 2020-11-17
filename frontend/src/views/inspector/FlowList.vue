@@ -290,16 +290,17 @@ export default {
   cursor: pointer;
 }
 .flow-list-item-url-scheme {
-  color: green;
-}
-.flow-list-item-url-host {
-  color:dodgerblue;
-}
-.flow-list-item-url-path {
   color: unset;
 }
+.flow-list-item-url-host {
+  color:navy;
+}
+.flow-list-item-url-path {
+  color:seagreen;
+  font-weight: 500;
+}
 .flow-list-item-url-params {
-  color: green;
+  color: unset;
 }
 .flow-list-item-copy-btn {
   display: inline-block;
