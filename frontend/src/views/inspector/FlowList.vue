@@ -45,8 +45,8 @@
           <span class="flow-list-item-url-scheme">{{ row.request.scheme }}</span>
           <span class="flow-list-item-url-scheme" v-if="row.request.scheme">://</span>
 
-          <span class="flow-list-item-url-host">{{ row.request.host ? row.request.host : '' }}</span>
-          <span class="flow-list-item-url-path">{{ row.request.path ? row.request.path: '' }}</span>
+          <span class="flow-list-item-url-host">{{ row.request.host}}</span>
+          <span class="flow-list-item-url-path">{{ row.request.path}}</span>
 
           <span class="flow-list-item-url-params" v-if="row.request.params">?</span>
           <span class="flow-list-item-url-params">{{ row.request.params }}</span>
