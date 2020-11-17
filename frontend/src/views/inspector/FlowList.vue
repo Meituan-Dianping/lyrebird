@@ -293,7 +293,8 @@ export default {
   color: unset;
 }
 .flow-list-item-url-host {
-  color:navy;
+  color: #3780AF;
+  font-weight: 500;
 }
 .flow-list-item-url-path {
   color:seagreen;
