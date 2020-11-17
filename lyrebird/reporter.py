@@ -1,6 +1,7 @@
 from lyrebird import application
 from lyrebird.log import get_logger
 from pathlib import Path
+from copy import deepcopy
 import imp
 import traceback
 import datetime
@@ -51,9 +52,10 @@ class Reporter:
         task_manager = application.server.get('task')
 
         def send_report():
+            new_data = deepcopy(data)
             for script in self.scripts:
                 try:
-                    script(data)
+                    script(new_data)
                 except Exception:
                     logger.error(f'Send report failed:\n{traceback.format_exc()}')
         task_manager.add_task('send-report', send_report)

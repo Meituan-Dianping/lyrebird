@@ -229,6 +229,12 @@ export default {
       } else {
         return (duration * 1000).toFixed(0) + 'ms'
       }
+    },
+    onUrlCopy () {
+      this.$bus.$emit('msg.success', 'URL copied!')
+    },
+    onUrlCopyError (e) {
+      this.$bus.$emit('msg.error', 'Copy url error:' + e)
     }
   }
 }
@@ -268,7 +274,7 @@ export default {
 .flow-list-item-url {
   display: inline-block;
   word-break: keep-all;
-  max-width: 100%;
+  max-width: calc(100% - 24px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -294,5 +300,10 @@ export default {
 }
 .flow-list-item-url-params {
   color: green;
+}
+.flow-list-item-copy-btn {
+  display: inline-block;
+  overflow: hidden;
+  cursor: pointer;
 }
 </style>
