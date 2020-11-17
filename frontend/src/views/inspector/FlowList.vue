@@ -287,7 +287,6 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: top;
-  cursor: pointer;
 }
 .flow-list-item-url-scheme {
   color: unset;
