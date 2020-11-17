@@ -280,14 +280,6 @@ export default {
   text-overflow: ellipsis;
   cursor: pointer;
 }
-.url-path-span{
-  display: inline-block;
-  max-width: calc(100% - 24px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: top;
-}
 .flow-list-item-url-scheme {
   color: unset;
 }
