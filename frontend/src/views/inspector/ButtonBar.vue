@@ -232,5 +232,6 @@ export default {
 .inspector-searchbox {
   width: 30vw;
   float: right;
+  margin-right: 5px;
 }
 </style>
