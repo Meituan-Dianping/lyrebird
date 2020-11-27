@@ -19,7 +19,11 @@ class PluginManager(StaticServer):
         self.plugins = {}
         self.plugins.update(plugin_loader.load_all_from_ep())
         for plugin_path in self.plugin_path_list:
-            plugin = plugin_loader.load_from_path(plugin_path)
+            try:
+                plugin = plugin_loader.load_from_path(plugin_path)
+            except:
+                logger.error(f'Load plugin failed. Skip plugin : {plugin_path}')
+                continue
             self.plugins[plugin.project_name] = plugin
         self.setup_plugins()
 
@@ -75,7 +79,7 @@ class PluginManager(StaticServer):
                 application.on_request.append({
                     'name': handler[0],
                     'func': handler[1],
-                    'rules': handler[2] if len(handler)>2 else None
+                    'rules': handler[2] if len(handler) > 2 else None
                 })
 
             # Subscribe handler on response
@@ -83,7 +87,7 @@ class PluginManager(StaticServer):
                 application.on_response.append({
                     'name': handler[0],
                     'func': handler[1],
-                    'rules': handler[2] if len(handler)>2 else None
+                    'rules': handler[2] if len(handler) > 2 else None
                 })
 
             # Subscribe handler on proxy request
@@ -91,7 +95,7 @@ class PluginManager(StaticServer):
                 application.on_request_upstream.append({
                     'name': handler[0],
                     'func': handler[1],
-                    'rules': handler[2] if len(handler)>2 else None
+                    'rules': handler[2] if len(handler) > 2 else None
                 })
 
             # Subscribe handler on proxy response
@@ -99,7 +103,7 @@ class PluginManager(StaticServer):
                 application.on_response_upstream.append({
                     'name': handler[0],
                     'func': handler[1],
-                    'rules': handler[2] if len(handler)>2 else None
+                    'rules': handler[2] if len(handler) > 2 else None
                 })
 
             for status_item in plugin.manifest.status:
