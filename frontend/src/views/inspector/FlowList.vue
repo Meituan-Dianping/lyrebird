@@ -41,7 +41,27 @@
       </template>
 
       <template slot-scope="{ row }" slot="request">
-        <span class="flow-list-item-url">{{ row.request.url }}</span>
+        <span class="flow-list-item-url">
+          <span class="flow-list-item-url-scheme">{{ row.request.scheme }}</span>
+          <span class="flow-list-item-url-scheme" v-if="row.request.scheme">://</span>
+
+          <span class="flow-list-item-url-host">{{ row.request.host}}</span>
+          <span class="flow-list-item-url-path">{{ row.request.path}}</span>
+
+          <span class="flow-list-item-url-params" v-if="row.request.params">?</span>
+          <span class="flow-list-item-url-params">{{ row.request.params }}</span>
+        </span>
+        <span class="flow-list-item-copy-btn" @click.stop>
+          <Tooltip placement="bottom" content="Copy" :delay="500" transfer>
+            <Icon
+              type="ios-copy-outline"
+              size="16"
+              v-clipboard:copy="row.request.url"
+              v-clipboard:success="onUrlCopy"
+              v-clipboard:error="onUrlCopyError"
+            />
+          </Tooltip>
+        </span>
       </template>
 
       <template slot-scope="{ row }" slot="start_time">
@@ -209,6 +229,12 @@ export default {
       } else {
         return (duration * 1000).toFixed(0) + 'ms'
       }
+    },
+    onUrlCopy () {
+      this.$bus.$emit('msg.success', 'URL copied!')
+    },
+    onUrlCopyError (e) {
+      this.$bus.$emit('msg.error', 'Copy url error:' + e)
     }
   }
 }
@@ -248,9 +274,29 @@ export default {
 .flow-list-item-url {
   display: inline-block;
   word-break: keep-all;
-  max-width: 100%;
+  max-width: calc(100% - 24px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
+}
+.flow-list-item-url-scheme {
+  color: unset;
+}
+.flow-list-item-url-host {
+  color: #3780AF;
+  font-weight: 500;
+}
+.flow-list-item-url-path {
+  color:seagreen;
+  font-weight: 500;
+}
+.flow-list-item-url-params {
+  color: unset;
+}
+.flow-list-item-copy-btn {
+  display: inline-block;
+  overflow: hidden;
+  cursor: pointer;
 }
 </style>

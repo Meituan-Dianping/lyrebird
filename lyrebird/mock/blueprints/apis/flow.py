@@ -1,6 +1,7 @@
 from flask_restful import Resource
 from lyrebird.mock import context
 from lyrebird import application
+from urllib.parse import urlencode, unquote
 from flask import request
 import json
 
@@ -36,8 +37,10 @@ class FlowList(Resource):
                 start_time=item['start_time'],
                 request=dict(
                     url=item['request'].get('url'),
-                    path=item['request'].get('path'),
+                    scheme=item['request'].get('scheme'),
                     host=item['request'].get('host'),
+                    path=item['request'].get('path'),
+                    params=unquote(urlencode(item['request']['query'])),
                     method=item['request'].get('method')
                 ),
                 response=dict(
