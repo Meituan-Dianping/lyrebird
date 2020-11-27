@@ -36,10 +36,12 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
     python3-dev \
     libxml2-dev libxslt-dev libffi-dev gcc musl-dev libgcc \
     jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev \
+    curl \
     && python3 -m ensurepip --upgrade \
     && pip3 install -U pip \
     && pip3 install wheel \
     && LDFLAGS=-L/lib pip3 install -U . \
+    && pip install facebook-wda jsonschema \
     && apk del --purge \
     git \
     g++ \
