@@ -20,7 +20,6 @@ pip install lyrebird
 
 ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/overbridge/lyrebird?sort=semver)
 ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/overbridge/lyrebird?sort=date)
-![Docker Pulls](https://img.shields.io/docker/pulls/overbridge/lyrebird)
 
 ```
 docker pull overbridge/lyrebird
