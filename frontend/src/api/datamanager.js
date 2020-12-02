@@ -137,11 +137,11 @@ export const getQrcodeImg = (link) => {
   })
 }
 
-export const importSnapshot = (parentNode, snapshotName) => {
+export const importSnapshot = (parent_id, snapshotName) => {
   return axios({
     url: '/api/snapshot/import',
     method: 'POST',
-    data: { parentNode, snapshotName }
+    data: { parent_id, snapshotName }
   })
 }
 

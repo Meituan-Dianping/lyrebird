@@ -46,13 +46,14 @@
           <a href="javascript:void(0)">
             <Icon type="ios-more" class="tree-node-inner-button"></Icon>
           </a>
-          <DropdownMenu slot="list" style="min-width:60px">
+          <DropdownMenu slot="list" class="dropdown-menu">
             <DropdownItem align="left" name="activate" v-show="data.type==='group'">Activate</DropdownItem>
             <DropdownItem
               align="left"
               name="deactivate"
               v-show="data.type==='group'"
               :disabled="!isGroupActivated"
+              class="dropdown-menu-item-divided"
             >Deactivate</DropdownItem>
             <DropdownItem align="left" name="delete">Delete</DropdownItem>
             <DropdownItem align="left" name="cut">Cut</DropdownItem>
@@ -62,9 +63,37 @@
               name="paste"
               v-show="data.type==='group'"
               :disabled="!pasteButtonEnable"
+              class="dropdown-menu-item-divided"
             >Paste</DropdownItem>
             <DropdownItem align="left" name="addGroup" v-show="data.type==='group'">Add group</DropdownItem>
-            <DropdownItem align="left" name="addData" v-show="data.type==='group'">Add data</DropdownItem>
+            <DropdownItem
+              align="left"
+              name="addData"
+              v-show="data.type==='group'"
+              class="dropdown-menu-item-divided"
+            >Add data</DropdownItem>
+            <DropdownItem align="left" name="import" v-show="data.type==='group'" style="padding:0px">
+              <Upload
+                :on-success="handlerUploadSuccess"
+                :on-error="handlerUploadError"
+                action="/api/snapshot/import"
+                :format="['lb']"
+                accept=".lb"
+                :data="{parent_id: data.id}"
+                :show-upload-list="false"
+                style="width: 100%;"
+              >
+                <div style="padding: 7px 16px; width:100%;">
+                  import
+                </div>
+              </Upload>
+            </DropdownItem>
+            <DropdownItem align="left" name="export" v-show="data.type==='group'" style="padding:0px">
+              <a :href="'/api/snapshot/export/' + data.id"
+                :download="data.name + '.lb'"
+                class="dropdown-menu-item-link"
+              >export</a>
+            </DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </span>
@@ -261,6 +290,13 @@ export default {
     },
     onTreeNodeDeactivate () {
       this.$store.dispatch('deactivateGroup')
+    },
+    handlerUploadSuccess (res, file) {
+      this.$bus.$emit('msg.success', 'Import snapshot ' + file.name + ' success!')
+      this.$store.dispatch('loadDataMap')
+    },
+    handlerUploadError (error, file) {
+      this.$bus.$emit('msg.error', 'Import snapshot ' + file.name + ' error: ' + error)
     }
   }
 }
@@ -312,6 +348,22 @@ export default {
 }
 .ivu-dropdown > .ivu-select-dropdown {
   margin: 0px 0px;
+}
+.dropdown-menu {
+  min-width: 100px;
+}
+.dropdown-menu-item-divided {
+  margin-bottom: 3px;
+  border-bottom: 1px solid #e8eaec;
+}
+.dropdown-menu-item-link {
+  position: relative;
+  color: #515a6e;
+  display: block;
+  padding: 7px 16px;
+}
+.ivu-upload > .ivu-upload-select {
+  width: 100%;
 }
 .status-point {
   display: inline-block;

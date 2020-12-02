@@ -643,12 +643,12 @@ class DataManager:
     def decompress_snapshot(self):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
         self.snapshot_helper.save_compressed_file(snapshot_path)
-        self.snapshot_helper.decompress_snapshot(f'{snapshot_path}.lb', f'{snapshot_path}-decompressed')
-        if not Path(f'{snapshot_path}-decompressed/{PROP_FILE_NAME}').exists():
+        self.snapshot_helper.decompress_snapshot(f'{snapshot_path}.lb', f'{snapshot_path}')
+        if not Path(f'{snapshot_path}/{PROP_FILE_NAME}').exists():
             raise LyrebirdPropNotExists
-        with codecs.open(f'{snapshot_path}-decompressed/{PROP_FILE_NAME}') as f:
+        with codecs.open(f'{snapshot_path}/{PROP_FILE_NAME}') as f:
             _prop = json.load(f)
-        return {'snapshot_detail': _prop, 'snapshot_storage_path': f'{snapshot_path}-decompressed'}
+        return {'snapshot_detail': _prop, 'snapshot_storage_path': f'{snapshot_path}'}
 
     def import_snapshot(self, parent_id, snapshot_name):
         snapshot_info = self.decompress_snapshot()

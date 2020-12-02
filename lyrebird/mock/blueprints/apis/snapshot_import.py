@@ -1,3 +1,4 @@
+import uuid
 from flask import redirect
 from ....version import VERSION
 from lyrebird import application
@@ -17,11 +18,31 @@ class SanpshotImport(Resource):
         return redirect(f"/ui/?v={VERSION}#/datamanager/import")
 
     def post(self):
-        parent_node = request.json.get("parentNode")
-        snapshot_name = request.json.get('snapshotName', '')
-        if "id" not in parent_node:
-            return application.make_fail_response(msg="object has no attribute : parentNode.id")
-        context.application.data_manager.import_snapshot(parent_node["id"], snapshot_name)
+        if request.json:
+            parent_id = request.json.get('parent_id')
+            name = request.json.get('snapshotName', '')
+            if not parent_id:
+                return application.make_fail_response('parent_id is required!')
+
+        elif request.files:
+            parent_id = request.form.get('parent_id') if request.form else ''
+            if not parent_id:
+                return application.make_fail_response('parent_id is required!')
+
+            stream = request.files['file']
+            if not stream:
+                return application.make_fail_response('file is required!')
+
+            filename = stream.filename or str(uuid.uuid4())
+            path = application._cm.ROOT / 'snapshot' / filename
+            if path.suffix != '.lb':
+                return application.make_fail_response(f'Unknown file type `.{path.suffix}``, `.lb` is required!')
+
+            stream.save(str(path))
+            application.snapshot_import_uri = f'file://{str(path)}'
+            name = path.stem
+
+        context.application.data_manager.import_snapshot(parent_id, name)
         return application.make_ok_response()
 
 
