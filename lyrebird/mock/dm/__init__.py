@@ -482,6 +482,9 @@ class DataManager:
         for node_id in self.id_map:
             node = self.id_map[node_id]
             if 'children' not in node:
+                # fix mock data group has no children
+                if node['type'] == 'group':
+                    node['children'] = []
                 continue
             node['children'] = sorted(node['children'], key=lambda sub_node: sub_node['name'])
 
@@ -643,18 +646,25 @@ class DataManager:
     def decompress_snapshot(self):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
         self.snapshot_helper.save_compressed_file(snapshot_path)
-        self.snapshot_helper.decompress_snapshot(f'{snapshot_path}.lb', f'{snapshot_path}-decompressed')
-        if not Path(f'{snapshot_path}-decompressed/{PROP_FILE_NAME}').exists():
+        self.snapshot_helper.decompress_snapshot(f'{snapshot_path}.lb', f'{snapshot_path}')
+        if not Path(f'{snapshot_path}/{PROP_FILE_NAME}').exists():
             raise LyrebirdPropNotExists
-        with codecs.open(f'{snapshot_path}-decompressed/{PROP_FILE_NAME}') as f:
+        with codecs.open(f'{snapshot_path}/{PROP_FILE_NAME}') as f:
             _prop = json.load(f)
-        return {'snapshot_detail': _prop, 'snapshot_storage_path': f'{snapshot_path}-decompressed'}
+        return {'snapshot_detail': _prop, 'snapshot_storage_path': f'{snapshot_path}'}
 
-    def import_snapshot(self, parent_id, snapshot_name):
+    def import_snapshot(self, parent_id, snapshot_name, path=None):
         snapshot_info = self.decompress_snapshot()
         snapshot_info['snapshot_detail']['name'] = snapshot_name
         self.import_(node=snapshot_info['snapshot_detail'])
         self.paste(parent_id=parent_id, custom_input_file_path=snapshot_info['snapshot_storage_path'])
+        tmp_snapshot_file_list = [
+            snapshot_info['snapshot_storage_path'],
+            f'{snapshot_info["snapshot_storage_path"]}.lb'
+        ]
+        if path:
+            tmp_snapshot_file_list.append(path)
+        self.remove_tmp_snapshot_file(tmp_snapshot_file_list)
 
     def export_snapshot_from_event(self, event_json):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
@@ -678,6 +688,13 @@ class DataManager:
         self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
         return f'{snapshot_path}.lb'
 
+    def remove_tmp_snapshot_file(self, files):
+        for filepath in files:
+            path = Path(filepath)
+            if path.is_dir() and path.exists():
+                shutil.rmtree(path)
+            elif path.is_file() and path.exists():
+                path.unlink()
 
 # -----------------
 # Exceptions
@@ -767,7 +784,7 @@ class PropWriter:
                 children = v
                 continue
             dict_str += f'"{k}":{self.parse(v)},'
-        if children:
+        if children is not None:
             dict_str += self.children_parser(children)
         if dict_str.endswith(','):
             dict_str = dict_str[:-1]
