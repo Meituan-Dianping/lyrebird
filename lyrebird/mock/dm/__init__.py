@@ -484,7 +484,7 @@ class DataManager:
             if 'children' not in node:
                 # fix mock data group has no children
                 if node['type'] == 'group':
-                    node['children'] = [] 
+                    node['children'] = []
                 continue
             node['children'] = sorted(node['children'], key=lambda sub_node: sub_node['name'])
 
