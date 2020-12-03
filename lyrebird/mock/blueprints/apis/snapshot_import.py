@@ -24,6 +24,8 @@ class SanpshotImport(Resource):
             if not parent_id:
                 return application.make_fail_response('parent_id is required!')
 
+            context.application.data_manager.import_snapshot(parent_id, name)
+
         elif request.files:
             parent_id = request.form.get('parent_id') if request.form else ''
             if not parent_id:
@@ -42,12 +44,20 @@ class SanpshotImport(Resource):
             application.snapshot_import_uri = f'file://{str(path)}'
             name = path.stem
 
-        context.application.data_manager.import_snapshot(parent_id, name)
+            context.application.data_manager.import_snapshot(parent_id, name, path=path)
+
         return application.make_ok_response()
 
 
 class SnapShotImportDetail(Resource):
     def get(self):
-        snapshot_detail = context.application.data_manager.decompress_snapshot()['snapshot_detail']
-        snapshot_detail.pop('children')
-        return application.make_ok_response(data=snapshot_detail)
+        info = context.application.data_manager.decompress_snapshot()
+        tmp_snapshot_file_list = [
+            info['snapshot_storage_path'],
+            f'{info["snapshot_storage_path"]}.lb'
+        ]
+        context.application.data_manager.remove_tmp_snapshot_file(tmp_snapshot_file_list)
+
+        detail = info['snapshot_detail']
+        detail.pop('children')
+        return application.make_ok_response(data=detail)
