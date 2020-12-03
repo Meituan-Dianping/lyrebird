@@ -24,6 +24,8 @@ export default {
         return '#0fccbf'
       } else if (this.channel === 'notice') {
         return '#ff9900'
+      } else if (this.channel === 'snapshot') {
+        return '#52A7F9'
       } else {
         return '#808695'
       }

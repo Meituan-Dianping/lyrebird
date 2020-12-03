@@ -15,7 +15,6 @@ export default {
     focusNodeInfo: {},
     pasteTarget: null,
     importSnapshotParentNode: {},
-    spinDisplay: false,
     snapshotName: '',
     labels: [],
     isLoading: false,
@@ -77,9 +76,6 @@ export default {
     },
     setImportSnapshotParentNode (state, importSnapshotParentNode) {
       state.importSnapshotParentNode = importSnapshotParentNode
-    },
-    setSpinDisplay (state, spinDisplay) {
-      state.spinDisplay = spinDisplay
     },
     setSnapshotName (state, snapshotName) {
       state.snapshotName = snapshotName
@@ -277,27 +273,25 @@ export default {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' paste error: ' + error.data.message)
         })
     },
-    importSnapshot ({ state, commit, dispatch }) {
-      api
-        .importSnapshot(state.importSnapshotParentNode, state.snapshotName)
-        .then((res) => {
-          commit('setSpinDisplay', false)
+    importSnapshot ({ state, dispatch }) {
+      api.importSnapshot(state.importSnapshotParentNode.id, state.snapshotName)
+        .then(response => {
           dispatch('loadDataMap')
-          bus.$emit('msg.success', res.data.message)
+          bus.$emit('msg.success', 'Import snapshot ' + state.snapshotName + ' success!')
         })
-        .catch((err) => {
-          commit('setSpinDisplay', false)
+        .catch(error => {
           dispatch('loadDataMap')
-          bus.$emit('msg.error', err.data.message)
+          bus.$emit('msg.error', 'Import snapshot ' + state.snapshotName + ' error: ' + error.data.message)
         })
     },
     loadSnapshotName ({ commit }) {
+      bus.$emit('msg.info', 'Loading snapshot ...')
       api.getSnapShotDetail()
         .then((res) => {
           commit('setSnapshotName', res.data.data.name)
         })
         .catch((err) => { 
-          bus.$emit('msg.error', 'Get snapshot name error' + err.data.message)
+          bus.$emit('msg.error', 'Load snapshot information error: ' + err.data.message)
         })
     }
   }
