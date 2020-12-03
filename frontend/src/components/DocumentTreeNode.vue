@@ -84,7 +84,7 @@
                 style="width: 100%;"
               >
                 <div style="padding: 7px 16px; width:100%;">
-                  import
+                  Import
                 </div>
               </Upload>
             </DropdownItem>
@@ -92,7 +92,7 @@
               <a :href="'/api/snapshot/export/' + data.id"
                 :download="data.name + '.lb'"
                 class="dropdown-menu-item-link"
-              >export</a>
+              >Export</a>
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
