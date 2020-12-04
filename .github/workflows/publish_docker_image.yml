@@ -29,6 +29,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: overbridge/lyrebird
           tag_with_ref: true
+          tags: latest
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
         with:
