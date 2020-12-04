@@ -4,6 +4,7 @@ import uuid
 import json
 import codecs
 import shutil
+import traceback
 from pathlib import Path
 from urllib.parse import urlparse
 from lyrebird.log import get_logger
@@ -221,7 +222,16 @@ class DataManager:
         for rule_key in rules:
             pattern = rules[rule_key]
             target = self._get_rule_target(rule_key, flow)
-            if not target or not re.search(pattern, target):
+            if not target:
+                return False
+
+            try:
+                search_result = re.search(pattern, target)
+            except:
+                logger.warning(f'Illegal regular match in mock data!\n {traceback.format_exc()}')
+                return False
+
+            if not search_result:
                 return False
         return True
 
