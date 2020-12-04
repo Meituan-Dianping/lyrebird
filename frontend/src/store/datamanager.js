@@ -11,6 +11,7 @@ export default {
     isLoadConflictInfo: false,
     groupListOpenNode: new Set(),
     dataDetail: {},
+    dataDetailFocuedTab: 'info',
     groupDetail: {},
     focusNodeInfo: {},
     pasteTarget: null,
@@ -58,6 +59,9 @@ export default {
     },
     setDataDetail (state, dataDetail) {
       state.dataDetail = dataDetail
+    },
+    setDataDetailFocuedTab (state, dataDetailFocuedTab) {
+      state.dataDetailFocuedTab = dataDetailFocuedTab
     },
     setGroupDetail (state, groupDetail) {
       state.groupDetail = groupDetail
