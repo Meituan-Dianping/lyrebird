@@ -77,8 +77,6 @@ class NoticeCenter():
 
 
         """
-        self.send_report(msg)
-
         unique_key = msg.get('title')
         if self.notice_hashmap.get(unique_key):
             self.notice_hashmap[unique_key]['noticeList'].append(msg)
@@ -123,16 +121,3 @@ class NoticeCenter():
         self.notice_hashmap.pop(unique_key)
         self.update_frontend()
         self.storage_notice(self.notice_hashmap)
-
-    @staticmethod
-    def send_report(msg):
-        if isinstance(msg, dict):
-            msg_sender = msg.get('sender', {})
-            application.reporter.report({
-                "action": "alert",
-                "checker.info": {
-                    'module': msg_sender.get('file'),
-                    'method': msg_sender.get('function'),
-                    'message': msg.get('title')
-                }
-            })

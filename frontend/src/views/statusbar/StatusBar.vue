@@ -46,7 +46,6 @@ export default {
 
 <style  scoped>
 #status-bar {
-  width: 600px;
   display: inline-block;
 }
 .text-menu-item {
