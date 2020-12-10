@@ -67,8 +67,8 @@ def main():
     parser.add_argument('-V', '--version', dest='version', action='store_true', help='show lyrebird version')
     parser.add_argument('-v', dest='verbose', action='count', default=0, help='Show verbose log')
     parser.add_argument('--ip', dest='ip', help='Set device ip')
-    parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 4272')
-    parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 9090')
+    parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 9090')
+    parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 4272')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
     parser.add_argument('-b', '--no_browser', dest='no_browser',
                         action='store_true', help='Start without open a browser')
