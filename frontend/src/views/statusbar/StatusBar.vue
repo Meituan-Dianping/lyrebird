@@ -1,16 +1,15 @@
 <template>
-  <div id="status-bar">
-    <span v-for="(item, index) in statusBarList" :key="index">
+  <span>
+    <span v-for="(item, index) in statusBarList" :key="index" class="main-footer-status">
       <Poptip
         content="content"
         placement="top-start"
         width="250"
-        style="margin-right:20px;"
         word-wrap
         padding="20px 20px 10px 20px"
       >
         <a @click="getStatusBarDetail(item.id)">
-          <b style="color:#f8f8f9;font-size:12px;"> {{item.text}}</b>
+          <b class="main-footer-status-button"> {{item.text}}</b>
         </a>
         <div slot="content">
           <div v-for="(item, index) in statusBarDetail" :key="index">
@@ -20,7 +19,7 @@
         </div>
       </Poptip>
     </span>
-  </div>
+  </span>
 </template>
 
 <script>
@@ -44,15 +43,13 @@ export default {
 }
 </script>
 
-<style  scoped>
-#status-bar {
-  display: inline-block;
-}
+<style scoped>
 .text-menu-item {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold; 
   color: #808695;
   text-align: center;
   margin-top: 5px;
+  word-break: break-all;
 }
 </style>
