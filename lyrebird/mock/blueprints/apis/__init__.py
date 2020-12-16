@@ -68,7 +68,7 @@ api_source.add_resource(Notice, '/notice')
 api_source.add_resource(Checker, '/checker', '/checker/<string:checker_id>')
 api_source.add_resource(Bandwidth, '/bandwidth')
 api_source.add_resource(BandwidthTemplates, '/bandwidth_templates')
-api_source.add_resource(SanpshotImport, '/snapshot/import/<path:url>', '/snapshot/import')
+api_source.add_resource(SanpshotImport, '/snapshot/import')
 api_source.add_resource(SnapshotExport, '/snapshot/export/event', '/snapshot/export/<string:group_id>')
 api_source.add_resource(SnapShotImportDetail, '/snapshot/detail')
 api_source.add_resource(

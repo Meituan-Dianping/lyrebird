@@ -357,6 +357,22 @@ class DataManager:
         self._save_prop()
         return group_id
 
+    def add_group_by_path(self, path):
+        parent_name = path.strip('/')
+        current = self.root
+        if not parent_name:
+            return current['id']
+        parent_name_list = parent_name.split('/')
+        for name in parent_name_list:
+            for child in current['children']:
+                if name == child['name']:
+                    current = child
+                    break
+            else:
+                group_id = self.add_group(current['id'], name)
+                current = self.id_map.get(group_id)
+        return current['id']
+
     def delete(self, _id):
         target_node = self.id_map.get(_id)
         if not target_node:
@@ -430,12 +446,14 @@ class DataManager:
             _origin_parent['children'].remove(_node)
             _parent_node['children'].insert(0, _node)
             _node['parent_id'] = parent_id
+            _group_id = _node['id']
         elif self.clipboard['type'] == 'copy':
             new_name = self._get_copy_node_new_name(_node)
-            self._copy_node(_parent_node, _node, name=new_name, **kwargs)
+            _group_id = self._copy_node(_parent_node, _node, name=new_name, **kwargs)
         elif self.clipboard['type'] == 'import':
-            self._copy_node(_parent_node, _node, **kwargs)
+            _group_id = self._copy_node(_parent_node, _node, **kwargs)
         self._save_prop()
+        return _group_id
 
     def _copy_node(self, parent_node, node, **kwargs):
         new_node = {}
@@ -456,6 +474,7 @@ class DataManager:
                 self._copy_node(new_node, child, **kwargs)
         elif new_node['type'] == 'data':
             self._copy_file(new_node, node, **kwargs)
+        return new_node['id']
 
     def _copy_file(self, target_data_node, data_node, **kwargs):
         _id = data_node['id']
@@ -667,7 +686,7 @@ class DataManager:
         snapshot_info = self.decompress_snapshot()
         snapshot_info['snapshot_detail']['name'] = snapshot_name
         self.import_(node=snapshot_info['snapshot_detail'])
-        self.paste(parent_id=parent_id, custom_input_file_path=snapshot_info['snapshot_storage_path'])
+        _group_id = self.paste(parent_id=parent_id, custom_input_file_path=snapshot_info['snapshot_storage_path'])
         tmp_snapshot_file_list = [
             snapshot_info['snapshot_storage_path'],
             f'{snapshot_info["snapshot_storage_path"]}.lb'
@@ -675,6 +694,7 @@ class DataManager:
         if path:
             tmp_snapshot_file_list.append(path)
         self.remove_tmp_snapshot_file(tmp_snapshot_file_list)
+        return _group_id
 
     def export_snapshot_from_event(self, event_json):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
