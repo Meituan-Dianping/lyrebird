@@ -8,6 +8,7 @@ import notice from '@/store/notice'
 import checker from '@/store/checker'
 import event from '@/store/event'
 import bandwidth from '@/store/bandwidth'
+import snapshot from '@/store/snapshot'
 import statusbar from '@/store/statusbar'
 import { bus } from '@/eventbus'
 
@@ -22,6 +23,7 @@ export default new Vuex.Store({
     checker,
     event,
     bandwidth,
+    snapshot,
     statusbar
   },
   state: {

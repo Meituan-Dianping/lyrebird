@@ -15,7 +15,7 @@
     <Col span="20" style="padding:0px 0px 0px 10px">
       <span v-if="inputValueType === 'link'">
         <Input v-model="inputValue" type="textarea" :autosize="{ minRows: 1 }" size="small" style="width:calc(100% - 30px);"/>
-        <Poptip placement="bottom" width="382" word-wrap @on-popper-show="loadQrcodeImg">
+        <Poptip placement="bottom" width="382" word-wrap @on-popper-show="loadQrcodeImg" v-model="isDisplayPoptip">
           <svg-icon class="ivu-icon" name="qrcode" scale="2.8" style="margin-left:3px;cursor: pointer;"/>
           <div slot="content">
             <img :src="imgData" style="width:100%">
@@ -56,6 +56,7 @@ export default {
   data() {
     return {
       imgData: '',
+      isDisplayPoptip: false,
       isMouseOver: false
     }
   },
@@ -87,6 +88,11 @@ export default {
     },
     inputValueType () {
       if (String(this.inputValue).match('(?=.*://)')) {
+        if (this.$store.state.snapshot.groupDetailDisplayKey === this.infoKey ) {
+          this.isDisplayPoptip = true
+          this.$store.commit('clearGroupDetailDisplayKey')
+          this.loadQrcodeImg ()
+        }
         return 'link'
       } else if (this.infoKey === 'label') {
         return 'label'

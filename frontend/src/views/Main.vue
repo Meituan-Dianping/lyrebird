@@ -44,39 +44,35 @@
           </div>
         </Content>
         <Footer class="main-footer">
-          <span v-show="activatedGroupName" class="main-footer-mock-status">
+          <span class="main-footer-status-placeholder"></span>
+          <span v-show="activatedGroupName" class="main-footer-status-no-pointer">
             <b>Activated mock group: {{activatedGroupName}}</b>
             <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
           </span>
-          <!-- bandwidth plugin begin -->
-          <Poptip
-            v-if="status"
-            content="content"
-            placement="top-start"
-            class="main-footer-status"
-            width="250"
-          >
-            <a>
-              <b style="color:#f8f8f9;font-size:12px;">&nbsp;&nbsp; Bandwidth：{{bandwidthExplanation}} </b>
-            </a>
-            <div slot="title">
-              <b>Bandwidth</b>
-            </div>
-            <div slot="content">
-              <Row type="flex" justify="space-around">
-                <Col span="12" v-for="(item, index) in bandwidthTemplates" :key="index">
-                  <Button
-                    style="min-width:95px;margin-top:5px;"
-                    :class="item.bandwidth == bandwidth ? 'bandwidth-btn-highlight' : ''"
-                    @click.prevent="updateBandwidth(item.template_name)"
-                  >{{ item.template_name }}</Button>
-                </Col>
-              </Row>
-            </div>
-          </Poptip>
-          <!-- bandwidth plugin end -->
           <StatusBar />
           <span class="main-footer-right">
+            <Poptip
+              content="content"
+              placement="top-start"
+              class="main-footer-status"
+              width="250"
+            >
+              <b class="main-footer-status-button">Bandwidth: {{bandwidthExplanation}} </b>
+              <div slot="title">
+                <b>Bandwidth</b>
+              </div>
+              <div slot="content">
+                <Row type="flex" justify="space-around">
+                  <Col span="12" v-for="(item, index) in bandwidthTemplates" :key="index">
+                    <Button
+                      style="min-width:95px;margin-top:5px;"
+                      :class="item.bandwidth == bandwidth ? 'bandwidth-btn-highlight' : ''"
+                      @click.prevent="updateBandwidth(item.template_name)"
+                    >{{ item.template_name }}</Button>
+                  </Col>
+                </Row>
+              </div>
+            </Poptip>
             <Poptip
               v-if="status"
               content="content"
@@ -84,10 +80,10 @@
               class="main-footer-status"
               width="250"
             >
-              <a>
-                <Icon type="ios-arrow-up" style="color:#f8f8f9" />
-                <b style="color:#f8f8f9">&nbsp;&nbsp;Version {{status.version}}</b>
-              </a>
+              <span class="main-footer-status-button">
+                <Icon type="ios-arrow-up" style="padding-right:3px;"/>
+                <b>Version {{status.version}}</b>
+              </span>
               <div slot="title">
                 <b>Lyrebird {{status.version}}</b>
               </div>
@@ -107,13 +103,15 @@
                 </div>
               </div>
             </Poptip>
-            <a
-              href="https://github.com/Meituan-Dianping/lyrebird/issues/new?assignees=&labels=&template=bug_report.md&title="
-              target="_blank"
-              class="main-footer-status"
-            >
-              <Icon type="ios-bug" color="white" />
-            </a>
+            <span class="main-footer-status">
+              <a
+                href="https://github.com/Meituan-Dianping/lyrebird/issues/new?assignees=&labels=&template=bug_report.md&title="
+                target="_blank"
+              >
+                <Icon type="ios-bug" class="main-footer-status-button"/>
+              </a>
+            </span>
+            <span class="main-footer-status-placeholder"></span>
           </span>
         </Footer>
       </Layout>
@@ -316,34 +314,19 @@ export default {
   line-height: 38px;
   padding: 0;
   margin: 0;
-  /* background-color: #fec142; */
   background-color: #0fccbf;
 }
 .main-footer {
   height: 28px;
   line-height: 28px;
   padding: 0;
-  /* background-color: #fec142; */
   background-color: #0fccbf;
 }
-.main-footer-mock-status {
-  margin-left: 15px;
-  font-size: 12px;
-  color: #f8f8f8;
-}
-.main-footer-copyright {
-  font-size: 12px;
-  margin-left: 10px;
-  margin-right: 10px;
-  color: #f8f8f9;
-}
-.main-footer-status {
-  font-size: 11px;
-  margin-right: 20px;
+.main-footer-status-placeholder {
+  margin-left: 5px;
 }
 .main-footer-right {
   float: right;
-  margin-right: 10px;
 }
 .collapsed-menu span {
   width: 0px;
@@ -372,5 +355,28 @@ export default {
 <style>
 .ivu-split-pane {
   overflow: hidden;
+}
+.main-footer-status-no-pointer {
+  padding: 0px 4px;
+  margin: 0px 3px;
+  height: 100%;
+  color: #f8f8f9;
+  font-size: 12px;
+  display: inline-block;
+}
+.main-footer-status {
+  padding: 0px 4px;
+  margin: 0px 3px;
+  height: 100%;
+  color: #515a6e;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-block;
+}
+.main-footer-status:hover {
+  background-color: #4BD2c0;
+}
+.main-footer-status-button {
+  color: #f8f8f9;
 }
 </style>

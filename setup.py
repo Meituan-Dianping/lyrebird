@@ -44,6 +44,7 @@ setup(
         "mitmproxy==4.0.4",
         "packaging==19.0",
         "portpicker==1.3.1",
+        "python-socketio==4.6.1",
         "requests==2.21.0",
         "SQLAlchemy==1.3.1",
         "click==6.7",

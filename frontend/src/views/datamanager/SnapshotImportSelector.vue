@@ -59,9 +59,11 @@ export default {
     }
   },
   mounted () {
-    if (this.$route.path == '/datamanager/import') {
+    if (this.$route.path === '/datamanager/import') {
       this.changeSearchModalOpenState()
       this.$store.dispatch('loadSnapshotName')
+    } else if (this.$route.path === '/datamanager' && Object.keys(this.$route.query).length) {
+      this.$store.dispatch('initSnapshotInfo', this.$route.query)
     }
   },
   computed: {
@@ -72,9 +74,6 @@ export default {
       set (val) {
         this.$store.commit('setSnapshotName', val)
       }
-    },
-    parentNode () {
-      return this.$store.state.dataManager.importSnapshotParentNode
     },
     spinDisplay () {
       return this.$store.state.dataManager.spinDisplay
