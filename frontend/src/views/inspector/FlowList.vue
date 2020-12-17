@@ -97,6 +97,7 @@ export default {
   data () {
     return {
       flowList: [],
+      refreshFlowListTimer: null,
       foucsFlow: null,
       displayFlowCount: 0,
       pageSize: 50,
@@ -172,8 +173,14 @@ export default {
     originFlowList () {
       this.refreshFlowList()
     },
-    searchStr () {
-      this.refreshFlowList()
+    searchStr (newValue, oldValue) {
+      clearTimeout(this.refreshFlowListTimer)
+      this.refreshFlowListTimer = setTimeout(() => {
+        if (newValue !== oldValue) {
+          this.refreshFlowList(newValue)
+          clearTimeout(this.refreshFlowListTimer)
+        }
+      }, 500)
     }
   },
   methods: {
@@ -196,9 +203,12 @@ export default {
     refreshFlowList () {
       let displayFlowList = []
       for (const flow of this.originFlowList) {
-        let searchStr = this.$store.state.inspector.searchStr
-        if (this.filterMethod(searchStr, flow.request.url)) {
-          displayFlowList.push(flow)
+        let searchStr = this.$store.state.inspector.searchStr.trim().split(' ')
+        for (const searchItem of searchStr) {
+          if (this.filterMethod(searchItem, flow.request.url)) {
+            displayFlowList.push(flow)
+            break
+          }
         }
       }
       this.displayFlowCount = displayFlowList.length
