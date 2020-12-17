@@ -9,8 +9,7 @@ from lyrebird.mock import context
 
 class SanpshotImport(Resource):
     def get(self):
-        query_str = request.query_string.decode('utf-8') or ''
-        queries = {k:v[0] for k, v in parse_qs(query_str).items()}
+        queries = request.args
         url = queries.get('path')
         application.snapshot_import_uri = url
         application.active_menu = {
@@ -23,11 +22,8 @@ class SanpshotImport(Resource):
             return redirect(f"/ui/?v={VERSION}#/datamanager/import")
 
         # is advanced save
-        is_advanced_save = False if 'isAdvancedSave' in queries and queries['isAdvancedSave'].lower()=='false' else True
-        if is_advanced_save:
+        if queries.get('isAdvancedSave') == 'true':
             return redirect(f"/ui/?v={VERSION}#/datamanager/import")
-
-        new_query = {}
 
         # auto import into parent
         info = context.application.data_manager.decompress_snapshot()
@@ -41,11 +37,10 @@ class SanpshotImport(Resource):
         parent_path = queries.get('parent') or '/'
         parent_id = context.application.data_manager.add_group_by_path(parent_path)
         group_id = context.application.data_manager.import_snapshot(parent_id, group_name)
-        new_query['groupId'] = group_id
+        new_query = {'groupId': group_id}
 
         # auto active
-        isAutoActive = True if 'isAutoActive' in queries and queries['isAutoActive'].lower()=='true' else False
-        if isAutoActive:
+        if queries.get('isAutoActive') == 'true':
             context.application.data_manager.deactivate()
             context.application.data_manager.activate(group_id)
 
