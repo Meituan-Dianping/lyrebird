@@ -1,5 +1,3 @@
-import * as api from '../api'
-
 export default {
   state: {
     groupDetailDisplayKey: '',

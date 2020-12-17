@@ -3,7 +3,7 @@ from flask import redirect
 from lyrebird import application
 from lyrebird.version import VERSION
 from flask_restful import Resource, request
-from urllib.parse import urlencode, parse_qs
+from urllib.parse import urlencode
 from lyrebird.mock import context
 
 
