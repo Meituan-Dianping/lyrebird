@@ -43,7 +43,7 @@
     <DocumentTree :treeData="treeData" class="data-list" />
     <MockDataSelector ref="searchModal" :showRoot=true>
       <template #searchItem="{ searchResult }">
-        <Row type="flex" align="middle" class="search-row" @click.native="showNode(searchResult)">
+        <Row type="flex" align="middle" class="search-row" @click.native="showNodeAndCloseSearchModal(searchResult)">
           <Col span="24">
             <p class="search-item">
               <b v-if="searchResult.parent_id" class="search-item-title">{{searchResult.name}}</b>
@@ -62,6 +62,7 @@ import { breadthFirstSearch } from 'tree-helper'
 import LabelDropdown from '@/components/LabelDropdown.vue'
 import DocumentTree from '@/components/DocumentTree.vue'
 import MockDataSelector from '@/components/SearchModal.vue'
+import { searchGroupByName } from '@/api'
 
 export default {
   components: {
@@ -71,6 +72,25 @@ export default {
   },
   computed: {
     treeData () {
+      const importGroupId = this.$store.state.snapshot.importGroupId
+      this.$store.commit('clearImportGroupId')
+      if (importGroupId) {
+        searchGroupByName(importGroupId)
+          .then(response => {
+            const searchResults = response.data.data
+            if (searchResults.length < 1) {
+              this.$bus.$emit('msg.error', 'Load snapshot ' + importGroupId + ' error: Group id not found!')
+              return
+            }
+            // Not handle situation of more than one groups have the same uuid
+            // Only the first or searchResults is used
+            const importGroup = searchResults[0]
+            this.showNode(importGroup)
+            this.$bus.$emit('msg.success', 'Load snapshot ' + importGroup.name + ' success! ')
+          }).catch(error => {
+            this.$bus.$emit('msg.error', 'Load snapshot ' + importGroupId + ' error: ' + error.data.message)
+          })
+      }
       return this.$store.state.dataManager.groupList
     },
     spinShow () {
@@ -85,6 +105,11 @@ export default {
       this.$refs.searchModal.toggal()
     },
     showNode (payload) {
+      this.resetGroupListOpenNode(payload)
+      this.resetFocusNodeInfo(payload)
+      this.resetGroupDetail(payload)
+    },
+    showNodeAndCloseSearchModal (payload) {
       this.resetGroupListOpenNode(payload)
       this.resetFocusNodeInfo(payload)
       this.resetGroupDetail(payload)
