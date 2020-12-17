@@ -20,14 +20,12 @@ class SanpshotImport(Resource):
             'path': '/datamanager'
         }
         if not url:
-            # return redirect(f"/ui/?v={VERSION}#/datamanager/import")
-            return redirect(f"http://localhost:8080/ui/?v={VERSION}#/datamanager/import")
+            return redirect(f"/ui/?v={VERSION}#/datamanager/import")
 
         # is advanced save
         is_advanced_save = False if 'isAdvancedSave' in queries and queries['isAdvancedSave'].lower()=='false' else True
         if is_advanced_save:
-            # return redirect(f"/ui/?v={VERSION}#/datamanager/import")
-            return redirect(f"http://localhost:8080/ui/?v={VERSION}#/datamanager/import")
+            return redirect(f"/ui/?v={VERSION}#/datamanager/import")
 
         new_query = {}
 
@@ -56,8 +54,7 @@ class SanpshotImport(Resource):
             new_query['displayKey'] = display_info
 
         new_query_str = urlencode(new_query)
-        # return redirect(f"/ui/?v={VERSION}#/datamanager?{new_query_str}")
-        return redirect(f'http://localhost:8080/ui/?v={VERSION}#/datamanager?{new_query_str}')
+        return redirect(f"/ui/?v={VERSION}#/datamanager?{new_query_str}")
 
     def post(self):
         if request.json:
