@@ -75,7 +75,7 @@
     </label>
 
     <div class="inline inspector-searchbox">
-      <Input search clearable size="small" v-model="searchStr"></Input>
+      <Input search clearable size="small" v-model="searchStr" placeholder="Separate multiple keywords by spaces"/>
     </div>
 
     <Modal
