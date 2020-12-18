@@ -202,20 +202,17 @@ export default {
     },
     refreshFlowList () {
       let displayFlowList = []
-      let searchList = []
-      let searchStr = this.$store.state.inspector.searchStr
-      if (searchStr.trim()) {
-        searchList = searchStr.split(' ')
-        // remove empty item in searchStr
-        for (let i=searchList.length-1; i>=0; i--) {
-          if (!searchList[i]) {
-            searchList.splice(i, 1)
-          }
+      let searchStr = this.$store.state.inspector.searchStr.trim()
+      let searchStrList = searchStr.split(' ')
+      // remove empty item in searchStr
+      for (let i=searchStrList.length-1; i>=0; i--) {
+        if (!searchStrList[i]) {
+          searchStrList.splice(i, 1)
         }
       }
       for (const flow of this.originFlowList) {
         let isMatch = true
-        for (const searchItem of searchList) {
+        for (const searchItem of searchStrList) {
           if (!this.filterMethod(searchItem, flow.request.url)) {
             isMatch = false
             break
