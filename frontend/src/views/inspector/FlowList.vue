@@ -203,13 +203,8 @@ export default {
     refreshFlowList () {
       let displayFlowList = []
       let searchStr = this.$store.state.inspector.searchStr.trim()
-      let searchStrList = searchStr.split(' ')
-      // remove empty item in searchStr
-      for (let i=searchStrList.length-1; i>=0; i--) {
-        if (!searchStrList[i]) {
-          searchStrList.splice(i, 1)
-        }
-      }
+      // Split searchStr by one or more spaces
+      let searchStrList = searchStr.split(/\s+/)
       for (const flow of this.originFlowList) {
         let isMatch = true
         for (const searchItem of searchStrList) {
