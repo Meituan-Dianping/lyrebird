@@ -202,14 +202,26 @@ export default {
     },
     refreshFlowList () {
       let displayFlowList = []
+      let searchList = []
+      let searchStr = this.$store.state.inspector.searchStr
+      if (searchStr.trim()) {
+        searchList = searchStr.split(' ')
+        // remove empty item in searchStr
+        for (let i=searchList.length-1; i>=0; i--) {
+          if (!searchList[i]) {
+            searchList.splice(i, 1)
+          }
+        }
+      }
       for (const flow of this.originFlowList) {
-        let searchStr = this.$store.state.inspector.searchStr.trim().split(' ')
-        for (const searchItem of searchStr) {
-          if (this.filterMethod(searchItem, flow.request.url)) {
-            displayFlowList.push(flow)
+        let isMatch = true
+        for (const searchItem of searchList) {
+          if (!this.filterMethod(searchItem, flow.request.url)) {
+            isMatch = false
             break
           }
         }
+        isMatch ? displayFlowList.push(flow) : null
       }
       this.displayFlowCount = displayFlowList.length
       this.pageCount = Math.ceil(this.displayFlowCount / this.pageSize)
