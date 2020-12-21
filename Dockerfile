@@ -1,57 +1,39 @@
-# Build FE
-FROM node:10.16.3 as nodeos
+FROM node:14.15-alpine as nodebuilder
 
-COPY . /usr/src/app
+COPY . /usr/src
 
-WORKDIR /usr/src/app/frontend
+WORKDIR /usr/src/frontend
 
-RUN npm install \
-    && npm run build
+RUN npm --registry https://registry.npm.taobao.org install \
+  && npm run build
 
-# Build lyrebird
-FROM alpine:3.12.1
+FROM python:3.8-alpine as pybuilder
 
-ENV LANG=en_US.UTF-8
+ENV PYTHONUNBUFFERED 1
 
-COPY . /usr/src/app
+COPY . /usr/src
 
-WORKDIR /usr/src/app
+WORKDIR /usr/src
 
-COPY --from=nodeos /usr/src/app/lyrebird/client/ /usr/src/app/lyrebird/client/
+COPY --from=nodebuilder /usr/src/lyrebird/client/ /usr/src/lyrebird/client/
 
-# Add our user first to make sure the ID get assigned consistently,
-# regardless of whatever dependencies get added.
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && addgroup -S lyrebird && adduser -S -G lyrebird lyrebird \
-    && apk add --no-cache \
-    su-exec \
-    git \
-    g++ \
-    libffi \
-    libffi-dev \
-    libstdc++ \
-    openssl \
-    openssl-dev \
-    python3 \
-    python3-dev \
-    libxml2-dev libxslt-dev libffi-dev gcc musl-dev libgcc \
-    jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev \
-    curl \
-    && python3 -m ensurepip --upgrade \
-    && pip3 install -U pip \
-    && pip3 install wheel \
-    && LDFLAGS=-L/lib pip3 install -U . \
-    && pip install facebook-wda jsonschema \
-    && apk del --purge \
-    git \
-    g++ \
-    libffi-dev \
-    openssl-dev \
-    python3-dev \
-    libxml2-dev libxslt-dev libffi-dev gcc musl-dev libgcc \
-    jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev \
-    && rm -rf ~/.cache/pip /usr/src/app
+  && apk update \
+  && apk add --no-cache build-base jpeg-dev zlib-dev libffi-dev openssl-dev \
+  && pip install --no-cache-dir . -i https://pypi.douban.com/simple \
+  && rm -rf /usr/src \
+  && apk del --purge build-base jpeg-dev zlib-dev libffi-dev openssl-dev
 
+FROM python:3.8-alpine
+
+ENV PYTHONUNBUFFERED 1
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+  && apk update \
+  && apk add --no-cache jpeg zlib libffi openssl
+
+COPY --from=pybuilder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages
+COPY --from=pybuilder /usr/local/bin /usr/local/bin
 
 EXPOSE 9090 4272
 

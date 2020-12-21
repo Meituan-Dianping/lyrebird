@@ -4,7 +4,7 @@ from lyrebird import application
 from flask import Blueprint, send_file
 from lyrebird.log import get_logger
 from types import FunctionType
-
+import traceback
 
 logger = get_logger()
 
@@ -22,7 +22,7 @@ class PluginManager(StaticServer):
             try:
                 plugin = plugin_loader.load_from_path(plugin_path)
             except:
-                logger.error(f'Load plugin failed. Skip plugin : {plugin_path}')
+                logger.error(f'Load plugin failed. Skip plugin : {plugin_path}\n{traceback.format_exc()}')
                 continue
             self.plugins[plugin.project_name] = plugin
         self.setup_plugins()
