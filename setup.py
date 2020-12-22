@@ -37,7 +37,6 @@ setup(
     install_requires=[
         "beautifulsoup4==4.7.1",
         "colorama==0.4.1",
-        "elasticsearch==7.0.1",
         "Flask==1.1.1",
         "Flask-RESTful==0.3.7",
         "Flask-SocketIO==4.2.1",
@@ -50,7 +49,7 @@ setup(
         "click==6.7",
         "urllib3==1.24.2",
         "qrcode==6.1",
-        "Pillow==7.0.0"
+        "Pillow==8.0.1"
     ],
     extras_require={
         'dev': [
