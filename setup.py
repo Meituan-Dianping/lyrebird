@@ -45,7 +45,7 @@ setup(
         "portpicker==1.3.1",
         "python-socketio==4.6.1",
         "requests==2.21.0",
-        "SQLAlchemy==1.3.1",
+        "SQLAlchemy==1.3.22",
         "click==6.7",
         "urllib3==1.24.2",
         "qrcode==6.1",
