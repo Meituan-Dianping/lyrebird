@@ -51,7 +51,7 @@ Lyrebird 1.6.0
 # lyrebird 将以简单日志模式启动
 > lyrebird -v
 # lyrebird 将以详细日志模式启动
-> lyrebird -vvv
+> lyrebird -vv
 ```
 
 ## --mock 

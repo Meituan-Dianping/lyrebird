@@ -6,11 +6,14 @@ export * from '@/api/datamanager.js'
 export * from '@/api/checker.js'
 export * from '@/api/notice.js'
 export * from '@/api/event.js'
+export * from '@/api/bandwidth.js'
+export * from '@/api/statusbar.js'
+export * from '@/api/inspector.js'
 
 
 const successHandler = (response) => {
   if (!response.data.hasOwnProperty('code')) {
-    return Promise.reject(response)
+    return response
   }
   if (response.data.code !== 1000) {
     return Promise.reject(response)
@@ -25,9 +28,33 @@ const errorHandler = (error) => {
 axios.interceptors.response.use(successHandler, errorHandler)
 
 
+//------Lyrebird menu--------
+/**
+  Get lyrebird selected menu
+  {
+    code: 1000,
+    message: 'success',
+    data:{
+      menu: [],
+      activeMenuItem: '',
+      activeName: ''
+    }
+  }
+*/
 export const getMenu = () => {
   return axios({
     url: '/api/menu'
+  })
+}
+
+/**
+  Save lyrebird selected menu
+*/
+export const setActiveMenuItem = (activeMenuItem) => {
+  return axios({
+    url: '/api/menu',
+    data: { activeMenuItem },
+    method: 'PUT'
   })
 }
 

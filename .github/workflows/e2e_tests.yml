@@ -1,0 +1,33 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: E2E Test
+
+on: [pull_request]
+
+jobs:
+  e2e_test:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+      - name: add venv
+        run: |
+          cd e2e_tests
+      - name: install dependency
+        run: |
+          pip install --upgrade pip
+          pip install -e .[dev]
+      - name: run e2e test
+        run: |
+          cd e2e_tests
+          nohup python3 serve.py > /dev/null 2>&1 &
+          nohup lyrebird -b > /dev/null 2>&1 &
+          sh connect_check.sh
+          python -m pytest test_lb_req_body.py
+          ps -ef|grep serve.py | grep -v grep|awk '{printf $2}'|xargs kill -9
+          ps -ef|grep lyrebird | grep -v grep|awk '{printf $2}'|xargs kill -9

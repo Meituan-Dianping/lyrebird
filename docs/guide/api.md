@@ -211,3 +211,22 @@
     "page_size": 20
 }
 ```
+
+## 获取当前网络带宽限速
+
+**/bandwidth**
+```bash
+> curl http://localhost:9090/api/bandwidth
+
+{"bandwidth":10,"code":1000,"message":"success"}
+
+```
+
+## 设置网络带宽限速
+
+**/bandwidth**
+```bash
+> curl -H "Content-Type:application/json" -X  PUT --data "{\"templateName\":\"2G\"}" http://localhost:9090/api/bandwidth
+
+{"bandwidth":10,"code":1000,"message":"success"}
+```

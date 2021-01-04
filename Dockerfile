@@ -1,40 +1,40 @@
-# Build FE
-FROM node:10.16.3 as nodeos
+FROM node:14.15-alpine as nodebuilder
 
-COPY . /usr/src/app
+COPY . /usr/src
 
-WORKDIR /usr/src/app/frontend
+WORKDIR /usr/src/frontend
 
-RUN npm install \
-    && npm run build
+RUN npm --registry https://registry.npm.taobao.org install \
+  && npm run build
 
-# Build lyrebird
-FROM python:3.7.5 as pyos
+FROM python:3.8-alpine as pybuilder
 
-COPY . /usr/src/app
+ENV PYTHONUNBUFFERED 1
 
-WORKDIR /usr/src/app
+COPY . /usr/src
 
-COPY --from=nodeos /usr/src/app/lyrebird/client/ /usr/src/app/lyrebird/client/
+WORKDIR /usr/src
 
-RUN pip install --upgrade pip==19.3.1 \
-    && pip install . -i https://pypi.douban.com/simple \
-    && rm -rf /usr/src/app
+COPY --from=nodebuilder /usr/src/lyrebird/client/ /usr/src/lyrebird/client/
 
-# Make lyrebird image
-FROM python:3.7.5-slim
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+  && apk update \
+  && apk add --no-cache build-base jpeg-dev zlib-dev libffi-dev openssl-dev \
+  && pip install --no-cache-dir . facebook-wda==0.8.1 jsonschema -i https://pypi.douban.com/simple \
+  && rm -rf /usr/src \
+  && apk del --purge build-base jpeg-dev zlib-dev libffi-dev openssl-dev
 
-COPY --from=pyos /usr/local/lib/python3.7/site-packages /usr/local/lib/python3.7/site-packages
-COPY --from=pyos /usr/local/bin /usr/local/bin
+FROM python:3.8-alpine
 
-RUN apt-get update && apt-get install -y --no-install-recommends git=1:2.20.1-2 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+ENV PYTHONUNBUFFERED 1
 
-EXPOSE 9090
-EXPOSE 4272
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+  && apk update \
+  && apk add --no-cache jpeg zlib libffi openssl curl
 
-ENV LC_ALL=C.UTF-8
-ENV LANG C.UTF-8
+COPY --from=pybuilder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages
+COPY --from=pybuilder /usr/local/bin /usr/local/bin
+
+EXPOSE 9090 4272
 
 CMD [ "lyrebird" ]

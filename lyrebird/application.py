@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, stream_with_context, Response
 
 """
 Lyrebird context
@@ -24,17 +24,35 @@ def make_fail_response(msg, **kwargs):
     return jsonify(fail_resp)
 
 
+def make_streamed_response(generator, code=200, mimetype='application/json'):
+    return Response(stream_with_context(generator()), mimetype=mimetype, status=code)
+
+
 _cm = None
 _src = None
 
 
 server = {}
 plugins = {}
+active_menu = {}
+
+snapshot_import_uri = ''
 
 
 notice = None
 checkers = {}
 
+on_request = []
+on_response = []
+on_request_upstream = []
+on_response_upstream = []
+
+encoder = []
+decoder = []
+
+labels = None
+
+encoders_decoders = None
 
 def start_server():
     for name in server:

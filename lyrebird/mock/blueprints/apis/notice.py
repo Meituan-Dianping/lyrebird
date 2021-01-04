@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from lyrebird.mock import context
-from flask import request, jsonify, abort
+from flask import request
 from lyrebird import application
 
 

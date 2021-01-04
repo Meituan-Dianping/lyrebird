@@ -14,17 +14,23 @@
           <span>{{logo}}</span>
         </div>
         <Divider class="sider-bar-divider" />
-        <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName">
-          <MenuItem
-            v-for="(menuItem, index) in menu"
-            :key="index"
-            :name="menuItem.title"
-            @click.native="menuItemOnClick(menuItem)"
-          >
-            <Tooltip :content="menuItem.title" placement="right" :disabled="!isCollapsed">
-              <b>{{menuItemTitle(menuItem)}}</b>
+        <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName" ref="menu">
+          <div v-for="(menuItem, index) in menu" :key="index">
+            <Tooltip
+              :content="menuItem.title"
+              placement="right"
+              :disabled="!isCollapsed"
+              transfer
+              style="width: 100%"
+            >
+              <MenuItem
+                :name="menuItem.title"
+                @click.native="menuItemOnClick(menuItem)"
+              >
+                <b>{{menuItemTitle(menuItem)}}</b>
+              </MenuItem>
             </Tooltip>
-          </MenuItem>
+          </div>
         </Menu>
       </Sider>
       <Layout>
@@ -38,33 +44,48 @@
           </div>
         </Content>
         <Footer class="main-footer">
-          <span v-show="activatedGroupName" class="main-footer-mock-status">
+          <span class="main-footer-status-placeholder"></span>
+          <span v-show="activatedGroupName" class="main-footer-status-no-pointer">
             <b>Activated mock group: {{activatedGroupName}}</b>
-            <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData"/>
+            <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
           </span>
+          <StatusBar />
           <span class="main-footer-right">
-            <span class="main-footer-copyright">
-              <strong style="color:#f8f8f9">
-                Copyright &copy; 2018-present
-                <a
-                  href="https://meituan-dianping.github.io/lyrebird"
-                  target="_blank"
-                >Meituan</a>. All rights reserved.
-              </strong>
-            </span>
+            <Poptip
+              content="content"
+              placement="top-start"
+              class="main-footer-status"
+              width="250"
+            >
+              <b class="main-footer-status-button">Bandwidth: {{bandwidthExplanation}} </b>
+              <div slot="title">
+                <b>Bandwidth</b>
+              </div>
+              <div slot="content">
+                <Row type="flex" justify="space-around">
+                  <Col span="12" v-for="(item, index) in bandwidthTemplates" :key="index">
+                    <Button
+                      style="min-width:95px;margin-top:5px;"
+                      :class="item.bandwidth == bandwidth ? 'bandwidth-btn-highlight' : ''"
+                      @click.prevent="updateBandwidth(item.template_name)"
+                    >{{ item.template_name }}</Button>
+                  </Col>
+                </Row>
+              </div>
+            </Poptip>
             <Poptip
               v-if="status"
               content="content"
               placement="top-end"
               class="main-footer-status"
-              width="220"
+              width="250"
             >
-              <a>
-                <Icon type="ios-arrow-up" style="color:#f8f8f9" />
-                <b style="color:#f8f8f9">&nbsp;&nbsp;Version {{status.version}}</b>
-              </a>
+              <span class="main-footer-status-button">
+                <Icon type="ios-arrow-up" style="padding-right:3px;"/>
+                <b>Version {{status.version}}</b>
+              </span>
               <div slot="title">
-                <b>💡Status</b>
+                <b>Lyrebird {{status.version}}</b>
               </div>
               <div slot="content">
                 <Row v-for="key in showedStatus" :key="key">
@@ -73,15 +94,24 @@
                   </i-col>
                   <i-col span="12" offset="1">{{status[key]}}</i-col>
                 </Row>
+                <Divider style="margin:10px 0;"/>
+                <div style="text-align:center">
+                  <strong>
+                    Copyright &copy; 2018-present 
+                    <a href="https://meituan-dianping.github.io/lyrebird" target="_blank" >Meituan</a>.
+                  </strong>
+                </div>
               </div>
             </Poptip>
-            <a
-              href="https://github.com/Meituan-Dianping/lyrebird/issues/new?assignees=&labels=&template=bug_report.md&title="
-              target="_blank"
-              class="main-footer-status"
-            >
-              <Icon type="ios-bug" color="white" />
-            </a>
+            <span class="main-footer-status">
+              <a
+                href="https://github.com/Meituan-Dianping/lyrebird/issues/new?assignees=&labels=&template=bug_report.md&title="
+                target="_blank"
+              >
+                <Icon type="ios-bug" class="main-footer-status-button"/>
+              </a>
+            </span>
+            <span class="main-footer-status-placeholder"></span>
           </span>
         </Footer>
       </Layout>
@@ -91,16 +121,18 @@
 
 <script>
 import NoticeCenter from '@/views/notice/NoticeCenter.vue'
+import StatusBar from '@/views/statusbar/StatusBar.vue'
 
 export default {
   name: 'MainLayout',
   components: {
-    NoticeCenter
+    NoticeCenter,
+    StatusBar
   },
   data () {
     return {
       isCollapsed: true,
-      showedStatus: ["ip", "mock.port", "proxy.port", "version"]
+      showedStatus: ["ip", "mock.port", "proxy.port"]
     }
   },
   mounted () {
@@ -108,15 +140,34 @@ export default {
     this.$store.dispatch('loadStatus')
     this.$store.dispatch('loadManifest')
     this.$store.dispatch('loadActivatedGroup')
+    this.$store.dispatch('loadBandwidth')
+    this.$store.dispatch('loadBandwidthTemplates')
+    this._keydownListener = (e) => {
+      this.$bus.$emit('keydown', e)
+    }
+    document.addEventListener('keydown', this._keydownListener)
+  },
+  beforeDestroy () {
+    document.removeEventListener('keydown', this._keydownListener)
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
   },
+  watch: {
+    activeMenuItem: function (newValue, oldValue) {
+      this.refreshPage(newValue)
+      // :active-name 异步刷新后，需要手动更新 
+      // https://github.com/iview/iview/issues/1245#issuecomment-352992001 
+      this.$nextTick(function () {
+        this.$refs.menu.updateActiveName()
+      })
+    }
+  },
   computed: {
     menuitemClasses () {
-      return ["menu-item", this.isCollapsed ? "collapsed-menu" : "menu"];
+      return ["menu-item", this.isCollapsed ? "collapsed-menu" : "menu"]
     },
     logo () {
       if (this.isCollapsed) {
@@ -137,6 +188,27 @@ export default {
     activeName () {
       return this.$store.state.activeName
     },
+    bandwidth () {
+      return this.$store.state.bandwidth.bandwidth
+    },
+    bandwidthTemplates () {
+      return this.$store.state.bandwidth.bandwidthTemplates
+    },
+    bandwidthExplanation () {
+      for (let v of this.bandwidthTemplates) {
+        if (this.bandwidth == v['bandwidth']) {
+          if (this.bandwidth == -1) {
+            return v['template_name']
+          }
+          else {
+            return `${v['template_name']} ( ${v['bandwidth']} Kb/s)`
+          }
+        }
+      }
+    },
+    activeMenuItem () {
+      return this.$store.state.activeMenuItem
+    },
     activatedGroupName () {
       const activatedGroups = this.$store.state.inspector.activatedGroup
       if (activatedGroups === null) {
@@ -154,7 +226,7 @@ export default {
   },
   methods: {
     collapsedSider () {
-      this.$refs.mainSider.toggleCollapse();
+      this.$refs.mainSider.toggleCollapse()
     },
     menuItemTitle (menuItem) {
       if (this.isCollapsed) {
@@ -164,14 +236,19 @@ export default {
       }
     },
     menuItemOnClick (menuItem) {
-      this.$store.commit('setActiveName', menuItem.title)
+      // 更新activeName 与 activeMenuItem
+      // 点击后，activeMenuItem更新，触发watch，操作页面更新
+      this.$store.dispatch('updateActiveMenuItem', menuItem)
+    },
+    refreshPage (menuItem) {
+      // 更新 router
       if (menuItem.type === 'router') {
         if (menuItem.name === 'plugin-view' || menuItem.name === 'plugin-container') {
-          this.$store.commit('plugin/setSrc', menuItem.params.src);
+          this.$store.commit('plugin/setSrc', menuItem.params.src)
         }
-        this.$router.push({ name: menuItem.name, params: menuItem.params });
+        this.$router.push({ name: menuItem.name, params: menuItem.params })
       } else {
-        window.open(menuItem.path, '_self');
+        window.open(menuItem.path, '_self')
       }
     },
     resetActivatedData () {
@@ -197,9 +274,12 @@ export default {
         duration: 0,
         closable: true
       })
+    },
+    updateBandwidth (template_name) {
+      this.$store.dispatch('updateBandwidth', template_name)
     }
   }
-};
+}
 </script>
 
 <style scoped>
@@ -234,34 +314,19 @@ export default {
   line-height: 38px;
   padding: 0;
   margin: 0;
-  /* background-color: #fec142; */
   background-color: #0fccbf;
 }
 .main-footer {
   height: 28px;
   line-height: 28px;
   padding: 0;
-  /* background-color: #fec142; */
   background-color: #0fccbf;
 }
-.main-footer-mock-status {
-  margin-left: 15px;
-  font-size: 12px;
-  color: #f8f8f8;
-}
-.main-footer-copyright {
-  font-size: 12px;
-  margin-left: 10px;
-  margin-right: 10px;
-  color: #f8f8f9;
-}
-.main-footer-status {
-  font-size: 11px;
-  margin-right: 10px;
+.main-footer-status-placeholder {
+  margin-left: 5px;
 }
 .main-footer-right {
   float: right;
-  margin-right: 10px;
 }
 .collapsed-menu span {
   width: 0px;
@@ -277,10 +342,41 @@ export default {
   transition: width 0.2s ease 0.2s;
 }
 .main-container {
-  padding-left: 5px;
-  padding-right: 5px;
   height: calc(100vh - 66px);
   background: #fff;
 }
+.bandwidth-btn-highlight {
+  background-color: #0fccbf !important;
+  color: #fff;
+  outline: none;
+}
 </style>
 
+<style>
+.ivu-split-pane {
+  overflow: hidden;
+}
+.main-footer-status-no-pointer {
+  padding: 0px 4px;
+  margin: 0px 3px;
+  height: 100%;
+  color: #f8f8f9;
+  font-size: 12px;
+  display: inline-block;
+}
+.main-footer-status {
+  padding: 0px 4px;
+  margin: 0px 3px;
+  height: 100%;
+  color: #515a6e;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-block;
+}
+.main-footer-status:hover {
+  background-color: #4BD2c0;
+}
+.main-footer-status-button {
+  color: #f8f8f9;
+}
+</style>

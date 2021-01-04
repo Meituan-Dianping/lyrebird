@@ -20,15 +20,15 @@
               />
             </div>
             <Row>
-              <Col span="5" offset="0" align="right" style="padding:0px 10px">
-                <Input v-model="newPropKey" placeholder="Input new property" size="small"/>
+              <Col span="4" offset="0" align="right" style="padding:0px 10px">
+                <Input v-model="newPropKey" placeholder="Input new property" size="small" />
               </Col>
-              <Col span="19" style="padding:0px 0px 0px 10px">
-                <Input 
+              <Col span="20" style="padding:0px 0px 0px 10px">
+                <Input
                   size="small"
-                  v-model="newPropValue" 
-                  :disabled="!newPropKey" 
-                  :placeholder="newPropKey?'Input value':'Input KEY first to enable value input'" 
+                  v-model="newPropValue"
+                  :disabled="!newPropKey"
+                  :placeholder="newPropKey?'Input value':'Input KEY first to enable value input'"
                 />
               </Col>
             </Row>
@@ -40,12 +40,19 @@
           <Row type="flex" justify="end" style="padding-top:10px">
             <Col span="18" style="padding:0px 5px 0px 10px">
               <p v-if="conflictInfo">
-                <Icon type="md-information-circle" />
-                Group <b>{{conflictCheckNode.name}}</b> has {{conflictInfo.length}} conflicts
+                <Icon type="md-information-circle" />Group
+                <b>{{conflictCheckNode.name}}</b>
+                has {{conflictInfo.length}} conflicts
               </p>
             </Col>
             <Col span="6" align="right" style="padding:0px 5px 0px 5px">
-              <Button type="primary" size="small" :loading="isLoadConflictInfo" @click="getConflictInfo" style="margin-right:5px">
+              <Button
+                type="primary"
+                size="small"
+                :loading="isLoadConflictInfo"
+                @click="getConflictInfo"
+                style="margin-right:5px"
+              >
                 <span>{{isLoadConflictInfo ? 'Loading' : 'Start check'}}</span>
               </Button>
               <Button size="small" :disabled="isLoadConflictInfo" @click="deleteConflictInfo">
@@ -58,7 +65,7 @@
       </tab-pane>
     </tabs>
     <div class="save-btn" v-if="groupInfo">
-      <Tooltip content="Save" placement="top" :delay="500">
+      <Tooltip content="Save (⌘+s)" placement="top" :delay="500">
         <Button type="primary" shape="circle" @click="saveGroupDetail">
           <icon name="md-save" scale="4"></icon>
         </Button>
@@ -78,23 +85,29 @@ export default {
     DataDetailInfo,
     Icon
   },
-  data() {
+  data () {
     return {
       currentTab: "information",
       undisplayedKey: ['children', 'type', 'parent_id'],
-      undeletableKey: ['id', 'rule', 'super_id', 'name'],
+      undeletableKey: ['id', 'rule', 'super_id', 'name', 'label'],
       uneditableKey: ['id', 'rule'],
-      stickyTopKey: ['id', 'rule', 'super_id', 'name'],
+      stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label'],
       conflictCheckNode: {},
       newPropKey: '',
       newPropValue: ''
     }
   },
+  mounted () {
+    this.$bus.$on('keydown', this.onKeyDown)
+  },
+  beforeDestroy () {
+    this.$bus.$off('keydown', this.onKeyDown)
+  },
   computed: {
-    nodeInfo() {
+    nodeInfo () {
       return this.$store.state.dataManager.focusNodeInfo
     },
-    groupInfo() {
+    groupInfo () {
       return this.$store.state.dataManager.groupDetail
     },
     groupInfoStickyTop () {
@@ -111,21 +124,21 @@ export default {
       const groupInfo = this.$store.state.dataManager.groupDetail
       let notStickyTopInfo = {}
       for (const key in groupInfo) {
-        if (!this.stickyTopKey.includes(key) && !this.undisplayedKey.includes(key) && key.substring(0,1) !== '_') {
+        if (!this.stickyTopKey.includes(key) && !this.undisplayedKey.includes(key) && key.substring(0, 1) !== '_') {
           notStickyTopInfo[key] = groupInfo[key]
         }
       }
       return notStickyTopInfo
     },
-    conflictInfo() {
+    conflictInfo () {
       return this.$store.state.dataManager.conflictInfo
     },
-    isLoadConflictInfo() {
+    isLoadConflictInfo () {
       return this.$store.state.dataManager.isLoadConflictInfo
     }
   },
   methods: {
-    saveGroupDetail() {
+    saveGroupDetail () {
       if (this.newPropKey) {
         if (this.newPropKey.match(/^[ ]+$/)) {
           this.$bus.$emit('msg.error', 'Group property key illegal: ' + 'All space')
@@ -143,14 +156,22 @@ export default {
         this.$store.dispatch('saveGroupDetail', this.groupInfo)
       }
     },
-    getConflictInfo() {
+    getConflictInfo () {
       this.conflictCheckNode = this.nodeInfo
       this.$store.commit('setIsLoadConflictInfo', true)
       this.$store.commit('clearConflictInfo')
       this.$store.dispatch('loadConflict', this.nodeInfo)
     },
-    deleteConflictInfo() {
+    deleteConflictInfo () {
       this.$store.commit('clearConflictInfo')
+    },
+    onKeyDown (event) {
+      if (event.code !== "KeyS" || !event.metaKey) {
+        return
+      }
+      this.saveGroupDetail()
+      event.preventDefault()
+      console.log("Save", event)
     }
   }
 }

@@ -1,26 +1,32 @@
 <template>
-  <Split v-model="split" class="datamanager-split">
-    <div slot="left">
-      <data-list></data-list>
-    </div>
-    <div slot="right">
-      <data-detail></data-detail> 
-    </div>
-  </Split>
+  <div>
+    <snapshot-import-selector></snapshot-import-selector>
+    <Split v-model="split" class="datamanager-split">
+      <div slot="left">
+        <data-list></data-list>
+      </div>
+      <div slot="right">
+        <data-detail></data-detail>
+      </div>
+    </Split>
+  </div>
 </template>
 
 <script>
 import DataList from '@/views/datamanager/DataList.vue'
 import DataDetail from '@/views/datamanager/DataDetail.vue'
+import SnapshotImportSelector from '@/views/datamanager/SnapshotImportSelector.vue'
+
 export default {
   components: {
     DataList,
-    DataDetail
+    DataDetail,
+    SnapshotImportSelector,
   },
   mounted() {
     this.$store.dispatch('loadDataMap')
   },
-  data() {
+  data () {
     return {
       split: 0.35
     }

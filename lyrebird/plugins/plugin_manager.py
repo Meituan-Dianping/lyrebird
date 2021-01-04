@@ -4,7 +4,7 @@ from lyrebird import application
 from flask import Blueprint, send_file
 from lyrebird.log import get_logger
 from types import FunctionType
-
+import traceback
 
 logger = get_logger()
 
@@ -19,7 +19,11 @@ class PluginManager(StaticServer):
         self.plugins = {}
         self.plugins.update(plugin_loader.load_all_from_ep())
         for plugin_path in self.plugin_path_list:
-            plugin = plugin_loader.load_from_path(plugin_path)
+            try:
+                plugin = plugin_loader.load_from_path(plugin_path)
+            except:
+                logger.error(f'Load plugin failed. Skip plugin : {plugin_path}\n{traceback.format_exc()}')
+                continue
             self.plugins[plugin.project_name] = plugin
         self.setup_plugins()
 
@@ -69,6 +73,41 @@ class PluginManager(StaticServer):
                 channel = event_option[0]
                 callback_func = event_option[1]
                 event_service.subscribe(channel, callback_func)
+
+            # Subscribe handler on request
+            for handler in plugin.manifest.on_request:
+                application.on_request.append({
+                    'name': handler[0],
+                    'func': handler[1],
+                    'rules': handler[2] if len(handler) > 2 else None
+                })
+
+            # Subscribe handler on response
+            for handler in plugin.manifest.on_response:
+                application.on_response.append({
+                    'name': handler[0],
+                    'func': handler[1],
+                    'rules': handler[2] if len(handler) > 2 else None
+                })
+
+            # Subscribe handler on proxy request
+            for handler in plugin.manifest.on_request_upstream:
+                application.on_request_upstream.append({
+                    'name': handler[0],
+                    'func': handler[1],
+                    'rules': handler[2] if len(handler) > 2 else None
+                })
+
+            # Subscribe handler on proxy response
+            for handler in plugin.manifest.on_response_upstream:
+                application.on_response_upstream.append({
+                    'name': handler[0],
+                    'func': handler[1],
+                    'rules': handler[2] if len(handler) > 2 else None
+                })
+
+            for status_item in plugin.manifest.status:
+                plugin.status.append(status_item())
 
 
 class IndexPageViewFunc:

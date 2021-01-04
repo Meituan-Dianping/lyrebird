@@ -1,12 +1,14 @@
 <template>
-  <Modal v-model="shown" title="Mock data selector" width="60%" :styles="{top: '80px'}" :footer-hide=true>
+  <Modal v-model="shown" :title="title?title:defaultTitle"  width="60%" :styles="{top: '80px'}" :footer-hide=true>
+    <slot name="modalHeader"></slot>
     <slot name="selected"></slot>
-    <Input search enter-button v-model="searchStr" @on-search="searchGroup"></Input>
+    <Input search enter-button size="small" v-model="searchStr" @on-search="searchGroup"></Input>
     <div class="searchlist">
       <div v-for="item in searchResults" :key="item.id">
       <slot name="searchItem" :searchResult="item"></slot>
       </div>
     </div>
+    <slot name="modalFooter"></slot>
   </Modal>
 </template>
 
@@ -14,12 +16,13 @@
 import { searchGroupByName } from '@/api'
 
 export default {
-  props: ['showRoot'],
+  props: ['showRoot', 'title'],
   data () {
     return {
       searchStr: '',
       shown: false,
-      searchResults: []
+      searchResults: [],
+      defaultTitle: "Mock Data Selector"
     }
   },
   created () {
@@ -33,12 +36,18 @@ export default {
       searchGroupByName(this.searchStr)
         .then(response => {
           this.searchResults = response.data.data
+          for (const searchItem in this.searchResults) {
+            if (!this.searchResults[searchItem].parent_id) {
+              this.$store.commit('setImportSnapshotParentNode',this.searchResults[searchItem])
+              break
+            }
+          }
           if (!this.showRoot) {
             for (const index in this.searchResults) {
               if (!this.searchResults[index].parent_id) {
                 this.searchResults.splice(index, 1)
                 break
-              } 
+              }
             }
           }
         }).catch(error => { })
@@ -51,7 +60,7 @@ export default {
 .searchlist {
   margin-top: 5px;
   padding: 5px 0 5px;
-  max-height: 60vh;
+  max-height: 40vh;
   overflow-y: auto;
 }
 .search-row {

@@ -1,8 +1,16 @@
 import axios from 'axios'
 
-export const getGroupMap = () => {
+export const getGroupMap = (options) => {
+  let url = '/api/group'
+  if (options.labels && options.labels.length > 0) {
+    const labelIds = []
+    for (const label of options.labels) {
+      labelIds.push(label.id)
+    }
+    url += '/label/' + labelIds.join('+')
+  }
   return axios({
-    url: '/api/group'
+    url
   })
 }
 
@@ -91,10 +99,54 @@ export const getConflict = (dataId) => {
   })
 }
 
+export const getLabels = () => {
+  return axios({
+    url: '/api/label'
+  })
+}
+
+export const createLabels = (label) => {
+  return axios({
+    url: '/api/label',
+    method: 'POST',
+    data: { label }
+  })
+}
+
+export const updateLabel = (label) => {
+  return axios({
+    url: '/api/label',
+    method: 'PUT',
+    data: { label }
+  })
+}
+
+export const deleteLabel = (id) => {
+  return axios({
+    url: '/api/label',
+    method: 'DELETE',
+    data: { id }
+  })
+}
+
 export const getQrcodeImg = (link) => {
   return axios({
     url: '/api/qrcode',
     method: 'POST',
     data: { link }
+  })
+}
+
+export const importSnapshot = (parentId, snapshotName) => {
+  return axios({
+    url: '/api/snapshot/import',
+    method: 'POST',
+    data: { parentId, snapshotName }
+  })
+}
+
+export const getSnapShotDetail = () => { 
+  return axios({
+    url: '/api/snapshot/detail'
   })
 }

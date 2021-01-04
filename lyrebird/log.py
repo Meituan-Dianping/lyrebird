@@ -2,7 +2,7 @@ import logging
 from colorama import Fore, Style, Back
 from collections import namedtuple
 from lyrebird import application
-
+from pathlib import Path
 
 _stream_logger_inited = False
 
@@ -58,7 +58,7 @@ def _init_file_logger(custom_log_path=None):
         fmt='%(asctime)s %(levelname)s [%(module)s] - %(threadName)s [PID] %(process)s - %(message)s'
     )
     if custom_log_path:
-        log_file = custom_log_path
+        log_file = Path(custom_log_path).expanduser().absolute().resolve()
     else:
         log_file = application.root_dir()/'lyrebird.log'
 

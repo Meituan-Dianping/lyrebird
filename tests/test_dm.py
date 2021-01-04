@@ -51,9 +51,13 @@ dataD = {
     }
 }
 
+label_a = {'name':'label_a','color':'red','description':'description label_a'}
+label_b = {'name':'label_b','color':'green','description':'description label_b'}
 
 prop = {
     'id': 'root',
+    'name': 'root',
+    'type': 'group',
     'parent_id': None,
     'children': [
         {
@@ -61,6 +65,7 @@ prop = {
             'name': 'groupA',
             'type': 'group',
             'parent_id': 'root',
+            'super_id': 'groupB-UUID',
             'children': [
                 {
                     'id': 'dataA-UUID',
@@ -81,6 +86,7 @@ prop = {
             'name': 'groupB',
             'type': 'group',
             'parent_id': 'root',
+            'super_id': 'groupC-UUID',
             'children': [
                 {
                     'id': 'dataC-UUID',
@@ -95,6 +101,7 @@ prop = {
             'name': 'groupC',
             'type': 'group',
             'parent_id': 'root',
+            'super_id': 'groupD-UUID',
             'children': []
         },
         {
@@ -102,6 +109,7 @@ prop = {
             'name': 'groupD',
             'type': 'group',
             'parent_id': 'root',
+            'super_id': 'groupE-UUID',
             'children': [
                 {
                     'id': 'dataD-UUID',
@@ -128,6 +136,45 @@ prop = {
                     'name': 'dataD',
                     'type': 'data',
                     'parent_id': 'groupE-UUID'
+                }
+            ]
+        },
+        {
+            'id': 'groupF-UUID',
+            'name': 'groupF',
+            'type': 'group',
+            'parent_id': 'root',
+            'children': [
+                {
+                    'id': 'groupG-UUID',
+                    'name': 'groupG',
+                    'type': 'group',
+                    'parent_id': 'groupF-UUID',
+                    'children': [
+                        {
+                            'id': 'groupH-UUID',
+                            'label': [label_a, label_b],
+                            'name': 'groupH',
+                            'type': 'group',
+                            'parent_id': 'groupG-UUID',
+                            'children': []
+                        }
+                    ]
+                },
+                {
+                    'id': 'groupI-UUID',
+                    'label': [label_a],
+                    'name': 'groupI',
+                    'type': 'group',
+                    'parent_id': 'groupF-UUID',
+                    'children': [
+                        {
+                            'id': 'dataD-UUID',
+                            'name': 'dataD',
+                            'type': 'data',
+                            'parent_id': 'groupJ-UUID'
+                        }
+                    ]
                 }
             ]
         }
@@ -182,6 +229,16 @@ def test_activate(data_manager):
     assert len(data_manager.activated_data) == 2
     assert 'dataA-UUID' in data_manager.activated_data
     assert 'dataB-UUID' in data_manager.activated_data
+
+
+def test_activate_secondary_search(data_manager):
+    data_manager.activate('groupA-UUID')
+
+    groupB_children_length = len(data_manager.id_map['groupB-UUID']['children'])
+    groupC_children_length = len(data_manager.id_map['groupC-UUID']['children'])
+    secondary_activated_data_length = groupB_children_length + groupC_children_length
+    assert secondary_activated_data_length == 1
+    assert 'dataC-UUID' in data_manager.secondary_activated_data
 
 
 def test_mock_rule(data_manager):
@@ -320,7 +377,7 @@ def test_copy_and_paste(data_manager):
     assert len(group_c['children']) == 1
     new_group = group_c['children'][0]
     assert new_group['id'] != 'groupA-UUID'
-    assert new_group['name'] == 'groupA'
+    assert new_group['name'] == 'groupA - copy'
 
 
 def test_prop_writer():
@@ -333,3 +390,60 @@ def test_prop_writer():
     )
     assert prop_str == '{"url":"<\\"test\\">","description":"a\\nb\\nc"}'
     json.loads(prop_str)
+
+
+def test_make_data_map_by_group(data_manager):
+    group_set = set(['groupH-UUID', 'groupI-UUID'])
+
+    node = data_manager.make_data_map_by_group(group_set)
+
+    prop = {
+        'id': 'root',
+        'name': 'root',
+        'type': 'group',
+        'parent_id': None,
+        'children': [
+            {
+                'id': 'groupF-UUID',
+                'name': 'groupF',
+                'type': 'group',
+                'parent_id': 'root',
+                'children': [
+                    {
+                        'id': 'groupG-UUID',
+                        'name': 'groupG',
+                        'type': 'group',
+                        'parent_id': 'groupF-UUID',
+                        'children': [
+                            {
+                                'id': 'groupH-UUID',
+                                'label': [label_a, label_b],
+                                'name': 'groupH',
+                                'type': 'group',
+                                'parent_id': 'groupG-UUID',
+                                'children': []
+                            }
+                        ]
+                    },
+                    {
+                        'id': 'groupI-UUID',
+                        'label': [label_a],
+                        'name': 'groupI',
+                        'type': 'group',
+                        'parent_id': 'groupF-UUID',
+                        'children': [
+                            {
+                                'id': 'dataD-UUID',
+                                'name': 'dataD',
+                                'type': 'data',
+                                'parent_id': 'groupJ-UUID'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+    node_str = json.dumps(node)
+    prop_str = json.dumps(prop)
+    assert len(node_str) == len(prop_str)

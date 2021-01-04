@@ -1,15 +1,15 @@
-from .. import context
-from lyrebird import application
-from lyrebird.log import get_logger
-from lyrebird import utils
-from urllib.parse import urlparse, unquote
-import urllib
 import uuid
 import time
-import gzip
-import json
 import ipaddress
-import binascii
+
+from .. import context
+from lyrebird import utils
+from lyrebird import application
+from lyrebird.log import get_logger
+from lyrebird.mock.blueprints.apis.bandwidth import config
+from urllib.parse import urlparse, unquote
+from .http_data_helper import DataHelper
+from .http_header_helper import HeadersHelper
 
 
 logger = get_logger()
@@ -26,7 +26,7 @@ class HandlerContext:
     def __init__(self, request):
         self.id = str(uuid.uuid4())
         self.request = request
-        self._response = None
+        self.response = None
         self.client_req_time = None
         self.client_resp_time = None
         self.server_req_time = None
@@ -35,8 +35,16 @@ class HandlerContext:
             id=self.id,
             size=0,
             duration=0,
-            start_time=time.time())
+            start_time=time.time(),
+            request={},
+            response={}
+            )
         self.client_address = None
+        self.is_request_edited = False
+        self.is_response_edited = False
+        self.response_source = ''
+        self.is_proxiable = True
+        self.response_chunk_size = 2048
         self._parse_request()
 
     def _parse_request(self):
@@ -49,7 +57,7 @@ class HandlerContext:
             if len(request_info_from_header) > 0:
                 request_info = request_info_from_header
 
-        headers = {k: v for k, v in self.request.headers}
+        headers = HeadersHelper.origin2flow(self.request)
         _request = dict(
             headers=headers,
             method=self.request.method,
@@ -60,7 +68,7 @@ class HandlerContext:
 
         # handle request data
         if self.request.method in ['POST', 'PUT']:
-            RequestDataHelper.req2dict(self.request, output=_request)
+            DataHelper.origin2flow(self.request, output=_request)
 
         if self.request.headers.get('Lyrebird-Client-Address'):
             self.client_address = self.request.headers.get('Lyrebird-Client-Address')
@@ -116,63 +124,150 @@ class HandlerContext:
             path=self.request.path[len(self.MOCK_PATH_PREFIX):]
         )
 
-    @property
-    def response(self):
-        return self._response
+    def set_request_edited(self):
+        self.is_request_edited = True
 
-    @response.setter
-    def response(self, val):
-        self._response = val
-        self.update_server_resp_time()
+    def set_response_edited(self):
+        self.is_response_edited = True
 
-        _response = dict(
-            code=self._response.status_code,
-            headers={k: v for (k, v) in self._response.headers},
-            timestamp=round(time.time(), 3)
-        )
+    def set_response_source_mock(self):
+        self.response_source = 'mock'
 
-        ResponseDataHelper.resp2dict(self._response, output=_response)
-        self.flow['response'] = _response
+    def set_response_source_proxy(self):
+        self.response_source = 'proxy'
 
-        if val.content_length:
-            self.flow['size'] = val.content_length
+    def get_request_body(self):
+        if self.is_request_edited:
+            self.flow['request']['headers'] = HeadersHelper.flow2origin(self.flow['request'])
+            _data = DataHelper.flow2origin(self.flow['request'])
         else:
-            self.flow['size'] = len(val.data)
-        self.flow['duration'] = self.server_resp_time - self.client_req_time
+            _data = self.request.data or self.request.form or None
+        return _data
 
-        if context.application.work_mode == context.Mode.RECORD:
-            dm = context.application.data_manager
-            dm.save_data(self.flow)
+    def get_request_headers(self):
+        if self.is_request_edited:
+            self.flow['request']['headers'] = HeadersHelper.flow2origin(self.flow['request'])
 
-    def _read_response_info(self):
-        self._response.headers.get('Content-Type')
+        headers = {}
+        unproxy_headers = application.config.get('proxy.ignored_headers', {})
+        for name, value in self.flow['request']['headers'].items():
+            if not value or name in ['Cache-Control', 'Host']:
+                continue
+            if name in unproxy_headers and unproxy_headers[name] in value:
+                continue
+            headers[name] = value
+        return headers
+
+    def get_response_generator(self):
+        if self.is_response_edited:
+            self.flow['response']['headers'] = HeadersHelper.flow2origin(self.flow['response'])
+            _generator = self._generator_bytes()
+        else:
+            _generator = self._generator_stream()
+        return _generator
+
+    def _generator_bytes(self):
+        def generator():
+            try:
+                _resp_data = DataHelper.flow2origin(self.flow['response']) or ''
+                length = len(_resp_data)
+                size = self.response_chunk_size
+                bandwidth = config.bandwidth
+                if bandwidth > 0:
+                    sleep_time = self.response_chunk_size / (bandwidth * 1024)
+                else:
+                    sleep_time = 0
+                for i in range(int(length/size) + 1):
+                    time.sleep(sleep_time)
+                    self.server_resp_time = time.time()
+                    yield _resp_data[ i * size : (i+1) * size ]
+            finally:
+                self.update_client_resp_time()
+        return generator
+
+    def _generator_stream(self):
+        def generator():
+            upstream = self.response
+            try:
+                bandwidth = config.bandwidth
+                if bandwidth > 0:
+                    sleep_time = self.response_chunk_size / (bandwidth * 1024)
+                else:
+                    sleep_time = 0
+                buffer = []
+                for item in upstream.response:
+                    buffer.append(item)
+                    time.sleep(sleep_time)
+                    self.server_resp_time = time.time()
+                    yield item
+            finally:
+                self.response.data = b''.join(buffer)
+                DataHelper.origin2flow(self.response, output=self.flow['response'])
+
+                self.update_client_resp_time()
+                upstream.close()
+        return generator
+
+    def update_response_headers_code2flow(self, output_key='response'):
+        self.flow[output_key]  = {
+            'code': self.response.status_code,
+            'timestamp': round(time.time(), 3)
+        }
+        HeadersHelper.origin2flow(self.response, output=self.flow[output_key])
+
+    def update_response_data2flow(self, output_key='response'):
+        DataHelper.origin2flow(self.response, output=self.flow[output_key])
 
     def update_client_req_time(self):
         self.client_req_time = time.time()
         # 消息总线 客户端请求事件，启用此事件
         method = self.flow['request']['method']
         url = self.flow['request']['url']
-        context.application.event_bus.publish('flow.request',
-        dict(
-            flow=self.flow,
-            message=f"URL: {url}\nMethod: {method}\n"
+
+        _flow_client_req = {}
+        for key, value in self.flow.items():
+            _flow_client_req[key] = value
+
+        context.application.event_bus.publish(
+            'flow.request',
+            dict(
+                flow=_flow_client_req,
+                message=f"URL: {url}\nMethod: {method}\n"
             )
         )
 
     def update_client_resp_time(self):
         self.client_resp_time = time.time()
         # 消息总线 客户端响应事件，启用此事件
+        resp_data = self.flow['response'].get('data', '')
+        if isinstance(resp_data, str):
+            self.flow['size'] = len(resp_data.encode())
+        else:
+            self.flow['size'] = len(resp_data)
+
+        self.flow['duration'] = self.server_resp_time - self.client_req_time
+
         method = self.flow['request']['method']
         url = self.flow['request']['url']
         code = self.flow['response']['code']
         duration = utils.convert_time(self.flow['duration'])
         size = utils.convert_size(self.flow['size'])
-        context.application.event_bus.publish('flow',
-                                              dict(
-                                                  flow=self.flow,
-                                                  message=f"URL: {url}\nMethod: {method}\nStatusCode: {code}\nDuration: {duration}\nSize: {size}"
-                                              )
-                                              )
+
+        # Import decoder for decoding the requested content
+        decode_flow = {}
+        application.encoders_decoders.decoder_handler(self.flow, output=decode_flow)
+
+        context.application.event_bus.publish(
+            'flow',
+            dict(
+                flow=decode_flow,
+                message=f"URL: {url}\nMethod: {method}\nStatusCode: {code}\nDuration: {duration}\nSize: {size}"
+            )
+        )
+
+        if context.application.work_mode == context.Mode.RECORD:
+            dm = context.application.data_manager
+            dm.save_data(self.flow)
 
     def update_server_req_time(self):
         self.server_req_time = time.time()
@@ -192,86 +287,8 @@ class HandlerContext:
         #                                       id=self.id,
         #                                       flow=self.flow))
 
-    def get_origin_url(self):
-        return self.flow['request'].get('url')
-
-
-class DataHelper:
-
-    @staticmethod
-    def data2Str(data):
-        try:
-            return data.decode('utf-8')
-        except Exception as e:
-            logger.warning(f'Data to string failed. {e}')
-            return binascii.b2a_base64(data).decode('utf-8')
-
-
-class RequestDataHelper(DataHelper):
-
-    @staticmethod
-    def req2dict(request, output=None):
-        if not output:
-            output = {}
-        content_encoding = request.headers.get('Content-Encoding')
-        # Content-Encoding handler
-        unziped_data = None
-
-        try:
-            if content_encoding and content_encoding == 'gzip':
-                unziped_data = gzip.decompress(request.data)
-
-            content_type = request.headers.get('Content-Type')
-            if not content_type:
-                output['data'] = RequestDataHelper.data2Str(request.data)
-                return
-
-            content_type = content_type.strip()
-            if content_type.startswith('application/x-www-form-urlencoded'):
-                if unziped_data:
-                    output['data'] = urllib.parse.parse_qs(unziped_data.decode('utf-8'))
-                else:
-                    output['data'] = request.form.to_dict()
-            elif content_type.startswith('application/json'):
-                if unziped_data:
-                    output['data'] = json.loads(unziped_data.decode('utf-8'))
-                else:
-                    output['data'] = request.json
-            elif content_type.startswith('text/xml'):
-                if unziped_data:
-                    output['data'] = unziped_data.decode('utf-8')
-                else:
-                    output['data'] = request.data.decode('utf-8')
-            else:
-                # TODO write bin data
-                output['data'] = RequestDataHelper.data2Str(request.data)
-        except Exception as e:
-            output['data'] = RequestDataHelper.data2Str(request.data)
-            logger.warning(f'Convert request data fail. {e}')
-
-
-class ResponseDataHelper(DataHelper):
-
-    @staticmethod
-    def resp2dict(response, output=None):
-        if not output:
-            output = {}
-        content_type = response.headers.get('Content-Type')
-        if not content_type:
-            output['binary_data'] = 'bin'
+    def add_flow_action(self, action):
+        if self.flow.get('action'):
+            self.flow['action'].append(action)
         else:
-            content_type = content_type.strip()
-
-        try:
-            if content_type.startswith('application/json'):
-                output['data'] = response.json
-            elif content_type.startswith('text/xml'):
-                output['data'] = response.data.decode('utf-8')
-            elif content_type.startswith('text/html'):
-                output['data'] = response.data.decode('utf-8')
-            else:
-                # TODO write bin data
-                output['data'] = ResponseDataHelper.data2Str(response.data)
-        except Exception as e:
-            output['data'] = ResponseDataHelper.data2Str(response.data)
-            logger.warning(f'Convert response failed. {e}')
+            self.flow['action'] = [action]

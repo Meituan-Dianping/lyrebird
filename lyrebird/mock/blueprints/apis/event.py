@@ -1,3 +1,4 @@
+import json
 from flask_restful import Resource
 from flask import jsonify, request
 from lyrebird import application
@@ -20,6 +21,13 @@ class Event(Resource):
         result = []
         for event in events:
             event_str = event.json()
+
+            # Import decoder for decoding the requested content
+            if event_str.get('channel') == 'flow':
+                content = json.loads(event_str['content'])
+                application.encoders_decoders.decoder_handler(content['flow'])
+                event_str['content'] = json.dumps(content, ensure_ascii=False)
+
             result.append(event_str)
         return application.make_ok_response(events=result, page=page, page_count=page_count, page_size=PAGE_SIZE)
 
@@ -32,7 +40,12 @@ class Event(Resource):
 
 class Channel(Resource):
 
-    def get(self):
-        db = application.server['db']
-        channel_list = db.get_channel_list()
-        return jsonify([item[0] for item in channel_list])
+    def get(self, mode=None):
+        if not mode:
+            db = application.server['db']
+            channel_list = db.get_channel_list()
+            return jsonify([item[0] for item in channel_list])
+
+        elif mode == 'default':
+            channel = application.config.get('event.default_channel', [])
+            return application.make_ok_response(data=channel)

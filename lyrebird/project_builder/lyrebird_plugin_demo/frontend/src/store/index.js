@@ -6,45 +6,37 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    lastRequestURL: null,
-    requestCount: 0
+    requestList: []
   },
   mutations: {
-    setRequestCount (state, count) {
-      state.requestCount = count
-    },
-    setLastRequestURL (state, url) {
-      state.lastRequestURL = url
+    setRequestList(state, requestList) {
+      state.requestList = requestList
     }
   },
   actions: {
-    reloadReqestCount (context) {
-      apis.loadRequestCount().then(response => {
+    resetRequestReset(context) {
+      apis.resetRequestReset().then(response => {
         if (response.data.code !== 1000) {
-          console.error('Load request count failed', response.data)
+          console.error('resetRequestReset failed', response.data)
           return
         }
-        let count = response.data.count
-        let url = response.data.last_request
-        context.commit('setRequestCount', count)
-        context.commit('setLastRequestURL', url)
-      }).catch(error => {
-        console.error('Load request count failed', error)
       })
     },
-    resetRequestCount (context) {
-      apis.resetRequestCount().then(response => {
-        if (response.data.code !== 1000) {
-          console.error('Reset failed', response.data)
-          return
-        }
-        context.commit('setRequestCount', 0)
-        context.commit('setLastRequestURL', null)
-      }).cache(error => {
-        console.error('Reset failed', error)
-      })
+    reloadReqestList(context) {
+      apis
+        .loadRequestList()
+        .then(response => {
+          if (response.data.code !== 1000) {
+            console.error('reloadReqestList failed', response.data)
+            return
+          }
+          let requestList = response.data.requestList
+          context.commit('setRequestList', requestList)
+        })
+        .catch(error => {
+          console.error('reloadReqestList failed', error)
+        })
     }
   },
-  modules: {
-  }
+  modules: {}
 })

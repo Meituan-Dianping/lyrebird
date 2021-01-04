@@ -11,9 +11,15 @@ export default {
     isLoadConflictInfo: false,
     groupListOpenNode: new Set(),
     dataDetail: {},
+    dataDetailFocuedTab: 'info',
     groupDetail: {},
     focusNodeInfo: {},
-    pasteTarget: null
+    pasteTarget: null,
+    importSnapshotParentNode: {},
+    snapshotName: '',
+    labels: [],
+    isLoading: false,
+    dataListSelectedLabel: []
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -54,6 +60,9 @@ export default {
     setDataDetail (state, dataDetail) {
       state.dataDetail = dataDetail
     },
+    setDataDetailFocuedTab (state, dataDetailFocuedTab) {
+      state.dataDetailFocuedTab = dataDetailFocuedTab
+    },
     setGroupDetail (state, groupDetail) {
       state.groupDetail = groupDetail
     },
@@ -68,11 +77,27 @@ export default {
     },
     setPasteTarget (state, pasteTarget) {
       state.pasteTarget = pasteTarget
+    },
+    setImportSnapshotParentNode (state, importSnapshotParentNode) {
+      state.importSnapshotParentNode = importSnapshotParentNode
+    },
+    setSnapshotName (state, snapshotName) {
+      state.snapshotName = snapshotName
+    },
+    setLabels (state, labels) {
+      state.labels = labels
+    },
+    setIsLoading (state, isLoading) {
+      state.isLoading = isLoading
+    },
+    setDataListSelectedLabel (state, dataListSelectedLabel) {
+      state.dataListSelectedLabel = dataListSelectedLabel
     }
   },
   actions: {
     loadDataMap ({ state, commit }) {
-      api.getGroupMap()
+      commit('setIsLoading', true)
+      api.getGroupMap({labels: state.dataListSelectedLabel})
         .then(response => {
           breadthFirstSearch([response.data.data], node => {
             if (node.parent_id === null) {
@@ -85,9 +110,20 @@ export default {
             }
           })
           commit('setGroupList', [response.data.data])
+          commit('setIsLoading', false)
         })
         .catch(error => {
+          commit('setIsLoading', false)
           bus.$emit('msg.error', 'Load data failed: ' + error.data.message)
+        })
+    },
+    loadDataLabel ({ commit }) {
+      api.getLabels()
+        .then(response => {
+          commit('setLabels', response.data.labels)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load data label failed: ' + error.data.message)
         })
     },
     loadGroupDetail ({ commit }, payload) {
@@ -128,6 +164,7 @@ export default {
       api.updateGroup(payload.id, payload)
         .then(response => {
           dispatch('loadDataMap')
+          dispatch('loadDataLabel')
           dispatch('loadGroupDetail', payload)
           bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
         })
@@ -238,6 +275,27 @@ export default {
         })
         .catch(error => {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' paste error: ' + error.data.message)
+        })
+    },
+    importSnapshot ({ state, dispatch }) {
+      api.importSnapshot(state.importSnapshotParentNode.id, state.snapshotName)
+        .then(response => {
+          dispatch('loadDataMap')
+          bus.$emit('msg.success', 'Import snapshot ' + state.snapshotName + ' success!')
+        })
+        .catch(error => {
+          dispatch('loadDataMap')
+          bus.$emit('msg.error', 'Import snapshot ' + state.snapshotName + ' error: ' + error.data.message)
+        })
+    },
+    loadSnapshotName ({ commit }) {
+      bus.$emit('msg.info', 'Loading snapshot ...')
+      api.getSnapShotDetail()
+        .then((res) => {
+          commit('setSnapshotName', res.data.data.name)
+        })
+        .catch((err) => { 
+          bus.$emit('msg.error', 'Load snapshot information error: ' + err.data.message)
         })
     }
   }

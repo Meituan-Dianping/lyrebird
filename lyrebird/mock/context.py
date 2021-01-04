@@ -38,6 +38,7 @@ class Application:
         # todo 使用内存中的List存储请求，应可支持切换redis
         self.cache = cache.get_cache()
         self.work_mode = Mode.NORMAL
+        self.is_diff_mode = False
         self.data_manager = DataManager()
         # SocketIO
         self.socket_io: SocketIO = None

@@ -5,16 +5,19 @@ import socket
 import threading
 import signal
 import os
+import platform
 import traceback
 from pathlib import Path
 from lyrebird import log
 from lyrebird import application
-from lyrebird.config import Rescource, ConfigManager
+from lyrebird.config import ConfigManager
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.notice_center import NoticeCenter
+from lyrebird.mock.dm.label import LabelHandler
+from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 from lyrebird.db.database_server import LyrebirdDatabaseServer
 from lyrebird.plugins import PluginManager
 from lyrebird.checker import LyrebirdCheckerServer
@@ -63,8 +66,9 @@ def main():
 
     parser.add_argument('-V', '--version', dest='version', action='store_true', help='show lyrebird version')
     parser.add_argument('-v', dest='verbose', action='count', default=0, help='Show verbose log')
-    parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 4272')
-    parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 9090')
+    parser.add_argument('--ip', dest='ip', help='Set device ip')
+    parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 9090')
+    parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 4272')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
     parser.add_argument('-b', '--no_browser', dest='no_browser',
                         action='store_true', help='Start without open a browser')
@@ -94,10 +98,13 @@ def main():
         application._cm = ConfigManager()
 
     # set current ip to config
-    try:
-        application._cm.config['ip'] = _get_ip()
-    except socket.gaierror as e:
-        logger.error('Failed to get local IP address, error occurs on %s' % e)
+    if args.ip:
+        application._cm.config['ip'] = args.ip
+    else:
+        try:
+            application._cm.config['ip'] = _get_ip()
+        except socket.gaierror as e:
+            logger.error(f'Failed to get local IP address, error occurs on {e}')
 
     # init file logger after config init
     application._cm.config['verbose'] = args.verbose
@@ -108,7 +115,7 @@ def main():
     if args.proxy:
         application._cm.config['proxy.port'] = args.proxy
     if args.data:
-        application._cm.config['mock.data'] = args.data
+        application._cm.config['mock.data'] = str(Path(args.data).expanduser().absolute())
 
     logger.debug(f'Read args: {args}')
 
@@ -121,13 +128,16 @@ def main():
 
 
 def run(args: argparse.Namespace):
-    # Set file descriptors
-    try:
+    sys_name = platform.system()
+    if sys_name.lower() != 'windows':
         import resource
-        resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
-    except Exception:
-        traceback.print_exc()
-        logger.warning('Set file descriptors failed\nPlease set it by your self, use "ulimit -n 8192" with root account')
+        # Set file descriptors
+        try:
+            resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
+        except Exception:
+            traceback.print_exc()
+            logger.warning('Set file descriptors failed\nPlease set it by your self, use "ulimit -n 8192" with root account')
+
     # Check mock data group version. Update if is older than 1.x
     data_path = application._cm.config['mock.data']
     Path(data_path).mkdir(parents=True, exist_ok=True)
@@ -162,6 +172,12 @@ def run(args: argparse.Namespace):
     reporter.start()
     # activate notice center
     application.notice = NoticeCenter()
+
+    # init label handler
+    application.labels = LabelHandler()
+
+    # init encoder&decoder
+    application.encoders_decoders = EncoderDecoder()
 
     # load debug plugin
     # TODO

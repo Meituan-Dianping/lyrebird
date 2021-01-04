@@ -4,7 +4,7 @@
       <Row>
         <Col span="16">
           <div :title="notice.sender.file">
-            <span style="display:inline-block;max-width:270px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            <span style="display:inline-block;max-width:245px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
               {{notice.sender.file}}
             </span>
             <Badge v-if="notice.count > 1" :count="notice.count" class-name="notice-badge-gray" style="padding-left:5px"></Badge>

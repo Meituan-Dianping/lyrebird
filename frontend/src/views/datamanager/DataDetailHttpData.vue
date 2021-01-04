@@ -16,7 +16,7 @@
       ></CodeEditor>
     </div>
     <div class="save-btn" v-if="dataDetail">
-      <Tooltip content="Save" placement="top" :delay="500">
+      <Tooltip content="Save (⌘+s)" placement="top" :delay="500">
         <Button type="primary" shape="circle" @click="save">
           <svg-icon name="md-save" scale="4"></svg-icon>
         </Button>
@@ -38,7 +38,6 @@ export default {
   },
   data () {
     return {
-      currentTab: 'info',
       editorCache: {
         info: null,
         req: null,
@@ -48,7 +47,22 @@ export default {
       }
     }
   },
+  mounted () {
+    this.$bus.$on('keydown', this.onKeyDown)
+    this.setDataDetailEditorCache(this.dataDetail)
+  },
+  beforeDestroy () {
+    this.$bus.$off('keydown', this.onKeyDown)
+  },
   computed: {
+    currentTab: {
+      get () {
+        return this.$store.state.dataManager.dataDetailFocuedTab
+      },
+      set (val) {
+        this.$store.commit('setDataDetailFocuedTab', val)
+      }
+    },
     currentTabContentType () {
       if (this.currentTab === 'info' || this.currentTab === 'req' || this.currentTab === 'resp') {
         return 'json'
@@ -74,25 +88,7 @@ export default {
   },
   watch: {
     dataDetail (val) {
-      if (val === null) {
-        return
-      }
-      this.editorCache.info = JSON.stringify({
-        id: val.id,
-        name: val.name,
-        rule: val.rule
-      })
-      this.editorCache.req = JSON.stringify({
-        url: val.request.url,
-        headers: val.request.headers,
-        method: val.request.method
-      })
-      this.editorCache.reqData = val.request.data
-      this.editorCache.resp = JSON.stringify({
-        code: val.response.code,
-        headers: val.response.headers
-      })
-      this.editorCache.respData = val.response.data
+      this.setDataDetailEditorCache(val)
     }
   },
   methods: {
@@ -113,18 +109,48 @@ export default {
     },
     onJsonPathChange (payload) {
       this.$store.commit('setJsonPath', payload.jsonPath)
+    },
+    onKeyDown (event) {
+      if (event.code !== "KeyS" || !event.metaKey) {
+        return
+      }
+      this.save()
+      event.preventDefault()
+      console.log("Save", event)
+    },
+    setDataDetailEditorCache (val) {
+      if (val === null || Object.keys(val).length === 0) {
+        return
+      }
+      this.editorCache.info = JSON.stringify({
+        id: val.id,
+        name: val.name,
+        rule: val.rule
+      })
+      this.editorCache.req = JSON.stringify({
+        url: val.request.url,
+        headers: val.request.headers,
+        method: val.request.method
+      })
+      this.editorCache.reqData = typeof (val.request.data) == 'object' ? JSON.stringify(val.request.data) : val.request.data
+      this.editorCache.resp = JSON.stringify({
+        code: val.response.code,
+        headers: val.response.headers
+      })
+      this.editorCache.respData = typeof (val.response.data) == 'object' ? JSON.stringify(val.response.data) : val.response.data
     }
-  },
+  }
 }
 </script>
 
 <style scoped>
 .data-detail {
-  height: calc(100vh - 150px);
+  height: calc(100vh - 128px);
   /* total:100vh
     header: 38px
     buttonBar: 28px
-    tree
+    requestTab: 34px
+    codeEditor
     footer: 28px
   */
 }

@@ -12,6 +12,9 @@
         :name="checker.name"
         :selected="checker.select"
       >
+        <Tooltip content="Debug" placement="bottom-start" :delay="500" transfer>
+          <Icon v-if="checker.debug" type="ios-build" color="#2b85e4" size="16"/>
+        </Tooltip>
         {{checker.name}}
         <i-switch slot="extra" v-model="checker.activated" size="small" @on-change="changeStatus(checker)"></i-switch>
       </Cell>
@@ -55,6 +58,10 @@ export default {
   margin-right: 0;
 }
 .cell-border {
+  padding: 5px 5px;
+  border-bottom: 1px dashed #dcdee2;
+}
+.ivu-cell-group > .ivu-cell {
   padding: 5px 5px;
   border-bottom: 1px dashed #dcdee2;
 }

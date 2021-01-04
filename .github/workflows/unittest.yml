@@ -1,0 +1,22 @@
+name: Unit Test
+
+on: [pull_request]
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Unit Test
+        run: |
+          cd tests
+          python -m pytest .

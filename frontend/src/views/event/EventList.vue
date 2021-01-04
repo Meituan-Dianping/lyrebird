@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="event-list">
     <Table
       ref="eventTable"
       size="small"
@@ -66,7 +66,6 @@ export default {
   created () {
     const urlParams = new URLSearchParams(window.location.search)
     const eventId = urlParams.get('event_id')
-    this.$store.dispatch('loadEvents', { eventId: eventId })
     this.$store.dispatch('loadChannelNames')
     this.$bus.$on('contextmenu.show', this.showContextMenu)
     this.$bus.$on('contextmenu.dismiss', this.dismissContextMenu)
@@ -216,6 +215,18 @@ export default {
 </script>
 
 <style less>
+.event-list {
+  height: calc(100vh - 140px);
+  /* total:100vh
+  header: 38px
+  buttonBar: 38px
+  divider:1px
+  mode-tag:34px
+  padding: 1px
+  footer: 28px
+    */
+  overflow-y: auto;
+}
 .page {
   text-align: center;
   margin-top: 5px;

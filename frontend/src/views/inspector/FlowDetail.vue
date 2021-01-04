@@ -10,6 +10,7 @@
           <TabPane label="RequestBody" name="req-body"></TabPane>
           <TabPane label="Response" name="resp"></TabPane>
           <TabPane label="ResponseBody" name="resp-body"></TabPane>
+          <TabPane v-if="showProxyResponse" label="ProxyResponseBody" name="proxy-resp-body" />
         </Tabs>
       </Col>
     </Row>
@@ -25,7 +26,7 @@ export default {
   components: {
     CodeEditor
   },
-  data: function () {
+  data () {
     return {
       codeType: 'json',
       currentTab: 'req'
@@ -38,72 +39,90 @@ export default {
     codeContent () {
       let codeContent = ''
       if (this.currentTab === 'req') {
-        codeContent = JSON.stringify(this.flowDetail.request, null, 4);
-        this.codeType = 'json';
+        codeContent = JSON.stringify(this.flowDetail.request, null, 4)
+        this.codeType = 'json'
       } else if (this.currentTab === 'req-body') {
         if (this.flowDetail.request.data) {
-          codeContent = JSON.stringify(this.flowDetail.request.data, null, 4);
-          this.codeType = 'json';
+          codeContent = this.parseJsonData(this.flowDetail.request.data)
+          this.codeType = 'json'
         } else {
-          codeContent = '';
-          this.codeType = 'text';
+          codeContent = ''
+          this.codeType = 'text'
         }
       } else if (this.currentTab === 'resp') {
         const respInfo = {
           code: this.flowDetail.response.code,
           headers: this.flowDetail.response.headers
         }
-        codeContent = JSON.stringify(respInfo, null, 4);
-        this.codeType = 'json';
+        codeContent = JSON.stringify(respInfo, null, 4)
+        this.codeType = 'json'
       } else if (this.currentTab === 'resp-body') {
-        if (this.flowDetail.response.data === null) {
-          codeContent = '';
-          this.codeType = 'text';
-          return;
-        }
-        if (this.flowDetail.response.headers.hasOwnProperty('Content-Type')) {
-          let contentType = this.flowDetail.response.headers['Content-Type'];
-          if (contentType.includes('html')) {
-            codeContent = this.parseHtmlData(this.flowDetail.response.data);
-          } else if (contentType.includes('xml')) {
-            codeContent = this.parseXmlData(this.flowDetail.response.data);
-          } else if (contentType.includes('json')) {
-            codeContent = this.parseJsonData(this.flowDetail.response.data);
-          } else {
-            codeContent = this.parseTextData(this.flowDetail.response.data);
-          }
-        } else {
-          codeContent = this.parseTextData(this.flowDetail.response.data);
-        }
-      }
+        codeContent = this.parseResponseByContentType(this.flowDetail.response)
+      } else if (this.currentTab === 'proxy-resp-body') {
+        codeContent = this.parseResponseByContentType(this.flowDetail.proxy_response)
+      } else { }
       return codeContent
+    },
+    showProxyResponse () {
+      if (!this.flowDetail.hasOwnProperty('proxy_response') && this.currentTab == 'proxy-resp-body') {
+        this.currentTab = 'resp-body'
+      }
+      return this.flowDetail.hasOwnProperty('proxy_response')
     }
   },
   methods: {
     dismiss () {
       this.$store.commit('setFocusedFlow', null)
     },
-    switchTab: function (name) {
-      this.currentTab = name;
+    switchTab (name) {
+      this.currentTab = name
     },
-    parseJsonData: function (data) {
-      this.codeType = 'json';
-      return JSON.stringify(data, null, 4);
+    parseNullData (data) {
+      this.codeType = 'text'
+      return ''
     },
-    parseHtmlData: function (data) {
-      this.codeType = 'html';
-      return this.flowDetail.response.data;
+    parseJsonData (data) {
+      this.codeType = 'json'
+      if (typeof data === 'object') {
+        return JSON.stringify(data, null, 4)
+      } else {
+        return data
+      }
     },
-    parseXmlData: function (data) {
-      this.codeType = 'xml';
-      return this.flowDetail.response.data;
+    parseHtmlData (data) {
+      this.codeType = 'html'
+      return data
     },
-    parseTextData: function (data) {
-      this.codeType = 'text';
-      return this.flowDetail.response.data;
+    parseXmlData (data) {
+      this.codeType = 'xml'
+      return data
+    },
+    parseTextData (data) {
+      this.codeType = 'text'
+      return data
+    },
+    parseResponseByContentType (response) {
+      let codeContent = ''
+      if (response.data === null) {
+        codeContent = this.parseNullData(response.data)
+      } else if (response.headers.hasOwnProperty('Content-Type')) {
+        let contentType = response.headers['Content-Type']
+        if (contentType.includes('html')) {
+          codeContent = this.parseHtmlData(response.data)
+        } else if (contentType.includes('xml')) {
+          codeContent = this.parseXmlData(response.data)
+        } else if (contentType.includes('json')) {
+          codeContent = this.parseJsonData(response.data)
+        } else {
+          codeContent = this.parseTextData(response.data)
+        }
+      } else {
+        codeContent = this.parseTextData(response.data)
+      }
+      return codeContent
     }
   }
-};
+}
 </script>
 
 <style lang="css">

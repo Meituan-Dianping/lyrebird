@@ -39,3 +39,9 @@ export const getChannelNames = () => {
         url: '/api/channel'
     })
 }
+
+export const getDefaultChannelNames = () => {
+    return axios({
+        url: '/api/channel/default'
+    })
+}

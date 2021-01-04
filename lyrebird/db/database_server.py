@@ -2,12 +2,15 @@ import json
 import math
 import datetime
 import traceback
+import time
 from queue import Queue
 from pathlib import Path
 from lyrebird import application
 from lyrebird import log
 from lyrebird.base_server import ThreadServer
+from sqlalchemy import event
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine
 
@@ -42,6 +45,11 @@ class LyrebirdDatabaseServer(ThreadServer):
         sqlite_path = 'sqlite:///'+str(database_uri)+'?check_same_thread=False'
 
         engine = create_engine(str(sqlite_path))
+
+        # Set pragma on connect
+        # https://www.sqlite.org/pragma.html
+        event.listen(engine, 'connect', self._fk_pragma_on_connect)
+
         # Create all tables
         Base.metadata.create_all(engine)
         # Create session factory
@@ -55,8 +63,19 @@ class LyrebirdDatabaseServer(ThreadServer):
         # subscribe all channel
         application.server['event'].subscribe('any', self.event_receiver)
 
+    def _fk_pragma_on_connect(self, dbapi_con, con_record):
+        # https://www.sqlite.org/pragma.html#pragma_journal_mode
+        dbapi_con.execute('PRAGMA journal_mode=MEMORY')
+        # https://www.sqlite.org/pragma.html#pragma_synchronous
+        dbapi_con.execute('PRAGMA synchronous=OFF')
+
     def event_receiver(self, event, channel=None, event_id=None):
-        content = json.dumps(event)
+        # event is decoded , which should be encoded when save
+        # event is deepcopy when created, no needs to copy again
+        if channel == 'flow':
+            application.encoders_decoders.encoder_handler(event['flow'])
+
+        content = json.dumps(event, ensure_ascii=False)
         flow = Event(event_id=event_id, channel=channel, content=content)
         self.storage_queue.put(flow)
 
@@ -114,7 +133,7 @@ class LyrebirdDatabaseServer(ThreadServer):
             query = query.filter(Event.channel.in_(channel_rules))
         result = query.count()
         self._scoped_session.remove()
-        return math.ceil(result/page_size)
+        return math.ceil(result / page_size)
 
 
 class JSONFormat:
@@ -126,7 +145,7 @@ class JSONFormat:
             if prop.startswith('_'):
                 continue
             prop_obj = getattr(self, prop)
-            if isinstance(prop_obj, (str, int, bool)):
+            if isinstance(prop_obj, (str, int, bool, float)):
                 prop_collection[prop] = prop_obj
             elif isinstance(prop_obj, datetime.datetime):
                 prop_collection[prop] = prop_obj.timestamp()
@@ -140,4 +159,10 @@ class Event(Base, JSONFormat):
     channel = Column(String(16), index=True)
     event_id = Column(String(32), index=True)
     content = Column(Text)
-    timestamp = Column(DateTime(timezone=True), default=datetime.datetime.now)
+    _timestamp = Column('timestamp', DateTime(timezone=True), default=datetime.datetime.utcnow)
+
+    @hybrid_property
+    def timestamp(self):
+        seconds_offset = time.localtime().tm_gmtoff
+        return self._timestamp.timestamp() + seconds_offset
+
