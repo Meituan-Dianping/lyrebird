@@ -28,6 +28,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
         "Operating System :: MacOS",
+        "Operating System :: Windows",
     ],
     entry_points={
         'console_scripts': [
