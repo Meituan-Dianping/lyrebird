@@ -3,7 +3,6 @@ from flask_restful import Resource
 from flask import jsonify, request
 from lyrebird import application
 
-
 # Default event page size
 PAGE_SIZE = 20
 

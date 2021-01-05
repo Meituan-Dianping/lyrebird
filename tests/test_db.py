@@ -3,7 +3,7 @@ import pytest
 from pathlib import Path
 from typing import NamedTuple
 import lyrebird
-from lyrebird import reporter, application, APPLICATION_CONF_DIR
+from lyrebird import reporter, application
 from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.db.database_server import LyrebirdDatabaseServer
