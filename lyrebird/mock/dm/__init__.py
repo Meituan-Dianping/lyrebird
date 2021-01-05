@@ -259,12 +259,14 @@ class DataManager:
             path = parsed_url.path
         return path
 
-    def add_data(self, parent_id, raw_data):
+    def add_data(self, parent_id, raw_data, **kwargs):
         if not isinstance(raw_data, dict):
             raise DataObjectSouldBeADict
+
+        parent_node = None
         if parent_id == 'tmp_group':
             parent_node = self.tmp_group
-        else:
+        elif parent_id:
             parent_node = self.id_map.get(parent_id)
             if not parent_node:
                 raise IDNotFound(parent_id)
@@ -272,8 +274,8 @@ class DataManager:
                 raise DataObjectCannotContainAnyOtherObject
 
         data = dict(raw_data)
-        data_id = str(uuid.uuid4())
-        data['id'] = data_id
+        _data_id = kwargs.get('data_id') or str(uuid.uuid4())
+        data['id'] = _data_id
         if 'request' in data:
             # TODO remove it with inspector frontend
             data['request'] = dict(raw_data['request'])
@@ -302,25 +304,26 @@ class DataManager:
         data['name'] = _data_name
         data['rule'] = _data_rule
 
-        data_node = {}
-        data_node['id'] = data_id
-        data_node['name'] = _data_name
-        data_node['type'] = 'data'
-        data_node['parent_id'] = parent_id
-
-        data_path = self.root_path / data_id
+        data_path = (kwargs.get('output') or self.root_path) / _data_id
         with codecs.open(data_path, 'w') as f:
-            # Save data file
             json.dump(data, f, ensure_ascii=False)
             logger.debug(f'*** Write file {data_path}')
-            # Update parent node
+
+        if parent_node:
+            data_node = {}
+            data_node['id'] = _data_id
+            data_node['name'] = _data_name
+            data_node['type'] = 'data'
+            data_node['parent_id'] = parent_id
+
             # New data added in the head of child list
             parent_node['children'].insert(0, data_node)
             logger.debug(f'*** Add to node {data_node}')
             # Update ID mapping
             self.id_map[data_id] = data_node
-        self._save_prop()
-        return data_id
+            self._save_prop()
+
+        return _data_id
 
     def _flow_data_2_str(self, data):
         if isinstance(data, str):
@@ -669,8 +672,7 @@ class DataManager:
             f.write(prop_str)
 
     def _write_file_to_custom_path(self, outfile_path, file_content):
-        with codecs.open(outfile_path / file_content['id'], 'w') as f:
-            f.write(json.dumps(file_content, ensure_ascii=False))
+        self.add_data(None, file_content, data_id=file_content['id'], output=outfile_path)
 
     def decompress_snapshot(self):
         snapshot_path = self.snapshot_helper.get_snapshot_path()
@@ -705,6 +707,7 @@ class DataManager:
         for mock_data in event_json.get('events'):
             self._write_file_to_custom_path(snapshot_path, mock_data)
         self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
+        self.remove_tmp_snapshot_file([snapshot_path])
         return f'{snapshot_path}.lb'
 
     def export_snapshot_from_dm(self, node_id):

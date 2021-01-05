@@ -72,25 +72,6 @@ export default {
   },
   computed: {
     treeData () {
-      const importGroupId = this.$store.state.snapshot.importGroupId
-      this.$store.commit('clearImportGroupId')
-      if (importGroupId) {
-        searchGroupByName(importGroupId)
-          .then(response => {
-            const searchResults = response.data.data
-            if (searchResults.length < 1) {
-              this.$bus.$emit('msg.error', 'Load snapshot ' + importGroupId + ' error: Group id not found!')
-              return
-            }
-            // Not handle situation of more than one groups have the same uuid
-            // Only the first or searchResults is used
-            const importGroup = searchResults[0]
-            this.showNode(importGroup)
-            this.$bus.$emit('msg.success', 'Load snapshot ' + importGroup.name + ' success! ')
-          }).catch(error => {
-            this.$bus.$emit('msg.error', 'Load snapshot ' + importGroupId + ' error: ' + error.data.message)
-          })
-      }
       return this.$store.state.dataManager.groupList
     },
     spinShow () {
@@ -98,6 +79,15 @@ export default {
     },
     selectedLabel () {
       return this.$store.state.dataManager.dataListSelectedLabel
+    }
+  },
+  watch: {
+    treeData (val) {
+      // Why does treeDate have Watchers, while treeData is computed property?
+      // When Vue is still on mounting, value of "computed properties" is an observer, not an actual data
+      if (val.length && this.$store.state.snapshot.importGroupId) {
+        this.setDisplayDataDeteil()
+      }
     }
   },
   methods: {
@@ -138,6 +128,25 @@ export default {
       } else if (payload.type === 'data') {
         this.$store.dispatch('loadDataDetail', payload)
       } else { }
+    },
+    setDisplayDataDeteil () {
+      const importGroupId = this.$store.state.snapshot.importGroupId
+      searchGroupByName(importGroupId)
+        .then(response => {
+          const searchResults = response.data.data
+          if (searchResults.length < 1) {
+            this.$bus.$emit('msg.error', 'Load snapshot ' + importGroupId + ' error: Group id not found!')
+            return
+          }
+          // Not handle situation of more than one groups have the same uuid
+          // Only the first or searchResults is used
+          const importGroup = searchResults[0]
+          this.showNode(importGroup)
+          this.$store.commit('clearImportGroupId')
+          this.$bus.$emit('msg.success', 'Load snapshot ' + importGroup.name + ' success! ')
+        }).catch(error => {
+          this.$bus.$emit('msg.error', 'Load snapshot ' + importGroupId + ' error: ' + error.data.message)
+        })
     },
     editLabel (payload) {
       this.$store.commit('setDataListSelectedLabel', {})
