@@ -320,7 +320,7 @@ class DataManager:
             parent_node['children'].insert(0, data_node)
             logger.debug(f'*** Add to node {data_node}')
             # Update ID mapping
-            self.id_map[data_id] = data_node
+            self.id_map[_data_id] = data_node
             self._save_prop()
 
         return _data_id
