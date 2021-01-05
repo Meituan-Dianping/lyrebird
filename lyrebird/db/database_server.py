@@ -39,6 +39,12 @@ class LyrebirdDatabaseServer(ThreadServer):
         else:
             self.database_uri = Path(path).expanduser().absolute()
 
+        self.init_engine()
+
+        # subscribe all channel
+        application.server['event'].subscribe('any', self.event_receiver)
+
+    def init_engine(self):
         sqlite_path = 'sqlite:///'+str(self.database_uri)+'?check_same_thread=False'
 
         engine = create_engine(str(sqlite_path))
@@ -57,8 +63,6 @@ class LyrebirdDatabaseServer(ThreadServer):
         # init queue
         self.storage_queue = Queue()
 
-        # subscribe all channel
-        application.server['event'].subscribe('any', self.event_receiver)
 
     def _fk_pragma_on_connect(self, dbapi_con, con_record):
         # https://www.sqlite.org/pragma.html#pragma_journal_mode
@@ -131,6 +135,16 @@ class LyrebirdDatabaseServer(ThreadServer):
         result = query.count()
         self._scoped_session.remove()
         return math.ceil(result / page_size)
+
+    def reset(self):
+        db_server = application.server.get('db')
+        if not db_server:
+            return
+
+        db_server.stop()
+        self.database_uri.unlink()
+        self.init_engine()
+        db_server.start()
 
 
 class JSONFormat:
