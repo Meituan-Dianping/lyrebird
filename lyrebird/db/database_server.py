@@ -29,20 +29,17 @@ Base = declarative_base()
 
 class LyrebirdDatabaseServer(ThreadServer):
     def __init__(self, path=None):
+        self.database_uri = None
         super().__init__()
 
         if not path or path.isspace():
             ROOT_DIR = application.root_dir()
             DEFAULT_NAME = 'lyrebird.db'
-            database_uri = ROOT_DIR/DEFAULT_NAME
+            self.database_uri = ROOT_DIR/DEFAULT_NAME
         else:
-            path_obj = Path(path).expanduser()
-            if path_obj.is_absolute():
-                database_uri = path_obj
-            else:
-                database_uri = path_obj.absolute()
+            self.database_uri = Path(path).expanduser().absolute()
 
-        sqlite_path = 'sqlite:///'+str(database_uri)+'?check_same_thread=False'
+        sqlite_path = 'sqlite:///'+str(self.database_uri)+'?check_same_thread=False'
 
         engine = create_engine(str(sqlite_path))
 

@@ -2,6 +2,8 @@ import json
 from flask_restful import Resource
 from flask import jsonify, request
 from lyrebird import application
+from lyrebird.db.database_server import LyrebirdDatabaseServer
+
 
 # Default event page size
 PAGE_SIZE = 20
@@ -37,6 +39,15 @@ class Event(Resource):
         event_manager.publish(channel, message)
         return application.make_ok_response()
 
+    def delete(self):
+        last_event_server = application.server['db']
+        last_event_server.stop()
+        database_uri = last_event_server.database_uri
+
+        database_uri.unlink()
+
+        application.server['db'] = LyrebirdDatabaseServer(path=str(database_uri))
+        return application.make_ok_response()
 
 class Channel(Resource):
 
