@@ -20,7 +20,7 @@ COPY --from=nodebuilder /usr/src/lyrebird/client/ /usr/src/lyrebird/client/
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
   && apk update \
   && apk add --no-cache build-base jpeg-dev zlib-dev libffi-dev openssl-dev \
-  && pip install --no-cache-dir . -i https://pypi.douban.com/simple \
+  && pip install --no-cache-dir . facebook-wda==0.8.1 jsonschema -i https://pypi.douban.com/simple \
   && rm -rf /usr/src \
   && apk del --purge build-base jpeg-dev zlib-dev libffi-dev openssl-dev
 
@@ -30,7 +30,7 @@ ENV PYTHONUNBUFFERED 1
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
   && apk update \
-  && apk add --no-cache jpeg zlib libffi openssl
+  && apk add --no-cache jpeg zlib libffi openssl curl
 
 COPY --from=pybuilder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages
 COPY --from=pybuilder /usr/local/bin /usr/local/bin

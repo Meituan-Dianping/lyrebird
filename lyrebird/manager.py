@@ -137,6 +137,7 @@ def run(args: argparse.Namespace):
         except Exception:
             traceback.print_exc()
             logger.warning('Set file descriptors failed\nPlease set it by your self, use "ulimit -n 8192" with root account')
+
     # Check mock data group version. Update if is older than 1.x
     data_path = application._cm.config['mock.data']
     Path(data_path).mkdir(parents=True, exist_ok=True)

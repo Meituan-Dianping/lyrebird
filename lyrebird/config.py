@@ -1,4 +1,5 @@
 from pathlib import Path
+from os import path
 import codecs
 import json
 from packaging import version
@@ -14,7 +15,7 @@ config_template = {
     "proxy.filters": [],
     "proxy.port": 4272,
     "mock.port": 9090,
-    "mock.data": "{{current_dir}}/mock_data/personal",
+    "mock.data": path.join("{{current_dir}}", "mock_data", "personal"),
     "mock.proxy_headers": {
         "scheme": "MKScheme",
         "host": "MKOriginHost",
@@ -57,8 +58,10 @@ class ConfigManager():
     def read_config(self):
         template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.config_root)))
         template = template_env.get_template(self.conf_file.name)
-        loaded_config = json.loads(template.render(current_dir=str(
-            self.config_root), download_dir=str(self.ROOT/'downloads')))
+        current_dir = str(self.config_root)
+        download_dir = str(self.ROOT/'downloads')
+        conf_str = template.render(current_dir=json.dumps(current_dir).strip('"'), download_dir=json.dumps(download_dir).strip('"'))
+        loaded_config = json.loads(conf_str)
         self.config.update(loaded_config)
 
     def write_config(self):
