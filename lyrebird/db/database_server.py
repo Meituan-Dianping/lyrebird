@@ -139,6 +139,7 @@ class LyrebirdDatabaseServer(ThreadServer):
         self.stop()
         self.database_uri.unlink()
         self.init_engine()
+        # TODO After self.stop() could terminate Thread, change `self.running = True` into self.start()
         self.running = True
 
 
