@@ -60,7 +60,6 @@ def test_reset(event_server, task_server, db_server):
         'message': 'test',
     }
 
-    db_server = application.server['db']
     for _ in range(publish_time):
         event_server.publish(channel_name, message)
     time.sleep(0.2)

@@ -41,6 +41,9 @@ class LyrebirdDatabaseServer(ThreadServer):
 
         self.init_engine()
 
+        # init queue
+        self.storage_queue = Queue()
+
         # subscribe all channel
         application.server['event'].subscribe('any', self.event_receiver)
 
@@ -59,10 +62,6 @@ class LyrebirdDatabaseServer(ThreadServer):
         session_factory = sessionmaker(bind=engine)
         Session = scoped_session(session_factory)
         self._scoped_session = Session
-
-        # init queue
-        self.storage_queue = Queue()
-
 
     def _fk_pragma_on_connect(self, dbapi_con, con_record):
         # https://www.sqlite.org/pragma.html#pragma_journal_mode
@@ -137,14 +136,10 @@ class LyrebirdDatabaseServer(ThreadServer):
         return math.ceil(result / page_size)
 
     def reset(self):
-        db_server = application.server.get('db')
-        if not db_server:
-            return
-
-        db_server.stop()
+        self.stop()
         self.database_uri.unlink()
         self.init_engine()
-        db_server.start()
+        self.running = True
 
 
 class JSONFormat:
