@@ -29,20 +29,26 @@ Base = declarative_base()
 
 class LyrebirdDatabaseServer(ThreadServer):
     def __init__(self, path=None):
+        self.database_uri = None
         super().__init__()
 
         if not path or path.isspace():
             ROOT_DIR = application.root_dir()
             DEFAULT_NAME = 'lyrebird.db'
-            database_uri = ROOT_DIR/DEFAULT_NAME
+            self.database_uri = ROOT_DIR/DEFAULT_NAME
         else:
-            path_obj = Path(path).expanduser()
-            if path_obj.is_absolute():
-                database_uri = path_obj
-            else:
-                database_uri = path_obj.absolute()
+            self.database_uri = Path(path).expanduser().absolute()
 
-        sqlite_path = 'sqlite:///'+str(database_uri)+'?check_same_thread=False'
+        self.init_engine()
+
+        # init queue
+        self.storage_queue = Queue()
+
+        # subscribe all channel
+        application.server['event'].subscribe('any', self.event_receiver)
+
+    def init_engine(self):
+        sqlite_path = 'sqlite:///'+str(self.database_uri)+'?check_same_thread=False'
 
         engine = create_engine(str(sqlite_path))
 
@@ -56,12 +62,6 @@ class LyrebirdDatabaseServer(ThreadServer):
         session_factory = sessionmaker(bind=engine)
         Session = scoped_session(session_factory)
         self._scoped_session = Session
-
-        # init queue
-        self.storage_queue = Queue()
-
-        # subscribe all channel
-        application.server['event'].subscribe('any', self.event_receiver)
 
     def _fk_pragma_on_connect(self, dbapi_con, con_record):
         # https://www.sqlite.org/pragma.html#pragma_journal_mode
@@ -134,6 +134,13 @@ class LyrebirdDatabaseServer(ThreadServer):
         result = query.count()
         self._scoped_session.remove()
         return math.ceil(result / page_size)
+
+    def reset(self):
+        self.stop()
+        self.database_uri.unlink()
+        self.init_engine()
+        # TODO After self.stop() could terminate Thread, change `self.running = True` into self.start()
+        self.running = True
 
 
 class JSONFormat:

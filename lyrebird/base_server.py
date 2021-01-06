@@ -20,6 +20,7 @@ class ThreadServer:
 
     def stop(self):
         self.running = False
+        # TODO terminate self.server_thread
 
     def run(self):
         """
