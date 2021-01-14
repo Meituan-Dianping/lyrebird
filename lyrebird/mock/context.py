@@ -31,6 +31,15 @@ class Mode:
             return False
 
 
+class MockMode:
+    NORMAL = 'normal'
+    MULTIPLE = 'multiple'
+
+    @staticmethod
+    def contains(val):
+        return val == MockMode.NORMAL or val == MockMode.MULTIPLE
+
+
 class Application:
 
     def __init__(self):
@@ -38,7 +47,7 @@ class Application:
         # todo 使用内存中的List存储请求，应可支持切换redis
         self.cache = cache.get_cache()
         self.work_mode = Mode.NORMAL
-        self.is_diff_mode = False
+        self.is_diff_mode = MockMode.NORMAL
         self.data_manager = DataManager()
         # SocketIO
         self.socket_io: SocketIO = None
@@ -61,6 +70,8 @@ class Application:
                 self.data_manager.set_root(_conf.get('mock.data'))
             except Exception:
                 logger.error(f'Set mock data root path failed.\n{traceback.format_exc()}')
+        if _conf.get('mock.mode') == MockMode.MULTIPLE:
+            self.is_diff_mode = MockMode.MULTIPLE
 
     def save(self):
         DEFAULT_CONF = os.path.join(
