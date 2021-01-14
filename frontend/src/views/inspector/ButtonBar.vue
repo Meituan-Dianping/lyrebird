@@ -177,14 +177,15 @@ export default {
     loadDiffModeStatus () {
       getDiffModeStatus()
         .then(response => {
-          this.diffMode = response.data.diffmode
+          this.diffMode = response.data.diffmode === 'multiple'
         })
         .catch(error => {
           this.$bus.$emit('msg.error', 'Load diff mode status failed: ' + error.data.message)
         })
     },
     changeDiffMode (payload) {
-      setDiffModeStatus(payload)
+      const mode = payload ? 'multiple' : 'normal'
+      setDiffModeStatus(mode)
     },
     switchRecord () {
       let mode = this.$store.state.inspector.recordMode === 'record' ? 'normal' : 'record'
