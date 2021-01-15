@@ -13,7 +13,7 @@
         @click="onToggleStatusChange"
       />
       <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
-      <div class="status-point" v-show="isGroupActivated"/>
+      <div class="status-point" v-show="isGroupActivated"/> 
 
       <span class="tree-node-inner-text">
         <span v-if="data.parent_id">{{data.name}}</span>
@@ -33,7 +33,7 @@
         :color="isGroupActivated ? '#ed4014' : '#19be6b'"
         size="14"
         class="tree-node-inner-button"
-        @click="isGroupActivated ? onTreeNodeDeactivate() : onTreeNodeActivate()"
+        @click.stop="isGroupActivated ? onTreeNodeDeactivate() : onTreeNodeActivate()"
       />
       <Icon
         type="md-trash"
