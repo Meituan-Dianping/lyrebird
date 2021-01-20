@@ -8,6 +8,10 @@ from lyrebird import application
 class Status(Resource):
 
     def get(self):
+        # Lyrebird status contains: 'READY' and 'INITING'
+        if application.status != 'READY':
+            return context.make_fail_response('Lyrebird not ready')
+
         conf = context.application.conf
         return context.make_ok_response(
             **{'ip': conf.get('ip', 'unknown ip'),

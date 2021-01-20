@@ -194,6 +194,9 @@ def run(args: argparse.Namespace):
     if not args.no_browser:
         webbrowser.open(f'http://localhost:{application.config["mock.port"]}')
 
+    # Lyrebird status contains: 'READY' and 'INITING'
+    application.status = 'READY'
+
     # stop event handler
     def signal_handler(signum, frame):
         reporter.stop()
