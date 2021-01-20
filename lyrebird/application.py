@@ -28,6 +28,9 @@ def make_streamed_response(generator, code=200, mimetype='application/json'):
     return Response(stream_with_context(generator()), mimetype=mimetype, status=code)
 
 
+# Lyrebird status contains: 'READY' and 'INITING'
+status = 'INITING'
+
 _cm = None
 _src = None
 
