@@ -51,6 +51,17 @@ dataD = {
     }
 }
 
+dataF = {
+    'id': 'dataF-UUID',
+    'name': 'dataF',
+    'rule': {
+        'request.data.poi[*].name': '(?=.*app)'
+    },
+    'request': {
+        'url': 'http://unittest.com/api/detail'
+    }
+}
+
 label_a = {'name':'label_a','color':'red','description':'description label_a'}
 label_b = {'name':'label_b','color':'green','description':'description label_b'}
 
@@ -177,6 +188,20 @@ prop = {
                     ]
                 }
             ]
+        },
+        {
+            'id': 'groupJ-UUID',
+            'name': 'groupJ',
+            'type': 'group',
+            'parent_id': 'root',
+            'children': [
+                {
+                    'id': 'dataF-UUID',
+                    'name': 'dataF',
+                    'type': 'data',
+                    'parent_id': 'groupJ-UUID'
+                },
+            ]
         }
     ]
 }
@@ -195,6 +220,8 @@ def root(tmpdir):
         json.dump(dataC, f)
     with codecs.open(tmpdir / 'dataD-UUID', 'w') as f:
         json.dump(dataD, f)
+    with codecs.open(tmpdir / 'dataF-UUID', 'w') as f:
+        json.dump(dataF, f)
     with codecs.open(tmpdir / '.lyrebird_prop', 'w') as f:
         json.dump(prop, f)
     return tmpdir
@@ -257,6 +284,40 @@ def test_mock_rule(data_manager):
     data_manager.deactivate()
     data_manager.activate('groupB-UUID')
     mock_data_list = data_manager.get_matched_data(flow)
+    assert len(mock_data_list) == 0
+
+
+def test_mock_rule_with_jsonpath(data_manager):
+    flowA = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                "poi":[
+                    {"name":"app"},
+                    {"name":"apple"}
+                ]
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowA)
+    assert len(mock_data_list) == 0
+
+    data_manager.activate('groupJ-UUID')
+    mock_data_list = data_manager.get_matched_data(flowA)
+    assert len(mock_data_list) == 1
+
+    flowB = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                "poi":[
+                    {"name":"app"},
+                    {"name":"banana"}
+                ]
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowB)
     assert len(mock_data_list) == 0
 
 
