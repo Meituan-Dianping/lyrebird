@@ -55,7 +55,8 @@ dataF = {
     'id': 'dataF-UUID',
     'name': 'dataF',
     'rule': {
-        'request.data.poi[*].name': '(?=.*app)'
+        'request.data.poi[*].name': '(?=.*app)',
+        'request.url': '(?=.*search)'
     },
     'request': {
         'url': 'http://unittest.com/api/detail'
