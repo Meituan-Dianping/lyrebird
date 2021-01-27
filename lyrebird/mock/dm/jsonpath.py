@@ -21,21 +21,21 @@ class JSONPath:
         if not path or not isinstance(path, str) or not isinstance(root, (list, dict)):
             return
 
+        if path.startswith('$.'):
+            path = path.replace('$.', '', 1)
+
         # split by `.` and drop `.`, split by `[ ]` and keep `[ ]`
         # EXAMPLE
-        # path = '$.data[0][1].name'
-        # keys = ['$', 'data', '[0]', '[1]', 'name']
+        # path = 'data[0][1].name'
+        # keys = ['data', '[0]', '[1]', 'name']
+
         pattern = r'(?:\.)|(?=\[.*\])'
         keys = re.split(pattern, path)
         if not keys or not len(keys):
             return
 
-        if keys[0] != '$':
-            logger.warning(f'JSONPath error! JSONPath {path} does not start with `$`!')
-            return
-
         result = []
-        JSONPath._search_iterator(root, keys[1:], result)
+        JSONPath._search_iterator(root, keys, result)
         return result
 
     @staticmethod
