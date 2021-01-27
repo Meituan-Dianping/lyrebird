@@ -221,14 +221,14 @@ class DataManager:
         if not rules:
             return False
         for rule_key, pattern in rules.items():
-            target = self._get_rule_target(rule_key, flow)
-            if not target:
+            targets = self._get_rule_targets(rule_key, flow)
+            if not targets:
                 return False
-            if not self._is_target_pattern_matched(pattern, target):
+            if not self._is_target_pattern_matched(pattern, targets):
                 return False
         return True
 
-    def _get_rule_target(self, rule_key, flow):
+    def _get_rule_targets(self, rule_key, flow):
         search_res = jsonpath.search(flow, rule_key)
         if not search_res:
             return None
