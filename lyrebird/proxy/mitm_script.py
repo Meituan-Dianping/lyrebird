@@ -1,26 +1,31 @@
-from mitmproxy import http
-from lyrebird import application
-from lyrebird import log
-
 """
 Script for mitmdump
 
 Redirect request from proxy server to mock server
 """
 
-_logger = log.get_logger()
+from mitmproxy import http
+from lyrebird import log
+import os
+import json
+import logging
+import re
 
+_logger = log.get_logger()
+_logger.setLevel(logging.INFO)
+
+PROXY_PORT = int(os.environ.get('PROXY_PORT'))
+PROXY_FILTERS = json.loads(os.environ.get('PROXY_FILTERS'))
 
 def to_mock_server(flow: http.HTTPFlow):
-    conf = application.config
     # mock path 为/mock开头加上原始url
     flow.request.path = '/mock/' + flow.request.url
     # mock scheme 统一为http
     flow.request.scheme = 'http'
     # mock server port
-    flow.request.port = conf.get('mock.port')
+    flow.request.port = PROXY_PORT
     # mock server ip
-    flow.request.host = conf.get('mock.host', '127.0.0.1')
+    flow.request.host = '127.0.0.1'
     # device real ip
     address = flow.client_conn.address[0]
     # 获取的address是IPv6（内嵌IPv4地址表示法），需要获取IPv4地址，需要做以下处理
@@ -31,14 +36,15 @@ def to_mock_server(flow: http.HTTPFlow):
 
 
 def request(flow: http.HTTPFlow):
-    conf = application.config
     _logger.info(flow.request.url[:100])
-    filters = conf.get('proxy.filters')
-    if not filters:
+    
+    if not PROXY_FILTERS:
         to_mock_server(flow)
         return
-    for _filter in filters:
-        if _filter in flow.request.host:
+
+    for _filter in PROXY_FILTERS:
+        _logger.info(f'{_filter} , {flow.request.url}')
+        if re.search(_filter, flow.request.url):
             to_mock_server(flow)
             break
 

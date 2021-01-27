@@ -1,12 +1,11 @@
-import socket
 from pathlib import Path
 from colorama import Fore, Style
-from .proxy_run import run
-from mitmproxy.tools.dump import DumpMaster
-from mitmproxy.tools.cmdline import mitmdump
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird.log import get_logger
+import subprocess
+import os
+import json
 
 
 """
@@ -16,8 +15,8 @@ Default port 4272
 """
 
 CURRENT_PATH = Path(__file__).parent
-FLOW_PATH = CURRENT_PATH/'mitm.py'
-
+SCRIPT_FILE = CURRENT_PATH/'mitm_script.py'
+MITMDUMP_FILE = CURRENT_PATH/'mitm_exec.py'
 
 logger = get_logger()
 
@@ -40,18 +39,15 @@ class LyrebirdProxyServer(ThreadServer):
 
         According to mitmproxy docs: https://docs.mitmproxy.org/stable/howto-ignoredomains/
         '''
-        self.ignore_hosts = None
-        if conf.get('proxy.filters'):
-            self.ignore_hosts = '^%s' % ''.join(['(?!.*%s.*)' % i for i in conf.get('proxy.filters')])
+        self.ignore_hosts = conf.get('proxy.ignore_hosts', None)
 
-        self._master = None
 
     def run(self):
         server_ip = application.config.get('ip')
         # info_msg(f'start on {server_ip}:{self.proxy_port}', f'{Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
         logger.warning(f'start on http://{server_ip}:{self.proxy_port}   {Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
         mitm_arguments = [
-            '-s', str(FLOW_PATH),
+            '-s', str(SCRIPT_FILE),
             '-p', self.proxy_port,
             '--ssl-insecure',
             '--no-http2',
@@ -59,8 +55,8 @@ class LyrebirdProxyServer(ThreadServer):
         ]
         if self.ignore_hosts:
             mitm_arguments += ['--ignore-hosts', self.ignore_hosts]
-        run(DumpMaster, mitmdump, mitm_arguments)
+        mitmenv = os.environ
+        mitmenv['PROXY_PORT'] = str(application.config.get('mock.port', 9090))
+        mitmenv['PROXY_FILTERS'] = json.dumps(application.config.get('proxy.filters', []))
+        subprocess.Popen(['python', MITMDUMP_FILE, *mitm_arguments], env=mitmenv)
 
-
-def info_msg(*msg):
-    print(f'{Fore.YELLOW}[proxy_server]', *msg, Style.RESET_ALL)
