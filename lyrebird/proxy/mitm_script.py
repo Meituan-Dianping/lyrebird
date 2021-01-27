@@ -43,7 +43,6 @@ def request(flow: http.HTTPFlow):
         return
 
     for _filter in PROXY_FILTERS:
-        _logger.info(f'{_filter} , {flow.request.url}')
         if re.search(_filter, flow.request.url):
             to_mock_server(flow)
             break
