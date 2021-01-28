@@ -1,5 +1,5 @@
 from pathlib import Path
-from colorama import Fore, Style
+from colorama import Fore
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird.log import get_logger
