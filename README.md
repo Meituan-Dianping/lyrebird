@@ -5,6 +5,8 @@
 ![E2E Test](https://github.com/Meituan-Dianping/lyrebird/workflows/E2E%20Test/badge.svg)
 ![Publish to pypi](https://github.com/Meituan-Dianping/lyrebird/workflows/Publish%20to%20pypi/badge.svg)
 ![Publish Docker image](https://github.com/Meituan-Dianping/lyrebird/workflows/Publish%20Docker%20image/badge.svg)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Meituan-Dianping/lyrebird.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Meituan-Dianping/lyrebird/context:python)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/Meituan-Dianping/lyrebird.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Meituan-Dianping/lyrebird/context:javascript)
 
 # [PYPI](https://pypi.org/project/lyrebird/)
 
