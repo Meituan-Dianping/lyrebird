@@ -1,10 +1,15 @@
 import uuid
+import traceback
 from flask import redirect
 from lyrebird import application
 from lyrebird.version import VERSION
 from flask_restful import Resource, request
 from urllib.parse import urlencode
 from lyrebird.mock import context
+from lyrebird.log import get_logger
+
+
+logger = get_logger()
 
 
 class SanpshotImport(Resource):
@@ -36,8 +41,16 @@ class SanpshotImport(Resource):
 
         parent_path = queries.get('parent') or '/'
         parent_id = context.application.data_manager.add_group_by_path(parent_path)
-        group_id = context.application.data_manager.import_snapshot(parent_id, group_name)
-        new_query = {'groupId': group_id}
+
+        new_query = {}
+        try:
+            group_id = context.application.data_manager.import_snapshot(parent_id, group_name)
+            new_query['groupId'] = group_id
+        except Exception:
+            new_query['errorMsg'] = f'Import snapshot error: Snapshot {group_name} is broken!'
+            new_query_str = urlencode(new_query)
+            logger.error(f'Import snapshot error!\n {traceback.format_exc()}')
+            return redirect(f"http://localhost:9090/ui/?v={VERSION}#/datamanager?{new_query_str}")
 
         # auto active
         if queries.get('isAutoActive') == 'true':
