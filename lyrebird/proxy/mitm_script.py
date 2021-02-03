@@ -53,4 +53,8 @@ def responseheaders(flow):
     Enables streaming for all responses.
     This is equivalent to passing `--set stream_large_bodies=1` to mitmproxy.
     """
+    if 'mitm.it' in flow.request.url:
+        # Support mitm.it
+        flow.response.stream = False
+        return
     flow.response.stream = True
