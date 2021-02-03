@@ -56,7 +56,6 @@ export default {
   data () {
     return {
       snapshotTitle: 'Import snapshot',
-      errorMsg: ''
     }
   },
   mounted () {
@@ -65,7 +64,6 @@ export default {
       this.$store.dispatch('loadSnapshotName')
     } else if (this.$route.path === '/datamanager' && Object.keys(this.$route.query).length) {
       if (this.$route.query.errorMsg) {
-        this.errorMsg = this.$route.query.errorMsg
         this.$bus.$emit('msg.error', this.$route.query.errorMsg)
         return
       }

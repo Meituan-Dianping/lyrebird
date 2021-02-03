@@ -153,7 +153,7 @@ class DataManager:
         _secondary_search_node_id = node.get('super_id')
         _secondary_search_node = self.id_map.get(_secondary_search_node_id)
         if not _secondary_search_node:
-            raise IDNotFound(f'Secondary search node ID: {_secondary_search_node_id}') # 
+            raise IDNotFound(f'Secondary search node ID: {_secondary_search_node_id}')
         self._activate(_secondary_search_node, secondary_search=True)
         self._activate_super_node(_secondary_search_node, level_lefted=level_lefted-1)
 
