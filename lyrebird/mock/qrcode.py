@@ -16,7 +16,7 @@ def _format_parameters(link):
 def get_qrcode_img(link):
     formated_link = _format_parameters(link)
 
-    img = qrcode.make(formated_link)
+    img = qrcode.make(formated_link, border=1)
     img_buffer = io.BytesIO()
     img.save(img_buffer, 'png')
     img_data_bytes = img_buffer.getvalue()
