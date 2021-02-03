@@ -141,7 +141,7 @@ class DataManager:
         if _node:
             self._activate(_node)
         else:
-            raise DataNotFound(f'ID:{_id}')
+            raise IDNotFound(f'ID:{_id}')
         self._activate_super_node(_node, level_lefted=self.LEVEL_SECONDARY_ACTIVATED)
         self.activated_group[_id] = _node
 
@@ -153,7 +153,7 @@ class DataManager:
         _secondary_search_node_id = node.get('super_id')
         _secondary_search_node = self.id_map.get(_secondary_search_node_id)
         if not _secondary_search_node:
-            raise DataNotFound(f'Secondary search node ID: {_secondary_search_node_id}')
+            raise IDNotFound(f'Secondary search node ID: {_secondary_search_node_id}') # 
         self._activate(_secondary_search_node, secondary_search=True)
         self._activate_super_node(_secondary_search_node, level_lefted=level_lefted-1)
 
@@ -481,8 +481,11 @@ class DataManager:
     def _copy_file(self, target_data_node, data_node, **kwargs):
         _id = data_node['id']
         origin_file_path = self.root_path / _id
-        if kwargs.get('custom_input_file_path'):
-            origin_file_path = f'{kwargs.get("custom_input_file_path")}/{_id}'
+        custom_root = kwargs.get('custom_input_file_path')
+        if custom_root:
+            origin_file_path = Path(custom_root) / _id
+            if not origin_file_path.exists():
+                raise DataNotFound(f'File path: {origin_file_path}')
         new_file_id = target_data_node['id']
         new_file_path = self.root_path / new_file_id
         with codecs.open(origin_file_path, 'r') as inputfile, codecs.open(new_file_path, 'w') as outputfile:
