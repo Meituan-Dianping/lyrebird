@@ -24,7 +24,7 @@
           transfer
         >
           <svg-icon class="ivu-icon" name="qrcode" scale="2.8" style="margin-left:3px;cursor: pointer;"/>
-          <div slot="content" style="height:100%">
+          <div slot="content">
             <img :src="imgData" style="width:100%">
           </div>
         </Poptip>
