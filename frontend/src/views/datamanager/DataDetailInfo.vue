@@ -15,7 +15,14 @@
     <Col span="20" style="padding:0px 0px 0px 10px">
       <span v-if="inputValueType === 'link'">
         <Input v-model="inputValue" type="textarea" :autosize="{ minRows: 1 }" size="small" style="width:calc(100% - 30px);"/>
-        <Poptip placement="bottom" width="382" word-wrap @on-popper-show="loadQrcodeImg" v-model="isDisplayPoptip">
+        <Poptip
+          placement="bottom"
+          :width="getQrcodeImgWidth()"
+          word-wrap
+          @on-popper-show="loadQrcodeImg"
+          v-model="isDisplayPoptip"
+          transfer
+        >
           <svg-icon class="ivu-icon" name="qrcode" scale="2.8" style="margin-left:3px;cursor: pointer;"/>
           <div slot="content">
             <img :src="imgData" style="width:100%">
@@ -146,6 +153,15 @@ export default {
         .catch(error => {
           this.$bus.$emit('msg.error', 'Make QRCode error: ' + error.data.message)
         })
+    },
+    getQrcodeImgWidth () {
+      if (!this.inputValue) {
+        return 0
+      } else if (this.inputValue.length < 1024) {
+        return 250
+      } else {
+        return 382
+      }
     }
   }
 }
