@@ -17,6 +17,7 @@ _logger.setLevel(logging.INFO)
 PROXY_PORT = int(os.environ.get('PROXY_PORT'))
 PROXY_FILTERS = json.loads(os.environ.get('PROXY_FILTERS'))
 
+
 def to_mock_server(flow: http.HTTPFlow):
     # mock path 为/mock开头加上原始url
     flow.request.path = '/mock/' + flow.request.url
@@ -37,7 +38,10 @@ def to_mock_server(flow: http.HTTPFlow):
 
 def request(flow: http.HTTPFlow):
     _logger.info(flow.request.url[:100])
-    
+    if 'mitm.it' in flow.request.url:
+        # Support mitm.it
+        return
+
     if not PROXY_FILTERS:
         to_mock_server(flow)
         return
