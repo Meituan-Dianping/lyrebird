@@ -1,5 +1,5 @@
 from flask import Flask, request
-import hashlib,json
+import hashlib
 
 app = Flask(__name__)
 

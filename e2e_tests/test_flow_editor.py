@@ -16,7 +16,7 @@ class TestSuite:
     def test_img_data(self):
         with open(f"{curPath}/1.png", "rb") as f:
             data = f.read()
-        r = requests.post(url=uri, data=data)
+        r = requests.post(url=uri, data=data, headers={'Content-Type': 'application/octet-stream'})
         assert r.text == hashlib.md5(serve_uri.encode() + data).hexdigest()
 
     def test_img_file(self):
