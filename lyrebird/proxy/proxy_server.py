@@ -41,7 +41,6 @@ class LyrebirdProxyServer(ThreadServer):
         '''
         self.ignore_hosts = conf.get('proxy.ignore_hosts', None)
 
-
     def run(self):
         server_ip = application.config.get('ip')
         # info_msg(f'start on {server_ip}:{self.proxy_port}', f'{Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
@@ -58,5 +57,4 @@ class LyrebirdProxyServer(ThreadServer):
         mitmenv = os.environ
         mitmenv['PROXY_PORT'] = str(application.config.get('mock.port', 9090))
         mitmenv['PROXY_FILTERS'] = json.dumps(application.config.get('proxy.filters', []))
-        subprocess.Popen(['python', MITMDUMP_FILE, *mitm_arguments], env=mitmenv)
-
+        subprocess.Popen(['python', str(MITMDUMP_FILE), *mitm_arguments], env=mitmenv)
