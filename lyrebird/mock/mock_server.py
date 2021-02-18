@@ -48,7 +48,7 @@ class LyrebirdMockServer(ThreadServer):
         self.app.env = 'development'
 
         # async_mode = threading / eventlet / gevent / gevent_uwsgi
-        self.socket_io = SocketIO(self.app, async_mode='threading', logger=False, cors_allowed_origins='*')
+        self.socket_io = SocketIO(self.app, async_mode='eventlet', logger=False, cors_allowed_origins='*')
 
         # 存储socket-io
         context.application.socket_io = self.socket_io
