@@ -27,9 +27,12 @@ class FlowList(Resource):
     """
 
     def get(self):
+        ignore_host = context.application.selected_filter.get('ignore', []) if context.application.selected_filter else []
         all_items = context.application.cache.items()[::-1]
         req_list = []
         for item in all_items:
+            if item['request'].get('host') in ignore_host:
+                continue
             info = dict(
                 id=item['id'],
                 size=item['size'],
@@ -84,3 +87,24 @@ class FlowList(Resource):
             dm.save_data(flow)
 
         return application.make_ok_response()
+
+
+class FlowFilter(Resource):
+
+    def get(self):
+        filters = context.application.filters
+        selected_filter = context.application.selected_filter
+        return application.make_ok_response(selected_filter=selected_filter, filters=filters)
+
+    def put(self):
+        selected_filter_name = request.json.get('name')
+        if not selected_filter_name:
+            context.application.selected_filter = None
+            return application.make_ok_response()
+
+        for f in context.application.filters:
+            if f['name'] == selected_filter_name:
+                context.application.selected_filter = f
+                return application.make_ok_response()
+
+        return application.make_fail_response(f'Flow filter {selected_filter_name} not found!')
