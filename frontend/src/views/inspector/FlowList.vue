@@ -98,7 +98,6 @@ export default {
     return {
       flowList: [],
       refreshFlowListTimer: null,
-      foucsFlow: null,
       displayFlowCount: 0,
       pageSize: 50,
       pageCount: 0,
@@ -177,7 +176,7 @@ export default {
       clearTimeout(this.refreshFlowListTimer)
       this.refreshFlowListTimer = setTimeout(() => {
         if (newValue !== oldValue) {
-          this.refreshFlowList(newValue)
+          this.refreshFlowList()
           clearTimeout(this.refreshFlowListTimer)
         }
       }, 500)
@@ -202,7 +201,7 @@ export default {
     },
     refreshFlowList () {
       let displayFlowList = []
-      let searchStr = this.$store.state.inspector.searchStr.trim()
+      let searchStr = this.searchStr.trim()
       // Split searchStr by one or more spaces
       let searchStrList = searchStr.split(/\s+/)
       for (const flow of this.originFlowList) {
@@ -216,7 +215,8 @@ export default {
         isMatch ? displayFlowList.push(flow) : null
       }
       this.displayFlowCount = displayFlowList.length
-      this.pageCount = Math.ceil(this.displayFlowCount / this.pageSize)
+      this.pageCount = Math.ceil(this.displayFlowCount / this.pageSize) | 1
+      this.currentPage = this.currentPage > this.pageCount ? this.pageCount : this.currentPage
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
       this.flowList = displayFlowList.slice(startIndex, endIndex)

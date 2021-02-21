@@ -14,6 +14,20 @@ export const setDiffModeStatus = (status) => {
   })
 }
 
+export const getFlowFilters = () => {
+  return axios({
+    url: '/api/flow/filter'
+  })
+}
+
+export const setFLowFilter = (name) => {
+  return axios({
+    url: '/api/flow/filter',
+    data: { name },
+    method: 'PUT'
+  })
+}
+
 export const getRecordMode = () => {
   return axios({
     url: '/api/mode'
