@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask_restful import Resource, Api
 from .common import Status, WorkMode, Manifest, DiffMode
-from .flow import Flow, FlowList
+from .flow import Flow, FlowList, FlowFilter
 from .mock import MockData, MockGroup, ActivatedMockGroup, MockGroupByName, MockDataLabel
 from .config import Conf
 from .menu import Menu
@@ -48,6 +48,7 @@ api_source.add_resource(Status, '/status')
 api_source.add_resource(Manifest, '/manifest')
 api_source.add_resource(Flow, '/flow/<string:id>')
 api_source.add_resource(FlowList, '/flow')
+api_source.add_resource(FlowFilter, '/flowfilter')
 api_source.add_resource(Cut, '/cut/<string:_id>')
 api_source.add_resource(Copy, '/copy/<string:_id>')
 api_source.add_resource(Paste, '/paste/<string:_id>')

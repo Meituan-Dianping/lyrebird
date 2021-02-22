@@ -72,7 +72,7 @@ export default {
   },
   methods: {
     dismiss () {
-      this.$store.commit('setFocusedFlow', null)
+      this.$store.commit('setFocusedFlowDetail', null)
     },
     switchTab (name) {
       this.currentTab = name

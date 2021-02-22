@@ -9,7 +9,9 @@ export default {
     focusedFlow: null,
     focusedFlowDetail: null,
     originFlowList: [],
-    recordMode: ''
+    recordMode: '',
+    flowFilters: [],
+    selectedFLowFilter: ''
   },
   mutations: {
     setActivitedGroup (state, group) {
@@ -27,14 +29,26 @@ export default {
     setFocusedFlow (state, flow) {
       state.focusedFlow = flow
     },
+    clearFocusedFlow (state) {
+      state.focusedFlow = null
+    },
     setFocusedFlowDetail (state, flowDetail) {
       state.focusedFlowDetail = flowDetail
+    },
+    clearFocusedFlowDetail (state) {
+      state.focusedFlowDetail = null
     },
     setOriginFlowList (state, originFlowList) {
       state.originFlowList = originFlowList
     },
     setRecordMode (state, recordMode) {
       state.recordMode = recordMode
+    },
+    setFLowFilters (state, flowFilters) {
+      state.flowFilters = flowFilters
+    },
+    setSelectedFLowFilter (state, selectedFLowFilter) {
+      state.selectedFLowFilter = selectedFLowFilter
     }
   },
   actions: {
@@ -83,9 +97,17 @@ export default {
     loadFlowList ({ state, commit }) {
       api.getFlowList()
         .then(response => {
+          // selected
           for (const flow of response.data) {
             if (state.selectedIds.includes(flow.id)) {
               flow['_checked'] = true
+            }
+          }
+          // highlight
+          for (const flow of response.data) {
+            if (flow.id === (state.focusedFlow && state.focusedFlow.id)) {
+              flow._highlight = true
+              break
             }
           }
           commit('setOriginFlowList', response.data)
@@ -107,6 +129,27 @@ export default {
       api.setRecordMode(state.recordMode)
         .catch(error => {
           bus.$emit('msg.error', 'Change record mode error: ' + error.data.message)
+        })
+    },
+    loadFlowFilters ({ commit }) {
+      api.getFlowFilters()
+        .then(response => {
+          commit('setFLowFilters', response.data.filters)
+          if (response.data.selected_filter) {
+            commit('setSelectedFLowFilter', response.data.selected_filter.name)
+          }
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load flow filters failed: ' + error.data.message)
+        })
+    },
+    saveFLowFilters ({ dispatch }, name) {
+      api.setFLowFilter(name)
+        .then(_ => {
+          dispatch('loadFlowList')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Change flow filter failed: ' + error.data.message)
         })
     },
     clearFlows ({ commit }) {
@@ -132,6 +175,12 @@ export default {
       api.deleteSelectedFlow(state.selectedIds)
         .then(response => {
           let selectedIdLength = state.selectedIds.length
+          if (state.selectedIds.includes(state.focusedFlow && state.focusedFlow.id)) {
+            commit('clearFocusedFlow')
+          }
+          if (state.selectedIds.includes(state.focusedFlowDetail && state.focusedFlowDetail.id)) {
+            commit('clearFocusedFlowDetail')
+          }
           commit('clearSelectedId')
           bus.$emit('msg.success', selectedIdLength + ' flow deleted!')
         })

@@ -48,6 +48,8 @@ class Application:
         self.cache = cache.get_cache()
         self.work_mode = Mode.NORMAL
         self.is_diff_mode = MockMode.NORMAL
+        self.filters = []
+        self.selected_filter = None
         self.data_manager = DataManager()
         # SocketIO
         self.socket_io: SocketIO = None
@@ -72,6 +74,15 @@ class Application:
                 logger.error(f'Set mock data root path failed.\n{traceback.format_exc()}')
         if _conf.get('mock.mode') == MockMode.MULTIPLE:
             self.is_diff_mode = MockMode.MULTIPLE
+
+        if _conf.get('inspector.filters'):
+            self.filters = _conf.get('inspector.filters')
+
+        default_filter = _conf.get('inspector.default_filter')
+        for f in self.filters:
+            if f['name'] == default_filter:
+                self.selected_filter = f
+                break
 
     def save(self):
         DEFAULT_CONF = os.path.join(

@@ -75,7 +75,40 @@
     </label>
 
     <div class="inline inspector-searchbox">
-      <Input search clearable size="small" v-model="searchStr" placeholder="Separate multiple keywords by spaces"/>
+      <Input
+        size="small"
+        search
+        clearable
+        v-model="searchStr"
+        placeholder="Separate multiple keywords by spaces"
+      >
+        <Icon type="ios-funnel" slot="prepend" :color="selectedFLowFilter?'#2d8cf0':''"/>
+        <Select
+          v-model="selectedFLowFilter"
+          size="small"
+          slot="prepend"
+          style="width:80px;"
+          placeholder="Filters"
+          not-found-text="No filters"
+          @on-change="changeFLowFilter"
+          clearable
+          transfer
+        >
+          <Option v-for="(filter, index) in flowFilters" :value="filter.name" :key="filter.name">
+            <Tooltip
+              v-if="filter.desc"
+              :delay="500"
+              max-width="200"
+              placement="bottom-start"
+              :content="filter.desc"
+              transfer
+            >
+              <Icon type="ios-help-circle-outline" size="14"/>
+            </Tooltip>
+            {{filter.name}}
+          </Option>
+        </Select>
+      </Input>
     </div>
 
     <Modal
@@ -136,6 +169,7 @@ export default {
   mounted () {
     this.getRecordStatus()
     this.loadDiffModeStatus()
+    this.loadFLowFilters()
   },
   computed: {
     isRecordMode () {
@@ -160,6 +194,17 @@ export default {
         text = text + activatedGroups[groupId].name + ' '
       }
       return text
+    },
+    flowFilters () {
+      return this.$store.state.inspector.flowFilters
+    },
+    selectedFLowFilter: {
+      get () {
+        return this.$store.state.inspector.selectedFLowFilter
+      },
+      set (val) {
+        this.$store.commit('setSelectedFLowFilter', val)
+      }
     },
     searchStr: {
       get () {
@@ -186,6 +231,12 @@ export default {
     changeDiffMode (payload) {
       const mode = payload ? 'multiple' : 'normal'
       setDiffModeStatus(mode)
+    },
+    loadFLowFilters () {
+      this.$store.dispatch('loadFlowFilters')
+    },
+    changeFLowFilter (payload) {
+      this.$store.dispatch('saveFLowFilters', payload)
     },
     switchRecord () {
       let mode = this.$store.state.inspector.recordMode === 'record' ? 'normal' : 'record'

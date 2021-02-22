@@ -5,7 +5,7 @@
         <FlowList class="inspector-realtime-left"></FlowList>
       </div>
       <div slot="right">
-        <FlowDetail v-if="focusedFlow" class="inspector-realtime-right"></FlowDetail>
+        <FlowDetail v-if="focusedFlowDetail" class="inspector-realtime-right"></FlowDetail>
         <div v-else class="flow-detail-empty">No selected flow</div>
       </div>
     </Split>
@@ -27,12 +27,12 @@ export default {
     }
   },
   computed: {
-    focusedFlow () {
-      return this.$store.state.inspector.focusedFlow
+    focusedFlowDetail () {
+      return this.$store.state.inspector.focusedFlowDetail
     },
   },
   watch: {
-    focusedFlow (val) {
+    focusedFlowDetail (val) {
       if (!val) {
         this.split = 1
       } else if (this.split === 1) {
