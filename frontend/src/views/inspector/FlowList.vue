@@ -215,8 +215,8 @@ export default {
         isMatch ? displayFlowList.push(flow) : null
       }
       this.displayFlowCount = displayFlowList.length
-      this.pageCount = Math.ceil(this.displayFlowCount / this.pageSize) | 1
-      this.currentPage = this.currentPage > this.pageCount ? this.pageCount : this.currentPage
+      this.pageCount = Math.ceil(this.displayFlowCount / this.pageSize)
+      this.currentPage = this.pageCount && (this.currentPage > this.pageCount) ? this.pageCount : this.currentPage
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
       this.flowList = displayFlowList.slice(startIndex, endIndex)
