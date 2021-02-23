@@ -5,7 +5,6 @@ from lyrebird import application
 from lyrebird.log import get_logger
 import subprocess
 import os
-import sys
 import json
 
 
