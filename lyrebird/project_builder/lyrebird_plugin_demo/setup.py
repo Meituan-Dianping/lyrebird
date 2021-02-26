@@ -21,12 +21,16 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     include_package_data=True,
-    classifiers=(
+    classifiers=[
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "License :: OSI Approved :: MIT License",
         "Operating System :: MacOS",
-    ),
+        "Operating System :: Microsoft :: Windows",
+    ],
     entry_points={
         'lyrebird_plugin': [
             '{{project_name}} = {{project_name}}.manifest'
