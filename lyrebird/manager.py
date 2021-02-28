@@ -140,15 +140,15 @@ def run(args: argparse.Namespace):
 
     # Check mock data group version. Update if is older than 1.x
     data_path = application._cm.config['mock.data']
-    Path(data_path).mkdir(parents=True, exist_ok=True)
-    res = mock_data_tools.check_data_version(data_path)
-    mockdata_version = vparse(res)
+    # Path(data_path).mkdir(parents=True, exist_ok=True)
+    # res = mock_data_tools.check_data_version(data_path)
+    # mockdata_version = vparse(res)
 
-    if MOCK_DATA_V_1_0_0 <= mockdata_version < MOCK_DATA_V_1_7_0:
-        logger.log(60, 'Mock data need update')
-        mock_data_tools.update(data_path)
-    elif mockdata_version < MOCK_DATA_V_1_0_0:
-        logger.error('Can not update this mock data')
+    # if MOCK_DATA_V_1_0_0 <= mockdata_version < MOCK_DATA_V_1_7_0:
+    #     logger.log(60, 'Mock data need update')
+    #     mock_data_tools.update(data_path)
+    # elif mockdata_version < MOCK_DATA_V_1_0_0:
+    #     logger.error('Can not update this mock data')
 
     # show current config contents
     print_lyrebird_info()

@@ -41,6 +41,7 @@ active_menu = {}
 
 snapshot_import_uri = ''
 
+dm = None
 
 notice = None
 checkers = {}
