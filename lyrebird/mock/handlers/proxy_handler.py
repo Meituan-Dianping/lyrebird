@@ -1,11 +1,14 @@
 import urllib
 import requests
 from requests.packages import urllib3
-from flask import Response, stream_with_context
+from flask import Response, stream_with_context, jsonify
 from .. import context
 from lyrebird import application
 from lyrebird.log import get_logger
+from lyrebird.mock import lb_http_status
 from .duplicate_request_handler import DuplicateRequest
+import traceback
+
 
 # 关闭ssl警告
 urllib3.disable_warnings()
@@ -44,8 +47,30 @@ class ProxyHandler:
         method = request['method']
         headers = handler_context.get_request_headers()
 
-        r = requests.request(method, origin_url, headers=headers, data=data, cookies=handler_context.request.cookies,
-                            stream=True, verify=False, allow_redirects=False)
+        try:
+            r = requests.request(
+                method, 
+                origin_url, 
+                headers=headers, 
+                data=data, 
+                cookies=handler_context.request.cookies, 
+                stream=True, 
+                verify=False, 
+                allow_redirects=False)
+            logger.info(f'<Proxy> SUCESS {r.status_code} {origin_url}')
+            
+        except:
+            trace_str = traceback.format_exc()
+            error_response = {
+                'code': 3000,
+                'message': 'proxy error',
+                'trace': trace_str
+            } 
+            resp = jsonify(error_response)
+            resp.status = lb_http_status.STATUS_PROXY_ERROR
+            handler_context.response = resp
+            logger.info(f'<Proxy> PROXY ERROR {origin_url}\n------\ntrace:\n{trace_str}\n------\n<Proxy> PROXY ERROR {origin_url}')
+            return
 
         # 增加数据源标记，此数据经代理得到
         resp_headers = [('lyrebird', 'proxy')]

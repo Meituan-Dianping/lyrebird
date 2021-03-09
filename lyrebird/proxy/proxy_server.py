@@ -6,6 +6,7 @@ from lyrebird.log import get_logger
 import subprocess
 import os
 import json
+import sys
 
 
 """
@@ -57,4 +58,4 @@ class LyrebirdProxyServer(ThreadServer):
         mitmenv = os.environ
         mitmenv['PROXY_PORT'] = str(application.config.get('mock.port', 9090))
         mitmenv['PROXY_FILTERS'] = json.dumps(application.config.get('proxy.filters', []))
-        subprocess.Popen(f'python {str(MITMDUMP_FILE)} {" ".join(mitm_arguments)}', shell=True, env=mitmenv)
+        subprocess.Popen(f'{sys.executable} {str(MITMDUMP_FILE)} {" ".join(mitm_arguments)}', shell=True, env=mitmenv)
