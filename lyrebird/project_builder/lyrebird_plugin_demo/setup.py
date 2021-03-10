@@ -13,7 +13,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='{{package_name}}',
-    version='0.1.0',
+    version=VERSION,
     packages=find_packages(),
     url='',
     author='',
