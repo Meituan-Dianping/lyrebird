@@ -79,7 +79,7 @@ rules非必须指定的内容，当不传入rules时，默认修改全部请求�
 
 ### 修改请求
 
-此时就可以根据实际的需求进行请求修改了。
+根据实际的需求进行请求修改。
 
 ```python
 from lyrebird import on_request
@@ -94,25 +94,6 @@ def add_request_param(flow):
     else:
         flow['request']['url'] += '?param=1'
     # 请求修改完成后，无需返回任何内容
-```
-
-请注意，修改请求时要直接修改flow的内容，下面是一个错误示范。
-
-```python
-from lyrebird import on_request
-
-@on_request(rules={
-    "request.url": "(?=.*poi/detail)"
-})
-def add_request_param(flow):
-
-    # 一个错误示范
-    url = flow['request']['url']
-    if '?' in url:
-        url += '&param=1'
-    else:
-        url += '?param=1'
-    # 此时，变量url的值被修改，但flow['request']['url']并没有发生变化
 ```
 
 此时，我们已经使用`@on_request`实现了在请求request的url中加入参数。
