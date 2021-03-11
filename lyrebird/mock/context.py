@@ -1,9 +1,7 @@
 from flask import jsonify, stream_with_context, Response
 from . import cache
 from .dm import DataManager
-from .dm.controller import DataController
 from flask_socketio import SocketIO
-from pathlib import Path
 import codecs
 import json
 import os
@@ -71,10 +69,7 @@ class Application:
         self._conf = _conf
         if _conf.get('mock.data'):
             try:
-                uri = _conf.get('mock.data')
-                path = Path(uri).expanduser().absolute()
-                if not path.is_dir(): # 检查是否是合法的mock数据包
-                    DataController.init_database(path)
+                self.data_manager.set_root(_conf.get('mock.data'))
             except Exception:
                 logger.error(f'Set mock data root path failed.\n{traceback.format_exc()}')
         if _conf.get('mock.mode') == MockMode.MULTIPLE:
