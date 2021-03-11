@@ -181,24 +181,3 @@ b. 直连
 
 This project exists thanks to all the people who contribute.
 <a href="https://github.com/Meituan-Dianping/lyrebird/graphs/contributors"><img src="https://opencollective.com/lyrebird/contributors.svg?width=890&button=false" /></a>
-
-## Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/lyrebird#backer)]
-
-<a href="https://opencollective.com/lyrebird#backers" target="_blank"><img src="https://opencollective.com/lyrebird/backers.svg?width=890"></a>
-
-## Sponsors
-
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/lyrebird#sponsor)]
-
-<a href="https://opencollective.com/lyrebird/sponsor/0/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/lyrebird/sponsor/1/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/lyrebird/sponsor/2/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/lyrebird/sponsor/3/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/lyrebird/sponsor/4/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/lyrebird/sponsor/5/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/lyrebird/sponsor/6/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/lyrebird/sponsor/7/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/lyrebird/sponsor/8/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/lyrebird/sponsor/9/website" target="_blank"><img src="https://opencollective.com/lyrebird/sponsor/9/avatar.svg"></a>
