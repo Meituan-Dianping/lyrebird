@@ -2,7 +2,7 @@
 
 Lyrebird支持对请求进行修改的检查器，也称为[修改器](/checker/request_editor.md)、[请求修改器](/checker/request_editor.md)，支持的修改请求时机如下：
 
-- 客户端发起请求后，即请求刚进入至Lyrebird时，mock和代理动作前。使用`@on_request`。
+- 客户端发起请求后，mock和代理动作前。使用`@on_request`。
 
 - 获得响应数据后，返回给客户端前。使用`@on_response`。
 
@@ -17,7 +17,7 @@ Lyrebird支持对请求进行修改的检查器，也称为[修改器](/checker/
 
 - 在请求request的url中，加入一个参数
 
-- 在响应response的headers中，加入一个标示
+- 在响应response的headers中，增加一个header
 
 
 ### 注册
@@ -33,7 +33,7 @@ def add_request_param(flow):
     pass
 ```
 
-当请求被Lyrebird代理时，会自动调用修改请求的方法并传入请求内容，请求内容结构如下。
+当请求被Lyrebird代理时，会自动调用修改请求的方法，传入的内容结构如下。
 
 ```JSON
 {
@@ -50,7 +50,9 @@ def add_request_param(flow):
     },
     "response": {
         "code": 200,
-        "headers": {},
+        "headers": {
+            // ...
+        },
         "data": ...
     }
 }
@@ -98,7 +100,7 @@ def add_request_param(flow):
 
 此时，我们已经使用`@on_request`实现了在请求request的url中加入参数。
 
-接下来使用`@on_response`在响应response的headers中加入标示，on_response的使用方法与on_request相同，实现后的修改器如下。
+接下来使用`@on_response`在响应response的headers中加入标示，`@on_response`的使用方法与`@on_request`相同，实现后的修改器如下。
 
 ```python
 from lyrebird import on_request
@@ -122,11 +124,9 @@ def add_tag_in_response_headers(flow):
     flow['response']['headers']['Mock-Tag'] = 'Lyrebird'
 ```
 
-
 ## 调试
 
 请求修改器的调试与[检查器-调试](/checker/dev_debug.md#调试)相同。
-
 
 ****
 
