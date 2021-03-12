@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>开发环境配置 | Lyrebird</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    
+    <meta name="description" content="面向移动应用的插件式测试工作台">
+    
+    <link rel="preload" href="/lyrebird/assets/css/0.styles.0dcba8fa.css" as="style"><link rel="preload" href="/lyrebird/assets/js/app.d090776d.js" as="script"><link rel="preload" href="/lyrebird/assets/js/2.16137242.js" as="script"><link rel="preload" href="/lyrebird/assets/js/14.4b40d91b.js" as="script"><link rel="prefetch" href="/lyrebird/assets/js/10.300358f7.js"><link rel="prefetch" href="/lyrebird/assets/js/11.c2f51d07.js"><link rel="prefetch" href="/lyrebird/assets/js/12.c4ce15e5.js"><link rel="prefetch" href="/lyrebird/assets/js/13.645900e5.js"><link rel="prefetch" href="/lyrebird/assets/js/15.33bee5d4.js"><link rel="prefetch" href="/lyrebird/assets/js/16.396c9305.js"><link rel="prefetch" href="/lyrebird/assets/js/17.fca661d2.js"><link rel="prefetch" href="/lyrebird/assets/js/18.2300e2e2.js"><link rel="prefetch" href="/lyrebird/assets/js/19.f5c8a68e.js"><link rel="prefetch" href="/lyrebird/assets/js/20.eb9ddc14.js"><link rel="prefetch" href="/lyrebird/assets/js/21.ae5d7fb6.js"><link rel="prefetch" href="/lyrebird/assets/js/22.738165a8.js"><link rel="prefetch" href="/lyrebird/assets/js/23.09bcacc6.js"><link rel="prefetch" href="/lyrebird/assets/js/24.01ab6255.js"><link rel="prefetch" href="/lyrebird/assets/js/25.2bbfbf09.js"><link rel="prefetch" href="/lyrebird/assets/js/26.51c5a8d0.js"><link rel="prefetch" href="/lyrebird/assets/js/27.2f2d3f71.js"><link rel="prefetch" href="/lyrebird/assets/js/28.fe6f2b82.js"><link rel="prefetch" href="/lyrebird/assets/js/29.222ef75d.js"><link rel="prefetch" href="/lyrebird/assets/js/3.f9762854.js"><link rel="prefetch" href="/lyrebird/assets/js/30.30d709af.js"><link rel="prefetch" href="/lyrebird/assets/js/31.bb06784a.js"><link rel="prefetch" href="/lyrebird/assets/js/32.6e3f409a.js"><link rel="prefetch" href="/lyrebird/assets/js/4.67860a5b.js"><link rel="prefetch" href="/lyrebird/assets/js/5.6c5b0b72.js"><link rel="prefetch" href="/lyrebird/assets/js/6.d3630afb.js"><link rel="prefetch" href="/lyrebird/assets/js/7.6d579157.js"><link rel="prefetch" href="/lyrebird/assets/js/8.ca36b545.js"><link rel="prefetch" href="/lyrebird/assets/js/9.96bd9c58.js">
+    <link rel="stylesheet" href="/lyrebird/assets/css/0.styles.0dcba8fa.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/lyrebird/" class="home-link router-link-active"><!----> <span class="site-name">Lyrebird</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/lyrebird/guide/" class="nav-link">
+  指南
+</a></div><div class="nav-item"><a href="/lyrebird/checker/" class="nav-link">
+  检查器
+</a></div><div class="nav-item"><a href="/lyrebird/plugins/" class="nav-link">
+  插件
+</a></div><div class="nav-item"><a href="/lyrebird/advance/" class="nav-link">
+  高级
+</a></div><div class="nav-item"><a href="/lyrebird/develop/" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  开发者指南
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="代码仓库" class="dropdown-title"><span class="title">代码仓库</span> <span class="arrow down"></span></button> <button type="button" aria-label="代码仓库" class="mobile-dropdown-title"><span class="title">代码仓库</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="https://github.com/Meituan-Dianping/lyrebird" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Lyrebird
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://github.com/Meituan-Dianping/lyrebird-ios" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  iOS
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://github.com/Meituan-Dianping/lyrebird-android" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Android
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://github.com/Meituan-Dianping/lyrebird-api-coverage" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  ApiCoverage
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://github.com/Meituan-Dianping/lyrebird-tracking" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Tracking
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/lyrebird/guide/" class="nav-link">
+  指南
+</a></div><div class="nav-item"><a href="/lyrebird/checker/" class="nav-link">
+  检查器
+</a></div><div class="nav-item"><a href="/lyrebird/plugins/" class="nav-link">
+  插件
+</a></div><div class="nav-item"><a href="/lyrebird/advance/" class="nav-link">
+  高级
+</a></div><div class="nav-item"><a href="/lyrebird/develop/" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  开发者指南
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="代码仓库" class="dropdown-title"><span class="title">代码仓库</span> <span class="arrow down"></span></button> <button type="button" aria-label="代码仓库" class="mobile-dropdown-title"><span class="title">代码仓库</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="https://github.com/Meituan-Dianping/lyrebird" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Lyrebird
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://github.com/Meituan-Dianping/lyrebird-ios" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  iOS
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://github.com/Meituan-Dianping/lyrebird-android" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Android
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://github.com/Meituan-Dianping/lyrebird-api-coverage" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  ApiCoverage
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://github.com/Meituan-Dianping/lyrebird-tracking" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Tracking
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/lyrebird/develop/" aria-current="page" class="active sidebar-link">开发环境配置</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/lyrebird/develop/#开发环境" class="sidebar-link">开发环境</a></li><li class="sidebar-sub-header"><a href="/lyrebird/develop/#配置lyrebird工程" class="sidebar-link">配置Lyrebird工程</a></li><li class="sidebar-sub-header"><a href="/lyrebird/develop/#调试代码" class="sidebar-link">调试代码</a></li></ul></li><li><a href="/lyrebird/develop/plugin.html" class="sidebar-link">插件开发</a></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="开发环境配置"><a href="#开发环境配置" class="header-anchor">#</a> 开发环境配置</h1> <h2 id="开发环境"><a href="#开发环境" class="header-anchor">#</a> 开发环境</h2> <ul><li><p>macOS OR Linux</p></li> <li><p>Python3</p></li> <li><p>NodeJS</p></li> <li><p>vscode(推荐)</p></li> <li><p>Chrome(推荐)</p></li></ul> <h2 id="配置lyrebird工程"><a href="#配置lyrebird工程" class="header-anchor">#</a> 配置Lyrebird工程</h2> <div class="language-bash extra-class"><pre class="language-bash"><code><span class="token comment"># clone 代码</span>
+<span class="token function">git</span> clone https://github.com/Meituan-Dianping/lyrebird.git
+
+<span class="token comment"># 进入工程目录</span>
+<span class="token builtin class-name">cd</span> lyrebird
+
+<span class="token comment"># 初始化后端开发环境</span>
+<span class="token function">sh</span> dev.sh
+
+<span class="token comment"># 初始化前端开发环境</span>
+<span class="token builtin class-name">cd</span> frontend
+<span class="token function">npm</span> <span class="token function">install</span>
+<span class="token builtin class-name">cd</span> <span class="token punctuation">..</span>
+
+<span class="token comment"># 使用IDE打开工程（推荐vscode）</span>
+code <span class="token builtin class-name">.</span>
+</code></pre></div><h2 id="调试代码"><a href="#调试代码" class="header-anchor">#</a> 调试代码</h2> <p>Vscode debug 配置</p> <div class="language-JSON extra-class"><pre class="language-json"><code><span class="token punctuation">{</span>
+    <span class="token property">&quot;version&quot;</span><span class="token operator">:</span> <span class="token string">&quot;0.2.0&quot;</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;configurations&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">{</span>
+            <span class="token property">&quot;name&quot;</span><span class="token operator">:</span> <span class="token string">&quot;backend&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;type&quot;</span><span class="token operator">:</span> <span class="token string">&quot;python&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;request&quot;</span><span class="token operator">:</span> <span class="token string">&quot;launch&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;module&quot;</span><span class="token operator">:</span> <span class="token string">&quot;lyrebird&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;console&quot;</span><span class="token operator">:</span> <span class="token string">&quot;integratedTerminal&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;args&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+                <span class="token string">&quot;-vvv&quot;</span>
+            <span class="token punctuation">]</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+            <span class="token property">&quot;name&quot;</span><span class="token operator">:</span> <span class="token string">&quot;frontend&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;type&quot;</span><span class="token operator">:</span> <span class="token string">&quot;chrome&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;request&quot;</span><span class="token operator">:</span> <span class="token string">&quot;launch&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;url&quot;</span><span class="token operator">:</span> <span class="token string">&quot;http://localhost:8080/ui/static/&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;webRoot&quot;</span><span class="token operator">:</span> <span class="token string">&quot;${workspaceFolder}/frontend/src/&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;breakOnLoad&quot;</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;sourceMapPathOverrides&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+              <span class="token property">&quot;webpack:///src/*&quot;</span><span class="token operator">:</span> <span class="token string">&quot;${webRoot}/*&quot;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h3 id="后端代码"><a href="#后端代码" class="header-anchor">#</a> 后端代码</h3> <ol><li><p>激活python虚拟环境</p> <blockquote><p>执行过dev.sh后会在项目根目录下创建一个venv目录，这里是一个安装好依赖的python虚拟环境</p></blockquote> <blockquote><p>通过 <code>source venv/bin/activate</code> 来激活该环境</p></blockquote> <blockquote><p>以Vscode为例，不需要上面的激活操作，我们只需在Vscode下方的python环境选择器中选择对应的环境即可
+<img src="/lyrebird/assets/img/vscode-python-venv.44aaea85.png" alt=""></p></blockquote></li> <li><p>通过Debug功能启动</p></li></ol> <p>按照上面 debug配置中 python:Lyrebrid配置启动即可</p> <h3 id="前端代码"><a href="#前端代码" class="header-anchor">#</a> 前端代码</h3> <ol><li>启动node server</li></ol> <div class="language-bash extra-class"><pre class="language-bash"><code><span class="token comment"># 进入前端目录</span>
+<span class="token builtin class-name">cd</span> frontend
+
+<span class="token comment"># 启动前端node serve</span>
+<span class="token function">npm</span> run serve
+</code></pre></div><ol start="2"><li>通过Debug功能启动浏览器</li></ol> <p>按照上面 debug配置中 vuejs: chrome 配置启动即可</p> <blockquote><p>注意: vscode 需要安装chrome debug插件</p></blockquote></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><!----> <span class="next"><a href="/lyrebird/develop/plugin.html">
+        插件开发
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/lyrebird/assets/js/app.d090776d.js" defer></script><script src="/lyrebird/assets/js/2.16137242.js" defer></script><script src="/lyrebird/assets/js/14.4b40d91b.js" defer></script>
+  </body>
+</html>
