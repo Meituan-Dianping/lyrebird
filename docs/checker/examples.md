@@ -4,10 +4,12 @@
 
 目前，Lyrebird中提供了如下的示例脚本：
 
-| Filename | Channel | Description |
+| Filename | Type | Description |
 | :------- | :------ | :---------- |
-| [img_size.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/img_size.py) | flow | 检查网络请求中图片大小是否超出限制 |
-| [duplicate_requests.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/duplicate_requests.py) | flow | 检查在某段时间内是否有重复的网络请求 |
+| [img_size.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/img_size.py) | 检查器 | 检查网络请求中图片大小是否超出限制 |
+| [duplicate_requests.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/duplicate_requests.py) | 检查器 | 检查在某段时间内是否有重复的网络请求 |
+| [add_request_param.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/add_request_param.py) | 修改器 | 修改请求参数 |
+| [add_response_header.py](https://github.com/Meituan-Dianping/lyrebird/tree/master/lyrebird/examples/checkers/add_response_header.py) | 修改器 | 修改请求返回数据 |
 
 ## 大图检测
 
@@ -20,9 +22,7 @@
 仅关注server.response部分的数据，且Content-Type为image的数据。
 
 ```py
-from lyrebird import CustomEventReceiver
-
-event = CustomEventReceiver()
+from lyrebird import event
 
 THRESHOLD_IMG_SIZE = 500
 
@@ -100,10 +100,8 @@ def img_size(msg):
 仅关注client.request部分的数据，且过滤掉不关注的域名。
 
 ```py
-from lyrebird import CustomEventReceiver
+from lyrebird import event
 from urllib.parse import urlparse
-
-event = CustomEventReceiver()
 
 IGNORE_HOSTNAME = [
     'report.meituan.com',

@@ -39,6 +39,7 @@ module.exports = {
             '/checker/': [
                 '',
                 'dev_debug',
+                'request_editor',
                 'examples'
             ],
             '/plugins/': [
