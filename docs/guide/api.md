@@ -112,10 +112,10 @@
 
 ## 激活mock数据组 
 
-**/mock/{string:group_id}/activatie**
+**/mock/{string:group_id}/activate**
 
 ```bash
-> curl -X PUT http://localhost:9090/api/mock/5a73de9c-cfae-4535-abfd-bb220d2239c4/acticate
+> curl -X PUT http://localhost:9090/api/mock/5a73de9c-cfae-4535-abfd-bb220d2239c4/activate
 {
     "code": 1000,
     "message": "success"
@@ -127,7 +127,7 @@
 **/mock/group/deactivate**
 
 ```bash
-> curl -X PUT http://localhost:9090/api/mock/group/deacticate
+> curl -X PUT http://localhost:9090/api/mock/group/deactivate
 {
     "code": 1000,
     "message": "success"
