@@ -122,10 +122,6 @@ def make_fail_response(msg, code=3000, **kwargs):
     return jsonify(fail_resp)
 
 
-def make_streamed_response(generator, code=200, mimetype='application/json'):
-    return Response(stream_with_context(generator()), mimetype=mimetype, status=code)
-
-
 def emit(event, *args, **kwargs):
     now = time.time()
     last_push_time = last_emit_time.get(event, 0)

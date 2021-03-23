@@ -22,7 +22,7 @@ core = Blueprint('mock', __name__, url_prefix='/mock')
 @core.route('/', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 @core.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 def index(path=''):
-    logger.debug(f'Mock handler on request {request.url}')
+    logger.info(f'<Core> On request {request.url}')
 
     resp = None
     req_context = HandlerContext(request)

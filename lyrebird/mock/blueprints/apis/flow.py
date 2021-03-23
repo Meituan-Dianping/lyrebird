@@ -2,9 +2,8 @@ from flask_restful import Resource
 from lyrebird.mock import context
 from lyrebird import application
 from urllib.parse import urlencode, unquote
-from flask import request
+from flask import request, Response
 import json
-
 
 class Flow(Resource):
     """
@@ -60,9 +59,7 @@ class FlowList(Resource):
                 }
             req_list.append(info)
 
-        def gen():
-            yield json.dumps(req_list, ensure_ascii=False)
-        return application.make_streamed_response(gen)
+        return Response(json.dumps(req_list, ensure_ascii=False), mimetype='application/json', status=200)
 
     def delete(self):
         _ids = request.json.get('ids')
