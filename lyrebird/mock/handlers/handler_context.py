@@ -1,6 +1,7 @@
 import uuid
 import time
 import ipaddress
+import json
 
 from .. import context
 from lyrebird import utils
@@ -57,7 +58,11 @@ class HandlerContext:
             if len(request_info_from_header) > 0:
                 request_info = request_info_from_header
 
-        headers = HeadersHelper.origin2flow(self.request)
+        if 'Proxy-Raw-Headers' in self.request.headers:
+            headers = json.loads(self.request.headers['Proxy-Raw-Headers'])
+        else:
+            headers = HeadersHelper.origin2flow(self.request)
+
         _request = dict(
             headers=headers,
             method=self.request.method,
@@ -151,7 +156,7 @@ class HandlerContext:
         headers = {}
         unproxy_headers = application.config.get('proxy.ignored_headers', {})
         for name, value in self.flow['request']['headers'].items():
-            if not value or name in ['Cache-Control', 'Host']:
+            if not value or name in ['Cache-Control', 'Host', 'Transfer-Encoding']:
                 continue
             if name in unproxy_headers and unproxy_headers[name] in value:
                 continue
