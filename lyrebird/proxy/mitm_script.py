@@ -32,7 +32,10 @@ def to_mock_server(flow: http.HTTPFlow):
     # 获取的address是IPv6（内嵌IPv4地址表示法），需要获取IPv4地址，需要做以下处理
     if address.startswith('::ffff:'):
         address = address.split('::ffff:')[1]
+    
     flow.request.headers['Lyrebird-Client-Address'] = address
+    flow.request.headers['Proxy-Raw-Headers'] = json.dumps({name: flow.request.headers[name] for name in flow.request.headers}, ensure_ascii=False)
+
     _logger.info('Redirect-> %s' % flow.request.url[:100])
 
 

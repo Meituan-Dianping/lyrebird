@@ -22,7 +22,7 @@ core = Blueprint('mock', __name__, url_prefix='/mock')
 @core.route('/', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 @core.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
 def index(path=''):
-    logger.debug(f'Mock handler on request {request.url}')
+    logger.info(f'<Core> On request {request.url}')
 
     resp = None
     req_context = HandlerContext(request)
@@ -53,11 +53,17 @@ def index(path=''):
             status=req_context.flow['response']['code'],
             headers=req_context.flow['response']['headers']
         )
-
+    elif req_context.flow['response']:
+        resp = Response(
+            req_context.flow['response'].get('data', ''),
+            status=req_context.flow['response'].get('code', 200),
+            headers=req_context.flow['response'].get('headers', {})
+        )
     else:
         path_not_found_handler.handle(req_context)
         req_context.update_client_resp_time()
         resp = req_context.response
+
 
     if context.application.is_diff_mode == context.MockMode.MULTIPLE and req_context.response_source == 'mock':
         proxy_handler.handle(req_context)

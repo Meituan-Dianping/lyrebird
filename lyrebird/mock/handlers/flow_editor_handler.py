@@ -45,8 +45,16 @@ class FlowEditorHandler(FunctionExecutor):
         if not matched_funcs:
             return
 
+        # Set default value for handler function
+        if not handler_context.flow['response'].get('code'):
+            handler_context.flow['response']['code'] = 200
+        if not handler_context.flow['response'].get('headers'):
+            handler_context.flow['response']['headers'] = {}
         if not handler_context.flow['response'].get('data'):
-            handler_context.update_response_data2flow()
+            if handler_context.response:
+                handler_context.update_response_data2flow()
+            else:
+                handler_context.flow['response']['data'] = None
 
         self.script_executor(matched_funcs, handler_context.flow)
         handler_context.set_response_edited()

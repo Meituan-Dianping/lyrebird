@@ -1,4 +1,4 @@
-from flask import jsonify, stream_with_context, Response
+from flask import jsonify
 from . import cache
 from .dm import DataManager
 from flask_socketio import SocketIO
@@ -120,10 +120,6 @@ def make_fail_response(msg, code=3000, **kwargs):
     }
     fail_resp.update(kwargs)
     return jsonify(fail_resp)
-
-
-def make_streamed_response(generator, code=200, mimetype='application/json'):
-    return Response(stream_with_context(generator()), mimetype=mimetype, status=code)
 
 
 def emit(event, *args, **kwargs):

@@ -1,7 +1,7 @@
 import urllib
 import requests
 from requests.packages import urllib3
-from flask import Response, stream_with_context, jsonify
+from flask import Response, jsonify, stream_with_context
 from .. import context
 from lyrebird import application
 from lyrebird.log import get_logger
@@ -83,6 +83,11 @@ class ProxyHandler:
                 # 如果是gzip请求，由于requests自动解压gzip，所以此处抹去content-length,以匹配解压后的数据长度
                 continue
             resp_headers.append((name, value))
+        
+        # HTTP Status code 204 => No content
+        if r.status_code == 204:
+            handler_context.response = Response(None, status=r.status_code, headers=resp_headers)
+            return
 
         # After huangyuanzhen test, we use 2048byte buffer :D
         handler_context.response = Response(
