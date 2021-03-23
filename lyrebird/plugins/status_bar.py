@@ -11,6 +11,10 @@ class ClickableStatusText:
 
     def __init__(self):
         self.id = str(uuid.uuid4())
+        if not hasattr(self, 'name'):
+            self.name = self.id
+        if not hasattr(self, 'rank'):
+            self.rank = 0
 
     def get_text(self):
         """
@@ -49,5 +53,12 @@ class ImageMenuItem(MenuItem):
 class TextMenuItem(MenuItem):
     """
     src: text
+    """
+    pass
+
+
+class LinkMenuItem(MenuItem):
+    """
+    src: selector
     """
     pass

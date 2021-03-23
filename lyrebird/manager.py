@@ -23,16 +23,11 @@ from lyrebird.plugins import PluginManager
 from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird import version
 from lyrebird import reporter
-from lyrebird import mock_data_tools
 from lyrebird import project_builder
 from packaging.version import parse as vparse
 
 
 logger = log.get_logger()
-
-MOCK_DATA_V_1_7_0 = vparse('1.7.0')
-MOCK_DATA_V_1_0_0 = vparse('1.0.0')
-MOCK_DATA_V_0_15_0 = vparse('0.15.0')
 
 
 def main():
@@ -137,18 +132,6 @@ def run(args: argparse.Namespace):
         except Exception:
             traceback.print_exc()
             logger.warning('Set file descriptors failed\nPlease set it by your self, use "ulimit -n 8192" with root account')
-
-    # Check mock data group version. Update if is older than 1.x
-    data_path = application._cm.config['mock.data']
-    # Path(data_path).mkdir(parents=True, exist_ok=True)
-    # res = mock_data_tools.check_data_version(data_path)
-    # mockdata_version = vparse(res)
-
-    # if MOCK_DATA_V_1_0_0 <= mockdata_version < MOCK_DATA_V_1_7_0:
-    #     logger.log(60, 'Mock data need update')
-    #     mock_data_tools.update(data_path)
-    # elif mockdata_version < MOCK_DATA_V_1_0_0:
-    #     logger.error('Can not update this mock data')
 
     # show current config contents
     print_lyrebird_info()

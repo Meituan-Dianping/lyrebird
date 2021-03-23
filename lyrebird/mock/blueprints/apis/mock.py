@@ -17,6 +17,7 @@ class MockGroup(Resource):
 
             return application.make_ok_response(data=_group)
 
+        context.application.data_manager.reload()
         root = context.application.data_manager.root
         if not label:
             return application.make_ok_response(data=root)

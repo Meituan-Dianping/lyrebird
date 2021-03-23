@@ -66,7 +66,7 @@ class JSONPath:
             return ()
         if index == '*':
             return range(0, len(root))
-        if index.isdigit() and int(index) < len(root) - 1:
+        if index.isdigit() and int(index) < len(root):
             return (int(index),)
 
         return ()

@@ -1,15 +1,42 @@
+import os
 import json
 import codecs
-
+from ..dm import DataManager
 
 PROP_FILE_NAME = '.lyrebird_prop'
 
-class FileDataAdapter:
-    def save_prop(self, root, root_path):
+
+class FileDataAdapter(DataManager):
+    def reload(self):
+        path = self.root_path / PROP_FILE_NAME
+        if not path.exists():
+            self._save_prop()
+        with codecs.open(path) as f:
+            _root_prop = json.load(f)
+
+        self.root = _root_prop
+        self.id_map = {}
+        self._read_node(self.root)
         self._sort_children_by_name()
-        prop_str = PropWriter().parse(root)
+
+    def _add_group(self, data):
+        self._save_prop()
+
+    def _delete_group(self, data, category):
+        self._save_prop()
+
+    def _delete_data(self, _id):
+        data_file_path = self.root_path / _id
+        os.remove(data_file_path)
+
+    def _update_group(self, data):
+        self._save_prop()
+
+    def _save_prop(self):
+        self._sort_children_by_name()
+        prop_str = PropWriter().parse(self.root)
         # Save prop
-        prop_file = root_path / PROP_FILE_NAME
+        prop_file = self.root_path / PROP_FILE_NAME
         with codecs.open(prop_file, 'w') as f: # 
             f.write(prop_str)
         # Reactive mock data
@@ -18,8 +45,32 @@ class FileDataAdapter:
         for _group_id in _activated_group:
             self.activate(_group_id)
 
-    def save_data(self):
-        pass
+    # data
+    def _load_data(self, data_id, path=None):
+        if not path:
+            path = self.root_path / data_id
+        if not path.exists():
+            raise DataNotFound(f'Data file {path}')
+        with codecs.open(path) as f:
+            return json.load(f)
+
+    def _add_data(self, data, path=None):
+        if not path:
+            path = self.root_path / data['id']
+        self._save_data(path, data)
+
+    def _delete_data(self, _id):
+        p = self.root_path/_id
+        os.remove(p)
+
+    def _update_data(self, data):
+        self._save_data(self.root_path/data['id'], data)
+
+    def _save_data(self, path, data):
+        prop_str = json.dumps(data)
+        with codecs.open(path, 'w') as f:
+            f.write(prop_str)
+            # json.dump(data, f, ensure_ascii=False)
 
 
     def _sort_children_by_name(self):
@@ -102,6 +153,10 @@ class PropWriter:
         children_str += ']'
         self.indent -= 1
         return children_str
+
+
+class DataNotFound(Exception):
+    pass
 
 
 class DumpPropError(Exception):

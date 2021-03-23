@@ -1,7 +1,7 @@
 from .manager import main, run
 from .mock import context
+from .mock.dm import DataManager
 from .mock.dm.jsonpath import jsonpath
-from .mock.dm.controller import DataAdapter
 from .mock.handlers.handler_context import HandlerContext
 import os
 from .event import CustomEventReceiver

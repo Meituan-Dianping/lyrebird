@@ -12,7 +12,6 @@ from jinja2 import Template
 from lyrebird.application import config
 from lyrebird.mock.handlers import snapshot_helper
 from lyrebird.mock.dm.jsonpath import jsonpath
-from lyrebird.mock.dm.file_data_adapter import FileDataAdapter, PropWriter
 
 
 PROP_FILE_NAME = '.lyrebird_prop'
@@ -20,17 +19,18 @@ logger = get_logger()
 
 
 class DataManager:
+    default_root = {
+        'id': str(uuid.uuid4()),
+        'name': '$',
+        'type': 'group',
+        'parent_id': None,
+        'label': [],
+        'children': []
+    }
 
     def __init__(self):
         self.root_path: Path = None
-        self.root = {
-            'id': str(uuid.uuid4()),
-            'name': '$',
-            'type': 'group',
-            'parent_id': None,
-            'label': [],
-            'children': []
-        }
+        self.root = self.default_root
         self.display_data_map = {}
         self.id_map = {}
         self.activated_data = {}
@@ -40,10 +40,8 @@ class DataManager:
         self.clipboard = None
         self.save_to_group_id = None
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'label': [], 'children': []}
+        
         self.snapshot_helper = snapshot_helper.SnapshotHelper()
-        self.data_save_controller = FileDataAdapter
-        self._save_prop = FileDataAdapter.save_prop
-        self._save_data = FileDataAdapter.save_data
 
     def set_root(self, root_path):
         """
@@ -62,16 +60,8 @@ class DataManager:
     def reload(self):
         if not self.root_path:
             raise RootNotSet
-        _root_prop_path = self.root_path / PROP_FILE_NAME
-        if not _root_prop_path.exists():
-            self._save_prop(self.root, self.root_path)
-        with codecs.open(_root_prop_path) as f:
-            _root_prop = json.load(f)
-            self.root = _root_prop
-            self.id_map = {}
-            self._read_node(self.root)
-            self._sort_children_by_name()
-
+        self._load_prop()
+        
     def _read_node(self, node):
         if 'id' in node:
             self.id_map[node['id']] = node
@@ -173,13 +163,6 @@ class DataManager:
             if 'children' in node:
                 for child in node['children']:
                     self._activate(child, secondary_search=secondary_search)
-
-    def _load_data(self, data_id):
-        _data_file = self.root_path / data_id
-        if not _data_file.exists():
-            raise DataNotFound(f'Data file {_data_file}')
-        with codecs.open(_data_file) as f:
-            return json.load(f)
 
     def deactivate(self):
         """
@@ -307,10 +290,11 @@ class DataManager:
         data['name'] = _data_name
         data['rule'] = _data_rule
 
-        data_path = (kwargs.get('output') or self.root_path) / _data_id
-        with codecs.open(data_path, 'w') as f: # 
-            json.dump(data, f, ensure_ascii=False)
-            logger.debug(f'*** Write file {data_path}')
+        data['parent_id'] = parent_id
+
+        output_path = (kwargs['output'] / _data_id) if kwargs.get('output') else None
+
+        self._add_data(data, path=output_path)
 
         if parent_node:
             data_node = {}
@@ -360,7 +344,7 @@ class DataManager:
         # Register ID
         self.id_map[group_id] = new_group
         # Save prop
-        self._save_prop()
+        self._add_group(new_group)
         return group_id
 
     def add_group_by_path(self, path):
@@ -392,7 +376,7 @@ class DataManager:
             self.root['children'].remove(target_node)
         self._delete(_id)
         # Save prop
-        self._save_prop()
+        self._delete_group(_id, '11.6.200')
 
     def _delete(self, _id):
         target_node = self.id_map.get(_id)
@@ -408,8 +392,7 @@ class DataManager:
         self.id_map.pop(_id)
         # Delete from file system
         if target_node['type'] == 'data':
-            data_file_path = self.root_path / _id
-            os.remove(data_file_path)
+            self._delete_data(_id)
 
     def cut(self, _id):
         _node = self.id_map.get(_id)
@@ -466,8 +449,7 @@ class DataManager:
         new_node.update(node)
         new_node['id'] = str(uuid.uuid4())
         new_node['parent_id'] = parent_node['id']
-        if kwargs.get('name'):
-            new_node['name'] = kwargs.pop('name')
+        new_node['name'] = kwargs['name'] if kwargs.get('name') else new_node['name']
         # Add to target node
         if not parent_node.get('children'):
             parent_node['children'] = []
@@ -475,6 +457,7 @@ class DataManager:
         # Register ID
         self.id_map[new_node['id']] = new_node
         if new_node['type'] == 'group':
+            kwargs.pop('name') if kwargs.get('name') else None
             new_node['children'] = []
             for child in node['children']:
                 self._copy_node(new_node, child, **kwargs)
@@ -492,17 +475,24 @@ class DataManager:
                 raise DataNotFound(f'File path: {origin_file_path}')
         new_file_id = target_data_node['id']
         new_file_path = self.root_path / new_file_id
-        with codecs.open(origin_file_path, 'r') as inputfile, codecs.open(new_file_path, 'w') as outputfile: # 
-            origin_text = inputfile.read()
-            prop = json.loads(origin_text)
-            prop['id'] = new_file_id
-            new_prop_text = json.dumps(prop, ensure_ascii=False)
-            outputfile.write(new_prop_text)
+        prop = self._load_data(None, path=origin_file_path)
+        prop['id'] = new_file_id
+        prop['name'] = kwargs.pop('name') if kwargs.get('name') else prop['name']
+        self._save_data(new_file_path, prop)
 
     def _get_copy_node_new_name(self, _node):
         COPY_NODE_NAME_SUFFIX = ' - copy'
         return _node['name'] + COPY_NODE_NAME_SUFFIX
 
+    def _sort_children_by_name(self):
+        for node_id in self.id_map:
+            node = self.id_map[node_id]
+            if 'children' not in node:
+                # fix mock data group has no children
+                if node['type'] == 'group':
+                    node['children'] = []
+                continue
+            node['children'] = sorted(node['children'], key=lambda sub_node: sub_node['name'])
 
     # -----
     # Conflict checker
@@ -516,11 +506,9 @@ class DataManager:
 
         def _read_data(node):
             if node.get('type') == 'data':
-                _data_file = self.root_path / node['id']
-                with codecs.open(_data_file, 'r') as f:
-                    _data = json.load(f)
-                    _data['parent_id'] = node['parent_id']
-                    data_array.append(_data)
+                _data = self._load_data(node['id'])
+                _data['parent_id'] = node['parent_id']
+                data_array.append(_data)
             elif node.get('type') == 'group':
                 for child in node['children']:
                     _read_data(child)
@@ -629,31 +617,22 @@ class DataManager:
         elif 'label' in node and isinstance(node['label'], list):
             node['label'].sort(key=lambda x:x.get('name', '').lower())
         if save:
-            self._save_prop()
+            self._update_group(node)
 
     def update_data(self, _id, data):
         node = self.id_map.get(_id)
         if not node:
             raise IDNotFound(_id)
         node['name'] = data['name']
-        data_file = self.root_path / _id
-        if not data_file.exists():
-            raise DataNotFound(_id)
-        with codecs.open(data_file, 'w') as f: #
-            data_str = json.dumps(data, ensure_ascii=False)
-            f.write(data_str)
-        self._save_prop()
+        self._update_data(data)
+        # self._save_prop()
 
     # -----
     # Snapshot
     # -----
 
     def _write_prop_to_custom_path(self, outfile_path, node):
-        prop_str = PropWriter().parse(node)
-
-        prop_file = outfile_path / PROP_FILE_NAME
-        with codecs.open(prop_file, 'w') as f: #
-            f.write(prop_str)
+        self._save_data(outfile_path / PROP_FILE_NAME, node)
 
     def _write_file_to_custom_path(self, outfile_path, file_content):
         self.add_data(None, file_content, data_id=file_content['id'], output=outfile_path)
@@ -664,8 +643,7 @@ class DataManager:
         self.snapshot_helper.decompress_snapshot(f'{snapshot_path}.lb', f'{snapshot_path}')
         if not Path(f'{snapshot_path}/{PROP_FILE_NAME}').exists():
             raise LyrebirdPropNotExists
-        with codecs.open(f'{snapshot_path}/{PROP_FILE_NAME}') as f:
-            _prop = json.load(f)
+        _prop = self._load_data(None, path=f'{snapshot_path}/{PROP_FILE_NAME}')
         return {'snapshot_detail': _prop, 'snapshot_storage_path': f'{snapshot_path}'}
 
     def import_snapshot(self, parent_id, snapshot_name, path=None):
@@ -716,6 +694,11 @@ class DataManager:
 # -----------------
 # Exceptions
 # -----------------
+
+class DumpPropError(Exception):
+    pass
+
+
 
 class RootNotSet(Exception):
     pass

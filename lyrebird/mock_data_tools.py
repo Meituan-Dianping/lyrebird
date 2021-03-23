@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 from lyrebird.log import get_logger
 import uuid
-from lyrebird.mock.dm import PropWriter
+from lyrebird.mock.dm.file_data_adapter import PropWriter
 
 logger = get_logger()
 
@@ -14,6 +14,7 @@ root = {
     'name': '$',
     'type': 'group',
     'parent_id': None,
+    'label': [],
     'children': []
 }
 data_root_dir = None

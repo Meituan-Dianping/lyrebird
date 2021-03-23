@@ -443,7 +443,7 @@ def test_copy_and_paste(data_manager):
 
 
 def test_prop_writer():
-    prop_writer = dm.PropWriter()
+    prop_writer = dm.file_data_adapter.PropWriter()
     prop_str = prop_writer.parse(
         {
             "url": "<\"test\">",

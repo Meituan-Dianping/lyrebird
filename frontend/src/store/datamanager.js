@@ -100,7 +100,7 @@ export default {
       api.getGroupMap({labels: state.dataListSelectedLabel})
         .then(response => {
           breadthFirstSearch([response.data.data], node => {
-            if (node.parent_id === null) {
+            if (!node.parent_id) {
               commit('addGroupListOpenNode', node.id)
             }
             if (state.groupListOpenNode.has(node.id)) {

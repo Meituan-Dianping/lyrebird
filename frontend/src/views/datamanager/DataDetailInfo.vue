@@ -39,6 +39,11 @@
           </template>
         </LabelDropdown>
       </span>
+      <span v-else-if="inputValueType === 'category'">
+        <Select v-model="infoValue.selected" multiple size="small">
+          <Option v-for="item in infoValue.allItem" :value="item.value" :key="item.value">{{ item.value }}</Option>
+        </Select>
+      </span>
       <span v-else-if="inputValueType === 'input'">
         <Input v-model="inputValue" type="textarea" :autosize="{ minRows: 1 }" size="small"/>
       </span>
@@ -63,6 +68,7 @@ export default {
   data() {
     return {
       imgData: '',
+      selectorValue: [],
       isDisplayPoptip: false,
       isMouseOver: false
     }
@@ -103,6 +109,8 @@ export default {
         return 'link'
       } else if (this.infoKey === 'label') {
         return 'label'
+      } else if (this.infoKey === 'category') {
+        return 'category'
       } else if (this.editable) {
         return 'input'
       } else {
