@@ -51,6 +51,8 @@ class DataManager:
         And all activited data will be removed from DataManager.
         """
         _root_path = Path(root_path).expanduser()
+        if not _root_path.exists():
+            _root_path.mkdir(parents=True, exist_ok=True)
         if not _root_path.is_dir():
             raise RootPathIsNotDir(root_path)
         _root_path.mkdir(parents=True, exist_ok=True)
