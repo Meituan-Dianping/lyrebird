@@ -53,7 +53,12 @@ def index(path=''):
             status=req_context.flow['response']['code'],
             headers=req_context.flow['response']['headers']
         )
-
+    elif req_context.flow['response']:
+        resp = Response(
+            req_context.flow['response'].get('data', ''),
+            status=req_context.flow['response'].get('code', 200),
+            headers=req_context.flow['response'].get('headers', {})
+        )
     else:
         path_not_found_handler.handle(req_context)
         req_context.update_client_resp_time()
