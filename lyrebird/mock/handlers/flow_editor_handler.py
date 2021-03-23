@@ -45,6 +45,10 @@ class FlowEditorHandler(FunctionExecutor):
         if not matched_funcs:
             return
 
+        if not handler_context.flow['response'].get('code'):
+            handler_context.flow['response']['code'] = 200
+        if not handler_context.flow['response'].get('headers'):
+            handler_context.flow['response']['headers'] = {}
         if not handler_context.flow['response'].get('data'):
             handler_context.update_response_data2flow()
 

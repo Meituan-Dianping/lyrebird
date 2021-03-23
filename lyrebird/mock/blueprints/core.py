@@ -44,15 +44,17 @@ def index(path=''):
 
     req_context.update_server_resp_time()
 
+    flow_editor_handler.on_response_handler(req_context)
+
     if req_context.response_source:
         gen = req_context.get_response_generator()
-        req_context.response = resp = Response(
+        resp = Response(
             gen(),
             status=req_context.flow['response']['code'],
             headers=req_context.flow['response']['headers']
         )
     elif req_context.flow['response']:
-        req_context.response = resp = Response(
+        resp = Response(
             req_context.flow['response'].get('data', ''),
             status=req_context.flow['response'].get('code', 200),
             headers=req_context.flow['response'].get('headers', {})
@@ -62,7 +64,6 @@ def index(path=''):
         req_context.update_client_resp_time()
         resp = req_context.response
 
-    flow_editor_handler.on_response_handler(req_context)
 
     if context.application.is_diff_mode == context.MockMode.MULTIPLE and req_context.response_source == 'mock':
         proxy_handler.handle(req_context)

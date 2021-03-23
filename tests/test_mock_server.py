@@ -1,3 +1,4 @@
+from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.event import EventServer
@@ -30,13 +31,14 @@ def client():
     application.server['event'] = EventServer()
     application.reporter = reporter.Reporter()
     application.server['task'] = BackgroundTaskServer()
+    application.encoders_decoders = EncoderDecoder()
     server = LyrebirdMockServer()
     client = server.app.test_client()
     yield client
 
 
 def test_mock_api(client):
-    resp = client.get('/mock/http://www.google.com')
+    resp = client.get('/mock/http://www.bing.com')
     assert 200<= resp.status_code <= 400
 
 

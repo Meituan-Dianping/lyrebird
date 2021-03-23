@@ -16,6 +16,9 @@ class DataHelper:
 
     @staticmethod
     def origin2flow(origin_obj, output=None):
+        if not origin_obj:
+            return
+
         _data = origin_obj.data
         if not _data:
             return
