@@ -3,13 +3,11 @@ from . import cache
 from .dm import DataManager
 from .dm.file_data_adapter import FileDataAdapter
 from flask_socketio import SocketIO
-from packaging.version import parse
 from pathlib import Path
 import codecs
 import json
 import imp
 import os
-from lyrebird import mock_data_tools
 from lyrebird import application as app
 from lyrebird.log import get_logger
 import traceback
@@ -23,9 +21,6 @@ Mock server context
 
 logger = get_logger()
 
-MOCK_DATA_V_1_7_0 = parse('1.7.0')
-MOCK_DATA_V_1_0_0 = parse('1.0.0')
-MOCK_DATA_V_0_15_0 = parse('0.15.0')
 
 
 class Mode:
@@ -59,7 +54,7 @@ class Application:
         self.is_diff_mode = MockMode.NORMAL
         self.filters = []
         self.selected_filter = None
-        self.data_manager = None
+        self.data_manager = DataManager()
         # SocketIO
         self.socket_io: SocketIO = None
         self.conf_manager = None
@@ -76,9 +71,10 @@ class Application:
     @conf.setter
     def conf(self, _conf):
         self._conf = _conf
-        uri = _conf.get('mock.data')
-        if uri:
-            self.init_datamanager(uri)
+
+        if _conf.get('mock.data'):
+            self.init_datamanager(_conf.get('mock.data'))
+
         if _conf.get('mock.mode') == MockMode.MULTIPLE:
             self.is_diff_mode = MockMode.MULTIPLE
 
@@ -92,41 +88,22 @@ class Application:
                 break
 
     def init_datamanager(self, uri):
+        adapter_cls = FileDataAdapter
+
         path = Path(uri).expanduser().absolute()
         if not path.exists():
-            logger.error(f'Data adapter {str(path)} not found!')
+            logger.error(f'Mock data adapter {str(path)} not found!')
 
-        if not path.is_dir():
+        is_mock_data_config_file = not path.is_dir()
+        if is_mock_data_config_file:
             try:
-                adapter = imp.load_source(path.stem, str(path))
-                assert hasattr(adapter, 'dataAdapter'), "Adapter should have dataAdapter attr"
-                assert 'DataManager' == adapter.dataAdapter.__base__.__name__
-                self.data_manager = adapter.dataAdapter()
-                self.data_manager.init_prop()
-                return
+                adapter_module = imp.load_source(path.stem, str(path))
+                adapter_cls = adapter_module.dataAdapter
             except Exception:
                 logger.error(f'Load mock data adapter {path} failed!\n{traceback.format_exc()}')
 
-        try:
-            self.check_mock_data(path)
-            self.data_manager = FileDataAdapter()
-            self.data_manager.set_root(path)
-            return
-        except Exception:
-            logger.error(f'Set mock data root path failed.\n{traceback.format_exc()}')
-
-    def check_mock_data(self, path):
-
-        # Check mock data group version. Update if is older than 1.x
-        Path(path).mkdir(parents=True, exist_ok=True)
-        res = mock_data_tools.check_data_version(path)
-        mockdata_version = parse(res)
-
-        if MOCK_DATA_V_1_0_0 <= mockdata_version < MOCK_DATA_V_1_7_0:
-            logger.log(60, 'Mock data need update')
-            mock_data_tools.update(path)
-        elif mockdata_version < MOCK_DATA_V_1_0_0:
-            logger.error('Can not update this mock data')
+        self.data_manager.set_adapter(adapter_cls)
+        self.data_manager.set_root(uri)
 
     def save(self):
         DEFAULT_CONF = os.path.join(

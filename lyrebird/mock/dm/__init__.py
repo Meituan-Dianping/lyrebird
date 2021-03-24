@@ -19,18 +19,9 @@ logger = get_logger()
 
 
 class DataManager:
-    default_root = {
-        'id': str(uuid.uuid4()),
-        'name': '$',
-        'type': 'group',
-        'parent_id': None,
-        'label': [],
-        'children': []
-    }
 
     def __init__(self):
         self.root_path: Path = None
-        self.root = self.default_root
         self.display_data_map = {}
         self.id_map = {}
         self.activated_data = {}
@@ -40,36 +31,27 @@ class DataManager:
         self.clipboard = None
         self.save_to_group_id = None
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'label': [], 'children': []}
-        
         self.snapshot_helper = snapshot_helper.SnapshotHelper()
+        self.root = self.get_default_root()
 
-    def set_root(self, root_path):
-        """
-        Set a new mock data root dir
-        -----
-        DataManager will reload all data from this new root dir.
-        And all activited data will be removed from DataManager.
-        """
-        _root_path = Path(root_path).expanduser()
-        if not _root_path.exists():
-            _root_path.mkdir(parents=True, exist_ok=True)
-        if not _root_path.is_dir():
-            raise RootPathIsNotDir(root_path)
-        _root_path.mkdir(parents=True, exist_ok=True)
-        self.root_path = _root_path
-        self.reload()
+    def get_default_root(self):
+        return {
+            'id': str(uuid.uuid4()),
+            'name': '$',
+            'type': 'group',
+            'parent_id': None,
+            'label': [],
+            'children': []
+        }
+
+    def set_adapter(self, adapter_cls):
+        self._adapter = adapter_cls(self)
+
+    def set_root(self, uri):
+        self._adapter._set_root(uri)
 
     def reload(self):
-        if not self.root_path:
-            raise RootNotSet
-        self._load_prop()
-        
-    def _read_node(self, node):
-        if 'id' in node:
-            self.id_map[node['id']] = node
-        if 'children' in node:
-            for child in node['children']:
-                self._read_node(child)
+        self._adapter._reload()
 
     def get(self, _id):
         """
@@ -83,7 +65,7 @@ class DataManager:
         if node.get('type') == 'group' or node.get('type') == None:
             return node
         elif node.get('type') == 'data':
-            return self._load_data(_id)
+            return self._adapter._load_data(_id)
 
     # -----
     # Mock operations
@@ -155,7 +137,7 @@ class DataManager:
 
     def _activate(self, node, secondary_search=False):
         if node.get('type', '') == 'data':
-            _mock_data = self._load_data(node['id'])
+            _mock_data = self._adapter._load_data(node['id'])
             if _mock_data:
                 if not secondary_search:
                     self.activated_data[node['id']] = _mock_data
@@ -296,7 +278,7 @@ class DataManager:
 
         output_path = (kwargs['output'] / _data_id) if kwargs.get('output') else None
 
-        self._add_data(data, path=output_path)
+        self._adapter._add_data(data, path=output_path)
 
         if parent_node:
             data_node = {}
@@ -346,7 +328,7 @@ class DataManager:
         # Register ID
         self.id_map[group_id] = new_group
         # Save prop
-        self._add_group(new_group)
+        self._adapter._add_group(new_group)
         return group_id
 
     def add_group_by_path(self, path):
@@ -378,7 +360,7 @@ class DataManager:
             self.root['children'].remove(target_node)
         self._delete(_id)
         # Save prop
-        self._delete_group(_id, '11.6.200')
+        self._adapter._delete_group(_id)
 
     def _delete(self, _id):
         target_node = self.id_map.get(_id)
@@ -394,7 +376,7 @@ class DataManager:
         self.id_map.pop(_id)
         # Delete from file system
         if target_node['type'] == 'data':
-            self._delete_data(_id)
+            self._adapter._delete_data(_id)
 
     def cut(self, _id):
         _node = self.id_map.get(_id)
@@ -477,7 +459,7 @@ class DataManager:
                 raise DataNotFound(f'File path: {origin_file_path}')
         new_file_id = target_data_node['id']
         new_file_path = self.root_path / new_file_id
-        prop = self._load_data(None, path=origin_file_path)
+        prop = self._adapter._load_data(None, path=origin_file_path)
         prop['id'] = new_file_id
         prop['name'] = kwargs.pop('name') if kwargs.get('name') else prop['name']
         self._save_data(new_file_path, prop)
@@ -508,7 +490,7 @@ class DataManager:
 
         def _read_data(node):
             if node.get('type') == 'data':
-                _data = self._load_data(node['id'])
+                _data = self._adapter._load_data(node['id'])
                 _data['parent_id'] = node['parent_id']
                 data_array.append(_data)
             elif node.get('type') == 'group':
@@ -626,8 +608,7 @@ class DataManager:
         if not node:
             raise IDNotFound(_id)
         node['name'] = data['name']
-        self._update_data(data)
-        # self._save_prop()
+        self._adapter._update_data(data)
 
     # -----
     # Snapshot
@@ -645,7 +626,7 @@ class DataManager:
         self.snapshot_helper.decompress_snapshot(f'{snapshot_path}.lb', f'{snapshot_path}')
         if not Path(f'{snapshot_path}/{PROP_FILE_NAME}').exists():
             raise LyrebirdPropNotExists
-        _prop = self._load_data(None, path=f'{snapshot_path}/{PROP_FILE_NAME}')
+        _prop = self._adapter._load_data(None, path=f'{snapshot_path}/{PROP_FILE_NAME}')
         return {'snapshot_detail': _prop, 'snapshot_storage_path': f'{snapshot_path}'}
 
     def import_snapshot(self, parent_id, snapshot_name, path=None):

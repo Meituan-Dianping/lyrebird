@@ -1,54 +1,67 @@
 import os
 import json
 import codecs
+from pathlib import Path
 from ..dm import DataManager
 
 PROP_FILE_NAME = '.lyrebird_prop'
 
 
-class FileDataAdapter(DataManager):
-    def reload(self):
-        path = self.root_path / PROP_FILE_NAME
+class FileDataAdapter:
+
+    def __init__(self, context_self):
+        self.context = context_self
+
+    def _set_root(self, root_path):
+        """
+        Set a new mock data root dir
+        -----
+        DataManager will reload all data from this new root dir.
+        And all activited data will be removed from DataManager.
+        """
+        _root_path = Path(root_path).expanduser()
+        if not _root_path.exists():
+            _root_path.mkdir(parents=True, exist_ok=True)
+        if not _root_path.is_dir():
+            raise RootPathIsNotDir(root_path)
+        _root_path.mkdir(parents=True, exist_ok=True)
+        self.context.root_path = _root_path
+        self._reload()
+
+    def _reload(self):
+        self.context.id_map = {}
+        self._load_prop()
+        self.context._sort_children_by_name()
+
+    def _load_prop(self):
+        path = self.context.root_path / PROP_FILE_NAME
         if not path.exists():
             self._save_prop()
         with codecs.open(path) as f:
             _root_prop = json.load(f)
+        self.context.root = _root_prop
+        self._init_id_map(self.context.root)
 
-        self.root = _root_prop
-        self.id_map = {}
-        self._read_node(self.root)
-        self._sort_children_by_name()
+    def _init_id_map(self, node):
+        if 'id' in node:
+            self.context.id_map[node['id']] = node
+        if 'children' in node:
+            for child in node['children']:
+                self._init_id_map(child)
 
     def _add_group(self, data):
         self._save_prop()
 
-    def _delete_group(self, data, category):
-        self._save_prop()
-
-    def _delete_data(self, _id):
-        data_file_path = self.root_path / _id
-        os.remove(data_file_path)
-
     def _update_group(self, data):
         self._save_prop()
 
-    def _save_prop(self):
-        self._sort_children_by_name()
-        prop_str = PropWriter().parse(self.root)
-        # Save prop
-        prop_file = self.root_path / PROP_FILE_NAME
-        with codecs.open(prop_file, 'w') as f: # 
-            f.write(prop_str)
-        # Reactive mock data
-        _activated_group = self.activated_group
-        self.deactivate()
-        for _group_id in _activated_group:
-            self.activate(_group_id)
+    def _delete_group(self, data):
+        self._save_prop()
 
     # data
     def _load_data(self, data_id, path=None):
         if not path:
-            path = self.root_path / data_id
+            path = self.context.root_path / data_id
         if not path.exists():
             raise DataNotFound(f'Data file {path}')
         with codecs.open(path) as f:
@@ -56,33 +69,33 @@ class FileDataAdapter(DataManager):
 
     def _add_data(self, data, path=None):
         if not path:
-            path = self.root_path / data['id']
-        self._save_data(path, data)
+            path = self.context.root_path / data['id']
+        self.context._save_data(path, data)
 
     def _delete_data(self, _id):
-        p = self.root_path/_id
-        os.remove(p)
+        data_file_path = self.context.root_path / _id
+        os.remove(data_file_path)
 
     def _update_data(self, data):
-        self._save_data(self.root_path/data['id'], data)
+        self.context._save_data(self.context.root_path/data['id'], data)
+
+    def _save_prop(self):
+        self.context._sort_children_by_name()
+        prop_str = PropWriter().parse(self.context.root)
+        # Save prop
+        prop_file = self.context.root_path / PROP_FILE_NAME
+        with codecs.open(prop_file, 'w') as f: # 
+            f.write(prop_str)
+        # Reactive mock data
+        _activated_group = self.context.activated_group
+        self.context.deactivate()
+        for _group_id in _activated_group:
+            self.context.activate(_group_id)
 
     def _save_data(self, path, data):
         prop_str = json.dumps(data)
         with codecs.open(path, 'w') as f:
             f.write(prop_str)
-            # json.dump(data, f, ensure_ascii=False)
-
-
-    def _sort_children_by_name(self):
-        for node_id in self.id_map:
-            node = self.id_map[node_id]
-            if 'children' not in node:
-                # fix mock data group has no children
-                if node['type'] == 'group':
-                    node['children'] = []
-                continue
-            node['children'] = sorted(node['children'], key=lambda sub_node: sub_node['name'])
-
 
 
 class PropWriter:
@@ -161,3 +174,10 @@ class DataNotFound(Exception):
 
 class DumpPropError(Exception):
     pass
+
+
+class RootPathIsNotDir(Exception):
+    pass
+
+
+dataAdapter = FileDataAdapter
