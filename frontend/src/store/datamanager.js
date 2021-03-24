@@ -96,26 +96,31 @@ export default {
   },
   actions: {
     loadDataMap ({ state, commit }) {
-      commit('setIsLoading', true)
-      api.getGroupMap({labels: state.dataListSelectedLabel})
-        .then(response => {
-          breadthFirstSearch([response.data.data], node => {
-            if (!node.parent_id) {
-              commit('addGroupListOpenNode', node.id)
-            }
-            if (state.groupListOpenNode.has(node.id)) {
-              node.open = true
-            } else {
-              node.open = false
-            }
-          })
-          commit('setGroupList', [response.data.data])
-          commit('setIsLoading', false)
-        })
-        .catch(error => {
-          commit('setIsLoading', false)
-          bus.$emit('msg.error', 'Load data failed: ' + error.data.message)
-        })
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          commit('setIsLoading', true)
+          api.getGroupMap({labels: state.dataListSelectedLabel})
+            .then(response => {
+              breadthFirstSearch([response.data.data], node => {
+                if (!node.parent_id) {
+                  commit('addGroupListOpenNode', node.id)
+                }
+                if (state.groupListOpenNode.has(node.id)) {
+                  node.open = true
+                } else {
+                  node.open = false
+                }
+              })
+              commit('setGroupList', [response.data.data])
+              commit('setIsLoading', false)
+            })
+            .catch(error => {
+              commit('setIsLoading', false)
+              bus.$emit('msg.error', 'Load data failed: ' + error.data.message)
+            })
+          resolve()
+        }, 1)
+      })
     },
     loadDataLabel ({ commit }) {
       api.getLabels()
@@ -138,6 +143,7 @@ export default {
     saveDataDetail ({ dispatch }, payload) {
       api.updateData(payload)
         .then(response => {
+          dispatch('loadDataMap')
           dispatch('loadDataDetail', payload)
           bus.$emit('msg.success', 'Data ' + payload.name + ' update!')
         })
@@ -162,9 +168,9 @@ export default {
     saveGroupDetail ({ state, commit, dispatch }, payload) {
       api.updateGroup(payload.id, payload)
         .then(response => {
-          dispatch('loadGroupDetail', payload)
           dispatch('loadDataMap')
           dispatch('loadDataLabel')
+          dispatch('loadGroupDetail', payload)
           bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
         })
         .catch(error => {
@@ -207,7 +213,6 @@ export default {
       api.getDataDetail(payload.id)
         .then(response => {
           commit('setDataDetail', response.data.data)
-          dispatch('loadDataMap')
         })
         .catch(error => {
           bus.$emit('msg.error', 'Load data ' + payload.name + ' error: ' + error.data.message)
