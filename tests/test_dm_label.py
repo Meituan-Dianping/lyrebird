@@ -6,6 +6,7 @@ from lyrebird.mock import dm
 from lyrebird.mock.dm import label as lb
 from lyrebird import application
 from lyrebird.mock import context
+from lyrebird.mock.dm.file_data_adapter import FileDataAdapter
 
 dataA = {
     'id': 'dataA-UUID',
@@ -82,6 +83,7 @@ def data_manager(root):
     }
     application._cm = MockConfigManager(config=_conf)
     _dm = dm.DataManager()
+    _dm.set_adapter(FileDataAdapter)
     _dm.set_root(root)
     context.application.data_manager = _dm
     return _dm

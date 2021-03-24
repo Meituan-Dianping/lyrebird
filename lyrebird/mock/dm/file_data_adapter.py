@@ -70,6 +70,7 @@ class FileDataAdapter:
     def _add_data(self, data, path=None):
         if not path:
             path = self.context.root_path / data['id']
+            self._add_group(data)
         self._save_data(path, data)
 
     def _delete_data(self, _id):

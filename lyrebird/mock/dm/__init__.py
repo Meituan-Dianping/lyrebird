@@ -292,7 +292,7 @@ class DataManager:
             logger.debug(f'*** Add to node {data_node}')
             # Update ID mapping
             self.id_map[_data_id] = data_node
-            self._adapter._update_group(data_node)
+            self._adapter._add_group(data_node)
 
         return _data_id
 
@@ -601,7 +601,7 @@ class DataManager:
         elif 'label' in node and isinstance(node['label'], list):
             node['label'].sort(key=lambda x:x.get('name', '').lower())
         if save:
-            self._update_group(node)
+            self._adapter._update_group(node)
 
     def update_data(self, _id, data):
         node = self.id_map.get(_id)
@@ -615,7 +615,7 @@ class DataManager:
     # -----
 
     def _write_prop_to_custom_path(self, outfile_path, node):
-        self._save_data(outfile_path / PROP_FILE_NAME, node)
+        self._adapter._add_data(node, path=outfile_path/PROP_FILE_NAME)
 
     def _write_file_to_custom_path(self, outfile_path, file_content):
         self.add_data(None, file_content, data_id=file_content['id'], output=outfile_path)

@@ -101,10 +101,9 @@ class LabelHandler:
                 label['description'] = update_description
                 break
 
-            context.application.data_manager.update_group(group_id, _group, save=False)
+            context.application.data_manager.update_group(group_id, _group)
 
         if groups:
-            context.application.data_manager._save_prop()
             context.application.data_manager.reload()
 
         # update label_map
@@ -135,10 +134,9 @@ class LabelHandler:
                 label_list.remove(label)
                 break
 
-            context.application.data_manager.update_group(group_id, _group, save=False)
+            context.application.data_manager.update_group(group_id, _group)
 
         if groups:
-            context.application.data_manager._save_prop()
             context.application.data_manager.reload()
 
         # update data_map
