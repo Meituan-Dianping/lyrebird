@@ -68,7 +68,6 @@ export default {
   data() {
     return {
       imgData: '',
-      selectorValue: [],
       isDisplayPoptip: false,
       isMouseOver: false
     }

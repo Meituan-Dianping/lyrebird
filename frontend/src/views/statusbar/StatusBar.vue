@@ -15,9 +15,9 @@
         <div slot="content">
           <div v-for="(item, index) in statusBarDetail" :key="index">
               <img v-if="item.type=='ImageMenuItem'" :src="item.src" style="width:100%">
-              <span v-else-if="item.type=='LinkMenuItem'" class="text-menu-item" >
-                <p v-for="(option, index) in item.src" :value="option.text" :key="index" class="link-menu-item">
-                  <a @click="onClick(option.api)" >{{option.text}}</a>
+              <span v-else-if="item.type=='LinkMenuItem'" class="text-menu-item">
+                <p class="link-menu-item">
+                  <a @click="onClick(item.src.api)">{{item.src.text}}</a>
                 </p>
               </span>
               <div v-else class="text-menu-item">{{item.src}}</div>
@@ -32,14 +32,6 @@
 import { makeRequest } from '@/api'
 
 export default {
-  data () {
-    return {
-      isShown: false,
-      poptipWidth: 150,
-      poptipWidthWithinImage: 250,
-
-    }
-  },
   mounted () {
     this.$store.dispatch('loadStatusBarList')
   },
@@ -58,14 +50,13 @@ export default {
     },
     getPoptipWidth () {
       if (!this.statusBarDetail) {
-        return this.poptipWidth
+        return 
       }
       for (const item of this.statusBarDetail) {
         if (item.type === 'ImageMenuItem') {
-          return this.poptipWidthWithinImage
+          return 250
         }
       }
-      return this.poptipWidth
     },
     onClick (api) {
       makeRequest(api)
