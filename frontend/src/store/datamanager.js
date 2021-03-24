@@ -138,7 +138,6 @@ export default {
     saveDataDetail ({ dispatch }, payload) {
       api.updateData(payload)
         .then(response => {
-          dispatch('loadDataMap')
           dispatch('loadDataDetail', payload)
           bus.$emit('msg.success', 'Data ' + payload.name + ' update!')
         })
@@ -163,9 +162,9 @@ export default {
     saveGroupDetail ({ state, commit, dispatch }, payload) {
       api.updateGroup(payload.id, payload)
         .then(response => {
+          dispatch('loadGroupDetail', payload)
           dispatch('loadDataMap')
           dispatch('loadDataLabel')
-          dispatch('loadGroupDetail', payload)
           bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
         })
         .catch(error => {
@@ -204,10 +203,11 @@ export default {
         bus.$emit('msg.error', 'Create data ' + dataName + ' error: ' + 'Data name is required!')
       }
     },
-    loadDataDetail ({ commit }, payload) {
+    loadDataDetail ({ commit, dispatch }, payload) {
       api.getDataDetail(payload.id)
         .then(response => {
           commit('setDataDetail', response.data.data)
+          dispatch('loadDataMap')
         })
         .catch(error => {
           bus.$emit('msg.error', 'Load data ' + payload.name + ' error: ' + error.data.message)
