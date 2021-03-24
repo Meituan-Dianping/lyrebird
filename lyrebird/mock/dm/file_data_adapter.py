@@ -70,14 +70,14 @@ class FileDataAdapter:
     def _add_data(self, data, path=None):
         if not path:
             path = self.context.root_path / data['id']
-        self.context._save_data(path, data)
+        self._save_data(path, data)
 
     def _delete_data(self, _id):
         data_file_path = self.context.root_path / _id
         os.remove(data_file_path)
 
     def _update_data(self, data):
-        self.context._save_data(self.context.root_path/data['id'], data)
+        self._save_data(self.context.root_path/data['id'], data)
 
     def _save_prop(self):
         self.context._sort_children_by_name()

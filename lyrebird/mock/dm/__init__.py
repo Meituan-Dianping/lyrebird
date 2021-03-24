@@ -292,7 +292,7 @@ class DataManager:
             logger.debug(f'*** Add to node {data_node}')
             # Update ID mapping
             self.id_map[_data_id] = data_node
-            self._save_prop()
+            self._adapter._update_group(data_node)
 
         return _data_id
 
@@ -425,7 +425,7 @@ class DataManager:
             _group_id = self._copy_node(_parent_node, _node, name=new_name, **kwargs)
         elif self.clipboard['type'] == 'import':
             _group_id = self._copy_node(_parent_node, _node, **kwargs)
-        self._save_prop()
+        self._adapter._update_group(_node)
         return _group_id
 
     def _copy_node(self, parent_node, node, **kwargs):
@@ -462,7 +462,7 @@ class DataManager:
         prop = self._adapter._load_data(None, path=origin_file_path)
         prop['id'] = new_file_id
         prop['name'] = kwargs.pop('name') if kwargs.get('name') else prop['name']
-        self._save_data(new_file_path, prop)
+        self._adapter._add_data(prop, path=new_file_path)
 
     def _get_copy_node_new_name(self, _node):
         COPY_NODE_NAME_SUFFIX = ' - copy'

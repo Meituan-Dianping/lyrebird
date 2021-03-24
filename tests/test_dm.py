@@ -4,6 +4,7 @@ import json
 from typing import NamedTuple
 from urllib.parse import urlparse
 from lyrebird.mock import dm
+from lyrebird.mock.dm.file_data_adapter import FileDataAdapter
 from lyrebird import application
 
 dataA = {
@@ -236,12 +237,14 @@ def data_manager(root):
     }
     application._cm = MockConfigManager(config=_conf)
     _dm = dm.DataManager()
+    _dm.set_adapter(FileDataAdapter)
     _dm.set_root(root)
     return _dm
 
 
 def test_load_from_path(root):
     _dm = dm.DataManager()
+    _dm.set_adapter(FileDataAdapter)
     _dm.set_root(root)
 
     assert 'dataA-UUID' in _dm.id_map
