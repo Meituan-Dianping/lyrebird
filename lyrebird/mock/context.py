@@ -98,7 +98,7 @@ class Application:
         if is_mock_data_config_file:
             try:
                 adapter_module = imp.load_source(path.stem, str(path))
-                adapter_cls = adapter_module.dataAdapter
+                adapter_cls = adapter_module.data_adapter
             except Exception:
                 logger.error(f'Load mock data adapter {path} failed!\n{traceback.format_exc()}')
 
