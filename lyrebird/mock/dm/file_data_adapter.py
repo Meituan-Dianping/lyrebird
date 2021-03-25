@@ -4,7 +4,7 @@ import codecs
 import lyrebird
 from pathlib import Path
 from threading import Timer
-from ..dm import DataManager
+
 
 PROP_FILE_NAME = '.lyrebird_prop'
 
@@ -88,7 +88,7 @@ class FileDataAdapter:
         self.context._sort_children_by_name()
         prop_str = PropWriter().parse(self.context.root)
         prop_file = self.context.root_path / PROP_FILE_NAME
-        with codecs.open(prop_file, 'w') as f: # 
+        with codecs.open(prop_file, 'w') as f:
             f.write(prop_str)
         self.context.reactive()
 
