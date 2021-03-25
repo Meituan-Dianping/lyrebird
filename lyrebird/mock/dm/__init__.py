@@ -156,6 +156,11 @@ class DataManager:
         self.activated_group = {}
         self.secondary_activated_data = {}
 
+    def reactive(self):
+        self.deactivate()
+        for _group_id in self.activated_group:
+            self.activate(_group_id)
+
     def get_matched_data(self, flow):
         """
         Find matched mock data from activated data
@@ -259,6 +264,7 @@ class DataManager:
         else:
             _data_name = data.get('name')
             _data_rule = {'request.url': '(?=.*YOUR-REQUEST-PATH)(?=.*PARAMS)'}
+            data['request'] = {}
 
         if 'response' in data:
             # TODO remove it with inspector frontend
@@ -266,6 +272,8 @@ class DataManager:
 
             if 'data' in data['response']:
                 data['response']['data'] = self._flow_data_2_str(data['response']['data'])
+        else:
+            data['response'] = {}
 
         # proxy_response will not be saved
         if 'proxy_response' in data:
@@ -359,8 +367,6 @@ class DataManager:
         else:
             self.root['children'].remove(target_node)
         self._delete(_id)
-        # Save prop
-        self._adapter._delete_group(_id)
 
     def _delete(self, _id):
         target_node = self.id_map.get(_id)
@@ -374,6 +380,8 @@ class DataManager:
             self.activated_group.pop(_id)
         # Delete from ID mapping
         self.id_map.pop(_id)
+        # Delete from mock tree
+        self._adapter._delete_group(_id)
         # Delete from file system
         if target_node['type'] == 'data':
             self._adapter._delete_data(_id)
@@ -609,6 +617,7 @@ class DataManager:
             raise IDNotFound(_id)
         node['name'] = data['name']
         self._adapter._update_data(data)
+        self._adapter._update_group(node)
 
     # -----
     # Snapshot

@@ -148,7 +148,7 @@ export default {
           bus.$emit('msg.success', 'Data ' + payload.name + ' update!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Data ' + payload.name + ' update error: ' + error)
+          bus.$emit('msg.error', 'Data ' + payload.name + ' update error: ' + error.data.message)
         })
     },
     createGroup ({ dispatch }, { groupName, parentId }) {
@@ -174,7 +174,7 @@ export default {
           bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Group ' + payload.name + ' update error: ' + error)
+          bus.$emit('msg.error', 'Group ' + payload.name + ' update error: ' + error.data.message)
         })
     },
     deleteGroup ({ state, commit, dispatch }, payload) {

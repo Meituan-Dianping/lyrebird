@@ -1,7 +1,9 @@
 import os
 import json
 import codecs
+import lyrebird
 from pathlib import Path
+from threading import Timer
 from ..dm import DataManager
 
 PROP_FILE_NAME = '.lyrebird_prop'
@@ -11,6 +13,8 @@ class FileDataAdapter:
 
     def __init__(self, context_self):
         self.context = context_self
+        self.prop_save_timer = None
+        self.SAVE_PROP_INTERVAL = 0.1
 
     def _set_root(self, root_path):
         """
@@ -24,7 +28,6 @@ class FileDataAdapter:
             _root_path.mkdir(parents=True, exist_ok=True)
         if not _root_path.is_dir():
             raise RootPathIsNotDir(root_path)
-        _root_path.mkdir(parents=True, exist_ok=True)
         self.context.root_path = _root_path
         self._reload()
 
@@ -62,7 +65,7 @@ class FileDataAdapter:
     def _load_data(self, data_id, path=None):
         if not path:
             path = self.context.root_path / data_id
-        if not path.exists():
+        if not Path(path).exists():
             raise DataNotFound(f'Data file {path}')
         with codecs.open(path) as f:
             return json.load(f)
@@ -81,17 +84,13 @@ class FileDataAdapter:
         self._save_data(self.context.root_path/data['id'], data)
 
     def _save_prop(self):
+        # TODO: Handle frequent writes
         self.context._sort_children_by_name()
         prop_str = PropWriter().parse(self.context.root)
-        # Save prop
         prop_file = self.context.root_path / PROP_FILE_NAME
         with codecs.open(prop_file, 'w') as f: # 
             f.write(prop_str)
-        # Reactive mock data
-        _activated_group = self.context.activated_group
-        self.context.deactivate()
-        for _group_id in _activated_group:
-            self.context.activate(_group_id)
+        self.context.reactive()
 
     def _save_data(self, path, data):
         prop_str = json.dumps(data)

@@ -6,7 +6,7 @@
         placement="top-start"
         :width="getPoptipWidth()"
         word-wrap
-        padding="20px 20px 10px 20px"
+        padding="10px 20px 10px 20px"
         transfer
       >
         <a @click="getStatusBarDetail(item.id)">
@@ -14,7 +14,7 @@
         </a>
         <div slot="content">
           <div v-for="(item, index) in statusBarDetail" :key="index">
-              <img v-if="item.type=='ImageMenuItem'" :src="item.src" style="width:100%">
+              <img v-if="item.type=='ImageMenuItem'" :src="item.src" class="image-menu-item">
               <span v-else-if="item.type=='LinkMenuItem'" class="text-menu-item">
                 <p class="link-menu-item">
                   <a @click="onClick(item.src.api)">{{item.src.text}}</a>
@@ -92,6 +92,10 @@ export default {
 }
 .link-menu-item {
   padding:2px 0px;
+}
+.image-menu-item {
+  padding-top: 10px;
+  width: 100%;
 }
 .link-menu-item:hover {
   background-color: #f8f8f9;
