@@ -1,9 +1,6 @@
-import os
 import re
 import uuid
 import json
-import codecs
-import shutil
 import traceback
 from pathlib import Path
 from urllib.parse import urlparse
@@ -22,14 +19,6 @@ class DataManager:
 
     def __init__(self):
         self.root_path: Path = None
-        self.root = {
-            'id': str(uuid.uuid4()),
-            'name': '$',
-            'type': 'group',
-            'parent_id': None,
-            'label': [],
-            'children': []
-        }
         self.display_data_map = {}
         self.id_map = {}
         self.activated_data = {}
@@ -40,42 +29,26 @@ class DataManager:
         self.save_to_group_id = None
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'label': [], 'children': []}
         self.snapshot_helper = snapshot_helper.SnapshotHelper()
+        self.root = self.get_default_root()
 
-    def set_root(self, root_path):
-        """
-        Set a new mock data root dir
-        -----
-        DataManager will reload all data from this new root dir.
-        And all activited data will be removed from DataManager.
-        """
-        _root_path = Path(root_path).expanduser()
-        if not _root_path.exists():
-            _root_path.mkdir(parents=True, exist_ok=True)
-        if not _root_path.is_dir():
-            raise RootPathIsNotDir(root_path)
-        _root_path.mkdir(parents=True, exist_ok=True)
-        self.root_path = _root_path
-        self.reload()
+    def get_default_root(self):
+        return {
+            'id': str(uuid.uuid4()),
+            'name': '$',
+            'type': 'group',
+            'parent_id': None,
+            'label': [],
+            'children': []
+        }
+
+    def set_adapter(self, adapter_cls):
+        self._adapter = adapter_cls(self)
+
+    def set_root(self, uri):
+        self._adapter._set_root(uri)
 
     def reload(self):
-        if not self.root_path:
-            raise RootNotSet
-        _root_prop_path = self.root_path / PROP_FILE_NAME
-        if not _root_prop_path.exists():
-            self._save_prop()
-        with codecs.open(_root_prop_path) as f:
-            _root_prop = json.load(f)
-            self.root = _root_prop
-            self.id_map = {}
-            self._read_node(self.root)
-            self._sort_children_by_name()
-
-    def _read_node(self, node):
-        if 'id' in node:
-            self.id_map[node['id']] = node
-        if 'children' in node:
-            for child in node['children']:
-                self._read_node(child)
+        self._adapter._reload()
 
     def get(self, _id):
         """
@@ -89,7 +62,7 @@ class DataManager:
         if node.get('type') == 'group' or node.get('type') == None:
             return node
         elif node.get('type') == 'data':
-            return self._load_data(_id)
+            return self._adapter._load_data(_id)
 
     # -----
     # Mock operations
@@ -161,7 +134,7 @@ class DataManager:
 
     def _activate(self, node, secondary_search=False):
         if node.get('type', '') == 'data':
-            _mock_data = self._load_data(node['id'])
+            _mock_data = self._adapter._load_data(node['id'])
             if _mock_data:
                 if not secondary_search:
                     self.activated_data[node['id']] = _mock_data
@@ -172,13 +145,6 @@ class DataManager:
                 for child in node['children']:
                     self._activate(child, secondary_search=secondary_search)
 
-    def _load_data(self, data_id):
-        _data_file = self.root_path / data_id
-        if not _data_file.exists():
-            raise DataNotFound(f'Data file {_data_file}')
-        with codecs.open(_data_file) as f:
-            return json.load(f)
-
     def deactivate(self):
         """
         Clear activated data
@@ -186,6 +152,11 @@ class DataManager:
         self.activated_data = {}
         self.activated_group = {}
         self.secondary_activated_data = {}
+
+    def reactive(self):
+        self.deactivate()
+        for _group_id in self.activated_group:
+            self.activate(_group_id)
 
     def get_matched_data(self, flow):
         """
@@ -290,6 +261,7 @@ class DataManager:
         else:
             _data_name = data.get('name')
             _data_rule = {'request.url': '(?=.*YOUR-REQUEST-PATH)(?=.*PARAMS)'}
+            data['request'] = {}
 
         if 'response' in data:
             # TODO remove it with inspector frontend
@@ -297,6 +269,8 @@ class DataManager:
 
             if 'data' in data['response']:
                 data['response']['data'] = self._flow_data_2_str(data['response']['data'])
+        else:
+            data['response'] = {}
 
         # proxy_response will not be saved
         if 'proxy_response' in data:
@@ -305,10 +279,11 @@ class DataManager:
         data['name'] = _data_name
         data['rule'] = _data_rule
 
-        data_path = (kwargs.get('output') or self.root_path) / _data_id
-        with codecs.open(data_path, 'w') as f:
-            json.dump(data, f, ensure_ascii=False)
-            logger.debug(f'*** Write file {data_path}')
+        data['parent_id'] = parent_id
+
+        output_path = (kwargs['output'] / _data_id) if kwargs.get('output') else None
+
+        self._adapter._add_data(data, path=output_path)
 
         if parent_node:
             data_node = {}
@@ -322,7 +297,7 @@ class DataManager:
             logger.debug(f'*** Add to node {data_node}')
             # Update ID mapping
             self.id_map[_data_id] = data_node
-            self._save_prop()
+            self._adapter._add_group(data_node)
 
         return _data_id
 
@@ -358,7 +333,7 @@ class DataManager:
         # Register ID
         self.id_map[group_id] = new_group
         # Save prop
-        self._save_prop()
+        self._adapter._add_group(new_group)
         return group_id
 
     def add_group_by_path(self, path):
@@ -389,8 +364,6 @@ class DataManager:
         else:
             self.root['children'].remove(target_node)
         self._delete(_id)
-        # Save prop
-        self._save_prop()
 
     def _delete(self, _id):
         target_node = self.id_map.get(_id)
@@ -404,10 +377,11 @@ class DataManager:
             self.activated_group.pop(_id)
         # Delete from ID mapping
         self.id_map.pop(_id)
+        # Delete from mock tree
+        self._adapter._delete_group(_id)
         # Delete from file system
         if target_node['type'] == 'data':
-            data_file_path = self.root_path / _id
-            os.remove(data_file_path)
+            self._adapter._delete_data(_id)
 
     def cut(self, _id):
         _node = self.id_map.get(_id)
@@ -453,10 +427,10 @@ class DataManager:
             _group_id = _node['id']
         elif self.clipboard['type'] == 'copy':
             new_name = self._get_copy_node_new_name(_node)
-            _group_id = self._copy_node(_parent_node, _node, name=new_name, **kwargs)
+            _group_id = self._copy_node(_parent_node, _node, name=new_name, origin_name=_node['name'], **kwargs)
         elif self.clipboard['type'] == 'import':
             _group_id = self._copy_node(_parent_node, _node, **kwargs)
-        self._save_prop()
+        self._adapter._update_group(_node)
         return _group_id
 
     def _copy_node(self, parent_node, node, **kwargs):
@@ -464,15 +438,17 @@ class DataManager:
         new_node.update(node)
         new_node['id'] = str(uuid.uuid4())
         new_node['parent_id'] = parent_node['id']
-        if kwargs.get('name'):
-            new_node['name'] = kwargs.pop('name')
+        new_node['name'] = kwargs['name'] if kwargs.get('name') else new_node['name']
         # Add to target node
         if not parent_node.get('children'):
             parent_node['children'] = []
         parent_node['children'].insert(0, new_node)
+        # Add node
+        self._adapter._add_group(new_node)
         # Register ID
         self.id_map[new_node['id']] = new_node
         if new_node['type'] == 'group':
+            kwargs.pop('name') if kwargs.get('name') else None
             new_node['children'] = []
             for child in node['children']:
                 self._copy_node(new_node, child, **kwargs)
@@ -482,37 +458,19 @@ class DataManager:
 
     def _copy_file(self, target_data_node, data_node, **kwargs):
         _id = data_node['id']
-        origin_file_path = self.root_path / _id
         custom_root = kwargs.get('custom_input_file_path')
-        if custom_root:
-            origin_file_path = Path(custom_root) / _id
-            if not origin_file_path.exists():
-                raise DataNotFound(f'File path: {origin_file_path}')
+        if not custom_root:
+            prop = self._adapter._load_data(_id)
+        else:
+            prop = self._adapter._load_data(None, path=(Path(custom_root)/_id))
         new_file_id = target_data_node['id']
-        new_file_path = self.root_path / new_file_id
-        with codecs.open(origin_file_path, 'r') as inputfile, codecs.open(new_file_path, 'w') as outputfile:
-            origin_text = inputfile.read()
-            prop = json.loads(origin_text)
-            prop['id'] = new_file_id
-            new_prop_text = json.dumps(prop, ensure_ascii=False)
-            outputfile.write(new_prop_text)
+        prop['id'] = new_file_id
+        prop['name'] = kwargs.pop('name') if kwargs.get('name') else prop['name']
+        self._adapter._add_data(prop)
 
     def _get_copy_node_new_name(self, _node):
         COPY_NODE_NAME_SUFFIX = ' - copy'
         return _node['name'] + COPY_NODE_NAME_SUFFIX
-
-    def _save_prop(self):
-        self._sort_children_by_name()
-        prop_str = PropWriter().parse(self.root)
-        # Save prop
-        prop_file = self.root_path / PROP_FILE_NAME
-        with codecs.open(prop_file, 'w') as f:
-            f.write(prop_str)
-        # Reactive mock data
-        _activated_group = self.activated_group
-        self.deactivate()
-        for _group_id in _activated_group:
-            self.activate(_group_id)
 
     def _sort_children_by_name(self):
         for node_id in self.id_map:
@@ -536,11 +494,9 @@ class DataManager:
 
         def _read_data(node):
             if node.get('type') == 'data':
-                _data_file = self.root_path / node['id']
-                with codecs.open(_data_file, 'r') as f:
-                    _data = json.load(f)
-                    _data['parent_id'] = node['parent_id']
-                    data_array.append(_data)
+                _data = self._adapter._load_data(node['id'])
+                _data['parent_id'] = node['parent_id']
+                data_array.append(_data)
             elif node.get('type') == 'group':
                 for child in node['children']:
                     _read_data(child)
@@ -649,93 +605,49 @@ class DataManager:
         elif 'label' in node and isinstance(node['label'], list):
             node['label'].sort(key=lambda x:x.get('name', '').lower())
         if save:
-            self._save_prop()
+            self._adapter._update_group(node)
 
     def update_data(self, _id, data):
         node = self.id_map.get(_id)
         if not node:
             raise IDNotFound(_id)
         node['name'] = data['name']
-        data_file = self.root_path / _id
-        if not data_file.exists():
-            raise DataNotFound(_id)
-        with codecs.open(data_file, 'w') as f:
-            data_str = json.dumps(data, ensure_ascii=False)
-            f.write(data_str)
-        self._save_prop()
+        self._adapter._update_data(data)
+        self._adapter._update_group(node)
 
     # -----
     # Snapshot
     # -----
 
     def _write_prop_to_custom_path(self, outfile_path, node):
-        prop_str = PropWriter().parse(node)
-
-        prop_file = outfile_path / PROP_FILE_NAME
-        with codecs.open(prop_file, 'w') as f:
-            f.write(prop_str)
+        self._adapter._write_prop_to_custom_path(outfile_path, node)
 
     def _write_file_to_custom_path(self, outfile_path, file_content):
-        self.add_data(None, file_content, data_id=file_content['id'], output=outfile_path)
+        self._adapter._write_file_to_custom_path(outfile_path, file_content)
 
     def decompress_snapshot(self):
-        snapshot_path = self.snapshot_helper.get_snapshot_path()
-        self.snapshot_helper.save_compressed_file(snapshot_path)
-        self.snapshot_helper.decompress_snapshot(f'{snapshot_path}.lb', f'{snapshot_path}')
-        if not Path(f'{snapshot_path}/{PROP_FILE_NAME}').exists():
-            raise LyrebirdPropNotExists
-        with codecs.open(f'{snapshot_path}/{PROP_FILE_NAME}') as f:
-            _prop = json.load(f)
-        return {'snapshot_detail': _prop, 'snapshot_storage_path': f'{snapshot_path}'}
+        return self._adapter.decompress_snapshot()
 
     def import_snapshot(self, parent_id, snapshot_name, path=None):
-        snapshot_info = self.decompress_snapshot()
-        snapshot_info['snapshot_detail']['name'] = snapshot_name
-        self.import_(node=snapshot_info['snapshot_detail'])
-        _group_id = self.paste(parent_id=parent_id, custom_input_file_path=snapshot_info['snapshot_storage_path'])
-        tmp_snapshot_file_list = [
-            snapshot_info['snapshot_storage_path'],
-            f'{snapshot_info["snapshot_storage_path"]}.lb'
-        ]
-        if path:
-            tmp_snapshot_file_list.append(path)
-        self.remove_tmp_snapshot_file(tmp_snapshot_file_list)
-        return _group_id
+        return self._adapter.import_snapshot(parent_id, snapshot_name)
 
     def export_snapshot_from_event(self, event_json):
-        snapshot_path = self.snapshot_helper.get_snapshot_path()
-        if not event_json.get('snapshot') or not event_json.get('events'):
-            raise SnapshotEventNotInCorrectFormat
-        _prop = event_json.get('snapshot')
-        self._write_prop_to_custom_path(snapshot_path, _prop)
-        for mock_data in event_json.get('events'):
-            self._write_file_to_custom_path(snapshot_path, mock_data)
-        self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
-        self.remove_tmp_snapshot_file([snapshot_path])
-        return f'{snapshot_path}.lb'
+        return self._adapter.export_snapshot_from_event(event_json)
 
     def export_snapshot_from_dm(self, node_id):
-        snapshot_path = self.snapshot_helper.get_snapshot_path()
-        _prop = self.id_map.get(node_id)
-        self._write_prop_to_custom_path(snapshot_path, _prop)
-        data_id_map = {}
-        self.snapshot_helper.get_data_id_map(_prop, data_id_map)
-        for mock_data_id in data_id_map:
-            shutil.copy(self.root_path / mock_data_id, snapshot_path / mock_data_id)
-        self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
-        return f'{snapshot_path}.lb'
+        return self._adapter.export_snapshot_from_dm(node_id)
 
     def remove_tmp_snapshot_file(self, files):
-        for filepath in files:
-            path = Path(filepath)
-            if path.is_dir() and path.exists():
-                shutil.rmtree(path)
-            elif path.is_file() and path.exists():
-                path.unlink()
+        return self._adapter.remove_tmp_snapshot_file(files)
 
 # -----------------
 # Exceptions
 # -----------------
+
+class DumpPropError(Exception):
+    pass
+
+
 
 class RootNotSet(Exception):
     pass
@@ -773,10 +685,6 @@ class NoneClipbord(Exception):
     pass
 
 
-class DumpPropError(Exception):
-    pass
-
-
 class NonePropFile(Exception):
     pass
 
@@ -788,76 +696,3 @@ class TooMuchPropFile(Exception):
 class NodeExist(Exception):
     pass
 
-
-class SnapshotEventNotInCorrectFormat(Exception):
-    pass
-
-
-class PropWriter:
-
-    def __init__(self):
-        self.indent = 0
-        self.parsers = {
-            'dict': self.dict_parser,
-            'list': self.list_parser,
-            'int': self.int_parser,
-            'str': self.str_parser,
-            'bool': self.bool_parser,
-            'NoneType': self.none_parser
-        }
-
-    def parse(self, prop):
-        prop_type = type(prop)
-        parser = self.parsers.get(prop_type.__name__)
-        if not parser:
-            raise DumpPropError(f'Not support type {prop_type}')
-        return parser(prop)
-
-    def dict_parser(self, val):
-        dict_str = '{'
-        children = None
-        for k, v in val.items():
-            if k == 'children':
-                children = v
-                continue
-            dict_str += f'"{k}":{self.parse(v)},'
-        if children is not None:
-            dict_str += self.children_parser(children)
-        if dict_str.endswith(','):
-            dict_str = dict_str[:-1]
-        dict_str += '}'
-        return dict_str
-
-    def list_parser(self, val):
-        list_str = '['
-        for item in val:
-            item_str = self.parse(item)
-            list_str += item_str + ','
-        if list_str.endswith(','):
-            list_str = list_str[:-1]
-        list_str += ']'
-        return list_str
-
-    def int_parser(self, val):
-        return f'{val}'
-
-    def str_parser(self, val):
-        return json.dumps(val, ensure_ascii=False)
-
-    def bool_parser(self, val):
-        return json.dumps(val)
-
-    def none_parser(self, val):
-        return 'null'
-
-    def children_parser(self, val):
-        self.indent += 1
-        children_str = '"children":['
-        for child in val:
-            child_str = self.parse(child)
-            children_str += '\n' + '  '*self.indent + child_str + ','
-        if children_str.endswith(','):
-            children_str = children_str[:-1]
-        children_str += ']'
-        self.indent -= 1
-        return children_str

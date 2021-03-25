@@ -1,9 +1,12 @@
 from flask import jsonify
 from . import cache
 from .dm import DataManager
+from .dm.file_data_adapter import data_adapter
 from flask_socketio import SocketIO
+from pathlib import Path
 import codecs
 import json
+import imp
 import os
 from lyrebird import application as app
 from lyrebird.log import get_logger
@@ -17,6 +20,7 @@ Mock server context
 """
 
 logger = get_logger()
+
 
 
 class Mode:
@@ -67,11 +71,10 @@ class Application:
     @conf.setter
     def conf(self, _conf):
         self._conf = _conf
+
         if _conf.get('mock.data'):
-            try:
-                self.data_manager.set_root(_conf.get('mock.data'))
-            except Exception:
-                logger.error(f'Set mock data root path failed.\n{traceback.format_exc()}')
+            self.init_datamanager(_conf.get('mock.data'))
+
         if _conf.get('mock.mode') == MockMode.MULTIPLE:
             self.is_diff_mode = MockMode.MULTIPLE
 
@@ -83,6 +86,24 @@ class Application:
             if f['name'] == default_filter:
                 self.selected_filter = f
                 break
+
+    def init_datamanager(self, uri):
+        adapter_cls = data_adapter
+
+        path = Path(uri).expanduser().absolute()
+        if not path.exists():
+            logger.error(f'Mock data adapter {str(path)} not found!')
+
+        is_mock_data_config_file = not path.is_dir()
+        if is_mock_data_config_file:
+            try:
+                adapter_module = imp.load_source(path.stem, str(path))
+                adapter_cls = adapter_module.dataAdapter
+            except Exception:
+                logger.error(f'Load mock data adapter {path} failed!\n{traceback.format_exc()}')
+
+        self.data_manager.set_adapter(adapter_cls)
+        self.data_manager.set_root(uri)
 
     def save(self):
         DEFAULT_CONF = os.path.join(

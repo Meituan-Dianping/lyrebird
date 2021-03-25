@@ -13,3 +13,9 @@ export const getStatusBarDetail = statusItemId => {
     url,
   })
 }
+
+export const makeRequest = url => {
+  return axios({
+    url
+  })
+}

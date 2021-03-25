@@ -30,8 +30,17 @@ class SanpshotImport(Resource):
         if queries.get('isAdvancedSave') == 'true':
             return redirect(f"/ui/?v={VERSION}#/datamanager/import")
 
+        new_query = {}
+
         # auto import into parent
-        info = context.application.data_manager.decompress_snapshot()
+        try:
+            info = context.application.data_manager.decompress_snapshot()
+        except Exception:
+            new_query['errorMsg'] = f'Import snapshot error!'
+            new_query_str = urlencode(new_query)
+            logger.error(f'Import snapshot error!\n {traceback.format_exc()}')
+            return redirect(f"http://localhost:9090/ui/?v={VERSION}#/datamanager?{new_query_str}")
+
         tmp_snapshot_file_list = [
             info['snapshot_storage_path'],
             f'{info["snapshot_storage_path"]}.lb'
@@ -42,7 +51,6 @@ class SanpshotImport(Resource):
         parent_path = queries.get('parent') or '/'
         parent_id = context.application.data_manager.add_group_by_path(parent_path)
 
-        new_query = {}
         try:
             group_id = context.application.data_manager.import_snapshot(parent_id, group_name)
             new_query['groupId'] = group_id

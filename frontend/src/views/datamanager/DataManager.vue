@@ -24,11 +24,22 @@ export default {
     SnapshotImportSelector,
   },
   mounted() {
-    this.$store.dispatch('loadDataMap')
+    this.loadDataMap()
+  },
+  created () {
+    this.$io.on('datamanagerUpdate', this.loadDataMap)
+  },
+  destroyed() {
+    this.$io.removeListener('datamanagerUpdate', this.loadDataMap)
   },
   data () {
     return {
       split: 0.35
+    }
+  },
+  methods: {
+    loadDataMap () {
+      this.$store.dispatch('loadDataMap')
     }
   }
 }
