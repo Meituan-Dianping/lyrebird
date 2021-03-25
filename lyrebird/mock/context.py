@@ -1,7 +1,7 @@
 from flask import jsonify
 from . import cache
 from .dm import DataManager
-from .dm.file_data_adapter import FileDataAdapter
+from .dm.file_data_adapter import data_adapter
 from flask_socketio import SocketIO
 from pathlib import Path
 import codecs
@@ -88,7 +88,7 @@ class Application:
                 break
 
     def init_datamanager(self, uri):
-        adapter_cls = FileDataAdapter
+        adapter_cls = data_adapter
 
         path = Path(uri).expanduser().absolute()
         if not path.exists():

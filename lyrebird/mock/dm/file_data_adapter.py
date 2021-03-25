@@ -2,9 +2,7 @@ import os
 import json
 import shutil
 import codecs
-import lyrebird
 from pathlib import Path
-from threading import Timer
 
 
 PROP_FILE_NAME = '.lyrebird_prop'
@@ -14,8 +12,6 @@ class FileDataAdapter:
 
     def __init__(self, context_self):
         self.context = context_self
-        self.prop_save_timer = None
-        self.SAVE_PROP_INTERVAL = 0.1
 
     def _set_root(self, root_path):
         """
@@ -250,4 +246,4 @@ class SnapshotEventNotInCorrectFormat(Exception):
     pass
 
 
-dataAdapter = FileDataAdapter
+data_adapter = FileDataAdapter

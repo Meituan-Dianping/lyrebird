@@ -35,7 +35,7 @@ class SanpshotImport(Resource):
         # auto import into parent
         try:
             info = context.application.data_manager.decompress_snapshot()
-        except:
+        except Exception:
             new_query['errorMsg'] = f'Import snapshot error!'
             new_query_str = urlencode(new_query)
             logger.error(f'Import snapshot error!\n {traceback.format_exc()}')
@@ -54,7 +54,7 @@ class SanpshotImport(Resource):
         try:
             group_id = context.application.data_manager.import_snapshot(parent_id, group_name)
             new_query['groupId'] = group_id
-        except:
+        except Exception:
             new_query['errorMsg'] = f'Import snapshot error: Snapshot {group_name} is broken!'
             new_query_str = urlencode(new_query)
             logger.error(f'Import snapshot error!\n {traceback.format_exc()}')
