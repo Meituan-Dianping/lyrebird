@@ -1,9 +1,6 @@
-import os
 import re
 import uuid
 import json
-import codecs
-import shutil
 import traceback
 from pathlib import Path
 from urllib.parse import urlparse
@@ -430,7 +427,7 @@ class DataManager:
             _group_id = _node['id']
         elif self.clipboard['type'] == 'copy':
             new_name = self._get_copy_node_new_name(_node)
-            _group_id = self._copy_node(_parent_node, _node, name=new_name, **kwargs)
+            _group_id = self._copy_node(_parent_node, _node, name=new_name, origin_name=_node['name'], **kwargs)
         elif self.clipboard['type'] == 'import':
             _group_id = self._copy_node(_parent_node, _node, **kwargs)
         self._adapter._update_group(_node)
@@ -446,6 +443,8 @@ class DataManager:
         if not parent_node.get('children'):
             parent_node['children'] = []
         parent_node['children'].insert(0, new_node)
+        # Add node
+        self._adapter._add_group(new_node)
         # Register ID
         self.id_map[new_node['id']] = new_node
         if new_node['type'] == 'group':
@@ -459,18 +458,15 @@ class DataManager:
 
     def _copy_file(self, target_data_node, data_node, **kwargs):
         _id = data_node['id']
-        origin_file_path = self.root_path / _id
         custom_root = kwargs.get('custom_input_file_path')
-        if custom_root:
-            origin_file_path = Path(custom_root) / _id
-            if not origin_file_path.exists():
-                raise DataNotFound(f'File path: {origin_file_path}')
+        if not custom_root:
+            prop = self._adapter._load_data(_id)
+        else:
+            prop = self._adapter._load_data(None, path=(Path(custom_root)/_id))
         new_file_id = target_data_node['id']
-        new_file_path = self.root_path / new_file_id
-        prop = self._adapter._load_data(None, path=origin_file_path)
         prop['id'] = new_file_id
         prop['name'] = kwargs.pop('name') if kwargs.get('name') else prop['name']
-        self._adapter._add_data(prop, path=new_file_path)
+        self._adapter._add_data(prop)
 
     def _get_copy_node_new_name(self, _node):
         COPY_NODE_NAME_SUFFIX = ' - copy'
@@ -624,64 +620,25 @@ class DataManager:
     # -----
 
     def _write_prop_to_custom_path(self, outfile_path, node):
-        self._adapter._add_data(node, path=outfile_path/PROP_FILE_NAME)
+        self._adapter._write_prop_to_custom_path(outfile_path, node)
 
     def _write_file_to_custom_path(self, outfile_path, file_content):
-        self.add_data(None, file_content, data_id=file_content['id'], output=outfile_path)
+        self._adapter._write_file_to_custom_path(outfile_path, file_content)
 
     def decompress_snapshot(self):
-        snapshot_path = self.snapshot_helper.get_snapshot_path()
-        self.snapshot_helper.save_compressed_file(snapshot_path)
-        self.snapshot_helper.decompress_snapshot(f'{snapshot_path}.lb', f'{snapshot_path}')
-        if not Path(f'{snapshot_path}/{PROP_FILE_NAME}').exists():
-            raise LyrebirdPropNotExists
-        _prop = self._adapter._load_data(None, path=f'{snapshot_path}/{PROP_FILE_NAME}')
-        return {'snapshot_detail': _prop, 'snapshot_storage_path': f'{snapshot_path}'}
+        return self._adapter.decompress_snapshot()
 
     def import_snapshot(self, parent_id, snapshot_name, path=None):
-        snapshot_info = self.decompress_snapshot()
-        snapshot_info['snapshot_detail']['name'] = snapshot_name
-        self.import_(node=snapshot_info['snapshot_detail'])
-        _group_id = self.paste(parent_id=parent_id, custom_input_file_path=snapshot_info['snapshot_storage_path'])
-        tmp_snapshot_file_list = [
-            snapshot_info['snapshot_storage_path'],
-            f'{snapshot_info["snapshot_storage_path"]}.lb'
-        ]
-        if path:
-            tmp_snapshot_file_list.append(path)
-        self.remove_tmp_snapshot_file(tmp_snapshot_file_list)
-        return _group_id
+        return self._adapter.import_snapshot(parent_id, snapshot_name)
 
     def export_snapshot_from_event(self, event_json):
-        snapshot_path = self.snapshot_helper.get_snapshot_path()
-        if not event_json.get('snapshot') or not event_json.get('events'):
-            raise SnapshotEventNotInCorrectFormat
-        _prop = event_json.get('snapshot')
-        self._write_prop_to_custom_path(snapshot_path, _prop)
-        for mock_data in event_json.get('events'):
-            self._write_file_to_custom_path(snapshot_path, mock_data)
-        self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
-        self.remove_tmp_snapshot_file([snapshot_path])
-        return f'{snapshot_path}.lb'
+        return self._adapter.export_snapshot_from_event(event_json)
 
     def export_snapshot_from_dm(self, node_id):
-        snapshot_path = self.snapshot_helper.get_snapshot_path()
-        _prop = self.id_map.get(node_id)
-        self._write_prop_to_custom_path(snapshot_path, _prop)
-        data_id_map = {}
-        self.snapshot_helper.get_data_id_map(_prop, data_id_map)
-        for mock_data_id in data_id_map:
-            shutil.copy(self.root_path / mock_data_id, snapshot_path / mock_data_id)
-        self.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
-        return f'{snapshot_path}.lb'
+        return self._adapter.export_snapshot_from_dm(node_id)
 
     def remove_tmp_snapshot_file(self, files):
-        for filepath in files:
-            path = Path(filepath)
-            if path.is_dir() and path.exists():
-                shutil.rmtree(path)
-            elif path.is_file() and path.exists():
-                path.unlink()
+        return self._adapter.remove_tmp_snapshot_file(files)
 
 # -----------------
 # Exceptions
@@ -737,9 +694,5 @@ class TooMuchPropFile(Exception):
 
 
 class NodeExist(Exception):
-    pass
-
-
-class SnapshotEventNotInCorrectFormat(Exception):
     pass
 
