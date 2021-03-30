@@ -154,8 +154,9 @@ class DataManager:
         self.secondary_activated_data = {}
 
     def reactive(self):
+        origin_activated_group = self.activated_group
         self.deactivate()
-        for _group_id in self.activated_group:
+        for _group_id in origin_activated_group:
             self.activate(_group_id)
 
     def get_matched_data(self, flow):

@@ -32,6 +32,9 @@ export default {
     EventInspector,
     FlowInspector
   },
+  mounted() {
+    this.$store.dispatch('loadActivatedGroup')
+  },
   methods: {
     switchTab (name) {
       this.selectedModeTab = name

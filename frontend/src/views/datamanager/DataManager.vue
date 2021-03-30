@@ -25,6 +25,7 @@ export default {
   },
   mounted() {
     this.loadDataMap()
+    this.$store.dispatch('loadActivatedGroup')
   },
   created () {
     this.$io.on('datamanagerUpdate', this.loadDataMap)
