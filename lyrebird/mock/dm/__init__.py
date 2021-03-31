@@ -426,12 +426,12 @@ class DataManager:
             _parent_node['children'].insert(0, _node)
             _node['parent_id'] = parent_id
             _group_id = _node['id']
+            self._adapter._update_group(_node)
         elif self.clipboard['type'] == 'copy':
             new_name = self._get_copy_node_new_name(_node)
             _group_id = self._copy_node(_parent_node, _node, name=new_name, origin_name=_node['name'], **kwargs)
         elif self.clipboard['type'] == 'import':
             _group_id = self._copy_node(_parent_node, _node, **kwargs)
-        self._adapter._update_group(_node)
         return _group_id
 
     def _copy_node(self, parent_node, node, **kwargs):
@@ -445,11 +445,12 @@ class DataManager:
             parent_node['children'] = []
         parent_node['children'].insert(0, new_node)
         # Add node
-        self._adapter._add_group(new_node)
+        self._adapter._add_group(new_node, **kwargs)
         # Register ID
         self.id_map[new_node['id']] = new_node
         if new_node['type'] == 'group':
             kwargs.pop('name') if kwargs.get('name') else None
+            kwargs.pop('origin_name') if kwargs.get('origin_name') else None
             new_node['children'] = []
             for child in node['children']:
                 self._copy_node(new_node, child, **kwargs)
