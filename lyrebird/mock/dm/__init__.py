@@ -371,8 +371,9 @@ class DataManager:
         if not target_node:
             raise IDNotFound(_id)
         if 'children' in target_node and len(target_node['children']) > 0:
-            for child in target_node['children']:
+            for child in target_node['children'][::-1]:
                 self._delete(child['id'])
+                target_node['children'].pop(-1)
         # Remove from activated_group
         if _id in self.activated_group:
             self.activated_group.pop(_id)
