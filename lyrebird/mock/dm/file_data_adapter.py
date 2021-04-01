@@ -49,7 +49,7 @@ class FileDataAdapter:
             for child in node['children']:
                 self._init_id_map(child)
 
-    def _add_group(self, data):
+    def _add_group(self, data, **kwargs):
         self._save_prop()
 
     def _update_group(self, data):
