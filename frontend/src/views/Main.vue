@@ -139,7 +139,6 @@ export default {
     this.$store.dispatch('loadMenu')
     this.$store.dispatch('loadStatus')
     this.$store.dispatch('loadManifest')
-    this.$store.dispatch('loadActivatedGroup')
     this.$store.dispatch('loadBandwidth')
     this.$store.dispatch('loadBandwidthTemplates')
     this._keydownListener = (e) => {
@@ -149,11 +148,13 @@ export default {
   },
   beforeDestroy () {
     document.removeEventListener('keydown', this._keydownListener)
+    this.$io.removeListener('activatedGroupUpdate', this.loadActivatedGroup)
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
+    this.$io.on('activatedGroupUpdate', this.loadActivatedGroup)
   },
   watch: {
     activeMenuItem: function (newValue, oldValue) {
@@ -253,6 +254,9 @@ export default {
     },
     resetActivatedData () {
       this.$store.dispatch('deactivateGroup')
+    },
+    loadActivatedGroup () {
+      this.$store.dispatch('loadActivatedGroup')
     },
     successMessage (msg) {
       this.$Message.success({
