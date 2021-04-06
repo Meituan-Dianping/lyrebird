@@ -211,6 +211,9 @@ export default {
       if (payload === 'activate') {
         this.onTreeNodeActivate()
       } else if (payload == 'deactivate') {
+        if (!this.isGroupActivated) {
+          return
+        }
         this.onTreeNodeDeactivate()
       } else if (payload === 'delete') {
         this.shownDeleteModal = true
@@ -219,6 +222,9 @@ export default {
       } else if (payload === 'copy') {
         this.onTreeNodeCopy()
       } else if (payload === 'paste') {
+        if (!this.pasteButtonEnable) {
+          return
+        }
         this.onTreeNodePaste()
       } else if (payload === 'addGroup') {
         this.createType = 'group'
