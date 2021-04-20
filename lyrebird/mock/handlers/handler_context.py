@@ -51,17 +51,21 @@ class HandlerContext:
     def _parse_request(self):
         # Read stream
         self.request.get_data()
-        # parse path
-        request_info = self._read_origin_request_info_from_url()
-        if not request_info['host']:
-            request_info_from_header = self._read_origin_request_info_from_header()
-            if len(request_info_from_header) > 0:
-                request_info = request_info_from_header
-
+        
+        # Read raw headers
         if 'Proxy-Raw-Headers' in self.request.headers:
             headers = json.loads(self.request.headers['Proxy-Raw-Headers'])
         else:
             headers = HeadersHelper.origin2flow(self.request)
+
+        # parse path
+        request_info = self._read_origin_request_info_from_url()
+        if not request_info['host']:
+            request_info_from_header = self._read_origin_request_info_from_header(headers=headers)
+            if len(request_info_from_header) > 0:
+                request_info = request_info_from_header
+
+
 
         _request = dict(
             headers=headers,
@@ -103,13 +107,20 @@ class HandlerContext:
         )
         return _request
 
-    def _read_origin_request_info_from_header(self):
+    def _read_origin_request_info_from_header(self, headers=None):
         proxy_headers = application.config['mock.proxy_headers']
-        scheme = self.request.headers.get(proxy_headers['scheme'], default='http')
-        host = self.request.headers.get(proxy_headers['host'])
-        port = self.request.headers.get(proxy_headers['port'], default='80')
+        _headers = headers if headers else self.request.headers
+        scheme = _headers.get(proxy_headers['scheme'], 'http')
+        host = _headers.get(proxy_headers['host'])
+        port = _headers.get(proxy_headers['port'], None)
+        if scheme == 'http' and not port:
+            port = '80'
+        elif scheme == 'https' and not port:
+            port = '443'
+
         if not host:
             return {}
+            
         scheme = scheme.strip()
         host = host.strip()
         port = port.strip()
