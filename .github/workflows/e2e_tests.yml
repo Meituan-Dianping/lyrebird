@@ -30,4 +30,5 @@ jobs:
           sh connect_check.sh
           python -m pytest test_lb_req_body.py
           ps -ef|grep serve.py | grep -v grep|awk '{printf $2}'|xargs kill -9
+          ps -ef|grep "lyrebird -b"| grep -v
           ps -ef|grep "lyrebird -b"| grep -v grep|awk '{printf $2}'|xargs kill -9
