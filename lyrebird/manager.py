@@ -189,7 +189,7 @@ def run(args: argparse.Namespace):
         application.stop_server()
         threading.Event().set()
         logger.warning('!!!Ctrl-C pressed. Lyrebird stop!!!')
-        os._exit(1)
+        os._exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
