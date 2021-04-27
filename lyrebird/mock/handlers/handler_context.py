@@ -52,20 +52,22 @@ class HandlerContext:
         # Read stream
         self.request.get_data()
         
+        raw_headers = None
         # Read raw headers
         if 'Proxy-Raw-Headers' in self.request.headers:
-            headers = json.loads(self.request.headers['Proxy-Raw-Headers'])
-        else:
-            headers = HeadersHelper.origin2flow(self.request)
+            raw_headers = json.loads(self.request.headers['Proxy-Raw-Headers'])
 
         # parse path
         request_info = self._read_origin_request_info_from_url()
         if not request_info['host']:
-            request_info_from_header = self._read_origin_request_info_from_header(headers=headers)
+            request_info_from_header = self._read_origin_request_info_from_header(headers=raw_headers)
             if len(request_info_from_header) > 0:
                 request_info = request_info_from_header
 
-
+        if raw_headers:
+            headers = raw_headers
+        else:
+            headers = HeadersHelper.origin2flow(self.request)
 
         _request = dict(
             headers=headers,
