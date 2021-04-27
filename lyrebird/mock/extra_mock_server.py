@@ -42,36 +42,12 @@ def index(path=None):
     return Response(stream_with_context(res.iter_content(chunk_size=1024)), status=res.status_code, headers=headers)
 
 
-def is_port_in_use(port, host='127.0.0.1'):
-    sock = None
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
-        sock.connect((host, int(port)))
-        return True
-    except socket.error:
-        return False
-    finally:
-        if sock:
-            sock.close()
-
-
-def find_free_port():
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(('', 0))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        return s.getsockname()[1]
-
-
 def eventlet_server(conf=None):
     global lb_conf
     lb_conf = conf
 
     # Default extra mock port is 9999
     port = lb_conf.get('extra.mock.port') if lb_conf.get('extra.mock.port') else 9999
-
-    if is_port_in_use(port):
-        port = find_free_port()
 
     logger.info(f'ExtraMockServer start on {port}')
     wsgi.server(eventlet.listen(('', port)), app.wsgi_app)
