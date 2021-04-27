@@ -24,6 +24,8 @@ from lyrebird.notice_center import NoticeCenter
 from lyrebird.plugins import PluginManager
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.task import BackgroundTaskServer
+from lyrebird import utils
+
 
 logger = log.get_logger()
 
@@ -106,12 +108,19 @@ def main():
 
     if args.mock:
         application._cm.config['mock.port'] = args.mock
-    if args.extra_mock:
-        application._cm.config['extra.mock.port'] = args.extra_mock
     if args.proxy:
         application._cm.config['proxy.port'] = args.proxy
     if args.data:
         application._cm.config['mock.data'] = str(Path(args.data).expanduser().absolute())
+
+    # Set extra mock port
+    if args.extra_mock:
+        _extra_mock_port = args.extra_mock
+    else:
+        _extra_mock_port = 9999
+    if utils.is_port_in_use(_extra_mock_port):
+        _extra_mock_port = utils.find_free_port()
+    application._cm.config['extra.mock.port'] = _extra_mock_port
 
     logger.debug(f'Read args: {args}')
 

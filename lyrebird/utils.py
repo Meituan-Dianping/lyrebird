@@ -1,5 +1,7 @@
 import math
 import time
+import socket
+from contextlib import closing
 
 
 def convert_size(size_bytes):
@@ -27,3 +29,24 @@ def timeit(method):
         print(f'{method.__name__} execution time {(te-ts)*1000}')
         return result
     return timed
+
+
+def is_port_in_use(port, host='127.0.0.1'):
+    sock = None
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        sock.connect((host, int(port)))
+        return True
+    except socket.error:
+        return False
+    finally:
+        if sock:
+            sock.close()
+
+
+def find_free_port():
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        s.bind(('', 0))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return s.getsockname()[1]
