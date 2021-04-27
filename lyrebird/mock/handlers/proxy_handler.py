@@ -57,7 +57,7 @@ class ProxyHandler:
                 stream=True, 
                 verify=False, 
                 allow_redirects=False)
-            logger.info(f'<Proxy> SUCESS {r.status_code} {origin_url}')
+            logger.info(f'<Proxy> SUCCESS {r.status_code} {origin_url}')
             
         except:
             trace_str = traceback.format_exc()

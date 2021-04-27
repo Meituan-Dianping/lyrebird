@@ -22,6 +22,8 @@ Mock server context
 logger = get_logger()
 
 
+class DataManagerInitException(Exception):
+    pass
 
 class Mode:
     NORMAL = 'normal'
@@ -91,19 +93,19 @@ class Application:
         adapter_cls = data_adapter
 
         path = Path(uri).expanduser().absolute()
-        if not path.exists():
-            logger.error(f'Mock data adapter {str(path)} not found!')
 
-        is_mock_data_config_file = not path.is_dir()
-        if is_mock_data_config_file:
+        if path.exists() and path.is_file():
+            logger.warning(f'Loading custom data-adapter from {str(path)} .')
             try:
                 adapter_module = imp.load_source(path.stem, str(path))
                 adapter_cls = adapter_module.data_adapter
             except Exception:
-                logger.error(f'Load mock data adapter {path} failed!\n{traceback.format_exc()}')
-
-        self.data_manager.set_adapter(adapter_cls)
-        self.data_manager.set_root(uri)
+                logger.error(f'Loading custom data-adapter from {str(path)} failed!\n{traceback.format_exc()}')
+                raise DataManagerInitException
+        else:
+            logger.warning(f'Loading file data-adapter from {str(path)} .')
+            self.data_manager.set_adapter(adapter_cls)
+            self.data_manager.set_root(uri)
 
     def save(self):
         DEFAULT_CONF = os.path.join(

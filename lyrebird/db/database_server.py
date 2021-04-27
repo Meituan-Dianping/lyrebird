@@ -63,6 +63,8 @@ class LyrebirdDatabaseServer(ThreadServer):
         Session = scoped_session(session_factory)
         self._scoped_session = Session
 
+        logger.info(f'Init DB engine: {self.database_uri}')
+
     def _fk_pragma_on_connect(self, dbapi_con, con_record):
         # https://www.sqlite.org/pragma.html#pragma_journal_mode
         dbapi_con.execute('PRAGMA journal_mode=MEMORY')

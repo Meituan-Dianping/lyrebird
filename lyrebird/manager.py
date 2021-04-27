@@ -1,31 +1,29 @@
 import argparse
-import webbrowser
 import json
-import socket
-import threading
-import signal
 import os
 import platform
+import signal
+import socket
+import threading
 import traceback
+import webbrowser
 from pathlib import Path
-from lyrebird import log
-from lyrebird import application
-from lyrebird.config import ConfigManager
-from lyrebird.mock.mock_server import LyrebirdMockServer
-from lyrebird.proxy.proxy_server import LyrebirdProxyServer
-from lyrebird.event import EventServer
-from lyrebird.task import BackgroundTaskServer
-from lyrebird.notice_center import NoticeCenter
-from lyrebird.mock.dm.label import LabelHandler
-from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
-from lyrebird.db.database_server import LyrebirdDatabaseServer
-from lyrebird.plugins import PluginManager
-from lyrebird.checker import LyrebirdCheckerServer
-from lyrebird import version
-from lyrebird import reporter
-from lyrebird import project_builder
+
 from packaging.version import parse as vparse
 
+from lyrebird import application, log, project_builder, reporter, version
+from lyrebird.checker import LyrebirdCheckerServer
+from lyrebird.config import ConfigManager
+from lyrebird.db.database_server import LyrebirdDatabaseServer
+from lyrebird.event import EventServer
+from lyrebird.mock.dm.label import LabelHandler
+from lyrebird.mock.extra_mock_server import ExtraMockServer
+from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
+from lyrebird.mock.mock_server import LyrebirdMockServer
+from lyrebird.notice_center import NoticeCenter
+from lyrebird.plugins import PluginManager
+from lyrebird.proxy.proxy_server import LyrebirdProxyServer
+from lyrebird.task import BackgroundTaskServer
 
 logger = log.get_logger()
 
@@ -63,6 +61,7 @@ def main():
     parser.add_argument('-v', dest='verbose', action='count', default=0, help='Show verbose log')
     parser.add_argument('--ip', dest='ip', help='Set device ip')
     parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 9090')
+    parser.add_argument('--extra-mock', dest='extra_mock', type=int, help='Set extra mock server port, default port is 9999')
     parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 4272')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
     parser.add_argument('-b', '--no_browser', dest='no_browser',
@@ -107,6 +106,8 @@ def main():
 
     if args.mock:
         application._cm.config['mock.port'] = args.mock
+    if args.extra_mock:
+        application._cm.config['extra.mock.port'] = args.extra_mock
     if args.proxy:
         application._cm.config['proxy.port'] = args.proxy
     if args.data:
@@ -126,6 +127,7 @@ def run(args: argparse.Namespace):
     sys_name = platform.system()
     if sys_name.lower() != 'windows':
         import resource
+
         # Set file descriptors
         try:
             resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
@@ -144,6 +146,7 @@ def run(args: argparse.Namespace):
     application.server['task'] = BackgroundTaskServer()
     application.server['proxy'] = LyrebirdProxyServer()
     application.server['mock'] = LyrebirdMockServer()
+    application.server['extra.mock'] = ExtraMockServer()
     application.server['db'] = LyrebirdDatabaseServer(path=args.database)
     application.server['plugin'] = PluginManager()
     application.server['checker'] = LyrebirdCheckerServer()
@@ -186,7 +189,7 @@ def run(args: argparse.Namespace):
         application.stop_server()
         threading.Event().set()
         logger.warning('!!!Ctrl-C pressed. Lyrebird stop!!!')
-        os._exit(1)
+        os._exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)

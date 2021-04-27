@@ -35,7 +35,7 @@ def after_request(response):
     输出每条请求概要信息
     """
     lyrebird_info = response.headers.get('lyrebird', default='')
-    logger.debug(f'[On API]{response.status_code} {lyrebird_info} {request.method} {request.url[:100]}')
+    logger.info(f'[On API]{response.status_code} {lyrebird_info} {request.method} {request.url[:100]}')
     return response
 
 

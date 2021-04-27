@@ -15,9 +15,6 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: "3.7"
-      - name: add venv
-        run: |
-          cd e2e_tests
       - name: install dependency
         run: |
           pip install --upgrade pip
@@ -29,5 +26,5 @@ jobs:
           nohup lyrebird -b --script flow_editor.py > /dev/null 2>&1 &
           sh connect_check.sh
           python -m pytest test_flow_editor.py
-          ps -ef|grep serve.py | grep -v grep|awk '{printf $2}'|xargs kill -9
-          ps -ef|grep "lyrebird -b" | grep -v grep|awk '{printf $2}'|xargs kill -9
+          ps -ef|grep serve.py | grep -v grep|awk '{print $2}'|xargs kill -9
+          ps -ef|grep "lyrebird -b" | grep -v grep|awk '{print $2}'|xargs kill -9
