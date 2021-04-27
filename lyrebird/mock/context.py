@@ -104,8 +104,9 @@ class Application:
                 raise DataManagerInitException
         else:
             logger.warning(f'Loading file data-adapter from {str(path)} .')
-            self.data_manager.set_adapter(adapter_cls)
-            self.data_manager.set_root(uri)
+        
+        self.data_manager.set_adapter(adapter_cls)
+        self.data_manager.set_root(uri)
 
     def save(self):
         DEFAULT_CONF = os.path.join(
