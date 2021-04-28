@@ -53,8 +53,15 @@ def eventlet_server(conf=None):
     wsgi.server(eventlet.listen(('', port)), app.wsgi_app)
 
 
-class ExtraMockServer(ThreadServer):
+class ExtraMockServer():
+    def __init__(self) -> None:
+        self._server_process = None
 
-    def run(self):
-        p = multiprocessing.Process(group=None, target=eventlet_server, kwargs={'conf': application.config.raw()})
-        p.start()
+    def start(self):
+        self._server_process = multiprocessing.Process(group=None, target=eventlet_server, kwargs={'conf': application.config.raw()})
+        self._server_process.start()
+
+    def stop(self):
+        if self._server_process:
+            self._server_process.terminate()
+            self._server_process = None
