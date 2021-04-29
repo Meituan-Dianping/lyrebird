@@ -282,6 +282,25 @@ export default {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' paste error: ' + error.data.message)
         })
     },
+    duplicateGroupOrData ({ commit, dispatch }, payload) {
+      api.copyGroupOrData(payload.id)
+        .then(response => {
+          commit('setPasteTarget', payload)
+          const parentId = payload.parent_id
+          api.pasteGroupOrData(parentId)
+            .then(response => {
+              commit('addGroupListOpenNode', parentId)
+              dispatch('loadDataMap')
+              bus.$emit('msg.success', payload.type + ' ' + payload.name + ' duplicate success')
+            })
+            .catch(error => {
+              bus.$emit('msg.error', payload.type + ' ' + payload.name + ' duplicate error: ' + error.data.message)
+            })
+        })
+        .catch(error => {
+          bus.$emit('msg.error', payload.type + ' ' + payload.name + ' duplicate error: ' + error.data.message)
+        })
+    },
     importSnapshot ({ state, dispatch }) {
       api.importSnapshot(state.importSnapshotParentNode.id, state.snapshotName)
         .then(response => {
