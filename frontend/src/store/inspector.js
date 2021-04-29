@@ -152,15 +152,26 @@ export default {
           bus.$emit('msg.error', 'Change flow filter failed: ' + error.data.message)
         })
     },
-    clearFlows ({ commit }) {
-      api.deleteAllFlow()
-        .then(response => {
-          commit('clearSelectedId')
-          bus.$emit('msg.success', 'Clear flow success!')
-        })
-        .catch(error => {
-          bus.$emit('msg.error', 'Clear flow error: ' + error.data.message)
-        })
+    clearInspector ({ commit }, clearTypes) {
+      clearTypes.forEach(clearType => {
+        if (clearType === 'Real-time') {
+          api.deleteAllFlow()
+          .then(response => { 
+            commit('clearSelectedId')
+          }).catch(error => {
+            bus.$emit('msg.error', 'Clear flow error: ' + error.data.message)
+            return
+          })
+        }
+        else if (clearType === 'Advanced') {
+          api.deleteEvents()
+          .then(response => {}).catch(error => {
+            bus.$emit('msg.error', 'Clear Advanced error: ' + error.data.message)
+            return
+          })
+        }
+      })
+      bus.$emit('msg.success', `Clear ${clearTypes.toString()} success!`)
     },
     saveSelectedFlow ({ state }) {
       api.saveSelectedFlow(state.selectedIds)

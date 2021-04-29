@@ -113,11 +113,18 @@
 
     <Modal
       v-model="showClearModal"
-      title="Alert"
+      title="Clear"
       @on-ok="clearAllFlow"
       @on-cancel="showClearModal=false"
     >
-      <p>Clear flow list?</p>
+      <CheckboxGroup v-model="clearTypes" size=default>
+        <Tooltip max-width="200" content="this operation will delete all your Real-time tab" placement="top-start">
+          <Checkbox label="Real-time" border />
+        </Tooltip>
+        <Tooltip max-width="200" content="this operation will delete all your local database." placement="top-start">
+          <Checkbox label="Advanced" border />
+        </Tooltip>
+      </CheckboxGroup>
     </Modal>
 
     <MockDataSelector ref="searchModal" :showRoot="false">
@@ -163,7 +170,8 @@ export default {
   data () {
     return {
       showClearModal: false,
-      diffMode: false
+      diffMode: false,
+      clearTypes: ['Real-time']
     }
   },
   mounted () {
@@ -247,7 +255,7 @@ export default {
       this.$store.dispatch('loadRecordMode')
     },
     clearAllFlow () {
-      this.$store.dispatch('clearFlows')
+      this.$store.dispatch('clearInspector', this.clearTypes)
     },
     resetActivatedData () {
       this.$store.dispatch('deactivateGroup')
