@@ -48,7 +48,7 @@ export const getDefaultChannelNames = () => {
 
 export const deleteEvents = () => {
   return axios({
-    url: '/api//event',
+    url: '/api/event',
     method: 'DELETE'
   })
 }
