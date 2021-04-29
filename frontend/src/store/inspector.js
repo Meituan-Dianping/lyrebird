@@ -153,24 +153,22 @@ export default {
         })
     },
     clearInspector ({ commit }, clearTypes) {
-      clearTypes.forEach(clearType => {
-        if (clearType === 'Real-time') {
-          api.deleteAllFlow()
-          .then(response => { 
-            commit('clearSelectedId')
-          }).catch(error => {
-            bus.$emit('msg.error', 'Clear flow error: ' + error.data.message)
-            return
-          })
-        }
-        else if (clearType === 'Advanced') {
-          api.deleteEvents()
-          .then(response => {}).catch(error => {
-            bus.$emit('msg.error', 'Clear Advanced error: ' + error.data.message)
-            return
-          })
-        }
-      })
+      if (clearTypes.includes('Real-time')) {
+        api.deleteAllFlow()
+        .then(response => { 
+          commit('clearSelectedId')
+        }).catch(error => {
+          bus.$emit('msg.error', 'Clear flow error: ' + error.data.message)
+          return
+        })
+      }
+      if (clearTypes.includes('Advanced')) {
+        api.deleteEvents()
+        .then(response => {}).catch(error => {
+          bus.$emit('msg.error', 'Clear Advanced error: ' + error.data.message)
+          return
+        })
+      }
       bus.$emit('msg.success', `Clear ${clearTypes.toString()} success!`)
     },
     saveSelectedFlow ({ state }) {
