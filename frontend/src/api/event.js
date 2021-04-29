@@ -45,3 +45,10 @@ export const getDefaultChannelNames = () => {
         url: '/api/channel/default'
     })
 }
+
+export const deleteEvents = () => {
+  return axios({
+    url: '/api/event',
+    method: 'DELETE'
+  })
+}
