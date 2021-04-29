@@ -113,15 +113,16 @@
 
     <Modal
       v-model="showClearModal"
-      title="Clear"
+      title="Clear Inspector"
       @on-ok="clearAllFlow"
       @on-cancel="showClearModal=false"
+      width=300px
     >
       <CheckboxGroup v-model="clearTypes" size=default>
-        <Tooltip max-width="200" content="This operation will delete all your Real-time flow." placement="top-start">
+        <Tooltip max-width="200" content="This operation will clear all your Real-time flow list." placement="top-start">
           <Checkbox label="Real-time" border />
         </Tooltip>
-        <Tooltip max-width="200" content="This operation will drop your local database." placement="top-start">
+        <Tooltip max-width="200" content="This operation will delete all your local saved data." placement="top-start">
           <Checkbox label="Advanced" border />
         </Tooltip>
       </CheckboxGroup>
