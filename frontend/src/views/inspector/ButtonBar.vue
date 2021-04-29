@@ -118,10 +118,10 @@
       @on-cancel="showClearModal=false"
     >
       <CheckboxGroup v-model="clearTypes" size=default>
-        <Tooltip max-width="200" content="this operation will delete all your Real-time tab" placement="top-start">
+        <Tooltip max-width="200" content="This operation will delete all your Real-time flow." placement="top-start">
           <Checkbox label="Real-time" border />
         </Tooltip>
-        <Tooltip max-width="200" content="this operation will delete all your local database." placement="top-start">
+        <Tooltip max-width="200" content="This operation will drop your local database." placement="top-start">
           <Checkbox label="Advanced" border />
         </Tooltip>
       </CheckboxGroup>
