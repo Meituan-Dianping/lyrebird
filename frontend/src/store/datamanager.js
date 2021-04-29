@@ -19,7 +19,8 @@ export default {
     snapshotName: '',
     labels: [],
     isLoading: false,
-    dataListSelectedLabel: []
+    dataListSelectedLabel: [],
+    labelDisplayState: true
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -92,6 +93,9 @@ export default {
     },
     setDataListSelectedLabel (state, dataListSelectedLabel) {
       state.dataListSelectedLabel = dataListSelectedLabel
+    },
+    setLabelDisplayState (state, labelDisplayState) {
+      state.labelDisplayState = labelDisplayState
     }
   },
   actions: {
@@ -301,6 +305,18 @@ export default {
         })
         .catch((err) => { 
           bus.$emit('msg.error', 'Load snapshot information error: ' + err.data.message)
+        })
+    },
+    loadLabelDisplayState ({ commit }) {
+      api.getLyrebirdConfig()
+        .then(response => {
+          let lyerbirdConf = response.data
+          if (lyerbirdConf.hasOwnProperty('labelDisplayState')) {
+            commit('setLabelDisplayState', lyerbirdConf['labelDisplayState'])
+          }
+        })
+        .catch(error => {
+          console.log('加载lyrebird配置失败', error);
         })
     }
   }
