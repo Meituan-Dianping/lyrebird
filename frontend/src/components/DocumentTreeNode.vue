@@ -19,7 +19,7 @@
         <span v-if="data.parent_id">{{data.name}}</span>
         <Icon v-else type="ios-home" />
       </span>
-      <span v-if="data.label && isLabelDisplayed">
+      <span v-if="data.label && isLabelDisplay">
         <span v-for="(label, index) in data.label" class="tree-node-inner-button">
           <span class="tree-node-inner-tag" :style="'background-color:'+(label.color?label.color:'#808695')">{{label.name}}</span>
         </span>
@@ -195,8 +195,8 @@ export default {
     isGroupActivated () {
       return this.$store.state.inspector.activatedGroup.hasOwnProperty(this.data.id)
     },
-    isLabelDisplayed () {
-      return this.$store.state.dataManager.labelDisplayState
+    isLabelDisplay () {
+      return this.$store.state.dataManager.isLabelDisplay
     }
   },
   methods: {

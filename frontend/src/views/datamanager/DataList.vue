@@ -36,7 +36,7 @@
         </LabelDropdown>
       </span>
       <span class="button-bar-group-right">
-        <Icon v-if="isLabelDisplayed" @click="changeLabelDisplayState" type="ios-eye-off" style="cursor:pointer" />
+        <Icon v-if="isLabelDisplay" @click="changeLabelDisplayState" type="ios-eye-off" style="cursor:pointer" />
         <Icon v-else @click="changeLabelDisplayState" type="ios-eye" style="cursor:pointer" />
       </span>
     </Row>
@@ -84,8 +84,8 @@ export default {
     selectedLabel () {
       return this.$store.state.dataManager.dataListSelectedLabel
     },
-    isLabelDisplayed () {
-      return this.$store.state.dataManager.labelDisplayState
+    isLabelDisplay () {
+      return this.$store.state.dataManager.isLabelDisplay
     }
   },
   watch: {
@@ -166,7 +166,7 @@ export default {
       this.$store.dispatch('loadDataMap')
     },
     changeLabelDisplayState () {
-      this.$store.commit('setLabelDisplayState', !this.$store.state.dataManager.labelDisplayState)
+      this.$store.commit('setIsLabelDisplay', !this.$store.state.dataManager.isLabelDisplay)
     }
   }
 }

@@ -20,7 +20,7 @@ export default {
     labels: [],
     isLoading: false,
     dataListSelectedLabel: [],
-    labelDisplayState: true
+    isLabelDisplay: true
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -94,8 +94,8 @@ export default {
     setDataListSelectedLabel (state, dataListSelectedLabel) {
       state.dataListSelectedLabel = dataListSelectedLabel
     },
-    setLabelDisplayState (state, labelDisplayState) {
-      state.labelDisplayState = labelDisplayState
+    setIsLabelDisplay (state, isLabelDisplay) {
+      state.isLabelDisplay = isLabelDisplay
     }
   },
   actions: {
@@ -310,9 +310,8 @@ export default {
     loadLabelDisplayState ({ commit }) {
       api.getLyrebirdConfig()
         .then(response => {
-          let lyerbirdConf = response.data
-          if (lyerbirdConf.hasOwnProperty('labelDisplayState')) {
-            commit('setLabelDisplayState', lyerbirdConf['labelDisplayState'])
+          if (response.data.hasOwnProperty('isLabelDisplay')) {
+            commit('setIsLabelDisplay', response.data['isLabelDisplay'])
           }
         })
     }
