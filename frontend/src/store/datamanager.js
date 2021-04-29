@@ -315,9 +315,6 @@ export default {
             commit('setLabelDisplayState', lyerbirdConf['labelDisplayState'])
           }
         })
-        .catch(error => {
-          console.log('加载lyrebird配置失败', error);
-        })
     }
   }
 }
