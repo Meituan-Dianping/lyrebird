@@ -307,7 +307,7 @@ export default {
           bus.$emit('msg.error', 'Load snapshot information error: ' + err.data.message)
         })
     },
-    loadLabelDisplayState ({ commit }) {
+    loadIsLabelDisplay ({ commit }) {
       api.getLyrebirdConfig()
         .then(response => {
           if (response.data.hasOwnProperty('isLabelDisplay')) {
