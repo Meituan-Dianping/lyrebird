@@ -24,6 +24,7 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'])
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'])
 def index(path=None):
+    logger.info(f'<ExtraMock> On request {request.url}')
     # Read origin headers
     raw_headers = list(request.environ['headers_raw'])
     # update url
