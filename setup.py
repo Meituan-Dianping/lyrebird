@@ -52,7 +52,7 @@ setup(
         "urllib3==1.24.2",
         "qrcode==6.1",
         "Pillow==8.0.1",
-        "eventlet==0.30.1"
+        "eventlet==0.31.0"
     ],
     extras_require={
         'dev': [
