@@ -65,4 +65,5 @@ class ExtraMockServer():
     def stop(self):
         if self._server_process:
             self._server_process.terminate()
+            logger.warning(f'MockServer shutdown')
             self._server_process = None

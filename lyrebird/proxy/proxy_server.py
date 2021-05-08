@@ -22,7 +22,7 @@ MITMDUMP_FILE = CURRENT_PATH/'mitm_exec.py'
 logger = get_logger()
 
 
-class LyrebirdProxyServer(ThreadServer):
+class LyrebirdProxyServer():
 
     def __init__(self):
         super().__init__()
@@ -41,8 +41,9 @@ class LyrebirdProxyServer(ThreadServer):
         According to mitmproxy docs: https://docs.mitmproxy.org/stable/howto-ignoredomains/
         '''
         self.ignore_hosts = conf.get('proxy.ignore_hosts', None)
+        self._proxy_server_process = None
 
-    def run(self):
+    def start(self):
         server_ip = application.config.get('ip')
         # info_msg(f'start on {server_ip}:{self.proxy_port}', f'{Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
         logger.warning(f'start on http://{server_ip}:{self.proxy_port}   {Fore.CYAN} ***请在被测设备上设置代理服务器地址***')
@@ -58,4 +59,11 @@ class LyrebirdProxyServer(ThreadServer):
         mitmenv = os.environ
         mitmenv['PROXY_PORT'] = str(application.config.get('mock.port', 9090))
         mitmenv['PROXY_FILTERS'] = json.dumps(application.config.get('proxy.filters', []))
-        subprocess.Popen(f'{sys.executable} {str(MITMDUMP_FILE)} {" ".join(mitm_arguments)}', shell=True, env=mitmenv)
+        self._proxy_server_process = subprocess.Popen(f'{sys.executable} {str(MITMDUMP_FILE)} {" ".join(mitm_arguments)}', shell=True, env=mitmenv)
+
+    def stop(self):
+        if self._proxy_server_process:
+            self._proxy_server_process.terminate()
+            logger.warning('ProxyServer shutdown')
+
+
