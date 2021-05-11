@@ -24,7 +24,7 @@ class DataHelper:
             return
 
         for headers_key, func in origin2flow_handlers.items():
-            headers_val = origin_obj.headers.get(headers_key, '')
+            headers_val = origin_obj.headers.get(headers_key) or origin_obj.headers.get(headers_key.lower(), '')
             _data = func.origin2flow(headers_val, _data)
 
         if output:
@@ -39,7 +39,7 @@ class DataHelper:
             return
 
         for headers_key, func in flow2origin_handlers.items():
-            headers_val = flow_obj['headers'].get(headers_key, '')
+            headers_val = flow_obj['headers'].get(headers_key) or flow_obj['headers'].get(headers_key.lower(), '')
             _data = func.flow2origin(headers_val, _data)
 
         if output:
