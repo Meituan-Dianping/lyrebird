@@ -1,3 +1,5 @@
+import os
+import signal
 import pytest
 import time
 import subprocess
@@ -45,12 +47,12 @@ class MockServer:
         self.api_post = f'http://127.0.0.1:{self.port}/e2e_serve'
 
     def start(self):
-        self.mock_server_process = subprocess.Popen('python3 ./assets/serve.py', shell=True)
+        self.mock_server_process = subprocess.Popen('python3 ./assets/serve.py', shell=True, start_new_session=True)
         _wait(requests.get, args=[self.api_status])
 
     def stop(self):
         if self.mock_server_process:
-            self.mock_server_process.terminate()
+            os.killpg(self.mock_server_process.pid, signal.SIGTERM)
             _wait_exception(requests.get, args=[self.api_status])
             self.mock_server_process = None
 
@@ -66,12 +68,12 @@ class Lyrebird:
         cmdline = f'lyrebird -b -v --mock {self.port}'
         if checker_path:
             cmdline = cmdline + f' --script {checker_path}'
-        self.lyrebird_process = subprocess.Popen(cmdline, shell=True)
+        self.lyrebird_process = subprocess.Popen(cmdline, shell=True, start_new_session=True)
         _wait(requests.get, args=[self.api_status])
     
     def stop(self):
         if self.lyrebird_process:
-            self.lyrebird_process.terminate()
+            os.killpg(self.lyrebird_process.pid, signal.SIGTERM)
             _wait_exception(requests.get, args=[self.api_status])
             self.lyrebird_process = None
             
