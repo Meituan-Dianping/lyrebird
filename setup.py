@@ -58,7 +58,8 @@ setup(
         'dev': [
             "autopep8",
             "pylint",
-            "pytest"
+            "pytest",
+            "pytest-cov"
         ]
     }
 )
