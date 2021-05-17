@@ -19,4 +19,4 @@ jobs:
       - name: Unit Test
         run: |
           cd tests
-          python -m pytest .
+          python -m pytest --cov=lyrebird

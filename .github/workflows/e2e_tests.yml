@@ -22,4 +22,4 @@ jobs:
       - name: run e2e test
         run: |
           cd e2e_tests
-          python -m pytest
+          python -m pytest --cov=lyrebird
