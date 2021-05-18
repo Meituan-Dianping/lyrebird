@@ -4,6 +4,7 @@ on: [pull_request]
 
 jobs:
   unittest:
+    name: 1st job
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,6 +21,7 @@ jobs:
           cd tests
           python -m pytest --cov=../lyrebird
   e2etest:
+    name: 2nd job
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
