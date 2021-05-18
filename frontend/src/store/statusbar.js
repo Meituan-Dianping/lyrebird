@@ -29,12 +29,9 @@ export default {
           bus.$emit('msg.error', 'loadStatusBar failed ' + error.data.message)
         })
     },
-    loadStatusBarDetail({ commit }, statusItemId) {
-      commit('setStatusBarDetail', [{
-        id: "",
-        src: "Loading",
-        type: "TextMenuItem"
-      }])
+
+    loadStatusBarDetail( { commit }, statusItemId) {
+      commit('setStatusBarDetail', null)
       api.getStatusBarDetail(statusItemId)
         .then(response => {
           if (response.data.code === 1000) {

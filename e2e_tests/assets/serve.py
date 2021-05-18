@@ -13,6 +13,9 @@ def e2e_test():
         return hashlib.md5(request.url.encode() + req_body).hexdigest()
     return hashlib.md5(request.url.encode() + req_body).hexdigest()
 
+@app.route("/status", methods=["GET"])
+def status():
+    return "OK"
 
 if __name__ == "__main__":
     app.run()

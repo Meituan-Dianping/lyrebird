@@ -22,9 +22,4 @@ jobs:
       - name: run e2e test
         run: |
           cd e2e_tests
-          nohup python3 serve.py > /dev/null 2>&1 &
-          nohup lyrebird -b > /dev/null 2>&1 &
-          sh connect_check.sh
-          python -m pytest test_lb_req_body.py
-          ps -ef|grep serve.py | grep -v grep|awk '{print $2}'|xargs kill -9
-          ps -ef|grep "lyrebird -b"| grep -v grep|awk '{print $2}'|xargs kill -9
+          python -m pytest --cov=lyrebird
