@@ -26,6 +26,7 @@ export default {
   mounted() {
     this.loadDataMap()
     this.$store.dispatch('loadActivatedGroup')
+    this.$store.dispatch('loadIsLabelDisplay')
   },
   created () {
     this.$io.on('datamanagerUpdate', this.loadDataMap)
