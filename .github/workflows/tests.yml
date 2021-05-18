@@ -1,4 +1,4 @@
-name: Unit Test
+name: Tests
 
 on: [pull_request]
 
@@ -19,4 +19,22 @@ jobs:
       - name: Unit Test
         run: |
           cd tests
+          python -m pytest --cov=lyrebird
+
+  e2etest:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+      - name: Install dependency
+        run: |
+          pip install --upgrade pip
+          pip install -e .[dev]
+      - name: Run e2e test
+        run: |
+          cd e2e_tests
           python -m pytest --cov=lyrebird
