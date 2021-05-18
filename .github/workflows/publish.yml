@@ -8,9 +8,8 @@ on:
     types: [published]
 
 jobs:
-  build-n-publish:
+  build-publish-to-pypi:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Set up Node
@@ -38,12 +37,8 @@ jobs:
         run: |
           python setup.py sdist
           twine upload dist/*
-
-  push_to_registry:
-    # The type of runner that the job will run on
+  push_to_doctor_registry:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
