@@ -19,7 +19,8 @@ export default {
     snapshotName: '',
     labels: [],
     isLoading: false,
-    dataListSelectedLabel: []
+    dataListSelectedLabel: [],
+    isLabelDisplay: true
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -92,6 +93,9 @@ export default {
     },
     setDataListSelectedLabel (state, dataListSelectedLabel) {
       state.dataListSelectedLabel = dataListSelectedLabel
+    },
+    setIsLabelDisplay (state, isLabelDisplay) {
+      state.isLabelDisplay = isLabelDisplay
     }
   },
   actions: {
@@ -301,6 +305,14 @@ export default {
         })
         .catch((err) => { 
           bus.$emit('msg.error', 'Load snapshot information error: ' + err.data.message)
+        })
+    },
+    loadIsLabelDisplay ({ commit }) {
+      api.getLyrebirdConfig()
+        .then(response => {
+          if (response.data.hasOwnProperty('mock.data.isLabelDisplay')) {
+            commit('setIsLabelDisplay', response.data['mock.data.isLabelDisplay'])
+          }
         })
     }
   }

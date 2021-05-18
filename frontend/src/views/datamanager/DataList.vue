@@ -35,6 +35,10 @@
           </template>
         </LabelDropdown>
       </span>
+      <span class="button-bar-group-right">
+        <Icon v-if="isLabelDisplay" @click="changeLabelDisplayState" type="ios-eye-off" style="cursor:pointer" />
+        <Icon v-else @click="changeLabelDisplayState" type="ios-eye" style="cursor:pointer" />
+      </span>
     </Row>
     <Spin fix v-if="spinShow">
       <Icon type="ios-loading" size=18 class="data-load-spin-icon-load"/>
@@ -79,6 +83,9 @@ export default {
     },
     selectedLabel () {
       return this.$store.state.dataManager.dataListSelectedLabel
+    },
+    isLabelDisplay () {
+      return this.$store.state.dataManager.isLabelDisplay
     }
   },
   watch: {
@@ -157,6 +164,9 @@ export default {
       }
       this.$store.commit('setDataListSelectedLabel', labels)
       this.$store.dispatch('loadDataMap')
+    },
+    changeLabelDisplayState () {
+      this.$store.commit('setIsLabelDisplay', !this.$store.state.dataManager.isLabelDisplay)
     }
   }
 }
