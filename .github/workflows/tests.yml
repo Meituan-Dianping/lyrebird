@@ -21,7 +21,6 @@ jobs:
           python -m pytest --cov=lyrebird
 
   e2etest:
-    name: 2nd job
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
