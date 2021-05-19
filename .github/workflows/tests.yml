@@ -18,7 +18,7 @@ jobs:
       - name: Unit Test
         run: |
           cd tests
-          python -m pytest --cov=lyrebird
+          python -m pytest --cov=../lyrebird
 
   # e2etest:
   #   name: 2nd job
