@@ -155,6 +155,26 @@ class FileDataAdapter:
             elif path.is_file() and path.exists():
                 path.unlink()
 
+    # duplicate
+    def duplicate(self, _id):
+        self.context.copy(_id)
+        _node = self.context.id_map.get(_id)
+        if not _node:
+            pass
+        parent_id = _node.get('parent_id')
+        if not parent_id:
+            pass
+
+        origin_name = _node.get('name')
+
+        new_uuid = self.context.paste(parent_id)
+        duplicate_node = self.context.id_map.get(new_uuid)
+        duplicate_node_name = duplicate_node.get('name')
+        return {
+            'info': f'Duplicat group {origin_name} success<br/>new group name: {duplicate_node_name}, id: {new_uuid}<br/>',
+            'id': new_uuid
+        }
+
 
 class PropWriter:
 

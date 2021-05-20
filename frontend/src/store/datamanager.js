@@ -76,6 +76,15 @@ export default {
     setFocusNodeInfo (state, focusNodeInfo) {
       state.focusNodeInfo = focusNodeInfo
     },
+    setFocusNodeInfoByGroupInfo (state, groupInfo) {
+      breadthFirstSearch(state.groupList, node => {
+        if (node.id === groupInfo.id) {
+          state.focusNodeInfo = node
+          // `return false` is used to break loop, no related to search result
+          return false
+        }
+      })
+    },
     setPasteTarget (state, pasteTarget) {
       state.pasteTarget = pasteTarget
     },
@@ -182,7 +191,7 @@ export default {
         })
     },
     deleteGroup ({ state, commit, dispatch }, payload) {
-      bus.$emit('msg.info', 'Deleting group ' + payload.name + ' ...')
+      bus.$emit('msg.loading', 'Deleting group ' + payload.name + ' ...')
       api.deleteGroup(payload.id)
         .then(response => {
           dispatch('loadDataMap')
@@ -191,7 +200,8 @@ export default {
           if (state.pasteTarget && payload.id === state.pasteTarget.id) {
             commit('setPasteTarget', null)
           }
-          bus.$emit('msg.success', 'Delete Group ' + payload.name + ' success!')
+          bus.$emit('msg.destroy')
+          bus.$emit('msg.success', 'Delete group ' + payload.name + ' success!')
         })
         .catch(error => {
           bus.$emit('msg.error', 'Delete group ' + payload.name + ' error: ' + error.data.message)
@@ -223,7 +233,7 @@ export default {
         })
     },
     deleteData ({ state, commit, dispatch }, payload) {
-      bus.$emit('msg.info', 'Deleting data ' + payload.name + ' ...')
+      bus.$emit('msg.loading', 'Deleting data ' + payload.name + ' ...')
       api.deleteData(payload.id)
         .then(response => {
           dispatch('loadDataMap', payload.id)
@@ -231,6 +241,7 @@ export default {
           if (state.pasteTarget && payload.id === state.pasteTarget.id) {
             commit('setPasteTarget', null)
           }
+          bus.$emit('msg.destroy')
           bus.$emit('msg.success', 'Delete Data ' + payload.name + ' success!')
         })
         .catch(error => {
@@ -287,19 +298,12 @@ export default {
         })
     },
     duplicateGroupOrData ({ commit, dispatch }, payload) {
-      api.copyGroupOrData(payload.id)
+      api.duplicateGroupOrData(payload.id)
         .then(response => {
-          commit('setPasteTarget', payload)
-          const parentId = payload.parent_id
-          api.pasteGroupOrData(parentId)
-            .then(response => {
-              commit('addGroupListOpenNode', parentId)
-              dispatch('loadDataMap')
-              bus.$emit('msg.success', payload.type + ' ' + payload.name + ' duplicate success')
-            })
-            .catch(error => {
-              bus.$emit('msg.error', payload.type + ' ' + payload.name + ' duplicate error: ' + error.data.message)
-            })
+          console.log('duplicateGroupOrData', response);
+          commit('addGroupListOpenNode', payload.parent_id)
+          commit('addGroupListOpenNode', response.data.id)
+          dispatch('loadDataMap')
         })
         .catch(error => {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' duplicate error: ' + error.data.message)
@@ -317,7 +321,7 @@ export default {
         })
     },
     loadSnapshotName ({ commit }) {
-      bus.$emit('msg.info', 'Loading snapshot ...')
+      bus.$emit('msg.loading', 'Loading snapshot ...')
       api.getSnapShotDetail()
         .then((res) => {
           commit('setSnapshotName', res.data.data.name)

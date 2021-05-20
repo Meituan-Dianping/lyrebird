@@ -9,6 +9,7 @@ export * from '@/api/event.js'
 export * from '@/api/bandwidth.js'
 export * from '@/api/statusbar.js'
 export * from '@/api/inspector.js'
+import { bus } from '@/eventbus'
 
 
 const successHandler = (response) => {
@@ -17,6 +18,9 @@ const successHandler = (response) => {
   }
   if (response.data.code !== 1000) {
     return Promise.reject(response)
+  }
+  if (response.data.hasOwnProperty('info')) {
+    bus.$emit('msg.info', response.data.info)
   }
   return response
 }

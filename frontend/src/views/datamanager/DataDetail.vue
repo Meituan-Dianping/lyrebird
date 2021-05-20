@@ -70,13 +70,7 @@ export default {
       this.resetGroupDetail(payload)
     },
     resetFocusNodeInfo (payload) {
-      breadthFirstSearch(this.$store.state.dataManager.groupList, node => {
-        if (node.id === payload.id) {
-          this.$store.commit('setFocusNodeInfo', node)
-          // `return false` is used to break loop, no related to search result
-          return false
-        }
-      })
+      this.$store.commit('setFocusNodeInfoByGroupInfo', payload)
     },
     resetGroupDetail (payload) {
       if (payload.type === 'group') {

@@ -9,7 +9,7 @@ from .notice import Notice
 from .checker import Checker
 from .event import Event, Channel
 from .conflict_check import ConflictCheck, ActivatedDataConflictCheck
-from .mock_editor import Cut, Copy, Paste
+from .mock_editor import Cut, Copy, Paste, Duplicate
 from .qrcode import Qrcode
 from .search import SearchMockDataByName
 from .bandwidth import Bandwidth, BandwidthTemplates
@@ -52,6 +52,7 @@ api_source.add_resource(FlowFilter, '/flowfilter')
 api_source.add_resource(Cut, '/cut/<string:_id>')
 api_source.add_resource(Copy, '/copy/<string:_id>')
 api_source.add_resource(Paste, '/paste/<string:_id>')
+api_source.add_resource(Duplicate, '/duplicate/<string:_id>')
 api_source.add_resource(MockGroup, '/group', '/group/<string:group_id>', '/group/label/<string:label>')
 api_source.add_resource(MockData, '/data', '/data/<string:_id>')
 api_source.add_resource(SearchMockDataByName, '/search/group/name/', '/search/group/name/<string:search_str>')

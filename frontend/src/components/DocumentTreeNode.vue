@@ -260,11 +260,9 @@ export default {
         }
         this.onTreeNodePaste()
       } else if (payload === 'duplicate') {
-        console.log(this.duplicateButtonEnable);
         if (!this.duplicateButtonEnable) {
           return
         }
-        console.log('go', this.duplicateButtonEnable);
         if (this.duplicateNodeChildrenCount >= this.shownDuplicateModleCount) {
           this.shownDuplicateModal = true
           return
