@@ -21,7 +21,6 @@
 import DataDetailHttpData from '@/views/datamanager/DataDetailHttpData.vue'
 import DataDetailFolder from '@/views/datamanager/DataDetailFolder.vue'
 import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
-import { breadthFirstSearch } from 'tree-helper'
 
 export default {
   components: {

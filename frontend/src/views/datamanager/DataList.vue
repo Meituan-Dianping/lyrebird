@@ -71,7 +71,6 @@
 </template>
 
 <script>
-import { breadthFirstSearch } from 'tree-helper'
 import LabelDropdown from '@/components/LabelDropdown.vue'
 import DocumentTree from '@/components/DocumentTree.vue'
 import MockDataSelector from '@/components/SearchModal.vue'
