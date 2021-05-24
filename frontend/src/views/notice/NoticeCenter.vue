@@ -13,7 +13,7 @@
       </div>
       <div v-if="selectedTab === tabList[0]">
         <div v-if="noticeList.length" style="height:calc(100% - 31px);overflow-x:auto">
-          <div v-for="notice in noticeList" style="padding: 5px 10px;">
+          <div v-for="(notice, index) in noticeList" :key="index" style="padding: 5px 10px;">
             <NoticeMessage :notice="notice"></NoticeMessage>
           </div>
         </div>
@@ -23,7 +23,7 @@
       </div>
       <div v-else-if="selectedTab === tabList[1]">
         <div v-if="notRemindList.length" style="height:calc(100% - 31px);overflow-x:auto">
-          <div v-for="notice in notRemindList" style="padding: 5px 10px;">
+          <div v-for="(notice, index) in notRemindList" :key="index" style="padding: 5px 10px;">
             <NotRemindMessage :notice="notice"></NotRemindMessage>
           </div>
         </div>
@@ -60,6 +60,7 @@ export default {
     this.$bus.$on('toggleNotice', this.toggle)
     this.$io.on('alert', this.showNoticeAlert)
     this.$io.on('update', this.updateNotice)
+    this.$io.on('msg.success', this.successMessage)
     this.$store.dispatch('loadNoticeCenterData')
   },
   destroyed() {
@@ -75,6 +76,9 @@ export default {
     }
   },
   methods: {
+    successMessage (msg) {
+      this.$bus.$emit('msg.success', msg)
+    },
     showNoticeAlert(noticeInfo){
       this.$Notice.warning({
         duration: 3,
