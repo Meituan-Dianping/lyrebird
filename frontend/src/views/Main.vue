@@ -7,6 +7,8 @@
         hide-trigger
         collapsible
         :collapsed-width="50"
+        @mouseover.native="collapsedSider"
+        @mouseout.native="collapsedSider"
         v-model="isCollapsed"
       >
         <div class="logo">
@@ -35,7 +37,7 @@
       </Sider>
       <Layout>
         <Header class="main-header" inline>
-          <Icon type="md-menu" color="white" size="24" @click.native="collapsedSider"></Icon>
+          <Icon type="md-menu" color="white" size="24" @click.native="collapsedSider" :class="rotateIcon" :style="{margin: '0 10px'}"></Icon>
           <notice-center></notice-center>
         </Header>
         <Content>
@@ -167,6 +169,12 @@ export default {
     }
   },
   computed: {
+    rotateIcon () {
+      return [
+        'menu-icon',
+          this.isCollapsed ? 'rotate-icon' : ''
+      ];
+    },
     menuitemClasses () {
       return ["menu-item", this.isCollapsed ? "collapsed-menu" : "menu"]
     },
@@ -289,6 +297,9 @@ export default {
 <style scoped>
 .main-layout {
   height: 100vh;
+}
+.rotate-icon{
+  transform: rotate(-90deg);
 }
 .sider-bar {
   background-color: #515a6e;
