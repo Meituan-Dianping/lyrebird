@@ -29,7 +29,6 @@ class Menu(Resource):
         # Load plugins from new plugin manager
         _pm = application.server['plugin']
         for plugin_id, plugin in _pm.plugins.items():
-            hasattr
             menu.append({
                 'name': 'plugin-container',
                 'title': plugin.manifest.name,

@@ -7,8 +7,8 @@
         hide-trigger
         collapsible
         :collapsed-width="50"
-        @mouseover.native="collapsedSider"
-        @mouseout.native="collapsedSider"
+        @mouseover.native="stretchSider"
+        @mouseout.native="foldSider"
         v-model="isCollapsed"
       >
         <div class="logo">
@@ -234,6 +234,16 @@ export default {
     }
   },
   methods: {
+    stretchSider () {
+      if(this.isCollapsed) {
+        this.$refs.mainSider.toggleCollapse()
+      }
+    },
+    foldSider () {
+      if(!this.isCollapsed) {
+        this.$refs.mainSider.toggleCollapse()
+      }
+    },
     collapsedSider () {
       this.$refs.mainSider.toggleCollapse()
     },
