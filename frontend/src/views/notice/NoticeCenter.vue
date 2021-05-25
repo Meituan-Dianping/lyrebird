@@ -60,7 +60,7 @@ export default {
     this.$bus.$on('toggleNotice', this.toggle)
     this.$io.on('alert', this.showNoticeAlert)
     this.$io.on('update', this.updateNotice)
-    this.$io.on('msg.success', this.successMessage)
+    this.$io.on('msgSuccess', this.successMessage)
     this.$store.dispatch('loadNoticeCenterData')
   },
   destroyed() {

@@ -94,7 +94,7 @@
           clearable
           transfer
         >
-          <Option v-for="(filter) in flowFilters" :value="filter.name" :key="filter.name">
+          <Option v-for="filter in flowFilters" :value="filter.name" :key="filter.name">
             <Tooltip
               v-if="filter.desc"
               :delay="500"

@@ -279,8 +279,8 @@ export default {
         closable: true
       })
     },
-    updateBandwidth (template_name) {
-      this.$store.dispatch('updateBandwidth', template_name)
+    updateBandwidth (templateName) {
+      this.$store.dispatch('updateBandwidth', templateName)
     }
   }
 }
