@@ -97,6 +97,10 @@ class HandlerContext:
         raw_url = self.request.path[len(url_prefix):]
         if self.request.query_string:
             raw_url += '?' + self.request.query_string.decode()
+        return self._get_parse_url_dict(raw_url)
+
+    @staticmethod
+    def _get_parse_url_dict(raw_url):
         parsed_path = urlparse(raw_url)
         # urllib.unquote : fix bug - url contains ',' will be auto encoded by flask, that cause proxy not work.
         # e.g /1.2,3 -> 1.2%2C3
@@ -270,6 +274,9 @@ class HandlerContext:
         code = self.flow['response']['code']
         duration = utils.convert_time(self.flow['duration'])
         size = utils.convert_size(self.flow['size'])
+
+        parsed_url = self._get_parse_url_dict(url)
+        self.flow['request'].update(parsed_url)
 
         # Import decoder for decoding the requested content
         decode_flow = {}

@@ -90,7 +90,7 @@ class FileDataAdapter:
         self.context.reactive()
 
     def _save_data(self, path, data):
-        prop_str = json.dumps(data)
+        prop_str = json.dumps(data, ensure_ascii=False)
         with codecs.open(path, 'w') as f:
             f.write(prop_str)
 
@@ -160,10 +160,10 @@ class FileDataAdapter:
         self.context.copy(_id)
         _node = self.context.id_map.get(_id)
         if not _node:
-            pass
+            raise IDNotFound(_id)
         parent_id = _node.get('parent_id')
         if not parent_id:
-            pass
+            raise IDNotFound(parent_id)
 
         origin_name = _node.get('name')
 
@@ -244,6 +244,10 @@ class PropWriter:
         children_str += ']'
         self.indent -= 1
         return children_str
+
+
+class IDNotFound(Exception):
+    pass
 
 
 class DataNotFound(Exception):

@@ -94,7 +94,7 @@ export default {
     },
     isLabelDisplay () {
       return this.$store.state.dataManager.isLabelDisplay
-    },
+    }
   },
   watch: {
     treeData (val) {

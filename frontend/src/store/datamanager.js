@@ -300,7 +300,6 @@ export default {
     duplicateGroupOrData ({ commit, dispatch }, payload) {
       api.duplicateGroupOrData(payload.id)
         .then(response => {
-          console.log('duplicateGroupOrData', response);
           commit('addGroupListOpenNode', payload.parent_id)
           commit('addGroupListOpenNode', response.data.id)
           dispatch('loadDataMap')
