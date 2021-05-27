@@ -298,11 +298,13 @@ export default {
         })
     },
     duplicateGroupOrData ({ commit, dispatch }, payload) {
+      bus.$emit('msg.loading', 'Duplicating group ' + payload.name + ' ...')
       api.duplicateGroupOrData(payload.id)
         .then(response => {
           commit('addGroupListOpenNode', payload.parent_id)
           commit('addGroupListOpenNode', response.data.id)
           dispatch('loadDataMap')
+          bus.$emit('msg.info', response.data.message)
         })
         .catch(error => {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' duplicate error: ' + error.data.message)

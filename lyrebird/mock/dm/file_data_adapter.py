@@ -171,7 +171,7 @@ class FileDataAdapter:
         duplicate_node = self.context.id_map.get(new_uuid)
         duplicate_node_name = duplicate_node.get('name')
         return {
-            'info': f'Duplicat group {origin_name} success<br/>new group name: {duplicate_node_name}, id: {new_uuid}<br/>',
+            'message': f'Duplicat group {origin_name} success! new group name: {duplicate_node_name}',
             'id': new_uuid
         }
 

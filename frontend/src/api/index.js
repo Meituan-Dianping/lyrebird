@@ -19,9 +19,6 @@ const successHandler = (response) => {
   if (response.data.code !== 1000) {
     return Promise.reject(response)
   }
-  if (response.data.hasOwnProperty('info')) {
-    bus.$emit('msg.info', response.data.info)
-  }
   return response
 }
 
