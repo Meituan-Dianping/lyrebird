@@ -93,6 +93,13 @@ export const pasteGroupOrData = (id) => {
   })
 }
 
+export const duplicateGroupOrData = (id) => {
+  return axios({
+    url: '/api/duplicate/' + id,
+    method: 'PUT'
+  })
+}
+
 export const getConflict = (dataId) => {
   return axios({
     url: '/api/conflict/id/' + dataId

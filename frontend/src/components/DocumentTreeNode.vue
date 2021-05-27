@@ -63,8 +63,13 @@
               name="paste"
               v-show="data.type==='group'"
               :disabled="!pasteButtonEnable"
-              class="dropdown-menu-item-divided"
             >Paste</DropdownItem>
+            <DropdownItem
+              align="left"
+              name="duplicate"
+              :disabled="!duplicateButtonEnable"
+              class="dropdown-menu-item-divided"
+            >Duplicate</DropdownItem>
             <DropdownItem align="left" name="addGroup" v-show="data.type==='group'">Add group</DropdownItem>
             <DropdownItem
               align="left"
@@ -138,6 +143,23 @@
         <Button type="error" size="large" long @click="onTreeNodeDelete">Delete</Button>
       </div>
     </Modal>
+    <Modal v-model="shownDuplicateModal">
+      <p slot="header" style="color:#f90;text-align:center">
+        <Icon type="ios-information-circle"/>
+        <span>Duplicate confirmation</span>
+      </p>
+      <div style="text-align:center">
+        <p style="font-size:14px">
+          You are duplicating {{data.type}} <b>{{data.name}}</b>
+        </p>
+        <p style="font-size:14px">
+          <b>{{duplicateNodeChildrenCount}}</b> item will be duplicated, are you sure you want to duplicate them?
+        </p>
+      </div>
+      <div slot="footer">
+        <Button type="warning" size="large" long @click="onTreeNodeDelete">Duplicate</Button>
+      </div>
+    </Modal>
   </Row>
 </template>
 
@@ -149,6 +171,8 @@ export default {
       isMouseOver: false,
       shownDeleteModal: false,
       shownCreateModal: false,
+      shownDuplicateModal: false,
+      shownDuplicateModleCount: 30,
       createName: null,
       createType: null,
       minLoadAnimationCount: 20
@@ -189,11 +213,17 @@ export default {
         return !this.containsPasteTarget(pasteTarget, this.data)
       }
     },
+    duplicateButtonEnable () {
+      return this.data.parent_id
+    },
     showActivateButton () {
       return this.isMouseOver && (this.data.type === 'group')
     },
     isGroupActivated () {
       return this.$store.state.inspector.activatedGroup.hasOwnProperty(this.data.id)
+    },
+    duplicateNodeChildrenCount () {
+      return this.countNodeChildren(this.data)
     },
     isLabelDisplay () {
       return this.$store.state.dataManager.isLabelDisplay
@@ -229,6 +259,15 @@ export default {
           return
         }
         this.onTreeNodePaste()
+      } else if (payload === 'duplicate') {
+        if (!this.duplicateButtonEnable) {
+          return
+        }
+        if (this.duplicateNodeChildrenCount >= this.shownDuplicateModleCount) {
+          this.shownDuplicateModal = true
+          return
+        }
+        this.onTreeNodeDuplicate()
       } else if (payload === 'addGroup') {
         this.createType = 'group'
         this.shownCreateModal = true
@@ -280,6 +319,9 @@ export default {
     onTreeNodePaste () {
       this.$store.dispatch('pasteGroupOrData', this.data)
     },
+    onTreeNodeDuplicate () {
+      this.$store.dispatch('duplicateGroupOrData', this.data)
+    },
     onCreate () {
       this.$store.commit('addGroupListOpenNode', this.data.id)
       if (this.createType === 'group') {
@@ -306,6 +348,16 @@ export default {
     },
     handlerUploadError (error, file) {
       this.$bus.$emit('msg.error', 'Import snapshot ' + file.name + ' error: ' + error)
+    },
+    countNodeChildren (node) {
+      let count = 0
+      if (!node.children || node.children.length===0) {
+        return 0
+      }
+      for (const child of node.children) {
+        count += this.countNodeChildren(child)
+      }
+      return count + node.children.length
     }
   }
 }

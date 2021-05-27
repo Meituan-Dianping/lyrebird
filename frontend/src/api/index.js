@@ -9,6 +9,7 @@ export * from '@/api/event.js'
 export * from '@/api/bandwidth.js'
 export * from '@/api/statusbar.js'
 export * from '@/api/inspector.js'
+import { bus } from '@/eventbus'
 
 
 const successHandler = (response) => {

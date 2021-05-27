@@ -152,8 +152,10 @@ export default {
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
+    this.$bus.$on('msg.loading', this.loadingMessage)
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
+    this.$bus.$on('msg.destroy', this.destroyMessage)
     this.$io.on('activatedGroupUpdate', this.loadActivatedGroup)
   },
   watch: {
@@ -265,10 +267,17 @@ export default {
         closable: true
       })
     },
+    loadingMessage (msg) {
+      this.$Message.loading({
+        content: msg,
+        duration: 3,
+        closable: true
+      })
+    },
     infoMessage (msg) {
       this.$Message.info({
         content: msg,
-        duration: 3,
+        duration: 0,
         closable: true
       })
     },
@@ -278,6 +287,9 @@ export default {
         duration: 0,
         closable: true
       })
+    },
+    destroyMessage () {
+      this.$Message.destroy()
     },
     updateBandwidth (template_name) {
       this.$store.dispatch('updateBandwidth', template_name)

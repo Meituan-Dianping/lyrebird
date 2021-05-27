@@ -90,7 +90,7 @@ class FileDataAdapter:
         self.context.reactive()
 
     def _save_data(self, path, data):
-        prop_str = json.dumps(data)
+        prop_str = json.dumps(data, ensure_ascii=False)
         with codecs.open(path, 'w') as f:
             f.write(prop_str)
 
@@ -154,6 +154,26 @@ class FileDataAdapter:
                 shutil.rmtree(path)
             elif path.is_file() and path.exists():
                 path.unlink()
+
+    # duplicate
+    def duplicate(self, _id):
+        self.context.copy(_id)
+        _node = self.context.id_map.get(_id)
+        if not _node:
+            raise IDNotFound(_id)
+        parent_id = _node.get('parent_id')
+        if not parent_id:
+            raise IDNotFound(parent_id)
+
+        origin_name = _node.get('name')
+
+        new_uuid = self.context.paste(parent_id)
+        duplicate_node = self.context.id_map.get(new_uuid)
+        duplicate_node_name = duplicate_node.get('name')
+        return {
+            'message': f'Duplicat group {origin_name} success! new group name: {duplicate_node_name}',
+            'id': new_uuid
+        }
 
 
 class PropWriter:
@@ -224,6 +244,10 @@ class PropWriter:
         children_str += ']'
         self.indent -= 1
         return children_str
+
+
+class IDNotFound(Exception):
+    pass
 
 
 class DataNotFound(Exception):
