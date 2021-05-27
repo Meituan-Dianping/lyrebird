@@ -12,28 +12,33 @@ class Menu(Resource):
                 'name': 'inspector',
                 'title': 'Inspector',
                 'type': 'router',
-                'path': '/'
+                'path': '/',
+                'icon': 'md-desktop'
             },
             {
                 'name': 'datamanager',
                 'title': 'DataManager',
                 'type': 'router',
-                'path': '/datamanager'
+                'path': '/datamanager',
+                'icon': 'md-analytics'
             },
             {
                 'name': 'checker',
                 'title': 'Checker',
                 'type': 'router',
-                'path': '/checker'
+                'path': '/checker',
+                'icon': 'md-construct'
             }]
         # Load plugins from new plugin manager
         _pm = application.server['plugin']
         for plugin_id, plugin in _pm.plugins.items():
+            icon = plugin.manifest._manifest.get('icon','md-bug')
             menu.append({
                 'name': 'plugin-container',
                 'title': plugin.manifest.name,
                 'type': 'router',
                 'path': '/plugins',
+                'icon': icon,
                 'params': {
                     'src': f'/plugins/{plugin_id}',
                     'name': plugin_id

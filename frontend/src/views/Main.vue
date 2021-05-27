@@ -1,14 +1,34 @@
 <template>
   <div>
     <Layout class="main-layout">
+      
+      <Drawer width="200" class="sider-bar" :closable="false" :mask="false" placement="left"
+        @mouseleave.native="foldDrawer" v-model="drawerShowed">
+        <div class="logo">
+          <img src="@/assets/lyrebird.logo.png" />
+          <span>{{drawerLogo}}</span>
+        </div>
+        <Divider class="sider-bar-divider" />
+        <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName" ref="menu">
+          <div v-for="(menuItem, index) in menu" :key="index">
+            <MenuItem
+                :name="menuItem.title"
+                @click.native="menuItemOnClick(menuItem)"
+            >
+              <Icon :type="menuItem.icon" size="20"></Icon>
+                <b>{{drawerMenuItemTitle(menuItem)}}</b>
+            </MenuItem>
+          </div>
+        </Menu>
+      </Drawer>
+
       <Sider
         ref="mainSider"
         class="sider-bar"
         hide-trigger
         collapsible
-        :collapsed-width="50"
-        @mouseover.native="stretchSider"
-        @mouseout.native="foldSider"
+        :collapsed-width="60"
+        @mouseenter.native="stretchDrawer" 
         v-model="isCollapsed"
       >
         <div class="logo">
@@ -18,26 +38,24 @@
         <Divider class="sider-bar-divider" />
         <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName" ref="menu">
           <div v-for="(menuItem, index) in menu" :key="index">
-            <Tooltip
-              :content="menuItem.title"
-              placement="right"
-              :disabled="!isCollapsed"
-              transfer
-              style="width: 100%"
-            >
-              <MenuItem
+            <MenuItem
                 :name="menuItem.title"
                 @click.native="menuItemOnClick(menuItem)"
-              >
+            >
+              <Icon :type="menuItem.icon" size="20"></Icon>
                 <b>{{menuItemTitle(menuItem)}}</b>
-              </MenuItem>
-            </Tooltip>
+            </MenuItem>
           </div>
         </Menu>
       </Sider>
       <Layout>
         <Header class="main-header" inline>
-          <Icon type="md-menu" color="white" size="24" @click.native="collapsedSider" :class="rotateIcon" :style="{margin: '0 10px'}"></Icon>
+          <Icon 
+          type="md-menu" color="white" size="24" 
+          @click.native="collapsedSider" 
+          :class="rotateIcon" 
+          :style="{margin: '0 10px'}">
+          </Icon>
           <notice-center></notice-center>
         </Header>
         <Content>
@@ -133,6 +151,8 @@ export default {
   },
   data () {
     return {
+      drawerShowed: false,
+      isLocked: false,
       isCollapsed: true,
       showedStatus: ["ip", "mock.port", "proxy.port"]
     }
@@ -185,6 +205,11 @@ export default {
         return 'Lyrebird'
       }
     },
+    drawerLogo () {
+      if (this.drawerShowed) {
+        return 'Lyrebird'
+      }
+    },
     menu () {
       return this.$store.state.menu
     },
@@ -234,23 +259,30 @@ export default {
     }
   },
   methods: {
-    stretchSider () {
-      if(this.isCollapsed) {
-        this.$refs.mainSider.toggleCollapse()
+    stretchDrawer () {
+      if(!this.drawerShowed && this.isCollapsed){
+        this.drawerShowed = !this.drawerShowed
       }
     },
-    foldSider () {
-      if(!this.isCollapsed) {
-        this.$refs.mainSider.toggleCollapse()
+    foldDrawer () {
+      if(this.drawerShowed){
+        this.drawerShowed = !this.drawerShowed
       }
     },
     collapsedSider () {
+      this.isLocked = !this.isLocked
       this.$refs.mainSider.toggleCollapse()
     },
     menuItemTitle (menuItem) {
       if (this.isCollapsed) {
-        return menuItem.title.substring(0, 1)
+        //return menuItem.title.substring(0, 1)
+        return ''
       } else {
+        return menuItem.title
+      }
+    },
+    drawerMenuItemTitle (menuItem) {
+      if (this.drawerShowed) {
         return menuItem.title
       }
     },
@@ -380,6 +412,12 @@ export default {
 <style>
 .ivu-split-pane {
   overflow: hidden;
+}
+.ivu-drawer-left > .ivu-drawer-content {
+  background-color: #515a6e;
+}
+.ivu-drawer-content > .ivu-drawer-body {
+  padding: 0px;
 }
 .main-footer-status-no-pointer {
   padding: 0px 4px;
