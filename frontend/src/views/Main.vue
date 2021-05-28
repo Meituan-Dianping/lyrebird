@@ -2,7 +2,7 @@
   <div>
     <Layout class="main-layout">
       
-      <Drawer width="200" class="sider-bar" :closable="false" :mask="false" placement="left"
+      <Drawer width="200" :closable="false" :mask="false" placement="left"
         @mouseleave.native="foldDrawer" v-model="drawerShowed">
         <div class="logo">
           <img src="@/assets/lyrebird.logo.png" />
@@ -16,7 +16,7 @@
                 @click.native="menuItemOnClick(menuItem)"
             >
               <Icon :type="menuItem.icon" size="20"></Icon>
-                <b>{{drawerMenuItemTitle(menuItem)}}</b>
+                <b>{{drawerMenuItemTitle(menuItem)}} </b>
             </MenuItem>
           </div>
         </Menu>
@@ -28,7 +28,7 @@
         hide-trigger
         collapsible
         :collapsed-width="60"
-        @mouseenter.native="stretchDrawer" 
+        @mouseenter.native="stretchDrawer"
         v-model="isCollapsed"
       >
         <div class="logo">
@@ -271,6 +271,16 @@ export default {
         this.drawerShowed = !this.drawerShowed
       }
     },
+    stretchSider () {
+      if(this.isCollapsed){
+        this.isCollapsed = !this.isCollapsed
+      }
+    },
+    foldSider () {
+      if(!this.isCollapsed && !this.isLocked){
+        this.isCollapsed = !this.isCollapsed
+      }
+    },
     collapsedSider () {
       this.isLocked = !this.isLocked
       this.$refs.mainSider.toggleCollapse()
@@ -357,6 +367,13 @@ export default {
 }
 .sider-bar {
   background-color: #515a6e;
+  display: inline-block;
+  overflow: hidden;
+  width: 100px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  transition: width .2s ease .2s;
 }
 .sider-bar-divider {
   height: 1px;
@@ -397,18 +414,20 @@ export default {
 .main-footer-right {
   float: right;
 }
-.collapsed-menu span {
-  width: 0px;
-  transition: width 0.2s ease;
+.menu-item i{
+    transform: translateX(0px);
+    transition: font-size .2s ease, transform .2s ease;
+    vertical-align: middle;
+    font-size: 16px;
 }
-.menu-item span {
-  display: inline-block;
-  overflow: hidden;
-  width: 69px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: bottom;
-  transition: width 0.2s ease 0.2s;
+.sider-bar .collapsed-menu i{
+    transform: translateX(5px);
+    transition: font-size .2s ease .2s, transform .2s ease .2s;
+    vertical-align: middle;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .main-container {
   height: calc(100vh - 66px);
@@ -427,6 +446,7 @@ export default {
 }
 .ivu-drawer-left > .ivu-drawer-content {
   background-color: #515a6e;
+  font-family:'Avenir', Helvetica, Arial, sans-serif;
 }
 .ivu-drawer-content > .ivu-drawer-body {
   padding: 0px;
