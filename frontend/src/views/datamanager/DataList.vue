@@ -4,6 +4,11 @@
       <span>
         <b style="padding-left:5px">Mock Data</b>
       </span>
+      <span>
+        <a href="#" title="Reload mock data">
+          <Icon type="md-refresh" style="margin-left: 5px;" size=12 @click.stop="reloadMockData"/>
+        </a>
+      </span>
       <span class="button-bar-group-right">
         <Tooltip content="Search" placement="bottom-end" :delay="500">
           <Icon
@@ -28,7 +33,7 @@
       <span class="button-bar-group-right">
         <LabelDropdown :initLabels="selectedLabel" :placement="'bottom-end'" @onLabelChange="editLabel">
           <template #dropdownButton>
-            <span style="cursor:pointer;">
+            <span class="button-bar-btn">
               Labels
               <Icon type="md-arrow-dropdown" size="14"/>
             </span>
@@ -36,8 +41,12 @@
         </LabelDropdown>
       </span>
       <span class="button-bar-group-right">
-        <Icon v-if="isLabelDisplay" @click="changeLabelDisplayState" type="ios-eye-off" style="cursor:pointer" />
-        <Icon v-else @click="changeLabelDisplayState" type="ios-eye" style="cursor:pointer" />
+        <a v-if="isLabelDisplay" href="#" title="Don\'t display labels">
+          <Icon @click.stop="changeLabelDisplayState" type="ios-eye-off" class="button-bar-btn"/>
+        </a>
+        <a v-else href="#" title="Display labels">
+          <Icon @click.stop="changeLabelDisplayState" type="ios-eye" class="button-bar-btn"/>
+        </a>
       </span>
     </Row>
     <Spin fix v-if="spinShow">
@@ -62,7 +71,6 @@
 </template>
 
 <script>
-import { breadthFirstSearch } from 'tree-helper'
 import LabelDropdown from '@/components/LabelDropdown.vue'
 import DocumentTree from '@/components/DocumentTree.vue'
 import MockDataSelector from '@/components/SearchModal.vue'
@@ -121,13 +129,7 @@ export default {
       }
     },
     resetFocusNodeInfo (payload) {
-      breadthFirstSearch(this.$store.state.dataManager.groupList, node => {
-        if (node.id === payload.id) {
-          this.$store.commit('setFocusNodeInfo', node)
-          // `return false` is used to break loop, no related to search result
-          return false
-        }
-      })
+      this.$store.commit('setFocusNodeInfoByGroupInfo', payload)
     },
     resetGroupDetail (payload) {
       if (payload.type === 'group') {
@@ -166,7 +168,11 @@ export default {
       this.$store.dispatch('loadDataMap')
     },
     changeLabelDisplayState () {
-      this.$store.commit('setIsLabelDisplay', !this.$store.state.dataManager.isLabelDisplay)
+      const status = !this.isLabelDisplay
+      this.$store.commit('setIsLabelDisplay', status)
+    },
+    reloadMockData () {
+      this.$store.dispatch('loadDataMap')
     }
   }
 }
@@ -195,7 +201,6 @@ export default {
   margin-right: 10px;
 }
 .button-bar-btn {
-  padding-left: 5px;
   cursor: pointer;
 }
 .button-bar-btn img {

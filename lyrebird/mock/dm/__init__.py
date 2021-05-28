@@ -435,6 +435,9 @@ class DataManager:
             _group_id = self._copy_node(_parent_node, _node, **kwargs)
         return _group_id
 
+    def duplicate(self, _id, **kwargs):
+        return self._adapter.duplicate(_id)
+
     def _copy_node(self, parent_node, node, **kwargs):
         new_node = {}
         new_node.update(node)

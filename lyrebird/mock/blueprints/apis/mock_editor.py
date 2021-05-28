@@ -22,3 +22,12 @@ class Paste(Resource):
     def put(self, _id):
         context.application.data_manager.paste(_id)
         return application.make_ok_response()
+
+
+class Duplicate(Resource):
+
+    def put(self, _id):
+        message = context.application.data_manager.duplicate(_id)
+        if message:
+            return application.make_ok_response(**message)
+        return application.make_ok_response()

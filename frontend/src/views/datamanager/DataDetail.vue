@@ -21,7 +21,6 @@
 import DataDetailHttpData from '@/views/datamanager/DataDetailHttpData.vue'
 import DataDetailFolder from '@/views/datamanager/DataDetailFolder.vue'
 import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
-import { breadthFirstSearch } from 'tree-helper'
 
 export default {
   components: {
@@ -70,13 +69,7 @@ export default {
       this.resetGroupDetail(payload)
     },
     resetFocusNodeInfo (payload) {
-      breadthFirstSearch(this.$store.state.dataManager.groupList, node => {
-        if (node.id === payload.id) {
-          this.$store.commit('setFocusNodeInfo', node)
-          // `return false` is used to break loop, no related to search result
-          return false
-        }
-      })
+      this.$store.commit('setFocusNodeInfoByGroupInfo', payload)
     },
     resetGroupDetail (payload) {
       if (payload.type === 'group') {
