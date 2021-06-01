@@ -49,7 +49,7 @@ setup(
         "requests==2.21.0",
         "SQLAlchemy==1.3.22",
         "click==7.1.2",
-        "urllib3==1.24.2",
+        "urllib3==1.26.5",
         "qrcode==6.1",
         "Pillow==8.0.1",
         "eventlet==0.30.1"
