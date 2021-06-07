@@ -27,7 +27,7 @@
         class="sider-bar"
         hide-trigger
         collapsible
-        :collapsed-width="60"
+        :collapsed-width="50"
         @mouseenter.native="stretchDrawer"
         v-model="isCollapsed"
       >
@@ -43,7 +43,7 @@
                 @click.native="menuItemOnClick(menuItem)"
             >
               <Icon :type="menuItem.icon" size="20"></Icon>
-                <b>{{menuItemTitle(menuItem)}}</b>
+              <b v-show="!isCollapsed">{{menuItemTitle(menuItem)}}</b>
             </MenuItem>
           </div>
         </Menu>
@@ -367,13 +367,6 @@ export default {
 }
 .sider-bar {
   background-color: #515a6e;
-  display: inline-block;
-  overflow: hidden;
-  width: 100px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: bottom;
-  transition: width .2s ease .2s;
 }
 .sider-bar-divider {
   height: 1px;
@@ -414,21 +407,57 @@ export default {
 .main-footer-right {
   float: right;
 }
-.menu-item i{
-    transform: translateX(0px);
-    transition: font-size .2s ease, transform .2s ease;
-    vertical-align: middle;
-    font-size: 16px;
-}
 .sider-bar .collapsed-menu i{
-    transform: translateX(5px);
-    transition: font-size .2s ease .2s, transform .2s ease .2s;
-    vertical-align: middle;
-    font-size: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
+.sider-bar .menu-item i{
+    display: fixed;
+}
+/* .menu-item b{
+    display: inline-block;
+    overflow: hidden;
+    width: 100px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+    transition: width .2s ease .2s;
+  } */
+
+  /* .collapsed-menu b{
+    width: 0px;
+    transition: width .2s ease;
+  } */
+
+.ivu-layout-sider span{
+    display: inline-block;
+    overflow: hidden;
+    width: 100px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+    transition: width .2s ease .2s;
+}
+.ivu-layout-sider-collapsed span{
+    width: 0px;
+    transition: width .2s ease;
+}
+
+.ivu-layout-sider b{
+    display: inline-block;
+    overflow: hidden;
+    width: 100px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+    transition: width .2s ease .2s;
+}
+.ivu-layout-sider-collapsed b{
+    width: 0px;
+    transition: width .2s ease;
+}
+
 .main-container {
   height: calc(100vh - 66px);
   background: #fff;
