@@ -41,7 +41,7 @@
         </LabelDropdown>
       </span>
       <span class="button-bar-group-right">
-        <a v-if="isLabelDisplay" href="#" title="Don\'t display labels">
+        <a v-if="isLabelDisplay" href="#" title="Hide labels">
           <Icon @click.stop="changeLabelDisplayState" type="ios-eye-off" class="button-bar-btn"/>
         </a>
         <a v-else href="#" title="Display labels">
