@@ -2,7 +2,13 @@
   <div class="main-header-notice" @click="drawerIsCollapsed=true">
     <a>
       <Badge :count="noticeList.length" overflow-count="999" :offset="offset" class-name="notice-badge">
-        <Icon type="ios-notifications" size="16" color="white" ></Icon>
+        <!-- <Icon type="ios-notifications" size="16" color="white" ></Icon> -->
+        <v-icon
+        size="18"
+        color="white"
+        >
+          mdi-bell
+      </v-icon>
       </Badge>
     </a>
     <Drawer width="380" :closable="true" :mask="false" v-model="drawerIsCollapsed">

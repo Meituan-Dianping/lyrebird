@@ -27,12 +27,25 @@ class Menu(Resource):
                 'title': 'Checker',
                 'type': 'router',
                 'path': '/checker',
-                'icon': 'md-construct'
+                'icon': 'md-build'
             }]
+
+        plugin_icon = {
+            'URLScheme': 'md-link',
+            'Recorder': 'md-videocam',
+            'QRCoder': 'md-qr-scanner',
+            'BugIt': 'md-bug',
+            'Android': 'logo-android',
+            'iOS': 'logo-apple',
+            'APICoverage': 'md-list',
+            'MPTools': 'md-chatboxes'
+        }
         # Load plugins from new plugin manager
         _pm = application.server['plugin']
         for plugin_id, plugin in _pm.plugins.items():
-            icon = plugin.manifest._manifest.get('icon','md-bug')
+            icon = plugin.manifest._manifest.get('icon')
+            if not icon:
+                icon = plugin_icon.get(plugin.manifest.name,'md-construct')
             menu.append({
                 'name': 'plugin-container',
                 'title': plugin.manifest.name,

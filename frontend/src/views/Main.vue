@@ -1,8 +1,8 @@
 <template>
   <div>
-    <Layout class="main-layout">
+    <!-- <Layout class="main-layout"> -->
       
-      <Drawer width="200" :closable="false" :mask="false" placement="left"
+      <!-- <Drawer width="200" :closable="false" :mask="false" placement="left"
         @mouseleave.native="foldDrawer" v-model="drawerShowed">
         <div class="logo">
           <img src="@/assets/lyrebird.logo.png" />
@@ -20,9 +20,9 @@
             </MenuItem>
           </div>
         </Menu>
-      </Drawer>
+      </Drawer> -->
 
-      <Sider
+      <!-- <Sider
         ref="mainSider"
         class="sider-bar"
         hide-trigger
@@ -47,8 +47,9 @@
             </MenuItem>
           </div>
         </Menu>
-      </Sider>
-      <Layout>
+      </Sider> -->
+
+      <!-- <Layout>
         <Header class="main-header" inline>
           <Icon 
           type="md-menu" color="white" size="24" 
@@ -134,8 +135,135 @@
             <span class="main-footer-status-placeholder"></span>
           </span>
         </Footer>
-      </Layout>
-    </Layout>
+      </Layout> -->
+    <!-- </Layout> -->
+  
+  
+  <v-system-bar 
+    app 
+    dense
+    flat
+    height="38px"
+    color="#0fccbf"
+    >
+  <div class="logo">
+        <img style="margin-left:5px;text-shadow:#000 3px 4px 5px" src="@/assets/lyrebird.logo.png" />
+        <span style="margin-left:15px;text-shadow:#000 3px 4px 5px">Lyrebird</span>
+  </div>
+    <v-spacer></v-spacer>
+    <!-- <v-switch
+      color="#515a6e"
+      v-model="switch1"
+      :label="`黑夜模式: ${switch1.toString()}`"
+    ></v-switch> -->
+    <notice-center></notice-center>
+  </v-system-bar>
+
+    <v-navigation-drawer 
+      app
+      permanent
+      expand-on-hover
+      color="#515a6e"
+      >
+      <v-divider></v-divider>
+        <v-list
+        nav
+        dense
+        shaped
+      >
+        <div v-for="(menuItem, index) in menu" :key="index">
+          <v-list-item link @click.native="menuItemOnClick(menuItem)">
+              <v-list-item-icon>
+                <Icon :type="menuItem.icon" size="23"></Icon>
+              </v-list-item-icon>
+              <v-list-item-title>
+                <b>{{menuItemTitle2(menuItem)}}</b>
+              </v-list-item-title>
+          </v-list-item>
+        </div>
+      </v-list>
+        
+    </v-navigation-drawer>
+
+  <v-content>
+    <div class="main-container">
+      <router-view></router-view>
+    </div>
+  </v-content>
+  <v-footer 
+    app
+    color="#0fccbf"
+  >
+    <span class="main-footer-status-placeholder"></span>
+    <span v-show="activatedGroupName" class="main-footer-status-no-pointer">
+      <b>Activated mock group: {{activatedGroupName}}</b>
+      <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
+    </span>
+    <StatusBar />
+    <span class="main-footer-right">
+      <Poptip
+        content="content"
+        placement="top-start"
+        class="main-footer-status"
+        width="250"
+      >
+        <b class="main-footer-status-button">Bandwidth: {{bandwidthExplanation}} </b>
+        <div slot="title">
+          <b>Bandwidth</b>
+        </div>
+        <div slot="content">
+          <Row type="flex" justify="space-around">
+            <Col span="12" v-for="(item, index) in bandwidthTemplates" :key="index">
+              <Button
+                style="min-width:95px;margin-top:5px;"
+                :class="item.bandwidth == bandwidth ? 'bandwidth-btn-highlight' : ''"
+                @click.prevent="updateBandwidth(item.template_name)"
+              >{{ item.template_name }}</Button>
+            </Col>
+          </Row>
+        </div>
+      </Poptip>
+      <Poptip
+        v-if="status"
+        content="content"
+        placement="top-end"
+        class="main-footer-status"
+        width="250"
+      >
+        <span class="main-footer-status-button">
+          <Icon type="ios-arrow-up" style="padding-right:3px;"/>
+          <b>Version {{status.version}}</b>
+        </span>
+        <div slot="title">
+          <b>Lyrebird {{status.version}}</b>
+        </div>
+        <div slot="content">
+          <Row v-for="key in showedStatus" :key="key">
+            <i-col span="11">
+              <b style="float: right">{{key.toUpperCase()}}</b>
+            </i-col>
+            <i-col span="12" offset="1">{{status[key]}}</i-col>
+          </Row>
+          <Divider style="margin:10px 0;"/>
+          <div style="text-align:center">
+            <strong>
+              Copyright &copy; 2018-present 
+              <a href="https://meituan-dianping.github.io/lyrebird" target="_blank" >Meituan</a>.
+            </strong>
+          </div>
+        </div>
+      </Poptip>
+      <span class="main-footer-status">
+        <a
+          href="https://github.com/Meituan-Dianping/lyrebird/issues/new?assignees=&labels=&template=bug_report.md&title="
+          target="_blank"
+        >
+          <Icon type="ios-bug" class="main-footer-status-button"/>
+        </a>
+      </span>
+      <span class="main-footer-status-placeholder"></span>
+    </span>
+  </v-footer>
   </div>
 </template>
 
@@ -154,6 +282,7 @@ export default {
       drawerShowed: false,
       isLocked: false,
       isCollapsed: true,
+      switch1: false,
       showedStatus: ["ip", "mock.port", "proxy.port"]
     }
   },
@@ -287,11 +416,14 @@ export default {
     },
     menuItemTitle (menuItem) {
       if (this.isCollapsed) {
-        //return menuItem.title.substring(0, 1)
-        return ''
+        return menuItem.title.substring(0, 1)
+        // return ''
       } else {
         return menuItem.title
       }
+    },
+    menuItemTitle2 (menuItem) {
+        return menuItem.title
     },
     drawerMenuItemTitle (menuItem) {
       if (this.drawerShowed) {
@@ -381,12 +513,12 @@ export default {
 }
 .logo span {
   color: white;
-  font-size: 25px;
+  font-size: 22px;
   font-weight: bolder;
   font-style: italic;
 }
 .logo img {
-  width: 32px;
+  width: 28px;
 }
 .main-header {
   height: 38px;
@@ -411,9 +543,6 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-.sider-bar .menu-item i{
-    display: fixed;
 }
 /* .menu-item b{
     display: inline-block;
@@ -455,11 +584,12 @@ export default {
 }
 .ivu-layout-sider-collapsed b{
     width: 0px;
+    height: 0px;
     transition: width .2s ease;
 }
 
 .main-container {
-  height: calc(100vh - 66px);
+  height: calc(100vh - 68px);
   background: #fff;
 }
 .bandwidth-btn-highlight {
