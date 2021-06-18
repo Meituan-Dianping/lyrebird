@@ -89,7 +89,7 @@ export default {
     return {
       currentTab: "information",
       undisplayedKey: ['children', 'type', 'parent_id'],
-      undeletableKey: ['id', 'rule', 'super_id', 'name', 'label', 'category'],
+      undeletableKey: ['id', 'rule', 'name', 'label', 'category'],
       uneditableKey: ['id', 'rule'],
       stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label'],
       conflictCheckNode: {},

@@ -334,8 +334,8 @@ export default {
     loadIsLabelDisplay ({ commit }) {
       api.getLyrebirdConfig()
         .then(response => {
-          if (response.data.hasOwnProperty('mock.data.isLabelDisplay')) {
-            commit('setIsLabelDisplay', response.data['mock.data.isLabelDisplay'])
+          if (response.data.hasOwnProperty('mock.data.showLabel')) {
+            commit('setIsLabelDisplay', response.data['mock.data.showLabel'])
           }
         })
     }
