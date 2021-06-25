@@ -66,13 +66,15 @@ export default {
       this.$bus.$emit('toggleNotice')
       // TODO: support select manifest
       // store.state.manifest[0]: only one manifest are supported in v1.0
+      var index = 0
       for(const menuItem of this.$store.state.menu){
         if (menuItem['params'] && this.$store.state.manifest[0] === menuItem['params']['name']){
-          this.$store.commit('setActiveName', menuItem.title)
+          this.$store.commit('setActiveMenuItemIndex', index)
           this.jumpToUrl = menuItem.params.src + '?event_id=' + notice.id
           this.jumpToName = menuItem.params.name
           break
         }
+        index++
       }
       this.$store.commit('plugin/setSrc', this.jumpToUrl)
       this.$router.push({name:'plugin-view', params:{name:this.jumpToName, query:'event_id='+this.notice.id}})

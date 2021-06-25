@@ -2,13 +2,9 @@
   <div class="main-header-notice" @click="drawerIsCollapsed=true">
     <a>
       <Badge :count="noticeList.length" overflow-count="999" :offset="offset" class-name="notice-badge">
-        <!-- <Icon type="ios-notifications" size="16" color="white" ></Icon> -->
-        <v-icon
-        size="18"
-        color="white"
-        >
-          mdi-bell
-      </v-icon>
+        <v-btn icon>
+          <v-icon size="18px" color="white">mdi-bell</v-icon>
+        </v-btn>
       </Badge>
     </a>
     <Drawer width="380" :closable="true" :mask="false" v-model="drawerIsCollapsed">
@@ -66,12 +62,13 @@ export default {
     this.$bus.$on('toggleNotice', this.toggle)
     this.$io.on('alert', this.showNoticeAlert)
     this.$io.on('update', this.updateNotice)
-    this.$io.on('msgSuccess', this.successMessage)
+    this.$io.on('msgSuccess', this.showSuccessMessage)
     this.$store.dispatch('loadNoticeCenterData')
   },
   destroyed() {
     this.$io.removeListener('alert', this.showNoticeAlert)
     this.$io.removeListener('update', this.updateNotice)
+    this.$io.removeListener('msgSuccess', this.showSuccessMessage) 
   },
   computed: {
     noticeList() {
@@ -82,8 +79,8 @@ export default {
     }
   },
   methods: {
-    successMessage (msg) {
-      this.$bus.$emit('msg.success', msg)
+    showSuccessMessage (msg) {
+      this.$bus.$emit('configSuccess', msg)
     },
     showNoticeAlert(noticeInfo){
       this.$Notice.warning({

@@ -13,39 +13,39 @@ class Menu(Resource):
                 'title': 'Inspector',
                 'type': 'router',
                 'path': '/',
-                'icon': 'md-desktop'
+                'icon': 'mdi-monitor' # icon
             },
             {
                 'name': 'datamanager',
                 'title': 'DataManager',
                 'type': 'router',
                 'path': '/datamanager',
-                'icon': 'md-analytics'
+                'icon': 'mdi-database-plus'
             },
             {
                 'name': 'checker',
                 'title': 'Checker',
                 'type': 'router',
                 'path': '/checker',
-                'icon': 'md-build'
+                'icon': 'mdi-script-text-outline'
             }]
 
         plugin_icon = {
-            'URLScheme': 'md-link',
-            'Recorder': 'md-videocam',
-            'QRCoder': 'md-qr-scanner',
-            'BugIt': 'md-bug',
-            'Android': 'logo-android',
-            'iOS': 'logo-apple',
-            'APICoverage': 'md-list',
-            'MPTools': 'md-chatboxes'
+            'URLScheme': 'mdi-link',
+            'Recorder': 'mdi-video-outline',
+            'QRCoder': 'mdi-qrcode-edit',
+            'BugIt': 'mdi-bug-outline',
+            'Android': 'mdi-android-debug-bridge',
+            'iOS': 'mdi-apple',
+            'APICoverage': 'mdi-google-analytics',
+            'MPTools': 'mdi-wechat'
         }
         # Load plugins from new plugin manager
         _pm = application.server['plugin']
         for plugin_id, plugin in _pm.plugins.items():
             icon = plugin.manifest._manifest.get('icon')
             if not icon:
-                icon = plugin_icon.get(plugin.manifest.name,'md-construct')
+                icon = plugin_icon.get(plugin.manifest.name, 'mdi-construct')
             menu.append({
                 'name': 'plugin-container',
                 'title': plugin.manifest.name,
@@ -61,8 +61,9 @@ class Menu(Resource):
         if not application.active_menu:
             self.set_active_menu(menu[0])
         active_menu = application.active_menu
-        active_name = active_menu.get('title', '')
-        return context.make_ok_response(menu=menu, activeMenuItem=active_menu, activeName=active_name)
+        #active_name = active_menu.get('title', '')
+        active_menu_index = menu.index(active_menu)
+        return context.make_ok_response(menu=menu, activeMenuItem=active_menu, activeMenuItemIndex=active_menu_index)
 
     def put(self):
         active_menu = request.json.get('activeMenuItem')

@@ -10,7 +10,7 @@
       @on-selection-change="itemSelectChange"
       class="data-table"
     >
-      <template slot-scope="{ row, index }" slot="source">
+      <template slot-scope="{ row }" slot="source">
         <Tooltip class="flow-list-item-source" :content="row.response.mock" :disabled="!row.response.mock" placement="bottom-start" transfer>
           <Tag v-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
           <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
@@ -25,7 +25,7 @@
           <Icon type="md-build" />
           <div slot="content">
             <p>Request modification:</p>
-            <p v-for="(value, index) in getRequestEditors(row)">{{index + 1}}. {{value.name}}</p>
+            <p v-for="(value, index) in getRequestEditors(row)" :key=index>{{index + 1}}. {{value.name}}</p>
           </div>
         </Tooltip>
       </template>

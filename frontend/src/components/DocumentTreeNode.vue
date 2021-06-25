@@ -20,7 +20,7 @@
         <Icon v-else type="ios-home" />
       </span>
       <span v-if="data.label && isLabelDisplay">
-        <span v-for="(label, index) in data.label" class="tree-node-inner-button">
+        <span v-for="(label, index) in data.label" :key=index class="tree-node-inner-button">
           <span class="tree-node-inner-tag" :style="'background-color:'+(label.color?label.color:'#808695')">{{label.name}}</span>
         </span>
       </span>
@@ -434,4 +434,10 @@ export default {
   margin: 0px 3px;
   background-color: #19be6b;
 }
+</style>
+
+<style lang='scss' scoped>
+  .v-application ol, .v-application ul {
+    padding-left: 0px;
+  }
 </style>
