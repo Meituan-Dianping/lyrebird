@@ -14,7 +14,7 @@
       <v-spacer></v-spacer>
       <!-- todo:change theme -->
       <v-btn icon @click="changeTheme" v-show="false">
-        <v-icon size="18px" color="white" v-if= dark>mdi-brightness-4</v-icon>
+        <v-icon size="18px" color="white" v-if= this.$vuetify.theme.dark>mdi-brightness-4</v-icon>
         <v-icon size="18px" color="#9e9e9e" v-else >mdi-brightness-5</v-icon>
       </v-btn>
       <notice-center></notice-center>
@@ -146,11 +146,9 @@ export default {
   },
   data () {
     return {
-      dark: false,
       drawerShowed: false,
       isLocked: false,
       isCollapsed: true,
-      switch1: false,
       showedStatus: ["ip", "mock.port", "proxy.port"]
     }
   },
@@ -171,7 +169,8 @@ export default {
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
-    this.$bus.$on('configSuccess', this.successMessage)
+    //todo: the name of the event should be changed after discussion
+    this.$bus.$on('config.success', this.successMessage)
     this.$bus.$on('msg.loading', this.loadingMessage)
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
@@ -218,8 +217,10 @@ export default {
         return this.$store.state.activeMenuItemIndex
       },
       set (val) {
+        // 1,val is undefined when index is not changed
+        // 2,to avoid the chosen menuitem showing status of deselect, we first set ActiveMenuItemIndex 
+        //   to -1 and then it will be set to the true index by menuItemOnClick
         this.$store.commit('setActiveMenuItemIndex', -1)
-        // val is undefined when index is not changed
         if (val !== undefined) {
           this.$store.commit('setActiveMenuItemIndex', val)
         }
@@ -242,8 +243,7 @@ export default {
   },
   methods: {
     changeTheme () {
-      this.dark = !this.dark
-      this.$vuetify.theme.dark = this.dark
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
     },
     menuItemTitle (menuItem) {
         return menuItem.title
@@ -331,7 +331,6 @@ export default {
 .logo img {
   margin-left: 8px;
   padding-top: 4px;
-  /* height:35px; */
   width: 28px
 }
 .main-header {

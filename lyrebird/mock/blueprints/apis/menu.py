@@ -30,22 +30,10 @@ class Menu(Resource):
                 'icon': 'mdi-script-text-outline'
             }]
 
-        plugin_icon = {
-            'URLScheme': 'mdi-link',
-            'Recorder': 'mdi-video-outline',
-            'QRCoder': 'mdi-qrcode-edit',
-            'BugIt': 'mdi-bug-outline',
-            'Android': 'mdi-android-debug-bridge',
-            'iOS': 'mdi-apple',
-            'APICoverage': 'mdi-google-analytics',
-            'MPTools': 'mdi-wechat'
-        }
         # Load plugins from new plugin manager
         _pm = application.server['plugin']
         for plugin_id, plugin in _pm.plugins.items():
-            icon = plugin.manifest._manifest.get('icon')
-            if not icon:
-                icon = plugin_icon.get(plugin.manifest.name, 'mdi-construct')
+            icon = plugin.manifest._manifest.get('icon','mdi-wrench')
             menu.append({
                 'name': 'plugin-container',
                 'title': plugin.manifest.name,
@@ -61,7 +49,6 @@ class Menu(Resource):
         if not application.active_menu:
             self.set_active_menu(menu[0])
         active_menu = application.active_menu
-        #active_name = active_menu.get('title', '')
         active_menu_index = menu.index(active_menu)
         return context.make_ok_response(menu=menu, activeMenuItem=active_menu, activeMenuItemIndex=active_menu_index)
 

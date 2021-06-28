@@ -1,5 +1,5 @@
 <template>
-  <div class="data-load-spin-container" style="color:#515A6E">
+  <div class="data-load-spin-container">
     <Row class="button-bar">
       <span>
         <b style="padding-left:5px">Mock Data</b>
@@ -60,7 +60,7 @@
           <Col span="24">
             <p class="search-item">
               <b v-if="searchResult.parent_id" class="search-item-title">{{searchResult.name}}</b>
-              <Icon v-else type="ios-home" class="search-item-title" style="color:#515A6E"/>
+              <Icon v-else type="ios-home" class="search-item-title"/>
               <span class="search-item-path">{{searchResult.abs_parent_path}}</span>
             </p>
           </Col>
@@ -208,15 +208,9 @@ export default {
 }
 .data-load-spin-container{
   position: relative;
+  color: #515A6E;
 }
 .data-load-spin-icon-load{
   animation: ani-demo-spin 1s linear infinite;
 }
-</style>
-
-<style lang='scss' scoped>
-  ::v-deep .theme--light.v-application {
-      background: #fff;
-      color: #515a6e;
-  }
 </style>

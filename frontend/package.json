@@ -22,7 +22,6 @@
   },
   "devDependencies": {
     "@mdi/font": "^5.9.55",
-    "@nuxtjs/vuetify": "^1.11.3",
     "@vue/cli-plugin-babel": "^3.8.0",
     "@vue/cli-service": "^3.8.0",
     "babel-eslint": "^10.0.1",

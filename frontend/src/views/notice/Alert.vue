@@ -29,7 +29,7 @@
         // TODO: support select manifest
         // store.state.manifest[0]: only one manifest are supported in v1.0
         console.log(noticeInfo)
-        var index = 0
+        let index = 0
         for(const menuItem of store.state.menu){
           if (menuItem['params'] && store.state.manifest[0] === menuItem['params']['name']){
             store.commit('setActiveMenuItemIndex', index)

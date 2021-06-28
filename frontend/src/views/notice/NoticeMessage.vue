@@ -66,7 +66,7 @@ export default {
       this.$bus.$emit('toggleNotice')
       // TODO: support select manifest
       // store.state.manifest[0]: only one manifest are supported in v1.0
-      var index = 0
+      let index = 0
       for(const menuItem of this.$store.state.menu){
         if (menuItem['params'] && this.$store.state.manifest[0] === menuItem['params']['name']){
           this.$store.commit('setActiveMenuItemIndex', index)

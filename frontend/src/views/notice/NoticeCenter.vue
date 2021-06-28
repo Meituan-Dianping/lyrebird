@@ -80,7 +80,8 @@ export default {
   },
   methods: {
     showSuccessMessage (msg) {
-      this.$bus.$emit('configSuccess', msg)
+      //todo: the name of the event should be changed after discussion
+      this.$bus.$emit('config.success', msg)
     },
     showNoticeAlert(noticeInfo){
       this.$Notice.warning({
