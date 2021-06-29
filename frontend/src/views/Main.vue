@@ -1,12 +1,6 @@
 <template>
   <div>
-    <v-system-bar 
-      app 
-      dense
-      flat
-      height="38px"
-      color="#0fccbf"
-    >
+    <v-system-bar app dense flat height="38px" color="#0fccbf">
       <div class="logo">
         <img src="@/assets/lyrebird.shadow.png" />
         <span>Lyrebird</span>
@@ -20,27 +14,10 @@
       <notice-center></notice-center>
     </v-system-bar>
 
-    <v-navigation-drawer 
-      app
-      permanent
-      expand-on-hover
-      class="secondary"
-      width="200px"
-    >
-      <v-list
-      nav
-      dense
-      > 
-      <v-list-item-group
-        v-model="activeMenuItemIndex"
-        color="#4BD2c0"
-        >
-        <v-list-item
-            v-for="(menuItem, index) in menu"
-            :key="index"
-            link
-            @click.native="menuItemOnClick(menuItem, index)"
-          >
+    <v-navigation-drawer app permanent expand-on-hover class="secondary" width="200px">
+      <v-list nav dense> 
+        <v-list-item-group v-model="activeMenuItemIndex" color="#4BD2c0">
+          <v-list-item v-for="(menuItem, index) in menu" :key="index" link @click.native="menuItemOnClick(menuItem, index)">
             <v-list-item-icon>
               <v-icon color="white">{{menuItem.icon}}</v-icon> 
             </v-list-item-icon>
@@ -57,79 +34,15 @@
       </div>
     </v-main>
 
-    <v-footer 
-      app
-      color="#0fccbf"
-      class="main-footer"
-    >
+    <v-footer app color="#0fccbf" class="main-footer">
       <span class="main-footer-status-placeholder"></span>
       <span v-show="activatedGroupName" class="main-footer-status-no-pointer">
         <b>Activated mock group: {{activatedGroupName}}</b>
         <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
       </span>
       <StatusBar />
-      <v-spacer/>
-      <Poptip
-        content="content"
-        placement="top-start"
-        class="main-footer-status"
-        width="250"
-      >
-        <b class="main-footer-status-button">Bandwidth: {{bandwidthExplanation}} </b>
-        <div slot="title">
-          <b>Bandwidth</b>
-        </div>
-        <div slot="content">
-          <Row type="flex" justify="space-around">
-            <Col span="12" v-for="(item, index) in bandwidthTemplates" :key="index">
-              <Button
-                style="min-width:95px;margin-top:5px;"
-                :class="item.bandwidth == bandwidth ? 'bandwidth-btn-highlight' : ''"
-                @click.prevent="updateBandwidth(item.template_name)"
-              >{{ item.template_name }}</Button>
-            </Col>
-          </Row>
-        </div>
-      </Poptip>
-      <Poptip
-        v-if="status"
-        content="content"
-        placement="top-end"
-        class="main-footer-status"
-        width="250"
-      >
-        <span class="main-footer-status-button">
-          <Icon type="ios-arrow-up" style="padding-right:3px;"/>
-          <b>Version {{status.version}}</b>
-        </span>
-        <div slot="title">
-          <b>Lyrebird {{status.version}}</b>
-        </div>
-        <div slot="content">
-          <Row v-for="key in showedStatus" :key="key">
-            <i-col span="11">
-              <b style="float: right">{{key.toUpperCase()}}</b>
-            </i-col>
-            <i-col span="12" offset="1">{{status[key]}}</i-col>
-          </Row>
-          <Divider style="margin:10px 0;"/>
-          <div style="text-align:center">
-            <strong>
-              Copyright &copy; 2018-present 
-              <a href="https://meituan-dianping.github.io/lyrebird" target="_blank" >Meituan</a>.
-            </strong>
-          </div>
-        </div>
-      </Poptip>
-      <span class="main-footer-status">
-        <a
-          href="https://github.com/Meituan-Dianping/lyrebird/issues/new?assignees=&labels=&template=bug_report.md&title="
-          target="_blank"
-        >
-          <v-icon size="16px" color="white">mdi-ladybug</v-icon> 
-        </a>
-      </span>
-      <span class="main-footer-status-placeholder"></span>
+      <v-spacer></v-spacer>
+      <StatusInfo />
     </v-footer>
   </div>
 </template>
@@ -137,27 +50,18 @@
 <script>
 import NoticeCenter from '@/views/notice/NoticeCenter.vue'
 import StatusBar from '@/views/statusbar/StatusBar.vue'
+import StatusInfo from '@/views/statusbar/StatusInfo.vue'
 
 export default {
   name: 'MainLayout',
   components: {
     NoticeCenter,
-    StatusBar
-  },
-  data () {
-    return {
-      drawerShowed: false,
-      isLocked: false,
-      isCollapsed: true,
-      showedStatus: ["ip", "mock.port", "proxy.port"]
-    }
+    StatusBar,
+    StatusInfo
   },
   mounted () {
     this.$store.dispatch('loadMenu')
-    this.$store.dispatch('loadStatus')
     this.$store.dispatch('loadManifest')
-    this.$store.dispatch('loadBandwidth')
-    this.$store.dispatch('loadBandwidthTemplates')
     this._keydownListener = (e) => {
       this.$bus.$emit('keydown', e)
     }
@@ -188,29 +92,8 @@ export default {
     menu () {
       return this.$store.state.menu
     },
-    status () {
-      return this.$store.state.status
-    },
     manifest () {
       return this.$store.state.manifest
-    },
-    bandwidth () {
-      return this.$store.state.bandwidth.bandwidth
-    },
-    bandwidthTemplates () {
-      return this.$store.state.bandwidth.bandwidthTemplates
-    },
-    bandwidthExplanation () {
-      for (let v of this.bandwidthTemplates) {
-        if (this.bandwidth == v['bandwidth']) {
-          if (this.bandwidth == -1) {
-            return v['template_name']
-          }
-          else {
-            return `${v['template_name']} ( ${v['bandwidth']} Kb/s)`
-          }
-        }
-      }
     },
     activeMenuItemIndex: {
       get () {
@@ -306,9 +189,6 @@ export default {
     destroyMessage () {
       this.$Message.destroy()
     },
-    updateBandwidth (template_name) {
-      this.$store.dispatch('updateBandwidth', template_name)
-    }
   }
 }
 </script>
@@ -345,17 +225,9 @@ export default {
   line-height: 28px;
   padding: 0;
 }
-.main-footer-status-placeholder {
-  margin-left: 5px;
-}
 .main-container {
   height: calc(100vh - 66px);
   background: #fff;
-}
-.bandwidth-btn-highlight {
-  background-color: #0fccbf !important;
-  color: #fff;
-  outline: none;
 }
 </style>
 
@@ -385,5 +257,8 @@ export default {
 }
 .main-footer-status-button {
   color: #f8f8f9;
+}
+.main-footer-status-placeholder {
+  margin-left: 5px;
 }
 </style>
