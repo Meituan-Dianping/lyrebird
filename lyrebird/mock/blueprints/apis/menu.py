@@ -13,7 +13,7 @@ class Menu(Resource):
                 'title': 'Inspector',
                 'type': 'router',
                 'path': '/',
-                'icon': 'mdi-monitor' # icon
+                'icon': 'mdi-monitor'
             },
             {
                 'name': 'datamanager',
