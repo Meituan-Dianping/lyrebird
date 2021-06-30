@@ -1,6 +1,6 @@
 <template>
   <span>
-    <span v-for="(item, index) in statusBarList" :key="index" class="main-footer-status">
+    <span v-for="(item, index) in statusBarList" :key="index" class="main-footer-status" @click="getStatusBarDetail(item.id)">
       <Poptip
         content="content"
         placement="top-start"
@@ -9,9 +9,8 @@
         padding="10px 20px 10px 20px"
         transfer
       >
-        <a @click="getStatusBarDetail(item.id)">
-          <b class="main-footer-status-button"> {{item.text}}</b>
-        </a>
+        <b class="main-footer-status-button"> {{item.text}}</b>
+
         <div slot="content">
           <div v-for="(item, index) in statusBarDetail" :key="index">
               <img v-if="item.type=='ImageMenuItem'" :src="item.src" class="image-menu-item">
