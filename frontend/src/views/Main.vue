@@ -5,7 +5,7 @@
         <img src="@/assets/lyrebird.shadow.png" />
         <span>Lyrebird</span>
       </div>
-      <v-spacer></v-spacer>
+      <v-spacer/>
       <!-- todo:change theme -->
       <v-btn icon @click="changeTheme" v-show="false">
         <v-icon size="18px" color="white" v-if= this.$vuetify.theme.dark>mdi-brightness-4</v-icon>
