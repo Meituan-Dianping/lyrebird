@@ -28,17 +28,15 @@
       jump(noticeInfo) {
         // TODO: support select manifest
         // store.state.manifest[0]: only one manifest are supported in v1.0
-        console.log(noticeInfo)
-        let index = 0
-        for(const menuItem of store.state.menu){
+        for(const index in store.state.menu){
+          let menuItem = store.state.menu[index]
           if (menuItem['params'] && store.state.manifest[0] === menuItem['params']['name']){
-            store.commit('setActiveMenuItemIndex', index)
+            store.commit('setActiveMenuItemIndex', parseInt(index))
             this.jumpToUrl = menuItem.params.src + '?event_id=' + noticeInfo.id
             this.jumpToName = menuItem.params.name
             break
           }
         }
-        index++
         store.commit('plugin/setSrc', this.jumpToUrl)
         router.push({name:'plugin-view', params:{name:this.jumpToName}})
       }

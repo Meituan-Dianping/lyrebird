@@ -62,13 +62,11 @@ export default {
     this.$bus.$on('toggleNotice', this.toggle)
     this.$io.on('alert', this.showNoticeAlert)
     this.$io.on('update', this.updateNotice)
-    this.$io.on('msgSuccess', this.showSuccessMessage)
     this.$store.dispatch('loadNoticeCenterData')
   },
   destroyed() {
     this.$io.removeListener('alert', this.showNoticeAlert)
     this.$io.removeListener('update', this.updateNotice)
-    this.$io.removeListener('msgSuccess', this.showSuccessMessage) 
   },
   computed: {
     noticeList() {
@@ -79,10 +77,6 @@ export default {
     }
   },
   methods: {
-    showSuccessMessage (msg) {
-      //todo: the name of the event should be changed after discussion
-      this.$bus.$emit('config.success', msg)
-    },
     showNoticeAlert(noticeInfo){
       this.$Notice.warning({
         duration: 3,

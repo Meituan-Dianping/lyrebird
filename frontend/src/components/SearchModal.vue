@@ -81,7 +81,6 @@ export default {
 .search-item-title {
   font-size: 14px;
   padding: 0px 5px;
-  color: #515A6E;
 }
 .search-item-path {
   font-size: 12px;
