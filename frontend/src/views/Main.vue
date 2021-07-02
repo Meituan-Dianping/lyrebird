@@ -28,7 +28,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-main class="accent">
+    <v-main>
       <div class="main-container">
         <router-view></router-view>
       </div>
@@ -70,16 +70,16 @@ export default {
   beforeDestroy () {
     document.removeEventListener('keydown', this._keydownListener)
     this.$io.removeListener('activatedGroupUpdate', this.loadActivatedGroup)
+    this.$io.removeListener('msgSuccess', this.successMessage) 
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
-    //todo: the name of the event should be changed after discussion
-    this.$bus.$on('config.success', this.successMessage)
     this.$bus.$on('msg.loading', this.loadingMessage)
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
     this.$bus.$on('msg.destroy', this.destroyMessage)
     this.$io.on('activatedGroupUpdate', this.loadActivatedGroup)
+    this.$io.on('msgSuccess', this.successMessage)
   },
   watch: {
     activeMenuItemIndex (newValue, oldValue) {
@@ -101,12 +101,12 @@ export default {
       },
       set (val) {
         // 1,val is undefined when index is not changed
-        // 2,to avoid the chosen menuitem showing status of deselect, we first set ActiveMenuItemIndex 
-        //   to -1 and then it will be set to the true index by menuItemOnClick
+        // 2,In order to solve the problem of losing the selected state, first assign ActiveMenuItemIndex to -1, 
+        //  and the real value will be set by method menuItemOnClick
         this.$store.commit('setActiveMenuItemIndex', -1)
-        if (val !== undefined) {
-          this.$store.commit('setActiveMenuItemIndex', val)
-        }
+
+
+        
       }
     },
     activatedGroupName () {
@@ -139,7 +139,7 @@ export default {
     },
     refreshPage (menuItemIndex) {
       // 更新 router
-      var menuItem = this.$store.state.menu[menuItemIndex]
+      let menuItem = this.$store.state.menu[menuItemIndex]
       if (!menuItem) {
         return
       }

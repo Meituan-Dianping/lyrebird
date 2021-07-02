@@ -1,6 +1,6 @@
 <template>
   <div class="checker-split">
-    <Split v-model="split">
+    <Split v-model="split" min=220px>
       <div slot="left">
         <checker-list></checker-list>
       </div>
