@@ -71,15 +71,19 @@ class Lyrebird:
         self.proxy_port = 4272
         self.extra_mock_port = 9999
         self.api_status = f'http://127.0.0.1:{self.port}/api/status'
-        self.uri_mock = f'http://127.0.0.1:{self.port}/mock'
-    
+        self.uri_mock = f'http://127.0.0.1:{self.port}/mock/'
+
     def start(self, checker_path=None):
         cmdline = f'lyrebird -b -v --mock {self.port} --proxy {self.proxy_port} --extra-mock {self.extra_mock_port}'
         if checker_path:
             cmdline = cmdline + f' --script {checker_path}'
         self.lyrebird_process = subprocess.Popen(cmdline, shell=True, start_new_session=True)
         _wait(requests.get, args=[self.api_status])
-    
+
+        # Wait for checker to load
+        if checker_path:
+            time.sleep(3)
+
     def stop(self):
         if self.lyrebird_process:
             os.killpg(self.lyrebird_process.pid, signal.SIGTERM)
