@@ -1,5 +1,6 @@
 from flask import Flask, request
 import hashlib
+import sys
 
 app = Flask(__name__)
 
@@ -18,4 +19,7 @@ def status():
     return "OK"
 
 if __name__ == "__main__":
-    app.run()
+    port = 5000
+    if sys.argv:
+        port = int(sys.argv[2])
+    app.run(port=port)
