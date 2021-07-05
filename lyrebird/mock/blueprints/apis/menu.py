@@ -12,28 +12,34 @@ class Menu(Resource):
                 'name': 'inspector',
                 'title': 'Inspector',
                 'type': 'router',
-                'path': '/'
+                'path': '/',
+                'icon': 'mdi-monitor'
             },
             {
                 'name': 'datamanager',
                 'title': 'DataManager',
                 'type': 'router',
-                'path': '/datamanager'
+                'path': '/datamanager',
+                'icon': 'mdi-database-plus'
             },
             {
                 'name': 'checker',
                 'title': 'Checker',
                 'type': 'router',
-                'path': '/checker'
+                'path': '/checker',
+                'icon': 'mdi-script-text-outline'
             }]
+
         # Load plugins from new plugin manager
         _pm = application.server['plugin']
         for plugin_id, plugin in _pm.plugins.items():
+            icon = plugin.manifest._manifest.get('icon','mdi-wrench')
             menu.append({
                 'name': 'plugin-container',
                 'title': plugin.manifest.name,
                 'type': 'router',
                 'path': '/plugins',
+                'icon': icon,
                 'params': {
                     'src': f'/plugins/{plugin_id}',
                     'name': plugin_id
@@ -43,8 +49,8 @@ class Menu(Resource):
         if not application.active_menu:
             self.set_active_menu(menu[0])
         active_menu = application.active_menu
-        active_name = active_menu.get('title', '')
-        return context.make_ok_response(menu=menu, activeMenuItem=active_menu, activeName=active_name)
+        active_menu_index = menu.index(active_menu)
+        return context.make_ok_response(menu=menu, activeMenuItem=active_menu, activeMenuItemIndex=active_menu_index)
 
     def put(self):
         active_menu = request.json.get('activeMenuItem')

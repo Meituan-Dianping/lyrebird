@@ -1,146 +1,67 @@
 <template>
   <div>
-    <Layout class="main-layout">
-      <Sider
-        ref="mainSider"
-        class="sider-bar"
-        hide-trigger
-        collapsible
-        :collapsed-width="50"
-        v-model="isCollapsed"
-      >
-        <div class="logo">
-          <img src="@/assets/lyrebird.logo.png" />
-          <span>{{logo}}</span>
-        </div>
-        <Divider class="sider-bar-divider" />
-        <Menu theme="dark" width="auto" :class="menuitemClasses" :active-name="activeName" ref="menu">
-          <div v-for="(menuItem, index) in menu" :key="index">
-            <Tooltip
-              :content="menuItem.title"
-              placement="right"
-              :disabled="!isCollapsed"
-              transfer
-              style="width: 100%"
-            >
-              <MenuItem
-                :name="menuItem.title"
-                @click.native="menuItemOnClick(menuItem)"
-              >
-                <b>{{menuItemTitle(menuItem)}}</b>
-              </MenuItem>
-            </Tooltip>
-          </div>
-        </Menu>
-      </Sider>
-      <Layout>
-        <Header class="main-header" inline>
-          <Icon type="md-menu" color="white" size="24" @click.native="collapsedSider"></Icon>
-          <notice-center></notice-center>
-        </Header>
-        <Content>
-          <div class="main-container">
-            <router-view></router-view>
-          </div>
-        </Content>
-        <Footer class="main-footer">
-          <span class="main-footer-status-placeholder"></span>
-          <span v-show="activatedGroupName" class="main-footer-status-no-pointer">
-            <b>Activated mock group: {{activatedGroupName}}</b>
-            <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
-          </span>
-          <StatusBar />
-          <span class="main-footer-right">
-            <Poptip
-              content="content"
-              placement="top-start"
-              class="main-footer-status"
-              width="250"
-            >
-              <b class="main-footer-status-button">Bandwidth: {{bandwidthExplanation}} </b>
-              <div slot="title">
-                <b>Bandwidth</b>
-              </div>
-              <div slot="content">
-                <Row type="flex" justify="space-around">
-                  <Col span="12" v-for="(item, index) in bandwidthTemplates" :key="index">
-                    <Button
-                      style="min-width:95px;margin-top:5px;"
-                      :class="item.bandwidth == bandwidth ? 'bandwidth-btn-highlight' : ''"
-                      @click.prevent="updateBandwidth(item.template_name)"
-                    >{{ item.template_name }}</Button>
-                  </Col>
-                </Row>
-              </div>
-            </Poptip>
-            <Poptip
-              v-if="status"
-              content="content"
-              placement="top-end"
-              class="main-footer-status"
-              width="250"
-            >
-              <span class="main-footer-status-button">
-                <Icon type="ios-arrow-up" style="padding-right:3px;"/>
-                <b>Version {{status.version}}</b>
-              </span>
-              <div slot="title">
-                <b>Lyrebird {{status.version}}</b>
-              </div>
-              <div slot="content">
-                <Row v-for="key in showedStatus" :key="key">
-                  <i-col span="11">
-                    <b style="float: right">{{key.toUpperCase()}}</b>
-                  </i-col>
-                  <i-col span="12" offset="1">{{status[key]}}</i-col>
-                </Row>
-                <Divider style="margin:10px 0;"/>
-                <div style="text-align:center">
-                  <strong>
-                    Copyright &copy; 2018-present 
-                    <a href="https://meituan-dianping.github.io/lyrebird" target="_blank" >Meituan</a>.
-                  </strong>
-                </div>
-              </div>
-            </Poptip>
-            <span class="main-footer-status">
-              <a
-                href="https://github.com/Meituan-Dianping/lyrebird/issues/new?assignees=&labels=&template=bug_report.md&title="
-                target="_blank"
-              >
-                <Icon type="ios-bug" class="main-footer-status-button"/>
-              </a>
-            </span>
-            <span class="main-footer-status-placeholder"></span>
-          </span>
-        </Footer>
-      </Layout>
-    </Layout>
+    <v-system-bar app dense flat height="38px" color="#0fccbf">
+      <div class="logo">
+        <img src="@/assets/lyrebird.shadow.png" />
+        <span>Lyrebird</span>
+      </div>
+      <v-spacer/>
+      <!-- todo:change theme -->
+      <v-btn icon @click="changeTheme" v-show="false">
+        <v-icon size="18px" color="white" v-if= this.$vuetify.theme.dark>mdi-brightness-4</v-icon>
+        <v-icon size="18px" color="#9e9e9e" v-else >mdi-brightness-5</v-icon>
+      </v-btn>
+      <notice-center></notice-center>
+    </v-system-bar>
+
+    <v-navigation-drawer app permanent expand-on-hover class="secondary" width="200px">
+      <v-list nav dense> 
+        <v-list-item-group v-model="activeMenuItemIndex" color="#4BD2c0">
+          <v-list-item v-for="(menuItem, index) in menu" :key="index" link @click.native="menuItemOnClick(menuItem, index)">
+            <v-list-item-icon>
+              <v-icon color="white">{{menuItem.icon}}</v-icon> 
+            </v-list-item-icon>
+            <v-list-item-title style="color:white; font-weight:700;">{{menuItemTitle(menuItem)}}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-main>
+      <div class="main-container">
+        <router-view></router-view>
+      </div>
+    </v-main>
+
+    <v-footer app color="#0fccbf" class="main-footer">
+      <span class="main-footer-status-placeholder"></span>
+      <span v-show="activatedGroupName" class="main-footer-status-no-pointer">
+        <b>Activated mock group: {{activatedGroupName}}</b>
+        <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
+      </span>
+      <StatusBar />
+      <v-spacer></v-spacer>
+      <StatusInfo />
+    </v-footer>
   </div>
 </template>
 
 <script>
 import NoticeCenter from '@/views/notice/NoticeCenter.vue'
 import StatusBar from '@/views/statusbar/StatusBar.vue'
+import StatusInfo from '@/views/statusbar/StatusInfo.vue'
 
 export default {
   name: 'MainLayout',
   components: {
     NoticeCenter,
-    StatusBar
-  },
-  data () {
-    return {
-      isCollapsed: true,
-      showedStatus: ["ip", "mock.port", "proxy.port"]
-    }
+    StatusBar,
+    StatusInfo
   },
   mounted () {
     this.$store.dispatch('loadMenu')
-    this.$store.dispatch('loadStatus')
     this.$store.dispatch('loadManifest')
-    this.$store.dispatch('loadBandwidth')
-    this.$store.dispatch('loadBandwidthTemplates')
     this._keydownListener = (e) => {
       this.$bus.$emit('keydown', e)
     }
@@ -149,6 +70,7 @@ export default {
   beforeDestroy () {
     document.removeEventListener('keydown', this._keydownListener)
     this.$io.removeListener('activatedGroupUpdate', this.loadActivatedGroup)
+    this.$io.removeListener('msgSuccess', this.successMessage) 
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
@@ -157,60 +79,35 @@ export default {
     this.$bus.$on('msg.error', this.errorMessage)
     this.$bus.$on('msg.destroy', this.destroyMessage)
     this.$io.on('activatedGroupUpdate', this.loadActivatedGroup)
+    this.$io.on('msgSuccess', this.successMessage)
   },
   watch: {
-    activeMenuItem: function (newValue, oldValue) {
-      this.refreshPage(newValue)
-      // :active-name 异步刷新后，需要手动更新 
-      // https://github.com/iview/iview/issues/1245#issuecomment-352992001 
-      this.$nextTick(function () {
-        this.$refs.menu.updateActiveName()
-      })
+    activeMenuItemIndex (newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.refreshPage(newValue)
+      }
     }
   },
   computed: {
-    menuitemClasses () {
-      return ["menu-item", this.isCollapsed ? "collapsed-menu" : "menu"]
-    },
-    logo () {
-      if (this.isCollapsed) {
-        return ''
-      } else {
-        return 'Lyrebird'
-      }
-    },
     menu () {
       return this.$store.state.menu
-    },
-    status () {
-      return this.$store.state.status
     },
     manifest () {
       return this.$store.state.manifest
     },
-    activeName () {
-      return this.$store.state.activeName
-    },
-    bandwidth () {
-      return this.$store.state.bandwidth.bandwidth
-    },
-    bandwidthTemplates () {
-      return this.$store.state.bandwidth.bandwidthTemplates
-    },
-    bandwidthExplanation () {
-      for (let v of this.bandwidthTemplates) {
-        if (this.bandwidth == v['bandwidth']) {
-          if (this.bandwidth == -1) {
-            return v['template_name']
-          }
-          else {
-            return `${v['template_name']} ( ${v['bandwidth']} Kb/s)`
-          }
-        }
+    activeMenuItemIndex: {
+      get () {
+        return this.$store.state.activeMenuItemIndex
+      },
+      set (val) {
+        // 1,val is undefined when index is not changed
+        // 2,In order to solve the problem of losing the selected state, first assign ActiveMenuItemIndex to -1, 
+        //  and the real value will be set by method menuItemOnClick
+        this.$store.commit('setActiveMenuItemIndex', -1)
+
+
+        
       }
-    },
-    activeMenuItem () {
-      return this.$store.state.activeMenuItem
     },
     activatedGroupName () {
       const activatedGroups = this.$store.state.inspector.activatedGroup
@@ -228,23 +125,24 @@ export default {
     }
   },
   methods: {
-    collapsedSider () {
-      this.$refs.mainSider.toggleCollapse()
+    changeTheme () {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
     },
     menuItemTitle (menuItem) {
-      if (this.isCollapsed) {
-        return menuItem.title.substring(0, 1)
-      } else {
         return menuItem.title
-      }
     },
-    menuItemOnClick (menuItem) {
-      // 更新activeName 与 activeMenuItem
+    menuItemOnClick (menuItem, index) {
+      // 更新activeMenuItem
       // 点击后，activeMenuItem更新，触发watch，操作页面更新
+      this.$store.commit('setActiveMenuItemIndex', index)
       this.$store.dispatch('updateActiveMenuItem', menuItem)
     },
-    refreshPage (menuItem) {
+    refreshPage (menuItemIndex) {
       // 更新 router
+      let menuItem = this.$store.state.menu[menuItemIndex]
+      if (!menuItem) {
+        return
+      }
       if (menuItem.type === 'router') {
         if (menuItem.name === 'plugin-view' || menuItem.name === 'plugin-container') {
           this.$store.commit('plugin/setSrc', menuItem.params.src)
@@ -291,25 +189,11 @@ export default {
     destroyMessage () {
       this.$Message.destroy()
     },
-    updateBandwidth (template_name) {
-      this.$store.dispatch('updateBandwidth', template_name)
-    }
   }
 }
 </script>
 
 <style scoped>
-.main-layout {
-  height: 100vh;
-}
-.sider-bar {
-  background-color: #515a6e;
-}
-.sider-bar-divider {
-  height: 1px;
-  margin: 0;
-  background: #6c6c6c;
-}
 .logo {
   height: 38px;
   display: flex;
@@ -318,12 +202,16 @@ export default {
 }
 .logo span {
   color: white;
-  font-size: 25px;
+  font-size: 18px;
   font-weight: bolder;
   font-style: italic;
+  margin-left: 15px;
+  text-shadow: #000 3px 4px 5px
 }
 .logo img {
-  width: 32px;
+  margin-left: 8px;
+  padding-top: 4px;
+  width: 28px
 }
 .main-header {
   height: 38px;
@@ -336,35 +224,10 @@ export default {
   height: 28px;
   line-height: 28px;
   padding: 0;
-  background-color: #0fccbf;
-}
-.main-footer-status-placeholder {
-  margin-left: 5px;
-}
-.main-footer-right {
-  float: right;
-}
-.collapsed-menu span {
-  width: 0px;
-  transition: width 0.2s ease;
-}
-.menu-item span {
-  display: inline-block;
-  overflow: hidden;
-  width: 69px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: bottom;
-  transition: width 0.2s ease 0.2s;
 }
 .main-container {
   height: calc(100vh - 66px);
   background: #fff;
-}
-.bandwidth-btn-highlight {
-  background-color: #0fccbf !important;
-  color: #fff;
-  outline: none;
 }
 </style>
 
@@ -394,5 +257,8 @@ export default {
 }
 .main-footer-status-button {
   color: #f8f8f9;
+}
+.main-footer-status-placeholder {
+  margin-left: 5px;
 }
 </style>

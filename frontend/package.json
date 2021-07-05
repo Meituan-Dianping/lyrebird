@@ -17,15 +17,19 @@
     "vue-draggable-nested-tree": "^2.2.17",
     "vue-resource": "^1.5.1",
     "vue-router": "^3.0.6",
+    "vuetify": "^2.5.5",
     "vuex": "^3.1.1"
   },
   "devDependencies": {
+    "@mdi/font": "^5.9.55",
     "@vue/cli-plugin-babel": "^3.8.0",
     "@vue/cli-service": "^3.8.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.16.0",
     "eslint-loader": "^2.1.2",
     "eslint-plugin-vue": "^5.2.2",
+    "sass": "~1.32",
+    "sass-loader": "^10.2.0",
     "vue-svg-icon": "^1.2.9",
     "vue-svg-loader": "^0.12.0",
     "vue-template-compiler": "^2.6.10"

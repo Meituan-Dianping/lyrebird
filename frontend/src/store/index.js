@@ -30,8 +30,8 @@ export default new Vuex.Store({
     menu: null,
     status: null,
     manifest: null,
-    activeName: null,
-    activeMenuItem: null
+    activeMenuItem: null,
+    activeMenuItemIndex:null
   },
   mutations: {
     setMenu (state, menu) {
@@ -43,11 +43,11 @@ export default new Vuex.Store({
     setManifest (state, manifest) {
       state.manifest = manifest
     },
-    setActiveName (state, activeName) {
-      state.activeName = activeName
-    },
     setActiveMenuItem (state, activeMenuItem) {
       state.activeMenuItem = activeMenuItem
+    },
+    setActiveMenuItemIndex (state, activeMenuItemIndex) {
+      state.activeMenuItemIndex = activeMenuItemIndex
     }
   },
   actions: {
@@ -55,7 +55,7 @@ export default new Vuex.Store({
       api.getMenu().then(response => {
         commit('setMenu', response.data.menu)
         commit('setActiveMenuItem', response.data.activeMenuItem)
-        commit('setActiveName', response.data.activeName)
+        commit('setActiveMenuItemIndex', response.data.activeMenuItemIndex)
       })
     },
     loadStatus ({ commit }) {
@@ -72,7 +72,6 @@ export default new Vuex.Store({
       api.setActiveMenuItem(activeMenuItem)
         .then(_ => {
           commit('setActiveMenuItem', activeMenuItem)
-          commit('setActiveName', activeMenuItem.title)
         })
         .catch(error => {
           bus.$emit('msg.error', 'Load ' + activeMenuItem.title + ' error: ' + error)

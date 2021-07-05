@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store/index'
 import iView from 'iview'
+import vuetify from '@/plugins/vuetify'
 import VueResource from 'vue-resource'
 import 'iview/dist/styles/iview.css'
 import locale from 'iview/dist/locale/en-US'
@@ -21,5 +22,6 @@ Vue.prototype.$bus = bus
 new Vue({
   router,
   store,
+  vuetify,
   render: h => h(App)
 }).$mount('#app')
