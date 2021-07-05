@@ -1,5 +1,4 @@
 import pytest
-from jinja2 import Template
 import os, hashlib, json, gzip, requests
 
 
@@ -14,10 +13,10 @@ def test_img_data(lyrebird, mock_server):
 
 def test_img_file(lyrebird, mock_server):
     files = {'file': ('1.png', open(f'{curPath}/assets/1.png', 'rb'), 'image/jpg')}
-    r = requests.post(url=lyrebird.mock_uri, files=files)
+    r = requests.post(url=lyrebird.mock_uri + mock_server.api_post, files=files)
     with open(f'{curPath}/assets/1.png', 'rb') as f:
         data = f.read()
-    assert r.text == hashlib.md5(mock_server.serve_uri.encode() + data).hexdigest()
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + data).hexdigest()
 
 def test_json(lyrebird, mock_server):
     data = json.dumps({"name": {"12": 123}}, ensure_ascii=False)
