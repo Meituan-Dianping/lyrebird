@@ -13,7 +13,7 @@ def test_img_data(lyrebird, mock_server):
 
 def test_img_file(lyrebird, mock_server):
     files = {'file': ('1.png', open(f'{curPath}/assets/1.png', 'rb'), 'image/jpg')}
-    r = requests.post(url=lyrebird.mock_uri + mock_server.api_post, files=files)
+    r = requests.post(url=lyrebird.uri_mock + mock_server.api_post, files=files)
     with open(f'{curPath}/assets/1.png', 'rb') as f:
         data = f.read()
     assert r.text == hashlib.md5(mock_server.api_post.encode() + data).hexdigest()
