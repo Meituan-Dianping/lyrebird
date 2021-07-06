@@ -10,21 +10,26 @@
           <TabPane label="RequestBody" name="req-body"></TabPane>
           <TabPane label="Response" name="resp"></TabPane>
           <TabPane label="ResponseBody" name="resp-body"></TabPane>
-          <TabPane v-if="showProxyResponse" label="ProxyResponseBody" name="proxy-resp-body" />
+          <TabPane v-if="showProxyResponse" label="ProxyResponseBody" name="proxy-resp-diff" />
+          <!-- <TabPane v-if="showResponseDiff" label="ProxyResponseDiff" name="resp-diff" /> -->
         </Tabs>
       </Col>
     </Row>
-    <code-editor v-if="flowDetail" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
+    <code-editor v-if="flowDetail && isEditor" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
+    <code-diff-editor v-if="flowDetail && isDiffEditor" :language="codeType" :content="codeContent" :diffContent="diffContent" class="flow-detail"></code-diff-editor>
   </div>
 </template>
 
 <script>
 import CodeEditor from '@/components/CodeEditor.vue'
+import CodeDiffEditor from '@/components/CodeDiffEditor.vue'
+import FlowInspector from '@/views/inspector/FlowInspector.vue'
 
 export default {
   name: 'flowDetail',
   components: {
-    CodeEditor
+    CodeEditor,
+    CodeDiffEditor,
   },
   data () {
     return {
@@ -38,6 +43,7 @@ export default {
     },
     codeContent () {
       let codeContent = ''
+      let diffContent = ''
       if (this.currentTab === 'req') {
         codeContent = JSON.stringify(this.flowDetail.request, null, 4)
         this.codeType = 'json'
@@ -58,17 +64,30 @@ export default {
         this.codeType = 'json'
       } else if (this.currentTab === 'resp-body') {
         codeContent = this.parseResponseByContentType(this.flowDetail.response)
-      } else if (this.currentTab === 'proxy-resp-body') {
-        codeContent = this.parseResponseByContentType(this.flowDetail.proxy_response)
+      } else if (this.currentTab === 'proxy-resp-diff') {
+        codeContent = this.parseResponseByContentType(this.flowDetail.response)
       } else { }
       return codeContent
     },
+    diffContent () {
+      let diffContent = ''
+      if (this.currentTab === 'proxy-resp-diff') {
+        diffContent = this.parseResponseByContentType(this.flowDetail.proxy_response)
+      }
+      return diffContent
+    },
+    isDiffEditor () {
+      return this.currentTab === 'proxy-resp-diff'
+    },
+    isEditor () {
+      return this.currentTab != 'proxy-resp-diff'
+    },
     showProxyResponse () {
-      if (!this.flowDetail.hasOwnProperty('proxy_response') && this.currentTab == 'proxy-resp-body') {
+      if (!this.flowDetail.hasOwnProperty('proxy_response') && this.currentTab == 'proxy-resp-diff') {
         this.currentTab = 'resp-body'
       }
       return this.flowDetail.hasOwnProperty('proxy_response')
-    }
+    },
   },
   methods: {
     dismiss () {
