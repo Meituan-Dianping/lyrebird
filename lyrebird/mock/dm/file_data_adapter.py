@@ -99,7 +99,8 @@ class FileDataAdapter:
         self._add_data(node, path=outfile_path/PROP_FILE_NAME)
 
     def _write_file_to_custom_path(self, outfile_path, file_content):
-        self.add_data(None, file_content, data_id=file_content['id'], output=outfile_path)
+        file_content_id = file_content['id']
+        self._add_data(file_content, path=outfile_path/file_content_id)
 
     def decompress_snapshot(self):
         snapshot_path = self.context.snapshot_helper.get_snapshot_path()
