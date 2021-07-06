@@ -8,13 +8,6 @@ import socket
 from contextlib import closing
 
 
-def _find_free_port():
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(('', 0))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        return s.getsockname()[1]
-
-
 def _wait(func, args=[], kwargs={}, timeout=15):
     count = 0
     while True:
@@ -42,12 +35,18 @@ def _wait_exception(func, args=[], kwargs={}, timeout=15):
 class MockServer:
     def __init__(self):
         self.mock_server_process = None
+        self.port = None
+        self.api_status = None
+        self.api_post = None
+        self._init_port()
+
+    def _init_port(self):
         self.port = 5000
         self.api_status = f'http://127.0.0.1:{self.port}/status'
         self.api_post = f'http://127.0.0.1:{self.port}/e2e_serve'
 
     def start(self):
-        self.mock_server_process = subprocess.Popen('python3 ./assets/serve.py', shell=True, start_new_session=True)
+        self.mock_server_process = subprocess.Popen(f'python3 ./assets/serve.py -port {self.port}', shell=True, start_new_session=True)
         _wait(requests.get, args=[self.api_status])
 
     def stop(self):
@@ -60,17 +59,31 @@ class Lyrebird:
 
     def __init__(self):
         self.lyrebird_process = None
+        self.port = None
+        self.proxy_port = None
+        self.extra_mock_port = None
+        self.api_status = None
+        self.uri_mock = None
+        self._init_port()
+
+    def _init_port(self):
         self.port = 9090
+        self.proxy_port = 4272
+        self.extra_mock_port = 9999
         self.api_status = f'http://127.0.0.1:{self.port}/api/status'
-        self.uri_mock = f'http://127.0.0.1:{self.port}/mock'
-    
+        self.uri_mock = f'http://127.0.0.1:{self.port}/mock/'
+
     def start(self, checker_path=None):
-        cmdline = f'lyrebird -b -v --mock {self.port}'
+        cmdline = f'lyrebird -b -v --mock {self.port} --proxy {self.proxy_port} --extra-mock {self.extra_mock_port}'
         if checker_path:
             cmdline = cmdline + f' --script {checker_path}'
         self.lyrebird_process = subprocess.Popen(cmdline, shell=True, start_new_session=True)
         _wait(requests.get, args=[self.api_status])
-    
+
+        # Wait for checker to load
+        if checker_path:
+            time.sleep(3)
+
     def stop(self):
         if self.lyrebird_process:
             os.killpg(self.lyrebird_process.pid, signal.SIGTERM)
