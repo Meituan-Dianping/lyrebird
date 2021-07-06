@@ -58,6 +58,9 @@ class FileDataAdapter:
     def _delete_group(self, data):
         self._save_prop()
 
+    def _get_activate_group(self, search_id):
+        return self.context.id_map.get(search_id)
+
     # data
     def _load_data(self, data_id, path=None):
         if not path:

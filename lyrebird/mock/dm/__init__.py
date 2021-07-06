@@ -106,17 +106,18 @@ class DataManager:
 
         return self.display_data_map
 
-    def activate(self, _id):
+    def activate(self, search_id):
         """
         Activite data by id
         """
         if not self.root:
             raise RootNotSet
-        _node = self.id_map.get(_id)
-        if _node:
-            self._activate(_node)
-        else:
-            raise IDNotFound(f'ID:{_id}')
+
+        _node = self._adapter._get_activate_group(search_id)
+        if not _node:
+            raise IDNotFound(f'ID:{search_id}')
+
+        self._activate(_node)
         self._activate_super_node(_node, level_lefted=self.LEVEL_SECONDARY_ACTIVATED)
         self.activated_group[_id] = _node
 
