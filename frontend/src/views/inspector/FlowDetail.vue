@@ -10,8 +10,7 @@
           <TabPane label="RequestBody" name="req-body"></TabPane>
           <TabPane label="Response" name="resp"></TabPane>
           <TabPane label="ResponseBody" name="resp-body"></TabPane>
-          <TabPane v-if="showProxyResponse" label="ProxyResponseBody" name="proxy-resp-diff" />
-          <!-- <TabPane v-if="showResponseDiff" label="ProxyResponseDiff" name="resp-diff" /> -->
+          <TabPane v-if="showProxyResponse" label="ProxyResponseDiff" name="proxy-resp-diff" />
         </Tabs>
       </Col>
     </Row>
@@ -23,7 +22,6 @@
 <script>
 import CodeEditor from '@/components/CodeEditor.vue'
 import CodeDiffEditor from '@/components/CodeDiffEditor.vue'
-import FlowInspector from '@/views/inspector/FlowInspector.vue'
 
 export default {
   name: 'flowDetail',
