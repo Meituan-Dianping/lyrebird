@@ -254,10 +254,8 @@ class DataManager:
             # TODO remove it with inspector frontend
             data['request'] = dict(raw_data['request'])
 
-            _data_name = self._get_request_path(data['request'])
-            _data_rule = {
-                'request.url': f'(?=.*{self._get_request_path(data["request"])})'
-            }
+            _data_name = self._adapter._get_data_name(data)
+            _data_rule = self._adapter._get_data_rule(data['request'])
             if 'data' in data['request']:
                 data['request']['data'] = self._flow_data_2_str(data['request']['data'])
         else:
