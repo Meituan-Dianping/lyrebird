@@ -32,14 +32,12 @@ export default {
   },
   watch: {
     content: function () {
-      console.debug("Code editor: content change");
+      console.debug("Code diff editor: content change");
       if ((this.editor)) {
         this.editor.setModel({
         language: this.language,
         theme: 'vs',
-        // 展示response
         original: monaco.editor.createModel(this.content),
-        // 展示proxy response
         modified: monaco.editor.createModel(this.diffContent)
         });
       }
@@ -47,7 +45,6 @@ export default {
   },
   mounted: function () {
     const copyToClipboard = this.copyToClipboard
-    // this.editor.dispose();
     this.editor = monaco.editor.createDiffEditor(
       this.$el.querySelector('#code-diff-editor'),
       {
@@ -60,9 +57,7 @@ export default {
     this.editor.setModel({
         language: this.language,
         theme: 'vs',
-        // 展示response
         original: monaco.editor.createModel(this.content),
-        // 展示proxy response
         modified: monaco.editor.createModel(this.diffContent)
         });
     this.editor.addAction({
@@ -77,24 +72,6 @@ export default {
       contextMenuOrder: 2,
       run: copyToClipboard
     });
-    // this.editor.onDidChangeModelContent(event => {
-    //   const value = this.editor.getValue()
-    //   if (this.value !== value) {
-    //     this.$emit('change', value, event)
-    //   }
-    // })
-    // this.editor.onDidChangeCursorPosition(event => {
-    //   const value = this.editor.getValue()
-    //   const offSet = this.editor.getModel().getOffsetAt(event.position)
-    //   const language = this.language;
-    //   if (this.value !== value && language === 'json') {
-    //     this.$emit('on-cursor-change', { offSet: offSet })
-    //   }
-    //   if (language == 'json' && offSet !== 0) {
-    //     this.jsonPath = getJsonPath(value, offSet)
-    //     this.$emit('on-jsonpath-change', { jsonPath: this.jsonPath })
-    //   }
-    // })
   },
   methods: {
     copyToClipboard () {
