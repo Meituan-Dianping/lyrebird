@@ -14,6 +14,7 @@ class Plugin:
     def default():
         return dict(
             view=('dist', 'index.html'),
+            icon='mdi-widgets',
             api=[],
             background=[],
             event=[],

@@ -42,6 +42,7 @@ class DataManager:
         }
 
     def set_adapter(self, adapter_cls):
+        # TODO: Load overridden function only
         self._adapter = adapter_cls(self)
 
     def set_root(self, uri):
