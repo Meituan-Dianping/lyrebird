@@ -176,11 +176,6 @@ class DataManager:
                 if self._is_match_rule(flow, _data.get('rule')):
                     _matched_data.append(_data)
 
-        # TODO render mock data before response, support more functions
-        params = {
-            'ip': config.get('ip'),
-            'port': config.get('mock.port')
-        }
         for response_data in _matched_data:
             if 'response' not in response_data:
                 continue
@@ -188,10 +183,23 @@ class DataManager:
                 continue
             if not response_data['response']['data']:
                 continue
-            resp_data_template = Template(response_data['response']['data'])
-            response_data['response']['data'] = resp_data_template.render(params)
+            self._format_respose_data(response_data)
 
         return _matched_data
+
+    def _format_respose_data(self, flow):
+        # TODO render mock data before response, support more functions
+        params = {
+            'ip': config.get('ip'),
+            'port': config.get('mock.port')
+        }
+
+        try:
+            flow_response_data = Template(flow['response']['data'])
+            flow['response']['data'] = flow_response_data.render(params)
+        except Exception:
+            url = flow['request']['url']
+            logger.warning(f'Format response data error! {url}') 
 
     def _is_match_rule(self, flow, rules):
         if not rules:

@@ -109,7 +109,7 @@ class FileDataAdapter:
             return name
 
         parsed_url = urlparse(url)
-        host = parsed_url.netloc
+        host = parsed_url.hostname
         path = parsed_url.path
         if path:
             name = path
@@ -131,7 +131,7 @@ class FileDataAdapter:
         path = parsed_url.path
         query = parsed_url.query
         if path:
-            pattern = path + '\?' if query else path
+            pattern = path + '\?' if query else path + '$'
         elif host:
             pattern = host + '$'
         else:
