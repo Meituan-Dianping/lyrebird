@@ -1,6 +1,4 @@
-import socket
 from flask import jsonify
-from lyrebird import utils
 
 """
 Lyrebird context
