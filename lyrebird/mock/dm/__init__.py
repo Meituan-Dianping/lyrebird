@@ -114,8 +114,10 @@ class DataManager:
         if not self.root:
             raise RootNotSet
 
-        _node = self._adapter._get_activate_group(_id)
-        if not _node:
+        _node = self.id_map.get(_id)
+        if _node:
+            self._activate(_node)
+        else:
             raise IDNotFound(f'ID:{_id}')
 
         self._activate(_node)
