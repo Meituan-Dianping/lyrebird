@@ -3,7 +3,7 @@
     <a>
       <Badge :count="noticeList.length" overflow-count="999" :offset="offset" class-name="notice-badge">
         <v-btn icon>
-          <v-icon size="18px" color="white">mdi-bell</v-icon>
+          <v-icon size="15px" color="white">mdi-bell</v-icon>
         </v-btn>
       </Badge>
     </a>

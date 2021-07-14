@@ -42,6 +42,7 @@ class DataManager:
         }
 
     def set_adapter(self, adapter_cls):
+        # TODO: Load overridden function only
         self._adapter = adapter_cls(self)
 
     def set_root(self, uri):
@@ -174,11 +175,6 @@ class DataManager:
                 if self._is_match_rule(flow, _data.get('rule')):
                     _matched_data.append(_data)
 
-        # TODO render mock data before response, support more functions
-        params = {
-            'ip': config.get('ip'),
-            'port': config.get('mock.port')
-        }
         for response_data in _matched_data:
             if 'response' not in response_data:
                 continue
@@ -186,10 +182,23 @@ class DataManager:
                 continue
             if not response_data['response']['data']:
                 continue
-            resp_data_template = Template(response_data['response']['data'])
-            response_data['response']['data'] = resp_data_template.render(params)
+            self._format_respose_data(response_data)
 
         return _matched_data
+
+    def _format_respose_data(self, flow):
+        # TODO render mock data before response, support more functions
+        params = {
+            'ip': config.get('ip'),
+            'port': config.get('mock.port')
+        }
+
+        try:
+            flow_response_data = Template(flow['response']['data'])
+            flow['response']['data'] = flow_response_data.render(params)
+        except Exception:
+            url = flow['request']['url']
+            logger.warning(f'Format response data error! {url}') 
 
     def _is_match_rule(self, flow, rules):
         if not rules:
@@ -253,10 +262,8 @@ class DataManager:
             # TODO remove it with inspector frontend
             data['request'] = dict(raw_data['request'])
 
-            _data_name = self._get_request_path(data['request'])
-            _data_rule = {
-                'request.url': f'(?=.*{self._get_request_path(data["request"])})'
-            }
+            _data_name = self._adapter._get_data_name(data)
+            _data_rule = self._adapter._get_data_rule(data['request'])
             if 'data' in data['request']:
                 data['request']['data'] = self._flow_data_2_str(data['request']['data'])
         else:

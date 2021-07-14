@@ -33,13 +33,12 @@ class Menu(Resource):
         # Load plugins from new plugin manager
         _pm = application.server['plugin']
         for plugin_id, plugin in _pm.plugins.items():
-            icon = plugin.manifest._manifest.get('icon','mdi-wrench')
             menu.append({
                 'name': 'plugin-container',
                 'title': plugin.manifest.name,
                 'type': 'router',
                 'path': '/plugins',
-                'icon': icon,
+                'icon': plugin.manifest.icon,
                 'params': {
                     'src': f'/plugins/{plugin_id}',
                     'name': plugin_id
