@@ -25,3 +25,8 @@ new Vue({
   vuetify,
   render: h => h(App)
 }).$mount('#app')
+
+// prevent broswer swipe forward and backward
+window.addEventListener('popstate', function() {
+  history.pushState(null, null, document.URL)
+})
