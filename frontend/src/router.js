@@ -11,7 +11,6 @@ Vue.use(Router)
 export default new Router({
   // Disable broswer swipe forward and backward
   scrollBehavior: () => {
-    console.log('here');
     history.pushState(null, null, document.URL)
   },
   routes: [
