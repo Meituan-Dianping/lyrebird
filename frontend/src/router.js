@@ -9,7 +9,7 @@ import PluginView from './views/PluginView.vue'
 Vue.use(Router)
 
 export default new Router({
-  // prevent broswer swipe forward and backward
+  // Disable broswer swipe forward and backward
   scrollBehavior: () => {
     console.log('here');
     history.pushState(null, null, document.URL)
