@@ -3,6 +3,7 @@ import json
 import shutil
 import codecs
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 PROP_FILE_NAME = '.lyrebird_prop'
@@ -94,12 +95,53 @@ class FileDataAdapter:
         with codecs.open(path, 'w') as f:
             f.write(prop_str)
 
+    def _get_data_name(self, data):
+        name = 'New Data'
+        request = data.get('request')
+        if not request:
+            return name
+
+        url = request.get('url')
+        if not url:
+            return name
+
+        parsed_url = urlparse(url)
+        host = parsed_url.hostname
+        path = parsed_url.path
+        if path:
+            name = path
+        elif host:
+            name = host
+        else:
+            name = url[0:100]
+
+        return name
+
+    def _get_data_rule(self, request):
+        pattern = 'YOUR-REQUEST-PATH'
+        url = request.get('url')
+        if not url:
+            return {'request.url': f'(?=.*{pattern})'}
+
+        parsed_url = urlparse(url)
+        host = parsed_url.netloc
+        path = parsed_url.path
+        query = parsed_url.query
+        if path:
+            pattern = path + '\?' if query else path + '$'
+        elif host:
+            pattern = host + '$'
+        else:
+            pattern = url
+        return {'request.url': f'(?=.*{pattern})'}
+
     # snapshot
     def _write_prop_to_custom_path(self, outfile_path, node):
         self._add_data(node, path=outfile_path/PROP_FILE_NAME)
 
     def _write_file_to_custom_path(self, outfile_path, file_content):
-        self.add_data(None, file_content, data_id=file_content['id'], output=outfile_path)
+        file_content_id = file_content['id']
+        self._add_data(file_content, path=outfile_path/file_content_id)
 
     def decompress_snapshot(self):
         snapshot_path = self.context.snapshot_helper.get_snapshot_path()

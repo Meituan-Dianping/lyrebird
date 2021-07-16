@@ -2,7 +2,9 @@
   <div class="main-header-notice" @click="drawerIsCollapsed=true">
     <a>
       <Badge :count="noticeList.length" overflow-count="999" :offset="offset" class-name="notice-badge">
-        <Icon type="ios-notifications" size="16" color="white" ></Icon>
+        <v-btn icon>
+          <v-icon size="15px" color="white">mdi-bell</v-icon>
+        </v-btn>
       </Badge>
     </a>
     <Drawer width="380" :closable="true" :mask="false" v-model="drawerIsCollapsed">
@@ -13,7 +15,7 @@
       </div>
       <div v-if="selectedTab === tabList[0]">
         <div v-if="noticeList.length" style="height:calc(100% - 31px);overflow-x:auto">
-          <div v-for="notice in noticeList" style="padding: 5px 10px;">
+          <div v-for="(notice, index) in noticeList" :key="index" style="padding: 5px 10px;">
             <NoticeMessage :notice="notice"></NoticeMessage>
           </div>
         </div>
@@ -23,7 +25,7 @@
       </div>
       <div v-else-if="selectedTab === tabList[1]">
         <div v-if="notRemindList.length" style="height:calc(100% - 31px);overflow-x:auto">
-          <div v-for="notice in notRemindList" style="padding: 5px 10px;">
+          <div v-for="(notice, index) in notRemindList" :key="index" style="padding: 5px 10px;">
             <NotRemindMessage :notice="notice"></NotRemindMessage>
           </div>
         </div>

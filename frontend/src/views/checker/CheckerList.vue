@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="cell-border" style="background:#f8f8f9;font-size:14px">
+    <div class="cell-border" style="background:#f8f8f9;font-size:14px;color:#515A6E">
       <Strong>Checker scripts</Strong>
     </div>
     <CellGroup v-if="checkerList.length" @on-click="onClickCell" class="checker-list">

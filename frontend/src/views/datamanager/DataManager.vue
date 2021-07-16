@@ -1,7 +1,7 @@
 <template>
   <div>
     <snapshot-import-selector></snapshot-import-selector>
-    <Split v-model="split" class="datamanager-split">
+    <Split v-model="split" min=300px max=543px class="datamanager-split">
       <div slot="left">
         <data-list></data-list>
       </div>

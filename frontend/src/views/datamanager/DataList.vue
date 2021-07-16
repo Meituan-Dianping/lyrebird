@@ -208,6 +208,7 @@ export default {
 }
 .data-load-spin-container{
   position: relative;
+  color: #515A6E;
 }
 .data-load-spin-icon-load{
   animation: ani-demo-spin 1s linear infinite;
