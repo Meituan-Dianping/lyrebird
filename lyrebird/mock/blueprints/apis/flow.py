@@ -1,6 +1,7 @@
 from flask_restful import Resource
 from lyrebird.mock import context
 from lyrebird import application
+from lyrebird import utils
 from urllib.parse import urlencode, unquote
 from flask import request, Response
 import json
@@ -30,7 +31,8 @@ class FlowList(Resource):
         all_items = context.application.cache.items()[::-1]
         req_list = []
         for item in all_items:
-            if item['request'].get('host') in ignore_host:
+            is_ignore = utils.is_target_match_patterns(ignore_host, item['request'].get('host'))
+            if is_ignore:
                 continue
             info = dict(
                 id=item['id'],
