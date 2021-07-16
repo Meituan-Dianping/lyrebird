@@ -1,5 +1,5 @@
 <template>
-  <div class="data-load-spin-container">
+  <div>
     <Row class="button-bar">
       <span>
         <b style="padding-left:5px">Mock Data</b>
@@ -49,11 +49,22 @@
         </a>
       </span>
     </Row>
-    <Spin fix v-if="spinShow">
-      <Icon type="ios-loading" size=18 class="data-load-spin-icon-load"/>
-      <div>Loading Mock Data</div>
-    </Spin>
-    <DocumentTree :treeData="treeData" class="data-list" />
+    <Row>
+      <v-overlay
+        :absolute="true"
+        opacity="0.8"
+        color="#ffffff"
+        :value="spinShow"
+      >
+        <v-progress-circular
+          size="30"
+          color="primary"
+          width="2"
+          indeterminate
+        />
+      </v-overlay>
+      <DocumentTree :treeData="treeData" class="data-list" />
+    </Row>
     <MockDataSelector ref="searchModal" :showRoot=true>
       <template #searchItem="{ searchResult }">
         <Row type="flex" align="middle" class="search-row" @click.native="showNodeAndCloseSearchModal(searchResult)">
@@ -205,12 +216,5 @@ export default {
 }
 .button-bar-btn img {
   width: 18px;
-}
-.data-load-spin-container{
-  position: relative;
-  color: #515A6E;
-}
-.data-load-spin-icon-load{
-  animation: ani-demo-spin 1s linear infinite;
 }
 </style>
