@@ -10,10 +10,15 @@
           <TabPane label="RequestBody" name="req-body"></TabPane>
           <TabPane label="Response" name="resp"></TabPane>
           <TabPane label="ResponseBody" name="resp-body"></TabPane>
-          <TabPane v-if="showProxyResponse" label="ProxyResponseDiff" name="proxy-resp-diff" />
+          <TabPane v-if="showProxyResponse" :label="ResponseBodyDiff" name="proxy-resp-diff" />
         </Tabs>
       </Col>
     </Row>
+    <Row style="background:#ffffff" v-if="isDiffEditor" >
+      <Col span="12">Mock Response</Col>
+      <Col span="12">Response</Col>
+    </Row>
+    
     <code-editor v-if="flowDetail && isEditor" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
     <code-diff-editor v-if="flowDetail && isDiffEditor" :language="codeType" :content="codeContent" :diffContent="diffContent" class="flow-detail"></code-diff-editor>
   </div>
@@ -32,7 +37,17 @@ export default {
   data () {
     return {
       codeType: 'json',
-      currentTab: 'req'
+      currentTab: 'req',
+      ResponseBodyDiff: (h) => {
+                    return h('div', [
+                        h('span', 'ResponseDiff'),
+                        h('Icon', {
+                            props: {
+                                type: 'md-alert'
+                            }
+                        })
+                    ])
+                },
     }
   },
   computed: {
@@ -41,7 +56,6 @@ export default {
     },
     codeContent () {
       let codeContent = ''
-      let diffContent = ''
       if (this.currentTab === 'req') {
         codeContent = JSON.stringify(this.flowDetail.request, null, 4)
         this.codeType = 'json'
@@ -85,6 +99,9 @@ export default {
         this.currentTab = 'resp-body'
       }
       return this.flowDetail.hasOwnProperty('proxy_response')
+    },
+    isRessponseDiff () {
+      return this.currentTab == 'proxy-resp-diff'
     },
   },
   methods: {
