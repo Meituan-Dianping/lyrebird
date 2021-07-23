@@ -128,9 +128,17 @@ class FileDataAdapter:
         path = parsed_url.path
         query = parsed_url.query
         if path:
-            pattern = path + '\?' if query else path + '$'
+            pattern = path
+            if query:
+                pattern += '\?' 
+            elif url.endswith(path):
+                pattern += '$'
+
         elif host:
-            pattern = host + '$'
+            pattern = host
+            if url.endswith(host):
+                pattern += '$'
+
         else:
             pattern = url
         return {'request.url': f'(?=.*{pattern})'}
