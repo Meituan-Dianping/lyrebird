@@ -61,6 +61,11 @@ def find_free_port():
 
 
 class CaseInsensitiveDict(dict):
+
+    def __init__(self, dict):
+        for k,v in dict.items():
+            self.__setitem__(k, v)
+
     def __setitem__(self, key, value):
         super(CaseInsensitiveDict, self).__setitem__(key.lower(), value)
 
