@@ -1,3 +1,4 @@
+import re
 import math
 import time
 import socket
@@ -43,6 +44,13 @@ def is_port_in_use(port, host='127.0.0.1'):
     finally:
         if sock:
             sock.close()
+
+
+def is_target_match_patterns(pattern_list, target):
+    for pattern in pattern_list:
+        if re.search(pattern, target):
+            return True
+    return False
 
 
 def find_free_port():
