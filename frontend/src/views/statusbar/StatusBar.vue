@@ -1,9 +1,10 @@
 <template>
   <span>
-    <span v-for="(item, index) in statusBarList" :key="index" class="main-footer-status" @click="getStatusBarDetail(item.id)">
+    <span v-for="(item, index) in statusBarList" :key="index" class="main-footer-status">
       <Poptip
         content="content"
         placement="top-start"
+        @on-popper-show="getStatusBarDetail(item.id)"
         :width="getPoptipWidth()"
         word-wrap
         padding="10px 20px 10px 20px"
