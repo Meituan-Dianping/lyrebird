@@ -35,10 +35,8 @@ export default {
       console.debug("Code diff editor: content change");
       if ((this.editor)) {
         this.editor.setModel({
-        language: this.language,
-        theme: 'vs',
-        original: monaco.editor.createModel(this.content),
-        modified: monaco.editor.createModel(this.diffContent)
+        original: monaco.editor.createModel(this.content,this.language),
+        modified: monaco.editor.createModel(this.diffContent,this.language)
         });
       }
     }
@@ -48,17 +46,13 @@ export default {
     this.editor = monaco.editor.createDiffEditor(
       this.$el.querySelector('#code-diff-editor'),
       {
-        language: this.language,
-        theme: 'vs',
         readOnly: this.readOnly,
         automaticLayout: true
       }
     )
     this.editor.setModel({
-        language: this.language,
-        theme: 'vs',
-        original: monaco.editor.createModel(this.content),
-        modified: monaco.editor.createModel(this.diffContent)
+        original: monaco.editor.createModel(this.content,this.language),
+        modified: monaco.editor.createModel(this.diffContent,this.language)
         });
     this.editor.addAction({
       id: 'json-path',

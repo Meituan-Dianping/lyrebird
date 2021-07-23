@@ -100,9 +100,6 @@ export default {
       }
       return this.flowDetail.hasOwnProperty('proxy_response')
     },
-    isRessponseDiff () {
-      return this.currentTab == 'proxy-resp-diff'
-    },
   },
   methods: {
     dismiss () {
