@@ -14,9 +14,9 @@
         </Tabs>
       </Col>
     </Row>
-    <Row style="background:#ffffff" v-if="isDiffEditor" >
+    <Row style="background:#ffffff;margin-left:10px;" v-if="isDiffEditor" >
       <Col span="12">Mock Response</Col>
-      <Col span="12">Response</Col>
+      <Col span="12">Proxy Response</Col>
     </Row>
     
     <code-editor v-if="flowDetail && isEditor" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
@@ -43,7 +43,7 @@ export default {
                         h('span', 'ResponseDiff'),
                         h('Icon', {
                             props: {
-                                type: 'md-alert'
+                                type: 'md-alert',
                             }
                         })
                     ])
