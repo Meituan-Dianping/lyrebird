@@ -47,6 +47,8 @@ def is_port_in_use(port, host='127.0.0.1'):
 
 
 def is_target_match_patterns(pattern_list, target):
+    if not pattern_list or not target:
+        return False
     for pattern in pattern_list:
         if re.search(pattern, target):
             return True
