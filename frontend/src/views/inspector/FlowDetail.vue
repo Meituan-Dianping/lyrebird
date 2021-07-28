@@ -10,7 +10,7 @@
           <TabPane label="RequestBody" name="req-body"></TabPane>
           <TabPane label="Response" name="resp"></TabPane>
           <TabPane label="ResponseBody" name="resp-body"></TabPane>
-          <TabPane v-if="showProxyResponse" :label="ResponseBodyDiff" name="proxy-resp-diff" />
+          <TabPane v-if="showProxyResponse" label="ResponseBodyDiff" name="proxy-resp-diff" />
         </Tabs>
       </Col>
     </Row>
@@ -19,7 +19,7 @@
       <Col span="12">Proxy Response</Col>
     </Row>
     
-    <code-editor v-if="flowDetail && isEditor" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
+    <code-editor v-if="flowDetail && !isDiffEditor" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
     <code-diff-editor v-if="flowDetail && isDiffEditor" :language="codeType" :content="codeContent" :diffContent="diffContent" class="flow-detail"></code-diff-editor>
   </div>
 </template>
@@ -37,17 +37,7 @@ export default {
   data () {
     return {
       codeType: 'json',
-      currentTab: 'req',
-      ResponseBodyDiff: (h) => {
-                    return h('div', [
-                        h('span', 'ResponseDiff'),
-                        h('Icon', {
-                            props: {
-                                type: 'md-alert',
-                            }
-                        })
-                    ])
-                },
+      currentTab: 'req'
     }
   },
   computed: {
@@ -82,17 +72,10 @@ export default {
       return codeContent
     },
     diffContent () {
-      let diffContent = ''
-      if (this.currentTab === 'proxy-resp-diff') {
-        diffContent = this.parseResponseByContentType(this.flowDetail.proxy_response)
-      }
-      return diffContent
+      return this.parseResponseByContentType(this.flowDetail.proxy_response)
     },
     isDiffEditor () {
       return this.currentTab === 'proxy-resp-diff'
-    },
-    isEditor () {
-      return this.currentTab != 'proxy-resp-diff'
     },
     showProxyResponse () {
       if (!this.flowDetail.hasOwnProperty('proxy_response') && this.currentTab == 'proxy-resp-diff') {

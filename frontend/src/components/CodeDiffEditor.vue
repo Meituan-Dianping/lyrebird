@@ -25,8 +25,7 @@ export default {
   },
   data: function () {
     return {
-      editor: null,
-      jsonPath: null
+      editor: null
     }
   },
   watch: {
@@ -41,7 +40,6 @@ export default {
     }
   },
   mounted: function () {
-    const copyToClipboard = this.copyToClipboard
     this.editor = monaco.editor.createDiffEditor(
       this.$el.querySelector('#code-diff-editor'),
       {
@@ -53,36 +51,6 @@ export default {
         original: monaco.editor.createModel(this.content,this.language),
         modified: monaco.editor.createModel(this.diffContent,this.language)
         });
-    this.editor.addAction({
-      id: 'json-path',
-      label: 'Copy JsonPath',
-      keybindings: [
-        monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_J)
-      ],
-      precondition: "editorLangId == 'json'",
-      keybindingContext: "editorLangId == 'json'",
-      contextMenuGroupId: '9_cutcopypaste',
-      contextMenuOrder: 2,
-      run: copyToClipboard
-    });
-  },
-  methods: {
-    copyToClipboard () {
-      const notification = this.$Notice
-      if (this.jsonPath) {
-        navigator.clipboard.writeText(this.jsonPath)
-          .then(function () { }, function () {
-            notification.error({
-              title: 'jsonpath copy failed.'
-            });
-          }
-          );
-      } else {
-        notification.warning({
-          title: 'There is no jsonpath that can be copied.'
-        });
-      }
-    }
   }
 };
 </script>
