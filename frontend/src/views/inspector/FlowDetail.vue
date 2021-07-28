@@ -14,13 +14,13 @@
         </Tabs>
       </Col>
     </Row>
-    <Row style="background:#ffffff;margin-left:10px;" v-if="this.currentTab === 'proxy-resp-diff'" >
+    <Row style="background:#ffffff;margin-left:10px;" v-if="isDiffEditor" >
       <Col span="12">Mock Response</Col>
       <Col span="12">Proxy Response</Col>
     </Row>
     
-    <code-editor v-if="flowDetail && this.currentTab != 'proxy-resp-diff'" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
-    <code-diff-editor v-if="flowDetail && this.currentTab === 'proxy-resp-diff'" :language="codeType" :content="codeContent" :diffContent="diffContent" class="flow-detail"></code-diff-editor>
+    <code-editor v-if="flowDetail && !isDiffEditor" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
+    <code-diff-editor v-if="flowDetail && isDiffEditor" :language="codeType" :content="codeContent" :diffContent="diffContent" class="flow-detail"></code-diff-editor>
   </div>
 </template>
 
@@ -73,6 +73,9 @@ export default {
     },
     diffContent () {
       return this.parseResponseByContentType(this.flowDetail.proxy_response)
+    },
+    isDiffEditor () {
+      return this.currentTab === 'proxy-resp-diff'
     },
     showProxyResponse () {
       if (!this.flowDetail.hasOwnProperty('proxy_response') && this.currentTab == 'proxy-resp-diff') {
