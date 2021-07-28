@@ -20,7 +20,7 @@
     </Row>
     
     <code-editor v-if="flowDetail && !isDiffEditor" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
-    <code-diff-editor v-if="flowDetail && isDiffEditor" :language="codeType" :content="codeContent" :diffContent="diffContent" class="flow-detail"></code-diff-editor>
+    <code-diff-editor v-if="flowDetail && isDiffEditor" :content="codeContent" :diffContent="diffContent" :language="codeType" class="flow-detail"></code-diff-editor>
   </div>
 </template>
 
