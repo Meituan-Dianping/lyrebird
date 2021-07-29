@@ -10,21 +10,29 @@
           <TabPane label="RequestBody" name="req-body"></TabPane>
           <TabPane label="Response" name="resp"></TabPane>
           <TabPane label="ResponseBody" name="resp-body"></TabPane>
-          <TabPane v-if="showProxyResponse" label="ProxyResponseBody" name="proxy-resp-body" />
+          <TabPane v-if="showProxyResponse" label="ResponseBodyDiff" name="proxy-resp-diff" />
         </Tabs>
       </Col>
     </Row>
-    <code-editor v-if="flowDetail" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
+    <Row style="background:#ffffff;margin-left:10px;" v-if="isDiffEditor" >
+      <Col span="12">Mock Response</Col>
+      <Col span="12">Proxy Response</Col>
+    </Row>
+    
+    <code-editor v-if="flowDetail && !isDiffEditor" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
+    <code-diff-editor v-if="flowDetail && isDiffEditor" :content="codeContent" :diffContent="diffContent" :language="codeType" class="flow-detail"></code-diff-editor>
   </div>
 </template>
 
 <script>
 import CodeEditor from '@/components/CodeEditor.vue'
+import CodeDiffEditor from '@/components/CodeDiffEditor.vue'
 
 export default {
   name: 'flowDetail',
   components: {
-    CodeEditor
+    CodeEditor,
+    CodeDiffEditor,
   },
   data () {
     return {
@@ -58,17 +66,23 @@ export default {
         this.codeType = 'json'
       } else if (this.currentTab === 'resp-body') {
         codeContent = this.parseResponseByContentType(this.flowDetail.response)
-      } else if (this.currentTab === 'proxy-resp-body') {
-        codeContent = this.parseResponseByContentType(this.flowDetail.proxy_response)
+      } else if (this.currentTab === 'proxy-resp-diff') {
+        codeContent = this.parseResponseByContentType(this.flowDetail.response)
       } else { }
       return codeContent
     },
+    diffContent () {
+      return this.parseResponseByContentType(this.flowDetail.proxy_response)
+    },
+    isDiffEditor () {
+      return this.currentTab === 'proxy-resp-diff'
+    },
     showProxyResponse () {
-      if (!this.flowDetail.hasOwnProperty('proxy_response') && this.currentTab == 'proxy-resp-body') {
+      if (!this.flowDetail.hasOwnProperty('proxy_response') && this.currentTab == 'proxy-resp-diff') {
         this.currentTab = 'resp-body'
       }
       return this.flowDetail.hasOwnProperty('proxy_response')
-    }
+    },
   },
   methods: {
     dismiss () {
