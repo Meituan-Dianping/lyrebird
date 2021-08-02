@@ -1,15 +1,15 @@
 <template>
   <div v-if="jsonPath">
-    <b style="padding-right:5px">JSONPath:</b>
     <Tooltip
       :content="jsonPath"
       placement="bottom-end"
       theme="light"
       max-width="500"
-      :transfer=true
+      transfer
+      style="width:100%"
     >
       <span class="json-path-span">
-        {{jsonPath}}
+        <b style="padding-right:5px">JSONPath:</b>{{jsonPath}}
       </span>
     </Tooltip>
   </div>
@@ -33,7 +33,7 @@ export default {
 }
 .json-path-span{
   display: inline-block;
-  max-width: 240px;
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -52,6 +52,8 @@ class LabelHandler:
                 }
 
     def _collect_label(self, node):
+        if not node:
+            return
         if node['type'] == 'group' and 'label' in node:
             self._make_label_info(node)
         if 'children' in node:

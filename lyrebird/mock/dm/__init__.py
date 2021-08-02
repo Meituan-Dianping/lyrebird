@@ -1,6 +1,7 @@
 import re
 import uuid
 import json
+import datetime
 import traceback
 from pathlib import Path
 from urllib.parse import urlparse
@@ -190,7 +191,9 @@ class DataManager:
         # TODO render mock data before response, support more functions
         params = {
             'ip': config.get('ip'),
-            'port': config.get('mock.port')
+            'port': config.get('mock.port'),
+            'today': datetime.date.today(),
+            'now':  datetime.datetime.now()
         }
 
         try:
@@ -263,7 +266,7 @@ class DataManager:
             data['request'] = dict(raw_data['request'])
 
             _data_name = self._adapter._get_data_name(data)
-            _data_rule = self._adapter._get_data_rule(data['request'])
+            _data_rule = self._adapter._get_data_rule(data)
             if 'data' in data['request']:
                 data['request']['data'] = self._flow_data_2_str(data['request']['data'])
         else:

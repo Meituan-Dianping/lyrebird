@@ -10,7 +10,7 @@
         size="18"
       />
     </Tooltip>
-    <Tooltip v-else content="record" placement="bottom-start" :delay="500">
+    <Tooltip v-else content="Record" placement="bottom-start" :delay="500">
       <Icon
         class="inspector-button"
         type="md-radio-button-on"
@@ -53,10 +53,12 @@
       <Divider type="vertical" />
     </div>
 
+    <Tooltip content="Get the proxy response while the request is mocked" placement="bottom-start" max-width="200" :delay="500">
     <label>
       <b style="padding-right:5px">Diff mode:</b>
       <i-switch size="small" v-model="diffMode" @on-change="changeDiffMode" />
     </label>
+    </Tooltip>
 
     <div class="inline">
       <Divider type="vertical"></Divider>
