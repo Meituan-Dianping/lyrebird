@@ -485,7 +485,7 @@ def test_add_data_request_url_illegal(data_manager):
     _new_data = data_manager.get(new_data_id)
     assert url_illegal == _new_data['name']
 
-    assert f'(?=.*{url_illegal}$)' == _new_data['rule']['request.url']
+    assert f'(?=.*{url_illegal})' == _new_data['rule']['request.url']
 
 
 def test_add_data_no_request(data_manager):

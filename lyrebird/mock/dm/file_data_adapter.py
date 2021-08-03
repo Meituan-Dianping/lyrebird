@@ -127,7 +127,7 @@ class FileDataAdapter:
         host = parsed_url.netloc
         path = parsed_url.path
         query = parsed_url.query
-        if path:
+        if path and host:
             pattern = path
             if query:
                 pattern += '\?' 
