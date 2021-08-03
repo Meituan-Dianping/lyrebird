@@ -9,7 +9,7 @@
         </span>
       </Col>
       <Col span="8" offset="1" align="right" class="button-bar-line">
-        <JsonPathBar class="button-bar-line"/>
+        <JsonPathBar/>
       </Col>
     </Row>
     <component v-if="nodeInfo.type" :is="getComponentByType(nodeInfo)" />
