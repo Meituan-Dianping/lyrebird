@@ -265,8 +265,8 @@ class DataManager:
             # TODO remove it with inspector frontend
             data['request'] = dict(raw_data['request'])
 
-            _data_name = self._adapter._get_data_name(data)
-            _data_rule = self._adapter._get_data_rule(data)
+            _data_name = data['name'] if data.get('name') else self._adapter._get_data_name(data)
+            _data_rule = data['rule'] if data.get('rule') else self._adapter._get_data_rule(data['request'])
             if 'data' in data['request']:
                 data['request']['data'] = self._flow_data_2_str(data['request']['data'])
         else:

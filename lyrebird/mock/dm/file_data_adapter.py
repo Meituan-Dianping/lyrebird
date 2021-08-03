@@ -117,14 +117,8 @@ class FileDataAdapter:
 
         return name
 
-    def _get_data_rule(self, data):
+    def _get_data_rule(self, request):
         pattern = 'YOUR-REQUEST-PATH'
-        request = data.get('request')
-        if not request:
-            return {'request.url': f'(?=.*{pattern})'}
-
-        if request.get('rule'):
-            return request.get('rule')
 
         url = request.get('url')
         if not url:
