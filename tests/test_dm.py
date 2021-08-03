@@ -368,11 +368,44 @@ def test_add_group(data_manager):
     assert found_new_group
 
 
-def test_add_data_contain_request(data_manager):
+def test_add_data_request_with_name_rule(data_manager):
+    custom_name = 'CUSTOM_NAME'
+    custom_rule = {
+        'CUSTOM_KEY': 'CUSTOM_VALUE'
+    }
     data = {
-        'name': 'add_data_name',
+        'name': custom_name,
+        'rule': custom_rule,
         'request': {
             'url': 'http://hostname.com/pathA/pathB?param=1'
+        },
+        'response': {}
+    }
+
+    new_data_id = data_manager.add_data('groupC-UUID', data)
+    _new_data_node = data_manager.id_map.get(new_data_id)
+    assert custom_name == _new_data_node['name']
+    _new_data = data_manager.get(new_data_id)
+    assert custom_name == _new_data['name']
+
+    assert custom_rule == _new_data['rule']
+
+    assert data['request'] == _new_data['request']
+    group_c = data_manager.id_map.get('groupC-UUID')
+    found_new_data = False
+    for child in group_c['children']:
+        if child['id'] == new_data_id:
+            found_new_data = True
+            break
+    assert found_new_data
+    new_data_file = data_manager.root_path / new_data_id
+    assert new_data_file.exists()
+
+
+def test_add_data_request_url_params(data_manager):
+    data = {
+        'request': {
+            'url': f'http://hostname.com/pathA/pathB?param=1'
         },
         'response': {}
     }
@@ -384,6 +417,9 @@ def test_add_data_contain_request(data_manager):
     assert parsed_url_path == _new_data_node['name']
     _new_data = data_manager.get(new_data_id)
     assert parsed_url_path == _new_data['name']
+
+    assert f'(?=.*{parsed_url_path}\?)' == _new_data['rule']['request.url']
+
     assert data['request'] == _new_data['request']
     group_c = data_manager.id_map.get('groupC-UUID')
     found_new_data = False
@@ -394,6 +430,62 @@ def test_add_data_contain_request(data_manager):
     assert found_new_data
     new_data_file = data_manager.root_path / new_data_id
     assert new_data_file.exists()
+
+
+def test_add_data_request_url_no_params(data_manager):
+    data = {
+        'request': {
+            'url': f'http://hostname.com/pathA/pathB'
+        },
+        'response': {}
+    }
+    parsed_url = urlparse(data['request']['url'])
+    parsed_url_path = parsed_url.path
+
+    new_data_id = data_manager.add_data('groupC-UUID', data)
+    _new_data_node = data_manager.id_map.get(new_data_id)
+    assert parsed_url_path == _new_data_node['name']
+    _new_data = data_manager.get(new_data_id)
+    assert parsed_url_path == _new_data['name']
+
+    assert f'(?=.*{parsed_url_path}$)' == _new_data['rule']['request.url']
+
+
+def test_add_data_request_url_no_path(data_manager):
+    data = {
+        'request': {
+            'url': f'http://hostname.com'
+        },
+        'response': {}
+    }
+    parsed_url = urlparse(data['request']['url'])
+    parsed_url_hostname = parsed_url.hostname
+
+    new_data_id = data_manager.add_data('groupC-UUID', data)
+    _new_data_node = data_manager.id_map.get(new_data_id)
+    assert parsed_url_hostname == _new_data_node['name']
+    _new_data = data_manager.get(new_data_id)
+    assert parsed_url_hostname == _new_data['name']
+
+    assert f'(?=.*{parsed_url_hostname}$)' == _new_data['rule']['request.url']
+
+
+def test_add_data_request_url_illegal(data_manager):
+    url_illegal = 'EXAMPLE'
+    data = {
+        'request': {
+            'url': url_illegal
+        },
+        'response': {}
+    }
+
+    new_data_id = data_manager.add_data('groupC-UUID', data)
+    _new_data_node = data_manager.id_map.get(new_data_id)
+    assert url_illegal == _new_data_node['name']
+    _new_data = data_manager.get(new_data_id)
+    assert url_illegal == _new_data['name']
+
+    assert f'(?=.*{url_illegal}$)' == _new_data['rule']['request.url']
 
 
 def test_add_data_no_request(data_manager):
