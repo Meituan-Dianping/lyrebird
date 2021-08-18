@@ -29,7 +29,7 @@ class ConfigManager():
     DEFAULT_FILENAME = 'conf.json'
     BASE_CONFIG = ROOT/DEFAULT_FILENAME
 
-    def __init__(self, conf_path=None):
+    def __init__(self, conf_path=None, custom_conf=None):
         self.config = config_template
         self.config_root = self.ROOT
         self.conf_file = self.BASE_CONFIG
@@ -38,6 +38,8 @@ class ConfigManager():
         self.read_config()
         if conf_path:
             self.update_conf_source(conf_path)
+        if custom_conf:
+            self.config.update(custom_conf)
 
     def update_conf_source(self, path):
         input_path: Path = Path(path).expanduser().absolute()

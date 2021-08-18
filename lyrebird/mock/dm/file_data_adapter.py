@@ -68,6 +68,12 @@ class FileDataAdapter:
         with codecs.open(path) as f:
             return json.load(f)
 
+    def _load_datas(self, query):
+        datas = []
+        for _id in query.get('id', []):
+            datas.append(self._load_data(_id))
+        return datas
+
     def _add_data(self, data, path=None):
         if not path:
             path = self.context.root_path / data['id']
@@ -142,6 +148,9 @@ class FileDataAdapter:
         else:
             pattern = url
         return {'request.url': f'(?=.*{pattern})'}
+
+    def _get_activate_group(self, search_id):
+        return self.context.id_map.get(search_id)
 
     # snapshot
     def _write_prop_to_custom_path(self, outfile_path, node):
