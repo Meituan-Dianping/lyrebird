@@ -68,7 +68,7 @@ class FileDataAdapter:
         with codecs.open(path) as f:
             return json.load(f)
 
-    def _load_datas(self, query):
+    def _load_data_by_query(self, query):
         datas = []
         for _id in query.get('id', []):
             datas.append(self._load_data(_id))

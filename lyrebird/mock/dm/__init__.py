@@ -119,25 +119,17 @@ class DataManager:
             raise IDNotFound(f'ID:{search_id}')
 
         _id = _node['id']
-        activate_data_ids = self._activate(_node)
-        if activate_data_ids:
-            activate_data_query = {
-                'id': activate_data_ids
-            }
-            activate_data_list = self._adapter._load_datas(activate_data_query)
-            self._make_activate_data(activate_data_list)
+        activate_data_ids = self._collect_activate_data(_node) 
+        activate_data_list = self._adapter._load_data_by_query({'id': activate_data_ids})
+        self._update_activate_data(activate_data_list)
 
-        activate_super_data_ids = self._activate_super_node(_node, level_lefted=self.LEVEL_SECONDARY_ACTIVATED)
-        if activate_super_data_ids:
-            activate_super_data_query = {
-                'id': activate_super_data_ids
-            }
-            activate_super_data_list = self._adapter._load_datas(activate_super_data_query)
-            self._make_activate_data(activate_super_data_list, secondary_search=True)
+        activate_super_data_ids = self._collect_super_activate_data(_node, level_lefted=self.LEVEL_SECONDARY_ACTIVATED)
+        activate_super_data_list = self._adapter._load_data_by_query({'id': activate_super_data_ids})
+        self._update_activate_data(activate_super_data_list, secondary_search=True)
 
         self.activated_group[_id] = _node
 
-    def _make_activate_data(self, datas, secondary_search=False):
+    def _update_activate_data(self, datas, secondary_search=False):
         if not datas:
             return
         target_activate_data = self.secondary_activated_data if secondary_search else self.activated_data
@@ -145,31 +137,31 @@ class DataManager:
             d['id']: d for d in datas
         })
 
-    def _activate_super_node(self, node, level_lefted=1):
-        res = []
+    def _collect_super_activate_data(self, node, level_lefted=1):
+        id_list = []
         if level_lefted <= 0:
-            return res
+            return id_list
         if not node.get('super_id'):
-            return res
+            return id_list
         if node.get('super_id') == node['id']:
             raise SuperIdCannotBeNodeItself(node['id'])
         _secondary_search_node_id = node.get('super_id')
         _secondary_search_node = self.id_map.get(_secondary_search_node_id)
         if not _secondary_search_node:
             raise IDNotFound(f'Secondary search node ID: {_secondary_search_node_id}')
-        res.extend(self._activate(_secondary_search_node, secondary_search=True))
-        res.extend(self._activate_super_node(_secondary_search_node, level_lefted=level_lefted-1))
-        return res
+        id_list.extend(self._collect_activate_data(_secondary_search_node, secondary_search=True))
+        id_list.extend(self._collect_super_activate_data(_secondary_search_node, level_lefted=level_lefted-1))
+        return id_list
 
-    def _activate(self, node, secondary_search=False):
-        res = []
+    def _collect_activate_data(self, node, secondary_search=False):
+        id_list = []
         if node.get('type', '') == 'data':
             return [node['id']]
         elif node.get('type', '') == 'group':
             if 'children' in node:
                 for child in node['children']:
-                    res.extend(self._activate(child, secondary_search=secondary_search))
-        return res
+                    id_list.extend(self._collect_activate_data(child, secondary_search=secondary_search))
+        return id_list
 
     def deactivate(self):
         """
