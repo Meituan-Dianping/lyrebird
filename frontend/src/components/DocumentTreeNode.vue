@@ -6,12 +6,14 @@
     @click.native="onTreeNodeClick"
   >
     <span>
-      <Icon
-        v-show="data.type === 'group'"
-        :class="toggleClass"
-        size="14"
-        @click="onToggleStatusChange"
-      />
+      <span class="tree-node-inner-button">
+        <Icon
+          v-show="data.type === 'group'"
+          :class="toggleClass"
+          size="14"
+          @click="onToggleStatusChange"
+        />
+      </span>
       <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
       <div class="status-point" v-show="isGroupActivated"/>
 
@@ -372,6 +374,7 @@ export default {
   margin-right: 15px;
 }
 .tree-node-inner-button {
+  vertical-align: top;
   padding-left: 5px;
   cursor: pointer;
 }
@@ -428,11 +431,30 @@ export default {
 }
 .status-point {
   display: inline-block;
-  width: 5px;
-  height: 5px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   margin: 0px 3px;
   background-color: #19be6b;
+  border: 1px solid #2d8cf0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  background-clip: text;
+  animation-timing-function: ease-in-out;
+  animation-name: status-point-breathe;
+  animation-duration: 800ms;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes status-point-breathe {
+  0% {
+    opacity: .9;
+    box-shadow: 0 0px 2px rgba(0, 147, 223, 0.4), 0 1px 1px rgba(0, 147, 223, 0.1) inset;
+  }
+  100% {
+    opacity: 1;
+    box-shadow: 0 0px 30px #19be6b, 0 1px 20px #19be6b inset;
+  }
 }
 </style>
 

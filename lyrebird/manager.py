@@ -74,6 +74,7 @@ def main():
     parser.add_argument('--script', action='append', help='Set a checker script path')
     parser.add_argument('--plugin', action='append', help='Set a plugin project path')
     parser.add_argument('--database', dest='database', help='Set a database path. Default is "~/.lyrebird/lyrebird.db"')
+    parser.add_argument('--es', dest='extra_string', action='append', nargs=2, help='Set a custom config')
 
     subparser = parser.add_subparsers(dest='sub_command')
 
@@ -88,10 +89,8 @@ def main():
 
     Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
-    if args.config:
-        application._cm = ConfigManager(conf_path=args.config)
-    else:
-        application._cm = ConfigManager()
+    custom_conf = {es[0]:es[1] for es in args.extra_string} if args.extra_string else None
+    application._cm = ConfigManager(conf_path=args.config, custom_conf=custom_conf)
 
     # set current ip to config
     if args.ip:
