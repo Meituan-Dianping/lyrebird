@@ -6,14 +6,12 @@
     @click.native="onTreeNodeClick"
   >
     <span>
-      <span class="tree-node-inner-button">
-        <Icon
-          v-show="data.type === 'group'"
-          :class="toggleClass"
-          size="14"
-          @click="onToggleStatusChange"
-        />
-      </span>
+      <Icon
+        v-show="data.type === 'group'"
+        :class="toggleClass"
+        size="14"
+        @click="onToggleStatusChange"
+      />
       <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
       <div class="status-point" v-show="isGroupActivated"/>
 
@@ -374,7 +372,6 @@ export default {
   margin-right: 15px;
 }
 .tree-node-inner-button {
-  vertical-align: top;
   padding-left: 5px;
   cursor: pointer;
 }
