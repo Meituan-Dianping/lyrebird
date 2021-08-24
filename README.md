@@ -1,3 +1,7 @@
+> 🔔 **We are hiring. 欢迎加入：**[工具链建设](https://zhaopin.meituan.com/job-detail?jobId=676386152) | [客户端测试](https://zhaopin.meituan.com/job-detail?jobId=716759471)
+
+---
+
 <p align="center"><a herf="https://meituan-dianping.github.io/lyrebird/"><img src="./image/lyrebird.png" width="220"></a></p>
 <h1 align="center">Lyrebird</h1>
 
@@ -66,23 +70,21 @@ docker pull overbridge/lyrebird
 
 ## 环境要求
 
-* macOS/Windows
+- macOS/Windows
 
-
-- Python >= 3.6
+* Python >= 3.6
 
 ```bash
 # 推荐使用Homebrew(https://brew.sh/#install)安装Python3
 brew install python3
 ```
 
-Windows需要的额外步骤：
+Windows 需要的额外步骤：
 
-* 下载并安装[编译版 OpenSSL](https://slproweb.com/products/Win32OpenSSL.html)
-* 设置系统环境变量（根据实际路径调整）
-    * LIB = C:\Program Files\OpenSSL-Win64\lib
-    * INCLUDE = C:\Program Files\OpenSSL-Win64\include
-
+- 下载并安装[编译版 OpenSSL](https://slproweb.com/products/Win32OpenSSL.html)
+- 设置系统环境变量（根据实际路径调整）
+  - LIB = C:\Program Files\OpenSSL-Win64\lib
+  - INCLUDE = C:\Program Files\OpenSSL-Win64\include
 
 ## 安装
 
