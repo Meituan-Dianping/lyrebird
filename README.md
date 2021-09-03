@@ -1,4 +1,4 @@
-> 🔔 **We are hiring. 欢迎加入：**[工具链建设](https://zhaopin.meituan.com/job-detail?jobId=676386152) | [客户端测试](https://zhaopin.meituan.com/job-detail?jobId=716759471)
+> 🔔 **We are hiring. 欢迎加入：**[工具链建设](https://zhaopin.meituan.com/job-detail?jobId=676386152) | [所有职位](https://zhaopin.meituan.com/job-list?jobFamily=203&jobFamilyGroup=29&keywords=%E5%88%B0%E5%BA%97%E5%B9%B3%E5%8F%B0%E6%8A%80%E6%9C%AF&pageNo=1)
 
 ---
 
