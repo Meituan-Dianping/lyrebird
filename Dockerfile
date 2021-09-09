@@ -23,7 +23,7 @@ ARG USE_MIRROR
 ENV PYTHONUNBUFFERED 1
 RUN if [[ -n "$USE_MIRROR" ]] ; then sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories ; fi \
   && apk update \
-  && apk add --no-cache jpeg zlib libffi openssl curl libstdc++
+  && apk add --no-cache jpeg zlib libffi openssl curl libstdc++ tzdata
 COPY --from=pybuilder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages
 COPY --from=pybuilder /usr/local/bin /usr/local/bin
 
