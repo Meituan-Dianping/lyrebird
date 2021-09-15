@@ -5,6 +5,7 @@ import datetime
 import traceback
 from pathlib import Path
 from urllib.parse import urlparse
+from collections import OrderedDict
 from lyrebird.log import get_logger
 from jinja2 import Template
 from lyrebird.application import config
@@ -22,10 +23,9 @@ class DataManager:
         self.root_path: Path = None
         self.display_data_map = {}
         self.id_map = {}
-        self.activated_data = {}
+        self.activated_data = OrderedDict()
         self.activated_group = {}
-        self.secondary_activated_data = {}
-        self.LEVEL_SECONDARY_ACTIVATED = 2
+        self.LEVEL_SUPER_ACTIVATED = 2
         self.clipboard = None
         self.save_to_group_id = None
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'label': [], 'children': []}
@@ -119,48 +119,42 @@ class DataManager:
             raise IDNotFound(f'ID:{search_id}')
 
         _id = _node['id']
-        activate_data_ids = self._collect_activate_data(_node) 
+        activated_node_id_list = self._collect_activate_node(_node, level_lefted=self.LEVEL_SUPER_ACTIVATED)
+
+        activate_data_ids = []
+        for activated_node_id in activated_node_id_list:
+            activated_node = self.id_map.get(activated_node_id)
+            activate_data_ids += self._collect_activate_data(activated_node)
+
         activate_data_list = self._adapter._load_data_by_query({'id': activate_data_ids})
-        self._update_activate_data(activate_data_list)
-
-        activate_super_data_ids = self._collect_super_activate_data(_node, level_lefted=self.LEVEL_SECONDARY_ACTIVATED)
-        activate_super_data_list = self._adapter._load_data_by_query({'id': activate_super_data_ids})
-        self._update_activate_data(activate_super_data_list, secondary_search=True)
-
+        self.activated_data.update({d['id']: d for d in activate_data_list})
         self.activated_group[_id] = _node
 
-    def _update_activate_data(self, datas, secondary_search=False):
-        if not datas:
-            return
-        target_activate_data = self.secondary_activated_data if secondary_search else self.activated_data
-        target_activate_data.update({
-            d['id']: d for d in datas
-        })
-
-    def _collect_super_activate_data(self, node, level_lefted=1):
-        id_list = []
+    def _collect_activate_node(self, node, level_lefted=1):
+        id_list = [node['id']]
         if level_lefted <= 0:
             return id_list
         if not node.get('super_id'):
             return id_list
         if node.get('super_id') == node['id']:
             raise SuperIdCannotBeNodeItself(node['id'])
-        _secondary_search_node_id = node.get('super_id')
-        _secondary_search_node = self.id_map.get(_secondary_search_node_id)
-        if not _secondary_search_node:
-            raise IDNotFound(f'Secondary search node ID: {_secondary_search_node_id}')
-        id_list.extend(self._collect_activate_data(_secondary_search_node, secondary_search=True))
-        id_list.extend(self._collect_super_activate_data(_secondary_search_node, level_lefted=level_lefted-1))
+
+        _super_id = node.get('super_id')
+        _super_node = self.id_map.get(_super_id)
+        if not _super_node:
+            raise IDNotFound(f'Super node ID: {_super_node}')
+
+        id_list.extend(self._collect_activate_node(_super_node, level_lefted=level_lefted-1))
         return id_list
 
-    def _collect_activate_data(self, node, secondary_search=False):
+    def _collect_activate_data(self, node):
         id_list = []
         if node.get('type', '') == 'data':
             return [node['id']]
         elif node.get('type', '') == 'group':
             if 'children' in node:
                 for child in node['children']:
-                    id_list.extend(self._collect_activate_data(child, secondary_search=secondary_search))
+                    id_list.extend(self._collect_activate_data(child))
         return id_list
 
     def deactivate(self):
@@ -169,7 +163,6 @@ class DataManager:
         """
         self.activated_data = {}
         self.activated_group = {}
-        self.secondary_activated_data = {}
 
     def reactive(self):
         origin_activated_group = self.activated_group
@@ -186,11 +179,6 @@ class DataManager:
             _data = self.activated_data[_data_id]
             if self._is_match_rule(flow, _data.get('rule')):
                 _matched_data.append(_data)
-        if len(_matched_data) <= 0:
-            for _data_id in self.secondary_activated_data:
-                _data = self.secondary_activated_data[_data_id]
-                if self._is_match_rule(flow, _data.get('rule')):
-                    _matched_data.append(_data)
 
         for response_data in _matched_data:
             if 'response' not in response_data:
