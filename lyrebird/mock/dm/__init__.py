@@ -119,15 +119,16 @@ class DataManager:
             raise IDNotFound(f'ID:{search_id}')
 
         _id = _node['id']
-        activated_node_id_list = self._collect_activate_node(_node, level_lefted=self.LEVEL_SUPER_ACTIVATED)
+        node_id_list = self._collect_activate_node(_node, level_lefted=self.LEVEL_SUPER_ACTIVATED)
 
-        activate_data_ids = []
-        for activated_node_id in activated_node_id_list:
-            activated_node = self.id_map.get(activated_node_id)
-            activate_data_ids += self._collect_activate_data(activated_node)
+        data_id_list = []
+        for node_id in node_id_list:
+            activated_node = self.id_map.get(node_id)
+            data_id_list += self._collect_activate_data(activated_node)
 
-        activate_data_list = self._adapter._load_data_by_query({'id': activate_data_ids})
-        self.activated_data.update({d['id']: d for d in activate_data_list})
+        data_list = self._adapter._load_data_by_query({'id': data_id_list})
+        data_map = {d['id']: d for d in data_list}
+        self.activated_data.update({i: data_map[i] for i in data_id_list if data_map.get(i)})
         self.activated_group[_id] = _node
 
     def _collect_activate_node(self, node, level_lefted=1):
@@ -161,7 +162,7 @@ class DataManager:
         """
         Clear activated data
         """
-        self.activated_data = {}
+        self.activated_data = OrderedDict()
         self.activated_group = {}
 
     def reactive(self):
