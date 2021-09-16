@@ -352,14 +352,17 @@ def test_conflict_checker(data_manager):
     data_manager.activate('groupB-UUID')
     conflict_rules = data_manager.activated_data_check_conflict()
     assert len(conflict_rules) == 2
+    data_manager.deactivate()
 
     data_manager.activate('groupD-UUID')
     conflict_rules = data_manager.activated_data_check_conflict()
     assert len(conflict_rules) == 2
+    data_manager.deactivate()
 
     data_manager.activate('groupJ-UUID')
     conflict_rules = data_manager.activated_data_check_conflict()
     assert len(conflict_rules) == 0
+    data_manager.deactivate()
 
     conflict_rules = data_manager.check_conflict('groupE-UUID')
     assert len(conflict_rules) == 2
