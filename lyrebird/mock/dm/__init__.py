@@ -179,6 +179,7 @@ class DataManager:
             _data = self.activated_data[_data_id]
             if self._is_match_rule(flow, _data.get('rule')):
                 _matched_data.append(_data)
+                break
 
         for response_data in _matched_data:
             if 'response' not in response_data:
