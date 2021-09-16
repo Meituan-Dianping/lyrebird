@@ -121,14 +121,14 @@ class DataManager:
         _id = _node['id']
         node_id_list = self._collect_activate_node(_node, level_lefted=self.LEVEL_SUPER_ACTIVATED)
 
-        data_id_list = []
+        ordered_data_id = []
         for node_id in node_id_list:
             activated_node = self.id_map.get(node_id)
-            data_id_list += self._collect_activate_data(activated_node)
+            ordered_data_id += self._collect_activate_data(activated_node)
+        data_list = self._adapter._load_data_by_query({'id': ordered_data_id})
 
-        data_list = self._adapter._load_data_by_query({'id': data_id_list})
         data_map = {d['id']: d for d in data_list}
-        self.activated_data.update({i: data_map[i] for i in data_id_list if data_map.get(i)})
+        self.activated_data.update({i: data_map[i] for i in ordered_data_id if data_map.get(i)})
         self.activated_group[_id] = _node
 
     def _collect_activate_node(self, node, level_lefted=1):
