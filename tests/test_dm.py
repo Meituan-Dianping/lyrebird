@@ -256,20 +256,24 @@ def test_load_from_path(root):
 
 
 def test_activate(data_manager):
-    data_manager.activate('groupA-UUID')
+    data_manager.activate('groupE-UUID')
     assert len(data_manager.activated_data) == 2
-    assert 'dataA-UUID' in data_manager.activated_data
-    assert 'dataB-UUID' in data_manager.activated_data
+    assert 'dataC-UUID' in data_manager.activated_data
+    assert 'dataD-UUID' in data_manager.activated_data
 
 
-def test_activate_secondary_search(data_manager):
+def test_activate_with_super_id(data_manager):
     data_manager.activate('groupA-UUID')
 
+    groupA_children_length = len(data_manager.id_map['groupA-UUID']['children'])
     groupB_children_length = len(data_manager.id_map['groupB-UUID']['children'])
     groupC_children_length = len(data_manager.id_map['groupC-UUID']['children'])
-    secondary_activated_data_length = groupB_children_length + groupC_children_length
-    assert secondary_activated_data_length == 1
-    assert 'dataC-UUID' in data_manager.secondary_activated_data
+    activated_data_length = groupA_children_length + groupB_children_length + groupC_children_length
+    assert activated_data_length == len(data_manager.activated_data)
+    assert 'dataA-UUID' in data_manager.activated_data
+    assert 'dataB-UUID' in data_manager.activated_data
+    assert 'dataC-UUID' in data_manager.activated_data
+    assert 'dataD-UUID' not in data_manager.activated_data
 
 
 def test_mock_rule(data_manager):
@@ -347,11 +351,18 @@ def test_activate_groups(data_manager):
 def test_conflict_checker(data_manager):
     data_manager.activate('groupB-UUID')
     conflict_rules = data_manager.activated_data_check_conflict()
-    assert len(conflict_rules) == 0
+    assert len(conflict_rules) == 2
+    data_manager.deactivate()
 
     data_manager.activate('groupD-UUID')
     conflict_rules = data_manager.activated_data_check_conflict()
     assert len(conflict_rules) == 2
+    data_manager.deactivate()
+
+    data_manager.activate('groupJ-UUID')
+    conflict_rules = data_manager.activated_data_check_conflict()
+    assert len(conflict_rules) == 0
+    data_manager.deactivate()
 
     conflict_rules = data_manager.check_conflict('groupE-UUID')
     assert len(conflict_rules) == 2
