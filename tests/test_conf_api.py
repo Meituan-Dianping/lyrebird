@@ -45,7 +45,12 @@ def test_patch_conf_api_with_no_param(client):
     after_conf = application.config.raw()
     assert 200 <= resp.status_code <= 400
     assert before_conf == after_conf
-    
+
+def test_patch_conf_api_with_not_json(client):
+    resp = client.patch("/api/conf", data={"custom.key1":"value1", "custom.key2":"value2"})
+    assert 200 <= resp.status_code <= 400
+    assert resp.json["code"] == 3000
+    assert resp.json["message"] == "request content type must be 'application/json'."
 
 def test_patch_conf_api_with_custom_fields(client):
 
@@ -64,7 +69,7 @@ def test_patch_conf_api_with_custom_fields(client):
     assert application.config.get("custom.key1") == "value3"
 
 
-def test_patch_conf_api_with_forbidden_field(client):
+def test_patch_conf_api_with_const_field(client):
 
     before_conf = application.config.raw()
     resp = client.patch("/api/conf", json={"ip":"111111"})

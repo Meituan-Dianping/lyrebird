@@ -9,6 +9,7 @@ class Conf(Resource):
     Lyrebird 及 插件 配置文件获取和修改
     """
 
+    # 配置中一旦初始化就不能修改的字段列表
     CONST_CONFIG_FIELDS = set(["version", "proxy.port", "mock.port", "ip"])
 
     def get(self):
@@ -25,8 +26,10 @@ class Conf(Resource):
     def patch(self):
         try:
             update_conf = request.get_json()
+            if update_conf is None:
+                return context.make_fail_response("request content type must be 'application/json'.")
+            
             union_Fields = self.CONST_CONFIG_FIELDS & update_conf.keys()
-
             if len(union_Fields) > 0:
                 return context.make_fail_response("配置中%s字段禁止修改" % union_Fields)
             else:
