@@ -9,6 +9,8 @@ class Conf(Resource):
     Lyrebird 及 插件 配置文件获取和修改
     """
 
+    CONST_CONFIG_FIELDS = set(["version", "proxy.port", "mock.port", "ip"])
+
     def get(self):
         return jsonify(application.config.raw())
 
@@ -17,5 +19,21 @@ class Conf(Resource):
             context.application.conf = request.get_json()
             context.application.save()
             return context.make_ok_response()
+        except Exception as e:
+            return context.make_fail_response(str(e))
+
+    def patch(self):
+        try:
+            update_conf = request.get_json()
+            union_Fields = self.CONST_CONFIG_FIELDS & update_conf.keys()
+
+            if len(union_Fields) > 0:
+                return context.make_fail_response("配置中%s字段禁止修改" % union_Fields)
+            else:
+                old_conf = application.config.raw()
+                old_conf.update(update_conf)
+                context.application.conf = old_conf
+                context.application.save()
+                return context.make_ok_response()
         except Exception as e:
             return context.make_fail_response(str(e))
