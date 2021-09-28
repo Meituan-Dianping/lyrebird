@@ -6,6 +6,9 @@ from . import status
 manifest(
     id='demo',
     name='Demo',
+    # Pick an icon from https://webmaterialdesignicons.com/
+    # Example icon='mdi-video-outline',
+    icon='',
     api=[
         # http://localhost:9090/plugins/demo/api/list
         ('/api/list', handler.request_list, ['GET']),
