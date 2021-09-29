@@ -28,6 +28,8 @@ class ConfigManager():
     ROOT = Path('~/.lyrebird').expanduser()
     DEFAULT_FILENAME = 'conf.json'
     BASE_CONFIG = ROOT/DEFAULT_FILENAME
+    FORBIDDEN_MODIFY_FIELDS_IN_CONFIG = set(['version', 'proxy.port', 'mock.port', 'ip'])
+
 
     def __init__(self, conf_path=None, custom_conf=None):
         self.config = config_template
@@ -56,6 +58,25 @@ class ConfigManager():
             self.config_root = input_root
             self.conf_file = input_file
             self.read_config()
+
+    def __contains_forbidden_modify_field(self, update_conf:dict):
+        union_fields = self.FORBIDDEN_MODIFY_FIELDS_IN_CONFIG & update_conf.keys()
+        return union_fields if len(union_fields) > 0 else None
+
+    def override_config_field(self, update_conf:dict):
+        '''
+            raise ConfigException when update_conf contains {FORBIDDEN_MODIFY_FIELDS_IN_CONFIG}
+        '''
+
+        if not update_conf:
+            return
+
+        forbidden_modify_fields = self.__contains_forbidden_modify_field(update_conf)
+        if forbidden_modify_fields:
+            raise ConfigException(f'Config field cannot be modified: {forbidden_modify_fields}')
+
+        self.config.update(update_conf)
+        self.write_config()
 
     def read_config(self):
         template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.config_root)))
