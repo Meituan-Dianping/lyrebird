@@ -23,6 +23,7 @@ conf = {
     }
 }
 
+
 @pytest.fixture
 def client():
     application._cm = ConfigManager()
@@ -44,12 +45,14 @@ def test_patch_conf_api_with_no_param(client):
 
 
 def test_patch_conf_api_with_not_json(client):
-    resp = client.patch('/api/conf', data={'custom.key1':'value1', 'custom.key2':'value2'})
+    resp = client.patch(
+        '/api/conf', data={'custom.key1': 'value1', 'custom.key2': 'value2'})
     assert 200 <= resp.status_code <= 400
     assert resp.json['code'] == 3000
     assert resp.json['message'] == 'Request body must be a JSONObject!'
 
-    resp = client.patch('/api/conf', json=[{'custom.key1':'value1', 'custom.key2':'value2'}])
+    resp = client.patch(
+        '/api/conf', json=[{'custom.key1': 'value1', 'custom.key2': 'value2'}])
     assert 200 <= resp.status_code <= 400
     assert resp.json['code'] == 3000
     assert resp.json['message'] == 'Request body must be a JSONObject!'
@@ -65,20 +68,21 @@ def test_patch_conf_api_with_custom_fields(client):
     before_conf = application.config.raw()
     assert 'custom.key1' not in before_conf
     assert 'custom.key2' not in before_conf
-    resp = client.patch('/api/conf', json={'custom.key1':'value1', 'custom.key2':'value2'})
+    resp = client.patch(
+        '/api/conf', json={'custom.key1': 'value1', 'custom.key2': 'value2'})
     assert 200 <= resp.status_code <= 400
     assert application.config.get('custom.key1') == 'value1'
     assert application.config.get('custom.key2') == 'value2'
 
     # update config field
-    resp = client.patch('/api/conf', json={'custom.key1':'value3'})
+    resp = client.patch('/api/conf', json={'custom.key1': 'value3'})
     assert 200 <= resp.status_code <= 400
     assert application.config.get('custom.key1') == 'value3'
 
 
 def test_patch_conf_api_with_forbidden_modify_field(client):
     before_conf = application.config.raw()
-    resp = client.patch('/api/conf', json={'ip':'111111'})
+    resp = client.patch('/api/conf', json={'ip': '111111'})
     after_conf = application.config.raw()
     assert 200 <= resp.status_code <= 400
     assert before_conf == after_conf
