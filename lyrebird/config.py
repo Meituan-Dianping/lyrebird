@@ -59,23 +59,24 @@ class ConfigManager():
             self.conf_file = input_file
             self.read_config()
 
-    def __contains_forbidden_modify_field(self, update_conf:dict):
+    def contains_forbidden_modify_field(self, update_conf: dict):
         union_fields = self.FORBIDDEN_MODIFY_FIELDS_IN_CONFIG & update_conf.keys()
         return union_fields if len(union_fields) > 0 else None
 
-    def override_config_field(self, update_conf:dict):
+    def override_config_field(self, update_conf: dict):
         '''
             raise ConfigException when update_conf contains {FORBIDDEN_MODIFY_FIELDS_IN_CONFIG}
         '''
-
         if not update_conf:
             return
 
-        forbidden_modify_fields = self.__contains_forbidden_modify_field(update_conf)
+        forbidden_modify_fields = self.contains_forbidden_modify_field(update_conf)
         if forbidden_modify_fields:
             raise ConfigException(f'Config field cannot be modified: {forbidden_modify_fields}')
-
+        
+        logger.debug(f'Need update config fields: {update_conf}')
         self.config.update(update_conf)
+        logger.debug(f'Update done. config: {self.config}')
         self.write_config()
 
     def read_config(self):

@@ -66,3 +66,4 @@ def test_override_config_with_normal():
     assert cm.config.get('key1') == 'value1'
     cm.override_config_field({'key1':'value2'})
     assert cm.config.get('key1') == 'value2'
+    

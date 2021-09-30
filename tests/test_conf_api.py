@@ -76,7 +76,7 @@ def test_patch_conf_api_with_custom_fields(client):
     assert application.config.get('custom.key1') == 'value3'
 
 
-def test_patch_conf_api_with_const_field(client):
+def test_patch_conf_api_with_forbidden_modify_field(client):
     before_conf = application.config.raw()
     resp = client.patch('/api/conf', json={'ip':'111111'})
     after_conf = application.config.raw()
@@ -84,4 +84,3 @@ def test_patch_conf_api_with_const_field(client):
     assert before_conf == after_conf
     assert resp.json['code'] == 3000
     assert 'Config field cannot be modified' in resp.json['message']
-

@@ -1,3 +1,4 @@
+from lyrebird.config import ConfigException
 from flask_restful import Resource
 from lyrebird.mock import context
 from flask import request, jsonify
@@ -36,5 +37,6 @@ class Conf(Resource):
         try:
             application._cm.override_config_field(update_conf)
             return application.make_ok_response()
-        except Exception as e:
+        except ConfigException as e:
             return application.make_fail_response(str(e))
+            
