@@ -6,9 +6,7 @@ from packaging import version
 import jinja2
 from lyrebird import log as nlog
 
-
 logger = nlog.get_logger()
-
 
 config_template = {
     "version": "0.10.5",
@@ -27,7 +25,7 @@ config_template = {
 class ConfigManager():
     ROOT = Path('~/.lyrebird').expanduser()
     DEFAULT_FILENAME = 'conf.json'
-    BASE_CONFIG = ROOT/DEFAULT_FILENAME
+    BASE_CONFIG = ROOT / DEFAULT_FILENAME
     FORBIDDEN_MODIFY_FIELDS_IN_CONFIG = set(
         ['version', 'proxy.port', 'mock.port', 'ip'])
 
@@ -86,9 +84,8 @@ class ConfigManager():
             loader=jinja2.FileSystemLoader(str(self.config_root)))
         template = template_env.get_template(self.conf_file.name)
         current_dir = str(self.config_root)
-        download_dir = str(self.ROOT/'downloads')
-        conf_str = template.render(current_dir=json.dumps(current_dir).strip(
-            '"'), download_dir=json.dumps(download_dir).strip('"'))
+        download_dir = str(self.ROOT / 'downloads')
+        conf_str = template.render(current_dir=json.dumps(current_dir).strip('"'), download_dir=json.dumps(download_dir).strip('"'))
         loaded_config = json.loads(conf_str)
         self.config.update(loaded_config)
 

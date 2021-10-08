@@ -8,7 +8,6 @@ from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 import pytest
 import copy
 
-
 conf = {
     'version': '0.10.4',
     'proxy.filters': ['kuxun', 'meituan', 'sankuai', 'dianping'],
@@ -45,14 +44,20 @@ def test_patch_conf_api_with_no_param(client):
 
 
 def test_patch_conf_api_with_not_json(client):
-    resp = client.patch(
-        '/api/conf', data={'custom.key1': 'value1', 'custom.key2': 'value2'})
+    resp = client.patch('/api/conf',
+                        data={
+                            'custom.key1': 'value1',
+                            'custom.key2': 'value2'
+                        })
     assert 200 <= resp.status_code <= 400
     assert resp.json['code'] == 3000
     assert resp.json['message'] == 'Request body must be a JSONObject!'
 
-    resp = client.patch(
-        '/api/conf', json=[{'custom.key1': 'value1', 'custom.key2': 'value2'}])
+    resp = client.patch('/api/conf',
+                        json=[{
+                            'custom.key1': 'value1',
+                            'custom.key2': 'value2'
+                        }])
     assert 200 <= resp.status_code <= 400
     assert resp.json['code'] == 3000
     assert resp.json['message'] == 'Request body must be a JSONObject!'
@@ -68,8 +73,11 @@ def test_patch_conf_api_with_custom_fields(client):
     before_conf = application.config.raw()
     assert 'custom.key1' not in before_conf
     assert 'custom.key2' not in before_conf
-    resp = client.patch(
-        '/api/conf', json={'custom.key1': 'value1', 'custom.key2': 'value2'})
+    resp = client.patch('/api/conf',
+                        json={
+                            'custom.key1': 'value1',
+                            'custom.key2': 'value2'
+                        })
     assert 200 <= resp.status_code <= 400
     assert application.config.get('custom.key1') == 'value1'
     assert application.config.get('custom.key2') == 'value2'

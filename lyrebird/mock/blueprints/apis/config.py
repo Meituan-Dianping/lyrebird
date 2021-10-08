@@ -12,7 +12,6 @@ class Conf(Resource):
     """
     Lyrebird 及 插件 配置文件获取和修改
     """
-
     def get(self):
         return jsonify(application.config.raw())
 

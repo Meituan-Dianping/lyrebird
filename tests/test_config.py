@@ -5,7 +5,6 @@ import json
 import codecs
 import copy
 
-
 conf = {
     "version": "0.10.4",
     "proxy.filters": ["kuxun", "meituan", "sankuai", "dianping"],
@@ -23,7 +22,7 @@ conf = {
 
 def test_create(tmpdir):
     custom_config = {"myconf": "myval"}
-    conf_path = Path(tmpdir)/'conf.json'
+    conf_path = Path(tmpdir) / 'conf.json'
     with codecs.open(conf_path, 'w', 'utf-8') as f:
         f.write(json.dumps(custom_config, indent=4, ensure_ascii=False))
     cm = config.ConfigManager(conf_path=conf_path)
@@ -37,10 +36,7 @@ def test_override_config_with_forbidden_modify_field():
     cm = config.ConfigManager()
     cm.config = conf
 
-    update_conf = {
-        'ip': 'aaa',
-        'key1': 'value1'
-    }
+    update_conf = {'ip': 'aaa', 'key1': 'value1'}
 
     with pytest.raises(config.ConfigException) as e:
         cm.override_config_field(update_conf)
