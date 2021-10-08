@@ -30,8 +30,7 @@ class Conf(Resource):
             return application.make_fail_response('Request body must be a JSONObject!')
 
         if not update_conf:
-            logger.warning(
-                'This request cannot modify config, request body is empty.')
+            logger.warning('This request cannot modify config, request body is empty.')
             return application.make_ok_response()
 
         try:
