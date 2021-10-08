@@ -6,9 +6,7 @@ from packaging import version
 import jinja2
 from lyrebird import log as nlog
 
-
 logger = nlog.get_logger()
-
 
 config_template = {
     "version": "0.10.5",
@@ -27,7 +25,8 @@ config_template = {
 class ConfigManager():
     ROOT = Path('~/.lyrebird').expanduser()
     DEFAULT_FILENAME = 'conf.json'
-    BASE_CONFIG = ROOT/DEFAULT_FILENAME
+    BASE_CONFIG = ROOT / DEFAULT_FILENAME
+    FORBIDDEN_MODIFY_FIELDS_IN_CONFIG = set(['version', 'proxy.port', 'mock.port', 'ip'])
 
     def __init__(self, conf_path=None, custom_conf=None):
         self.config = config_template
@@ -57,11 +56,31 @@ class ConfigManager():
             self.conf_file = input_file
             self.read_config()
 
+    def contains_forbidden_modify_field(self, update_conf: dict):
+        union_fields = self.FORBIDDEN_MODIFY_FIELDS_IN_CONFIG & update_conf.keys()
+        return union_fields if len(union_fields) > 0 else None
+
+    def override_config_field(self, update_conf: dict):
+        """
+        Update Application config by ``config.update(update_conf)``.
+        If update_conf contains ``FORBIDDEN_MODIFY_FIELDS_IN_CONFIG``, raise ``ConfigException``.
+        """
+        if not update_conf:
+            return
+
+        forbidden_modify_fields = self.contains_forbidden_modify_field(update_conf)
+        if forbidden_modify_fields:
+            raise ConfigException(f'Config field cannot be modified: {forbidden_modify_fields}')
+
+        logger.debug(f'Need update config fields: {update_conf}')
+        self.config.update(update_conf)
+        logger.debug(f'Update done. config: {self.config}')
+
     def read_config(self):
         template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.config_root)))
         template = template_env.get_template(self.conf_file.name)
         current_dir = str(self.config_root)
-        download_dir = str(self.ROOT/'downloads')
+        download_dir = str(self.ROOT / 'downloads')
         conf_str = template.render(current_dir=json.dumps(current_dir).strip('"'), download_dir=json.dumps(download_dir).strip('"'))
         loaded_config = json.loads(conf_str)
         self.config.update(loaded_config)
