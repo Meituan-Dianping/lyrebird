@@ -1,7 +1,11 @@
 import re
+import os
 import math
 import time
 import socket
+import tarfile
+import requests
+from pathlib import Path
 from contextlib import closing
 
 
@@ -60,6 +64,39 @@ def find_free_port():
         s.bind(('', 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
+
+
+def compress_tar(input_path, output_path, suffix=None):
+    current_path = Path.cwd()
+    input_path = Path(input_path).expanduser().absolute().resolve()
+    output_path = Path(output_path).expanduser().absolute().resolve()
+    filename = f'{output_path}{suffix}' if suffix else output_path
+
+    os.chdir(input_path)
+    tar = tarfile.open(filename, 'w:gz')
+    for root, dirs, files in os.walk(input_path):
+        for f in files:
+            tar.add(f, recursive=False)
+    tar.close()
+    os.chdir(current_path)
+    return filename
+
+
+def decompress_tar(input_path, output_path=None):
+    input_path = Path(input_path).expanduser().absolute().resolve()
+    if not output_path:
+        output_path = input_path.parent / input_path.stem
+    tf = tarfile.open(str(input_path))
+    tf.extractall(str(output_path))
+    tf.close()
+    return output_path
+
+
+def download(link, input_path):
+    resp = requests.get(link)
+    with open(input_path, 'wb') as f:
+        for chunck in resp.iter_content():
+            f.write(chunck)
 
 
 class CaseInsensitiveDict(dict):

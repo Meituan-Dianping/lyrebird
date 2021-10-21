@@ -48,7 +48,10 @@ class Menu(Resource):
         if not application.active_menu:
             self.set_active_menu(menu[0])
         active_menu = application.active_menu
-        active_menu_index = menu.index(active_menu)
+        for index, menu_item in enumerate(menu):
+            if menu_item['name'] == active_menu.get('name'):
+                active_menu_index = index
+                break
         return context.make_ok_response(menu=menu, activeMenuItem=active_menu, activeMenuItemIndex=active_menu_index)
 
     def put(self):

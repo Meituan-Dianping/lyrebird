@@ -1,15 +1,18 @@
 import re
 import uuid
 import json
+import time
+import codecs
+import shutil
 import datetime
 import traceback
 from pathlib import Path
+from jinja2 import Template
 from urllib.parse import urlparse
 from collections import OrderedDict
+from lyrebird import utils, application
 from lyrebird.log import get_logger
-from jinja2 import Template
 from lyrebird.application import config
-from lyrebird.mock.handlers import snapshot_helper
 from lyrebird.mock.dm.jsonpath import jsonpath
 
 
@@ -29,7 +32,8 @@ class DataManager:
         self.clipboard = None
         self.save_to_group_id = None
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'label': [], 'children': []}
-        self.snapshot_helper = snapshot_helper.SnapshotHelper()
+        self.snapshot_import_uri_map = {}
+        self.SNAPSHOT_SUFFIX = '.lb'
         self.root = self.get_default_root()
 
     def get_default_root(self):
@@ -124,7 +128,7 @@ class DataManager:
         ordered_data_id = []
         for node_id in node_id_list:
             activated_node = self.id_map.get(node_id)
-            ordered_data_id += self._collect_activate_data(activated_node)
+            ordered_data_id += self._collect_data_in_node(activated_node)
         data_list = self._adapter._load_data_by_query({'id': ordered_data_id})
 
         data_map = {d['id']: d for d in data_list}
@@ -148,14 +152,14 @@ class DataManager:
         id_list.extend(self._collect_activate_node(_super_node, level_lefted=level_lefted-1))
         return id_list
 
-    def _collect_activate_data(self, node):
+    def _collect_data_in_node(self, node):
         id_list = []
         if node.get('type', '') == 'data':
             return [node['id']]
         elif node.get('type', '') == 'group':
             if 'children' in node:
                 for child in node['children']:
-                    id_list.extend(self._collect_activate_data(child))
+                    id_list.extend(self._collect_data_in_node(child))
         return id_list
 
     def deactivate(self):
@@ -481,7 +485,9 @@ class DataManager:
     def _copy_file(self, target_data_node, data_node, **kwargs):
         _id = data_node['id']
         custom_root = kwargs.get('custom_input_file_path')
-        if not custom_root:
+        if kwargs.get('content'):
+            prop = kwargs.get('content', {}).get(_id)
+        elif not custom_root:
             prop = self._adapter._load_data(_id)
         else:
             prop = self._adapter._load_data(None, path=(Path(custom_root)/_id))
@@ -641,26 +647,84 @@ class DataManager:
     # Snapshot
     # -----
 
-    def _write_prop_to_custom_path(self, outfile_path, node):
-        self._adapter._write_prop_to_custom_path(outfile_path, node)
+    def export_from_local(self, event):
+        group_id = self.import_from_local(event)
+        filename = self.export_from_remote(group_id)
+        return group_id, filename
 
-    def _write_file_to_custom_path(self, outfile_path, file_content):
-        self._adapter._write_file_to_custom_path(outfile_path, file_content)
+    def export_from_remote(self, node_id):
+        snapshot_path = self.get_snapshot_path()
+        node = self.id_map.get(node_id)
+        self._write_file(snapshot_path/PROP_FILE_NAME, node)
 
-    def decompress_snapshot(self):
-        return self._adapter.decompress_snapshot()
+        ordered_data_id = self._collect_data_in_node(node)
+        data_list = self._adapter._load_data_by_query({'id': ordered_data_id})
+        for mock_data in data_list:
+            self._write_file(snapshot_path/mock_data['id'], mock_data)
 
-    def import_snapshot(self, parent_id, snapshot_name, path=None):
-        return self._adapter.import_snapshot(parent_id, snapshot_name)
+        filename = utils.compress_tar(snapshot_path, snapshot_path, suffix=self.SNAPSHOT_SUFFIX)
+        self._remove_file([snapshot_path])
+        return filename
 
-    def export_snapshot_from_event(self, event_json):
-        return self._adapter.export_snapshot_from_event(event_json)
+    def import_from_local(self, event):
+        _prop = event['snapshot']
+        group_name = _prop['name']
+        parent_path = config.get('snapshot.import.workspace', '/')
+        parent_id = self.add_group_by_path(parent_path)
 
-    def export_snapshot_from_dm(self, node_id):
-        return self._adapter.export_snapshot_from_dm(node_id)
+        self.import_(_prop)
+        return self.paste(parent_id=parent_id, content={i['id']:i for i in event['events']})
 
-    def remove_tmp_snapshot_file(self, files):
-        return self._adapter.remove_tmp_snapshot_file(files)
+    def import_from_file(self, parent_id, input_path):
+        snapshot_info, output_path = self._get_snapshot_file_detail(input_path)
+
+        self.import_(snapshot_info)
+        _group_id = self.paste(parent_id=parent_id, custom_input_file_path=output_path)
+        self._remove_file([input_path, output_path])
+        return _group_id
+
+    def read_snapshot_from_link(self, link):
+        snapshot_path = self.get_snapshot_path()
+        snapshot_filename = Path(f'{snapshot_path}{self.SNAPSHOT_SUFFIX}')
+
+        utils.download(link, snapshot_filename)
+        return snapshot_filename
+
+    def _get_snapshot_file_detail(self, input_path):
+        try:
+            output_path = utils.decompress_tar(input_path)
+        except Exception:
+            raise LyrebirdSnapshotBroken
+
+        snapshot_prop = output_path / PROP_FILE_NAME
+
+        if not snapshot_prop.exists():
+            raise LyrebirdPropNotExists
+        with codecs.open(str(snapshot_prop)) as f:
+            snapshot_info = json.load(f)
+        return snapshot_info, output_path
+
+    def _write_file(self, path, data):
+        data_str = json.dumps(data, ensure_ascii=False)
+        with codecs.open(path, 'w') as f:
+            f.write(data_str)
+
+    def _remove_file(self, files):
+        for filepath in files:
+            path = Path(filepath)
+            if path.is_dir() and path.exists():
+                shutil.rmtree(path)
+            elif path.is_file() and path.exists():
+                path.unlink()
+
+    def get_snapshot_path(self):
+        snapshot_repositories = application._cm.ROOT / "snapshot"
+        if not snapshot_repositories.exists():
+            snapshot_repositories.mkdir()
+        temp_dir_name = f"{time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())}-{str(uuid.uuid4())}"
+        snapshot_path = snapshot_repositories / temp_dir_name
+        snapshot_path.mkdir()
+        return snapshot_path
 
 # -----------------
 # Exceptions
@@ -722,3 +786,6 @@ class TooMuchPropFile(Exception):
 class NodeExist(Exception):
     pass
 
+
+class LyrebirdSnapshotBroken(Exception):
+    pass

@@ -321,9 +321,9 @@ export default {
           bus.$emit('msg.error', 'Import snapshot ' + state.snapshotName + ' error: ' + error.data.message)
         })
     },
-    loadSnapshotName ({ commit }) {
+    loadSnapshotDetail ({ commit }, snapshotId) {
       bus.$emit('msg.loading', 'Loading snapshot ...')
-      api.getSnapShotDetail()
+      api.getSnapShotDetail(snapshotId)
         .then((res) => {
           commit('setSnapshotName', res.data.data.name)
         })

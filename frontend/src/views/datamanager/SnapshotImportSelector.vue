@@ -61,10 +61,14 @@ export default {
   mounted () {
     if (this.$route.path === '/datamanager/import') {
       this.changeSearchModalOpenState()
-      this.$store.dispatch('loadSnapshotName')
+      this.$store.dispatch('loadSnapshotDetail', this.$route.query.snapshotId)
     } else if (this.$route.path === '/datamanager' && Object.keys(this.$route.query).length) {
       if (this.$route.query.errorMsg) {
         this.$bus.$emit('msg.error', this.$route.query.errorMsg)
+        return
+      }
+      if (this.$route.query.infoMsg) {
+        this.$bus.$emit('msg.info', this.$route.query.infoMsg)
         return
       }
       this.$store.dispatch('initSnapshotInfo', this.$route.query)
