@@ -310,9 +310,10 @@ export default {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' duplicate error: ' + error.data.message)
         })
     },
-    importSnapshot ({ state, dispatch }) {
-      api.importSnapshot(state.importSnapshotParentNode.id, state.snapshotName)
+    importSnapshot ({ state, commit, dispatch }, snapshotId) {
+      api.importSnapshot(state.importSnapshotParentNode.id, state.snapshotName, snapshotId)
         .then(response => {
+          commit('setImportGroupId', response.data.group_id)
           dispatch('loadDataMap')
           bus.$emit('msg.success', 'Import snapshot ' + state.snapshotName + ' success!')
         })

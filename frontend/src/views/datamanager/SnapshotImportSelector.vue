@@ -38,7 +38,7 @@
     </template>
     <template slot="modalFooter">
       <Divider />
-      <Button size="large" type="primary" long @click="importSnapshot()">
+      <Button size="large" type="primary" long @click="importSnapshot">
         <span>Save</span>
       </Button>
     </template>
@@ -56,12 +56,14 @@ export default {
   data () {
     return {
       snapshotTitle: 'Import snapshot',
+      snapshotId: ''
     }
   },
   mounted () {
     if (this.$route.path === '/datamanager/import') {
       this.changeSearchModalOpenState()
-      this.$store.dispatch('loadSnapshotDetail', this.$route.query.snapshotId)
+      this.snapshotId = this.$route.query.snapshotId
+      this.$store.dispatch('loadSnapshotDetail', this.snapshotId)
     } else if (this.$route.path === '/datamanager' && Object.keys(this.$route.query).length) {
       if (this.$route.query.errorMsg) {
         this.$bus.$emit('msg.error', this.$route.query.errorMsg)
@@ -99,7 +101,7 @@ export default {
     },
     importSnapshot () {
       this.changeSearchModalOpenState()
-      this.$store.dispatch('importSnapshot')
+      this.$store.dispatch('importSnapshot', this.snapshotId)
       this.$router.push({ name: 'datamanager' })
     }
   }

@@ -86,6 +86,7 @@ export default {
         })
     },
     exportSnapshotFromEvent ({ state }) {
+      bus.$emit('msg.info', 'Exporting snapshot...')
       if (state.selectedEvent.channel != 'snapshot') {
         bus.$emit('msg.error', 'Please select a snapshot!')
       }

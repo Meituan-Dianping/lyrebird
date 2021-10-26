@@ -34,6 +34,7 @@ class DataManager:
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'label': [], 'children': []}
         self.snapshot_import_uri_map = {}
         self.SNAPSHOT_SUFFIX = '.lb'
+        self.COPY_NODE_NAME_SUFFIX = ' - copy'
         self.root = self.get_default_root()
 
     def get_default_root(self):
@@ -425,11 +426,13 @@ class DataManager:
             'node': _node
         }
 
-    def import_(self, node):
+    def import_(self, node, json=None, path=None):
         self.clipboard = {
             'type': 'import',
             'id': node['id'],
-            'node': node
+            'node': node,
+            'json': json,
+            'path': path
         }
 
     def paste(self, parent_id, **kwargs):
@@ -482,23 +485,25 @@ class DataManager:
             self._copy_file(new_node, node, **kwargs)
         return new_node['id']
 
-    def _copy_file(self, target_data_node, data_node, **kwargs):
+    def _copy_file(self, new_data_node, data_node, **kwargs):
         _id = data_node['id']
-        custom_root = kwargs.get('custom_input_file_path')
-        if kwargs.get('content'):
-            prop = kwargs.get('content', {}).get(_id)
-        elif not custom_root:
-            prop = self._adapter._load_data(_id)
+
+        if self.clipboard.get('json'):
+            prop = self.clipboard.get('json', {}).get(_id)
+            if not prop:
+                raise DataNotFound # ??
+        elif self.clipboard.get('path'):
+            with codecs.open(Path(self.clipboard['path'])/_id) as f:
+                prop = json.load(f)
         else:
-            prop = self._adapter._load_data(None, path=(Path(custom_root)/_id))
-        new_file_id = target_data_node['id']
-        prop['id'] = new_file_id
+            prop = self._adapter._load_data(_id)
+
+        prop['id'] = new_data_node['id']
         prop['name'] = kwargs.pop('name') if kwargs.get('name') else prop['name']
         self._adapter._add_data(prop)
 
     def _get_copy_node_new_name(self, _node):
-        COPY_NODE_NAME_SUFFIX = ' - copy'
-        return _node['name'] + COPY_NODE_NAME_SUFFIX
+        return _node['name'] + self.COPY_NODE_NAME_SUFFIX
 
     def _sort_children_by_name(self):
         for node_id in self.id_map:
@@ -672,14 +677,16 @@ class DataManager:
         parent_path = config.get('snapshot.import.workspace', '/')
         parent_id = self.add_group_by_path(parent_path)
 
-        self.import_(_prop)
-        return self.paste(parent_id=parent_id, content={i['id']:i for i in event['events']})
+        self.import_(_prop, json={i['id']:i for i in event['events']})
+        return self.paste(parent_id)
 
-    def import_from_file(self, parent_id, input_path):
+    def import_from_file(self, parent_id, input_path, **kwargs):
         snapshot_info, output_path = self._get_snapshot_file_detail(input_path)
+        if kwargs.get('name'):
+            snapshot_info['name'] = kwargs['name']
 
-        self.import_(snapshot_info)
-        _group_id = self.paste(parent_id=parent_id, custom_input_file_path=output_path)
+        self.import_(snapshot_info, path=output_path)
+        _group_id = self.paste(parent_id=parent_id, path=output_path)
         self._remove_file([input_path, output_path])
         return _group_id
 
