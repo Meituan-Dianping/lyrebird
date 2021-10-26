@@ -32,7 +32,7 @@ class DataManager:
         self.clipboard = None
         self.save_to_group_id = None
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'label': [], 'children': []}
-        self.snapshot_import_uri_map = {}
+        self.snapshot_import_cache = {}
         self.SNAPSHOT_SUFFIX = '.lb'
         self.COPY_NODE_NAME_SUFFIX = ' - copy'
         self.root = self.get_default_root()

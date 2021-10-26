@@ -42,7 +42,7 @@ class SnapshotImport(Resource):
             if queries.get('isAdvancedSave') == 'true':
                 import_uri_uuid = str(uuid.uuid4())
                 new_query['snapshotId'] = import_uri_uuid
-                context.application.data_manager.snapshot_import_uri_map[import_uri_uuid] = {'link': import_uri_link}
+                context.application.data_manager.snapshot_import_cache[import_uri_uuid] = {'link': import_uri_link}
                 return redirect(f'/ui/?v={VERSION}#/datamanager/import?{urlencode(new_query)}')
 
             path = context.application.data_manager.read_snapshot_from_link(import_uri_link)
@@ -89,7 +89,7 @@ class SnapshotImport(Resource):
                 return application.make_fail_response('Missing required argument: parent_id')
 
             snapshot_id = request.json.get('snapshotId')
-            snapshot_info = context.application.data_manager.snapshot_import_uri_map.get(snapshot_id)
+            snapshot_info = context.application.data_manager.snapshot_import_cache.get(snapshot_id)
             if not snapshot_info:
                 return application.make_fail_response(f'Snapshot cache {snapshot_id} not found!')
 
@@ -97,7 +97,7 @@ class SnapshotImport(Resource):
             if not Path(path).exists():
                 link = snapshot_info.get('link')
                 path = context.application.data_manager.read_snapshot_from_link(link)
-                context.application.data_manager.snapshot_import_uri_map[snapshot_id]['path'] = path
+                context.application.data_manager.snapshot_import_cache[snapshot_id]['path'] = path
 
             group_id = context.application.data_manager.import_from_file(parent_id, path, name=name)
             return application.make_ok_response(group_id=group_id)
@@ -125,11 +125,11 @@ class SnapshotExport(Resource):
 
 class Snapshot(Resource):
     def get(self, snapshot_id):
-        link = context.application.data_manager.snapshot_import_uri_map.get(snapshot_id, {}).get('link')
+        link = context.application.data_manager.snapshot_import_cache.get(snapshot_id, {}).get('link')
         if not link:
-            application.make_fail_response('No import snapshot link found!')
+            application.make_fail_response(f'No import snapshot {snapshot_id} link found!')
         path = context.application.data_manager.read_snapshot_from_link(link)
-        context.application.data_manager.snapshot_import_uri_map[snapshot_id]['path'] = path
+        context.application.data_manager.snapshot_import_cache[snapshot_id]['path'] = path
         detail, output_path = context.application.data_manager._get_snapshot_file_detail(path)
 
         context.application.data_manager._remove_file([output_path])
