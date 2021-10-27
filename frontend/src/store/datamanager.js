@@ -304,6 +304,7 @@ export default {
           commit('addGroupListOpenNode', payload.parent_id)
           commit('addGroupListOpenNode', response.data.id)
           dispatch('loadDataMap')
+          bus.$emit('msg.destroy')
           bus.$emit('msg.info', response.data.message)
         })
         .catch(error => {

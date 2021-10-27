@@ -85,7 +85,9 @@ def compress_tar(input_path, output_path, suffix=None):
 def decompress_tar(input_path, output_path=None):
     input_path = Path(input_path).expanduser().absolute().resolve()
     if not output_path:
-        output_path = input_path.parent / input_path.stem
+        filename = input_path.stem if input_path.suffix else f'{input_path.name}-decompress'
+        output_path = input_path.parent / filename
+
     tf = tarfile.open(str(input_path))
     tf.extractall(str(output_path))
     tf.close()

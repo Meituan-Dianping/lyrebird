@@ -35,6 +35,7 @@ class DataManager:
         self.snapshot_import_cache = {}
         self.SNAPSHOT_SUFFIX = '.lb'
         self.COPY_NODE_NAME_SUFFIX = ' - copy'
+        self.SNAPSHOT_WORKSPACE = None
         self.root = self.get_default_root()
 
     def get_default_root(self):
@@ -489,9 +490,10 @@ class DataManager:
         _id = data_node['id']
 
         if self.clipboard.get('json'):
-            prop = self.clipboard.get('json', {}).get(_id)
-            if not prop:
-                raise DataNotFound # ??
+            event = self.clipboard.get('json', {}).get(_id)
+            if not event:
+                raise DataNotFound
+            prop = {k:v for k,v in event.items()}
         elif self.clipboard.get('path'):
             with codecs.open(Path(self.clipboard['path'])/_id) as f:
                 prop = json.load(f)
@@ -658,7 +660,7 @@ class DataManager:
         return group_id, filename
 
     def export_from_remote(self, node_id):
-        snapshot_path = self.get_snapshot_path()
+        snapshot_path = self._get_snapshot_path()
         node = self.id_map.get(node_id)
         self._write_file(snapshot_path/PROP_FILE_NAME, node)
 
@@ -681,7 +683,7 @@ class DataManager:
         return self.paste(parent_id)
 
     def import_from_file(self, parent_id, input_path, **kwargs):
-        snapshot_info, output_path = self._get_snapshot_file_detail(input_path)
+        snapshot_info, output_path = self.get_snapshot_file_detail(input_path)
         if kwargs.get('name'):
             snapshot_info['name'] = kwargs['name']
 
@@ -691,13 +693,13 @@ class DataManager:
         return _group_id
 
     def read_snapshot_from_link(self, link):
-        snapshot_path = self.get_snapshot_path()
+        snapshot_path = self._get_snapshot_path()
         snapshot_filename = Path(f'{snapshot_path}{self.SNAPSHOT_SUFFIX}')
 
         utils.download(link, snapshot_filename)
         return snapshot_filename
 
-    def _get_snapshot_file_detail(self, input_path):
+    def get_snapshot_file_detail(self, input_path):
         try:
             output_path = utils.decompress_tar(input_path)
         except Exception:
@@ -724,12 +726,13 @@ class DataManager:
             elif path.is_file() and path.exists():
                 path.unlink()
 
-    def get_snapshot_path(self):
-        snapshot_repositories = application._cm.ROOT / "snapshot"
-        if not snapshot_repositories.exists():
-            snapshot_repositories.mkdir()
+    def _get_snapshot_path(self):
+        if not self.SNAPSHOT_WORKSPACE:
+            self.SNAPSHOT_WORKSPACE = Path(application._cm.ROOT) / 'snapshot'
+        if not self.SNAPSHOT_WORKSPACE.exists():
+            self.SNAPSHOT_WORKSPACE.mkdir()
         temp_dir_name = f"{time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())}-{str(uuid.uuid4())}"
-        snapshot_path = snapshot_repositories / temp_dir_name
+        snapshot_path = self.SNAPSHOT_WORKSPACE / temp_dir_name
         snapshot_path.mkdir()
         return snapshot_path
 

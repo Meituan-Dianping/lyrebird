@@ -76,7 +76,7 @@ class SnapshotImport(Resource):
                 return application.make_fail_response('Missing required argument: parent_id')
 
             filename = stream.filename or str(uuid.uuid4())
-            path = application._cm.ROOT / 'snapshot' / filename
+            path = context.application.data_manager.SNAPSHOT_WORKSPACE / filename
             stream.save(str(path))
 
             group_id = context.application.data_manager.import_from_file(parent_id, path)
@@ -130,7 +130,7 @@ class Snapshot(Resource):
             application.make_fail_response(f'No import snapshot {snapshot_id} link found!')
         path = context.application.data_manager.read_snapshot_from_link(link)
         context.application.data_manager.snapshot_import_cache[snapshot_id]['path'] = path
-        detail, output_path = context.application.data_manager._get_snapshot_file_detail(path)
+        detail, output_path = context.application.data_manager.get_snapshot_file_detail(path)
 
         context.application.data_manager._remove_file([output_path])
 
