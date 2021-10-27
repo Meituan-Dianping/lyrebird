@@ -7,7 +7,7 @@ from typing import NamedTuple
 from urllib.parse import urlparse
 from lyrebird.mock import dm
 from lyrebird.mock.dm.file_data_adapter import data_adapter
-from lyrebird import application, utils
+from lyrebird import application
 
 dataA = {
     'id': 'dataA-UUID',
