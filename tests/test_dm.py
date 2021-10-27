@@ -3,6 +3,7 @@ import codecs
 import json
 import tarfile
 from pathlib import Path
+from copy import deepcopy
 from typing import NamedTuple
 from urllib.parse import urlparse
 from lyrebird.mock import dm
@@ -214,6 +215,7 @@ snapshot = {
     'snapshot': {
         'id': 'groupA-UUID',
         'parent_id': None,
+        'super_id': 'groupB-UUID',
         'name': 'groupA',
         'type': 'group',
         'children': [
@@ -666,12 +668,14 @@ def test_make_data_map_by_group(data_manager):
     assert len(node_str) == len(prop_str)
 
 def test_export_from_local(data_manager, tmpdir):
-
     def pop_id(node):
         if 'id' in node:
             node.pop('id')
+        if 'parent_id' in node:
+            node.pop('parent_id')
         for child in node.get('children', []):
             pop_id(child)
+        return node
 
     group_id, filename = data_manager.export_from_local(snapshot)
     children = data_manager.get(group_id)['children']
@@ -698,8 +702,8 @@ def test_export_from_local(data_manager, tmpdir):
         file_set.add(data['id'])
         assert data == data_manager.get(data_id)
         assert data['id'] != snapshot_data['id']
-        data_pop_id = pop_id(data)
-        snapshot_data_pop_id = pop_id(snapshot_data)
+        data_pop_id = pop_id(deepcopy(data))
+        snapshot_data_pop_id = pop_id(deepcopy(snapshot_data))
         assert data_pop_id == snapshot_data_pop_id
 
     assert file_set == children_set
@@ -708,8 +712,11 @@ def test_export_from_remote(data_manager, tmpdir):
     def pop_id(node):
         if 'id' in node:
             node.pop('id')
+        if 'parent_id' in node:
+            node.pop('parent_id')
         for child in node.get('children', []):
             pop_id(child)
+        return node
 
     group_id = 'groupA-UUID'
     filename = data_manager.export_from_remote(group_id)
@@ -736,20 +743,14 @@ def test_export_from_remote(data_manager, tmpdir):
         file_set.add(data['id'])
         assert data == data_manager.get(data_id)
         assert data['id'] == snapshot_data['id']
-        data_pop_id = pop_id(data)
-        snapshot_data_pop_id = pop_id(snapshot_data)
+        data_pop_id = pop_id(deepcopy(data))
+        snapshot_data_pop_id = pop_id(deepcopy(snapshot_data))
         assert data_pop_id == snapshot_data_pop_id
 
     assert file_set == children_set
 
 
 def test_import_from_local(data_manager):
-    def pop_id(node):
-        if 'id' in node:
-            node.pop('id')
-        for child in node.get('children', []):
-            pop_id(child)
-
     group_id, filename = data_manager.export_from_local(snapshot)
     children = data_manager.get(group_id)['children']
     assert group_id in data_manager.id_map
@@ -761,8 +762,11 @@ def test_import_from_file(data_manager, tmpdir):
     def pop_id(node):
         if 'id' in node:
             node.pop('id')
+        if 'parent_id' in node:
+            node.pop('parent_id')
         for child in node.get('children', []):
             pop_id(child)
+        return node
 
     group_id = 'groupA-UUID'
     filename = data_manager.export_from_remote(group_id)
@@ -781,8 +785,8 @@ def test_import_from_file(data_manager, tmpdir):
 
         assert new_group_child_data == group_child_data
 
-    group_pop_id = pop_id(group)
-    new_group_pop_id = pop_id(new_group)
+    group_pop_id = pop_id(deepcopy(group))
+    new_group_pop_id = pop_id(deepcopy(new_group))
     assert group_pop_id == new_group_pop_id
 
 
