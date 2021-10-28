@@ -1,6 +1,5 @@
 import os
 import json
-import shutil
 import codecs
 from pathlib import Path
 from urllib.parse import urlparse

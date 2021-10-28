@@ -681,7 +681,6 @@ class DataManager:
 
     def import_from_local(self, event):
         _prop = event['snapshot']
-        group_name = _prop['name']
         parent_path = config.get('snapshot.import.workspace', '/')
         parent_id = self.add_group_by_path(parent_path)
 

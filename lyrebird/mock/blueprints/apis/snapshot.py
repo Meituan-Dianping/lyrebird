@@ -1,5 +1,4 @@
 import uuid
-import requests
 import traceback
 from pathlib import Path
 from flask import redirect, send_file
