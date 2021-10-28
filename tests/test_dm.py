@@ -673,6 +673,8 @@ def test_export_from_local(data_manager, tmpdir):
             node.pop('id')
         if 'parent_id' in node:
             node.pop('parent_id')
+        if 'response' in node and not node['response']:
+            node.pop('response')
         for child in node.get('children', []):
             pop_id(child)
         return node
@@ -714,6 +716,8 @@ def test_export_from_remote(data_manager, tmpdir):
             node.pop('id')
         if 'parent_id' in node:
             node.pop('parent_id')
+        if 'response' in node and not node['response']:
+            node.pop('response')
         for child in node.get('children', []):
             pop_id(child)
         return node
@@ -764,6 +768,8 @@ def test_import_from_file(data_manager, tmpdir):
             node.pop('id')
         if 'parent_id' in node:
             node.pop('parent_id')
+        if 'response' in node and not node['response']:
+            node.pop('response')
         for child in node.get('children', []):
             pop_id(child)
         return node
