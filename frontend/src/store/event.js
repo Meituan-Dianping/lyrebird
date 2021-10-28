@@ -88,16 +88,19 @@ export default {
     exportSnapshotFromEvent ({ state }) {
       bus.$emit('msg.info', 'Exporting snapshot...')
       if (state.selectedEvent.channel != 'snapshot') {
+        bus.$emit('msg.destroy')
         bus.$emit('msg.error', 'Please select a snapshot!')
       }
       const eventObj = JSON.parse(state.selectedEvent.content)
       console.log(eventObj);
       api.exportSnapshotFromEvent(eventObj)
         .then(response => {
-          bus.$emit('msg.success', 'Snapshot Export! ID: ' + response.data.group_id)
+          bus.$emit('msg.destroy')
+          bus.$emit('msg.success', 'Snapshot export! ID: ' + response.data.group_id)
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Load data label failed: ' + error.data.message)
+          bus.$emit('msg.destroy')
+          bus.$emit('msg.error', 'Snapshot export failed: ' + error.data.message)
         })
 
     }

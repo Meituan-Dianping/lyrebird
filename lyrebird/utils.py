@@ -70,16 +70,17 @@ def compress_tar(input_path, output_path, suffix=None):
     current_path = Path.cwd()
     input_path = Path(input_path).expanduser().absolute().resolve()
     output_path = Path(output_path).expanduser().absolute().resolve()
-    filename = f'{output_path}{suffix}' if suffix else output_path
+    output_file = f'{output_path}{suffix}' if suffix else output_path
 
     os.chdir(input_path)
-    tar = tarfile.open(filename, 'w:gz')
+    # If not chdir, the directory in the compressed file will start from the root directory
+    tar = tarfile.open(output_file, 'w:gz')
     for root, dirs, files in os.walk(input_path):
         for f in files:
             tar.add(f, recursive=False)
     tar.close()
     os.chdir(current_path)
-    return filename
+    return output_file
 
 
 def decompress_tar(input_path, output_path=None):
@@ -95,7 +96,7 @@ def decompress_tar(input_path, output_path=None):
 
 
 def download(link, input_path):
-    resp = requests.get(link)
+    resp = requests.get(link, stream=True)
     with open(input_path, 'wb') as f:
         for chunck in resp.iter_content():
             f.write(chunck)

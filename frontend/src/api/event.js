@@ -64,7 +64,7 @@ export const deleteEvents = () => {
 export const exportSnapshotFromEvent = (data) => {
   return axios({
     url: '/api/snapshot/import',
-    method: 'POST',
+    method: 'PUT',
     data
   })
 }

@@ -104,6 +104,10 @@ class SnapshotImport(Resource):
 
         return application.make_fail_response('No import snapshot info found!')
 
+    def put(self):
+        if request.json:
+            group_id = context.application.data_manager.import_from_local(request.json)
+            return application.make_ok_response(group_id=group_id)
 
 class SnapshotExport(Resource):
     def get(self, group_id):

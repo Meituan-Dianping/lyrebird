@@ -256,20 +256,7 @@ class DataManager:
             path = parsed_url.path
         return path
 
-    def add_data(self, parent_id, raw_data, **kwargs):
-        if not isinstance(raw_data, dict):
-            raise DataObjectSouldBeADict
-
-        parent_node = None
-        if parent_id == 'tmp_group':
-            parent_node = self.tmp_group
-        elif parent_id:
-            parent_node = self.id_map.get(parent_id)
-            if not parent_node:
-                raise IDNotFound(parent_id)
-            if parent_node['type'] == 'data':
-                raise DataObjectCannotContainAnyOtherObject
-
+    def _make_data(self, raw_data, **kwargs):
         data = dict(raw_data)
         _data_id = kwargs.get('data_id') or str(uuid.uuid4())
         data['id'] = _data_id
@@ -302,7 +289,26 @@ class DataManager:
         data['name'] = _data_name
         data['rule'] = _data_rule
 
+        return data
+
+    def add_data(self, parent_id, raw_data, **kwargs):
+        if not isinstance(raw_data, dict):
+            raise DataObjectSouldBeADict
+
+        parent_node = None
+        if parent_id == 'tmp_group':
+            parent_node = self.tmp_group
+        elif parent_id:
+            parent_node = self.id_map.get(parent_id)
+            if not parent_node:
+                raise IDNotFound(parent_id)
+            if parent_node['type'] == 'data':
+                raise DataObjectCannotContainAnyOtherObject
+
+        data = self._make_data(raw_data)
         data['parent_id'] = parent_id
+        _data_id = data['id']
+        _data_name = data.get('name')
 
         output_path = (kwargs['output'] / _data_id) if kwargs.get('output') else None
 
@@ -483,10 +489,10 @@ class DataManager:
             for child in node['children']:
                 self._copy_node(new_node, child, **kwargs)
         elif new_node['type'] == 'data':
-            self._copy_file(new_node, node, **kwargs)
+            self._copy_data(new_node, node, **kwargs)
         return new_node['id']
 
-    def _copy_file(self, new_data_node, data_node, **kwargs):
+    def _copy_data(self, new_data_node, data_node, **kwargs):
         _id = data_node['id']
 
         if self.clipboard.get('json'):
@@ -679,7 +685,12 @@ class DataManager:
         parent_path = config.get('snapshot.import.workspace', '/')
         parent_id = self.add_group_by_path(parent_path)
 
-        self.import_(_prop, json={i['id']:i for i in event['events']})
+        new_data_map = {}
+        for e in event['events']:
+            data = self._make_data(e, data_id=e['id'])
+            new_data_map[e['id']] = data
+
+        self.import_(_prop, json=new_data_map)
         return self.paste(parent_id)
 
     def import_from_file(self, parent_id, input_path, **kwargs):
@@ -702,8 +713,8 @@ class DataManager:
     def get_snapshot_file_detail(self, input_path):
         try:
             output_path = utils.decompress_tar(input_path)
-        except Exception:
-            raise LyrebirdSnapshotBroken
+        except Exception as e:
+            raise LyrebirdSnapshotBroken(e)
 
         snapshot_prop = output_path / PROP_FILE_NAME
 
