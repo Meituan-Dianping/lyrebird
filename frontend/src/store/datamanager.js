@@ -304,15 +304,17 @@ export default {
           commit('addGroupListOpenNode', payload.parent_id)
           commit('addGroupListOpenNode', response.data.id)
           dispatch('loadDataMap')
+          bus.$emit('msg.destroy')
           bus.$emit('msg.info', response.data.message)
         })
         .catch(error => {
           bus.$emit('msg.error', payload.type + ' ' + payload.name + ' duplicate error: ' + error.data.message)
         })
     },
-    importSnapshot ({ state, dispatch }) {
-      api.importSnapshot(state.importSnapshotParentNode.id, state.snapshotName)
+    importSnapshot ({ state, commit, dispatch }, snapshotId) {
+      api.importSnapshot(state.importSnapshotParentNode.id, state.snapshotName, snapshotId)
         .then(response => {
+          commit('setImportGroupId', response.data.group_id)
           dispatch('loadDataMap')
           bus.$emit('msg.success', 'Import snapshot ' + state.snapshotName + ' success!')
         })
@@ -321,9 +323,9 @@ export default {
           bus.$emit('msg.error', 'Import snapshot ' + state.snapshotName + ' error: ' + error.data.message)
         })
     },
-    loadSnapshotName ({ commit }) {
+    loadSnapshotDetail ({ commit }, snapshotId) {
       bus.$emit('msg.loading', 'Loading snapshot ...')
-      api.getSnapShotDetail()
+      api.getSnapShotDetail(snapshotId)
         .then((res) => {
           commit('setSnapshotName', res.data.data.name)
         })
