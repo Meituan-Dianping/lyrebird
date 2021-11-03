@@ -75,7 +75,7 @@ class SnapshotImport(Resource):
                 return application.make_fail_response('Missing required argument: parent_id')
 
             filename = stream.filename or str(uuid.uuid4())
-            path = context.application.data_manager.SNAPSHOT_WORKSPACE / filename
+            path = context.application.data_manager.snapshot_workspace / filename
             stream.save(str(path))
 
             group_id = context.application.data_manager.import_from_file(parent_id, path)

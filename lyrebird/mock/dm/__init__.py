@@ -35,8 +35,16 @@ class DataManager:
         self.snapshot_import_cache = {}
         self.SNAPSHOT_SUFFIX = '.lb'
         self.COPY_NODE_NAME_SUFFIX = ' - copy'
-        self.SNAPSHOT_WORKSPACE = None
         self.root = self.get_default_root()
+        self._snapshot_workspace = None
+
+    @property
+    def snapshot_workspace(self):
+        if not self._snapshot_workspace:
+            self._snapshot_workspace = Path(application._cm.ROOT) / 'snapshot'
+        if not self._snapshot_workspace.exists():
+            self._snapshot_workspace.mkdir()
+        return self._snapshot_workspace
 
     def get_default_root(self):
         return {
@@ -737,12 +745,8 @@ class DataManager:
                 path.unlink()
 
     def _get_snapshot_path(self):
-        if not self.SNAPSHOT_WORKSPACE:
-            self.SNAPSHOT_WORKSPACE = Path(application._cm.ROOT) / 'snapshot'
-        if not self.SNAPSHOT_WORKSPACE.exists():
-            self.SNAPSHOT_WORKSPACE.mkdir()
         temp_dir_name = f"{time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())}-{str(uuid.uuid4())}"
-        snapshot_path = self.SNAPSHOT_WORKSPACE / temp_dir_name
+        snapshot_path = self.snapshot_workspace / temp_dir_name
         snapshot_path.mkdir()
         return snapshot_path
 
