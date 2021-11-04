@@ -267,7 +267,7 @@ def data_manager(root, tmpdir):
     }
     application._cm = MockConfigManager(config=_conf)
     _dm = dm.DataManager()
-    _dm.SNAPSHOT_WORKSPACE = tmpdir
+    _dm.snapshot_workspace = tmpdir
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)
     return _dm
