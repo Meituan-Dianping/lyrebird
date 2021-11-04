@@ -46,6 +46,10 @@ class DataManager:
             self._snapshot_workspace.mkdir()
         return self._snapshot_workspace
 
+    @snapshot_workspace.setter
+    def snapshot_workspace(self, workspace):
+        self._snapshot_workspace = workspace
+
     def get_default_root(self):
         return {
             'id': str(uuid.uuid4()),
