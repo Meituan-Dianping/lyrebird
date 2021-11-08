@@ -40,6 +40,11 @@ FUNC_MAP_HANDLERS = {
 }
 
 
+class CheckerCatetory:
+    MODIFY = "修改"
+    CHECK = "检查"
+    DEFAULT = "其他"
+
 class LyrebirdCheckerServer(ThreadServer):
     def __init__(self):
         super().__init__()
@@ -132,6 +137,56 @@ class LyrebirdCheckerServer(ThreadServer):
             self.init_checker(checker_file.name, str(checker_file.absolute()))
             self.activate_checker(self.checkers[checker_file.name], True)
             self.checkers[checker_file.name].debug = True
+    
+    def get_sorted_checker_groups(self):
+        activated_checkers = {}
+        inactivated_checkers = {}
+        sorted_checker_groups = []
+        for name, checker in self.checkers.items():
+            category = checker.category
+            activated = checker.activated
+            checker_group = activated_checkers if activated else inactivated_checkers
+            if category not in checker_group:
+                checker_group[category] = []
+            checker_group[category].append({
+                'name': checker.name,
+                'title': checker.title,
+                'activated': activated,
+                'selected': checker.select,
+                'debug': checker.debug
+            })
+        for checker_category, checker_scripts in activated_checkers.items():
+            checker_scripts.sort(key=lambda k: k['name'])
+
+        for checker_category, checker_scripts in inactivated_checkers.items():
+            checker_scripts.sort(key=lambda k: k['name'])
+        
+        if activated_checkers:
+            activated_checkers_list = [{
+                'category': checker_category,
+                'scripts': checker_scripts
+            } for checker_category, checker_scripts in activated_checkers.items()]
+
+            sorted_checker_groups.append({
+                'type': 'Activated',
+                'key': 'activated',
+                'script_group': activated_checkers_list
+            })
+
+        if inactivated_checkers:
+            inactivated_checkers_list = [{
+                'category': checker_category,
+                'scripts': checker_scripts
+            } for checker_category, checker_scripts in inactivated_checkers.items()]
+            
+            sorted_checker_groups.append(
+                {
+                    'type': 'Inactivated',
+                    'key': 'inactivated',
+                    'script_group': inactivated_checkers_list
+                }
+            )
+        return sorted_checker_groups
 
     def run(self):
         super().run()
@@ -150,6 +205,8 @@ class Checker:
         self._module = None
         self._update = False
         self._funcs_map = {}
+        self.title = '<No Title>'
+        self.category = CheckerCatetory.DEFAULT
 
         try:
             self._load_checker()
@@ -184,6 +241,12 @@ class Checker:
 
         if hasattr(self._module, TYPE_DECODER) and not hasattr(self._module, TYPE_ENCODER):
             logger.warning(f'Load checker {self.name} error: Decoder contains, but encoder not found!')
+        
+        if hasattr(self._module, 'TITLE'):
+            self.title = self._module.TITLE
+        
+        if hasattr(self._module, 'CATEGORY'):
+            self.category = self._module.CATEGORY
 
     def activate(self):
         for func_type, func_list in self._funcs_map.items():

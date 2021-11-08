@@ -25,6 +25,10 @@ import hashlib
 from collections import OrderedDict
 from lyrebird import event
 from urllib.parse import urlparse, urlencode, parse_qsl
+from lyrebird.checker import CheckerCatetory
+
+TITLE = '<示例脚本>检测重复请求'
+CATEGORY = CheckerCatetory.CHECK
 
 
 # THRESHOLD_TIME: Range of duplicate requests in seconds
