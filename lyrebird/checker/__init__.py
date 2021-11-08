@@ -40,10 +40,11 @@ FUNC_MAP_HANDLERS = {
 }
 
 
-class CheckerCatetory:
+class CheckerCategory:
     MODIFY = "修改"
     CHECK = "检查"
     DEFAULT = "其他"
+
 
 class LyrebirdCheckerServer(ThreadServer):
     def __init__(self):
