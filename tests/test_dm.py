@@ -1,6 +1,9 @@
 import pytest
 import codecs
 import json
+import tarfile
+from pathlib import Path
+from copy import deepcopy
 from typing import NamedTuple
 from urllib.parse import urlparse
 from lyrebird.mock import dm
@@ -208,6 +211,33 @@ prop = {
     ]
 }
 
+snapshot = {
+    'snapshot': {
+        'id': 'groupA-UUID',
+        'parent_id': None,
+        'super_id': 'groupB-UUID',
+        'name': 'groupA',
+        'type': 'group',
+        'children': [
+            {
+                'id': 'dataA-UUID',
+                'name': 'dataA',
+                'type': 'data',
+                'parent_id': 'snapshotA-UUID'
+            },
+            {
+                'id': 'dataB-UUID',
+                'name': 'dataB',
+                'type': 'data',
+                'parent_id': 'groupA-UUID'
+            }
+        ]
+    },
+    'events': [
+        dataA,
+        dataB
+    ]
+}
 
 MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
 
@@ -230,13 +260,14 @@ def root(tmpdir):
 
 
 @pytest.fixture
-def data_manager(root):
+def data_manager(root, tmpdir):
     _conf = {
         'ip': '127.0.0.1',
         'mock.port': 9090
     }
     application._cm = MockConfigManager(config=_conf)
     _dm = dm.DataManager()
+    _dm.snapshot_workspace = tmpdir
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)
     return _dm
@@ -635,3 +666,139 @@ def test_make_data_map_by_group(data_manager):
     node_str = json.dumps(node)
     prop_str = json.dumps(prop)
     assert len(node_str) == len(prop_str)
+
+def test_export_from_local(data_manager, tmpdir):
+    def pop_id(node):
+        if 'id' in node:
+            node.pop('id')
+        if 'parent_id' in node:
+            node.pop('parent_id')
+        if 'response' in node and not node['response']:
+            node.pop('response')
+        for child in node.get('children', []):
+            pop_id(child)
+        return node
+
+    group_id, filename = data_manager.export_from_local(snapshot)
+    children = data_manager.get(group_id)['children']
+    assert group_id in data_manager.id_map
+    assert len(children) == len(snapshot['events'])
+
+    output_path = Path(tmpdir) / 'test'
+    tf = tarfile.open(str(filename))
+    tf.extractall(str(output_path))
+    tf.close()
+
+    children_set = set([group_id] + [i['id'] for i in children])
+    file_set = set()
+    for file_ in output_path.iterdir():
+        with codecs.open(file_, 'r', 'utf-8') as f:
+            data = json.load(f)
+        if file_.name == '.lyrebird_prop':
+            snapshot_data = snapshot['snapshot']
+            data_id = group_id
+        else:
+            snapshot_data = [e for e in snapshot['events'] if e['name']==data['name']][0]
+            data_id = data['id']
+
+        file_set.add(data['id'])
+        assert data == data_manager.get(data_id)
+        assert data['id'] != snapshot_data['id']
+        data_pop_id = pop_id(deepcopy(data))
+        snapshot_data_pop_id = pop_id(deepcopy(snapshot_data))
+        assert data_pop_id == snapshot_data_pop_id
+
+    assert file_set == children_set
+
+def test_export_from_remote(data_manager, tmpdir):
+    def pop_id(node):
+        if 'id' in node:
+            node.pop('id')
+        if 'parent_id' in node:
+            node.pop('parent_id')
+        if 'response' in node and not node['response']:
+            node.pop('response')
+        for child in node.get('children', []):
+            pop_id(child)
+        return node
+
+    group_id = 'groupA-UUID'
+    filename = data_manager.export_from_remote(group_id)
+    children = data_manager.get(group_id)['children']
+    assert Path(filename).exists()
+
+    output_path = Path(tmpdir) / 'test'
+    tf = tarfile.open(str(filename))
+    tf.extractall(str(output_path))
+    tf.close()
+
+    children_set = set([group_id] + [i['id'] for i in children])
+    file_set = set()
+    for file_ in output_path.iterdir():
+        with codecs.open(file_, 'r', 'utf-8') as f:
+            data = json.load(f)
+        if file_.name == '.lyrebird_prop':
+            snapshot_data = snapshot['snapshot']
+            data_id = group_id
+        else:
+            snapshot_data = [e for e in snapshot['events'] if e['name']==data['name']][0]
+            data_id = data['id']
+
+        file_set.add(data['id'])
+        assert data == data_manager.get(data_id)
+        assert data['id'] == snapshot_data['id']
+        data_pop_id = pop_id(deepcopy(data))
+        snapshot_data_pop_id = pop_id(deepcopy(snapshot_data))
+        assert data_pop_id == snapshot_data_pop_id
+
+    assert file_set == children_set
+
+
+def test_import_from_local(data_manager):
+    group_id, filename = data_manager.export_from_local(snapshot)
+    children = data_manager.get(group_id)['children']
+    assert group_id in data_manager.id_map
+    assert len(children) == len(snapshot['events'])
+
+
+def test_import_from_file(data_manager, tmpdir):
+
+    def pop_id(node):
+        if 'id' in node:
+            node.pop('id')
+        if 'parent_id' in node:
+            node.pop('parent_id')
+        if 'response' in node and not node['response']:
+            node.pop('response')
+        for child in node.get('children', []):
+            pop_id(child)
+        return node
+
+    group_id = 'groupA-UUID'
+    filename = data_manager.export_from_remote(group_id)
+    group = data_manager.get(group_id)
+
+    new_group_id = data_manager.import_from_file('root', filename)
+    new_group = data_manager.get(new_group_id)
+
+    for new_group_child in new_group['children']:
+        new_group_child_data = data_manager.get(new_group_child['id'])
+        group_child = [c for c in group['children'] if c['name']==new_group_child['name']][0]
+        group_child_data = data_manager.get(group_child['id'])
+
+        pop_id(new_group_child_data)
+        pop_id(group_child_data)
+
+        assert new_group_child_data == group_child_data
+
+    group_pop_id = pop_id(deepcopy(group))
+    new_group_pop_id = pop_id(deepcopy(new_group))
+    assert group_pop_id == new_group_pop_id
+
+
+def test_get_snapshot_file_detail(data_manager):
+    group_id = 'groupB-UUID'
+    filename = data_manager.export_from_remote(group_id)
+
+    snapshot_info, output_path = data_manager.get_snapshot_file_detail(filename)
+    assert snapshot_info == data_manager.id_map.get(group_id)

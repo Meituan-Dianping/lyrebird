@@ -14,8 +14,7 @@ from .qrcode import Qrcode
 from .search import SearchMockDataByName
 from .bandwidth import Bandwidth, BandwidthTemplates
 from .status_bar import StatusBar
-from .snapshot_import import SanpshotImport, SnapShotImportDetail
-from .snapshot_export import SnapshotExport
+from .snapshot import SnapshotImport, SnapshotExport, Snapshot
 from lyrebird.log import get_logger
 from lyrebird import application
 from flask import got_request_exception
@@ -70,9 +69,9 @@ api_source.add_resource(Notice, '/notice')
 api_source.add_resource(Checker, '/checker', '/checker/<string:checker_id>')
 api_source.add_resource(Bandwidth, '/bandwidth')
 api_source.add_resource(BandwidthTemplates, '/bandwidth_templates')
-api_source.add_resource(SanpshotImport, '/snapshot/import')
+api_source.add_resource(SnapshotImport, '/snapshot/import')
 api_source.add_resource(SnapshotExport, '/snapshot/export/event', '/snapshot/export/<string:group_id>')
-api_source.add_resource(SnapShotImportDetail, '/snapshot/detail')
+api_source.add_resource(Snapshot, '/snapshot/<string:snapshot_id>')
 api_source.add_resource(
     Event,
     '/event',

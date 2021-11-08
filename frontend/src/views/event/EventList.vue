@@ -42,9 +42,10 @@
       class="row-contextmenu ivu-select-dropdown"
       :style="{left:contextMenuLeft, top:contextMenuTop}"
     >
-      <ul class="ivu-dropdown-menu">
+      <ul class="ivu-dropdown-menu" style="padding-left:0px">
         <li class="ivu-dropdown-item" @click="onContextMenuShowNotice">Show notice</li>
         <li class="ivu-dropdown-item" @click="onContextMenuShowAll">Show all</li>
+        <li v-show="isSnapshot" class="ivu-dropdown-item" @click="onContextMenuExportSnapshot">Export snapshot</li>
       </ul>
     </div>
   </div>
@@ -131,6 +132,10 @@ export default {
           slot: 'content'
         }
       ]
+    },
+    isSnapshot () {
+      let selectedEvent = this.$store.state.event.selectedEvent
+      return selectedEvent && selectedEvent.channel === 'snapshot'
     }
   },
   methods: {
@@ -150,6 +155,7 @@ export default {
     },
     onRowClick (row) {
       this.$store.commit('setSelectedEventId', row.event_id)
+      this.$store.commit('setSelectedEvent', row)
       const prettyJson = JSON.stringify(JSON.parse(row.content), null, 2)
       this.$store.commit('setEventDetail', prettyJson)
       this.isContextMenuShown = false
@@ -196,6 +202,10 @@ export default {
     },
     onContextMenuShowAll () {
       this.$store.dispatch('showAll')
+      this.isContextMenuShown = false
+    },
+    onContextMenuExportSnapshot () {
+      this.$store.dispatch('exportSnapshotFromEvent')
       this.isContextMenuShown = false
     },
     onResize () {

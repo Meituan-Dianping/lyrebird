@@ -343,8 +343,12 @@ export default {
       this.$store.dispatch('deactivateGroup')
     },
     handlerUploadSuccess (res, file) {
-      this.$bus.$emit('msg.success', 'Import snapshot ' + file.name + ' success!')
-      this.$store.dispatch('loadDataMap')
+      if (res.code === 1000) {
+        this.$bus.$emit('msg.success', 'Import snapshot ' + file.name + ' success!')
+        this.$store.dispatch('loadDataMap')
+      } else {
+        this.$bus.$emit('msg.error', 'Import snapshot ' + file.name + ' error: ' + res.message)
+      }
     },
     handlerUploadError (error, file) {
       this.$bus.$emit('msg.error', 'Import snapshot ' + file.name + ' error: ' + error)

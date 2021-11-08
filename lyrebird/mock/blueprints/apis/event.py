@@ -52,4 +52,9 @@ class Channel(Resource):
 
         elif mode == 'default':
             channel = application.config.get('event.default_channel', [])
-            return application.make_ok_response(data=channel)
+            selected_channel = application.config.get('event.selected_channel', [])
+            return application.make_ok_response(data=channel, selected=selected_channel)
+
+    def post(self):
+        filters = request.json.get('filters')
+        application._cm.config['event.selected_channel'] = filters

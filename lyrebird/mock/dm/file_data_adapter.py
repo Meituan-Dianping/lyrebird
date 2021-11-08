@@ -1,6 +1,5 @@
 import os
 import json
-import shutil
 import codecs
 from pathlib import Path
 from urllib.parse import urlparse
@@ -152,68 +151,6 @@ class FileDataAdapter:
     def _get_activate_group(self, search_id):
         return self.context.id_map.get(search_id)
 
-    # snapshot
-    def _write_prop_to_custom_path(self, outfile_path, node):
-        self._add_data(node, path=outfile_path/PROP_FILE_NAME)
-
-    def _write_file_to_custom_path(self, outfile_path, file_content):
-        file_content_id = file_content['id']
-        self._add_data(file_content, path=outfile_path/file_content_id)
-
-    def decompress_snapshot(self):
-        snapshot_path = self.context.snapshot_helper.get_snapshot_path()
-        self.context.snapshot_helper.save_compressed_file(snapshot_path)
-        self.context.snapshot_helper.decompress_snapshot(f'{snapshot_path}.lb', f'{snapshot_path}')
-        if not Path(f'{snapshot_path}/{PROP_FILE_NAME}').exists():
-            raise LyrebirdPropNotExists
-        _prop = self._load_data(None, path=f'{snapshot_path}/{PROP_FILE_NAME}')
-        return {'snapshot_detail': _prop, 'snapshot_storage_path': f'{snapshot_path}'}
-
-    def import_snapshot(self, parent_id, snapshot_name, path=None):
-        snapshot_info = self.decompress_snapshot()
-        snapshot_info['snapshot_detail']['name'] = snapshot_name
-        self.context.import_(node=snapshot_info['snapshot_detail'])
-        _group_id = self.context.paste(parent_id=parent_id, custom_input_file_path=snapshot_info['snapshot_storage_path'])
-        tmp_snapshot_file_list = [
-            snapshot_info['snapshot_storage_path'],
-            f'{snapshot_info["snapshot_storage_path"]}.lb'
-        ]
-        if path:
-            tmp_snapshot_file_list.append(path)
-        self.remove_tmp_snapshot_file(tmp_snapshot_file_list)
-        return _group_id
-
-    def export_snapshot_from_event(self, event_json):
-        snapshot_path = self.context.snapshot_helper.get_snapshot_path()
-        if not event_json.get('snapshot') or not event_json.get('events'):
-            raise SnapshotEventNotInCorrectFormat
-        _prop = event_json.get('snapshot')
-        self._write_prop_to_custom_path(snapshot_path, _prop)
-        for mock_data in event_json.get('events'):
-            self._write_file_to_custom_path(snapshot_path, mock_data)
-        self.context.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
-        self.remove_tmp_snapshot_file([snapshot_path])
-        return f'{snapshot_path}.lb'
-
-    def export_snapshot_from_dm(self, node_id):
-        snapshot_path = self.context.snapshot_helper.get_snapshot_path()
-        _prop = self.context.id_map.get(node_id)
-        self._write_prop_to_custom_path(snapshot_path, _prop)
-        data_id_map = {}
-        self.context.snapshot_helper.get_data_id_map(_prop, data_id_map)
-        for mock_data_id in data_id_map:
-            shutil.copy(self.context.root_path / mock_data_id, snapshot_path / mock_data_id)
-        self.context.snapshot_helper.compress_snapshot(snapshot_path, snapshot_path)
-        return f'{snapshot_path}.lb'
-
-    def remove_tmp_snapshot_file(self, files):
-        for filepath in files:
-            path = Path(filepath)
-            if path.is_dir() and path.exists():
-                shutil.rmtree(path)
-            elif path.is_file() and path.exists():
-                path.unlink()
-
     # duplicate
     def duplicate(self, _id):
         self.context.copy(_id)
@@ -318,14 +255,6 @@ class DumpPropError(Exception):
 
 
 class RootPathIsNotDir(Exception):
-    pass
-
-
-class LyrebirdPropNotExists(Exception):
-    pass
-
-
-class SnapshotEventNotInCorrectFormat(Exception):
     pass
 
 

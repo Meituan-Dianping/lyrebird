@@ -8,6 +8,7 @@ export default {
     channelFilters: [],
     events: [],
     selectedEventId: null,
+    selectedEvent: null,
     eventDetail: '',
     page: null
   },
@@ -24,6 +25,9 @@ export default {
     setSelectedEventId (state, eventId) {
       state.selectedEventId = eventId
     },
+    setSelectedEvent (state, selectedEvent) {
+      state.selectedEvent = selectedEvent
+    },
     setEventDetail (state, eventDetail) {
       state.eventDetail = eventDetail
     },
@@ -35,9 +39,9 @@ export default {
     loadChannelNames ({ commit, dispatch }) {
       api.getDefaultChannelNames()
         .then(response => {
-          let channel = response.data.data
-          commit('setChannelNames', channel)
-          dispatch('updateChannelFilters', channel)
+          commit('setChannelNames', response.data.data)
+          commit('setChannelFilters', response.data.selected)
+          dispatch('updateChannelFilters', response.data.selected)
         })
     },
     loadEvents ({ state, commit }, options = {}) {
@@ -68,6 +72,7 @@ export default {
     updateChannelFilters ({ commit, dispatch }, filters) {
       commit('setChannelFilters', filters)
       dispatch('loadEvents')
+      api.updateChannelFilters(filters)
     },
     showNotice ({ dispatch }) {
       dispatch('updateChannelFilters', ['notice'])
@@ -79,6 +84,25 @@ export default {
           dispatch('updateChannelFilters', channel)
           commit('setChannelNames', channel)
         })
+    },
+    exportSnapshotFromEvent ({ state }) {
+      bus.$emit('msg.info', 'Exporting snapshot...')
+      if (state.selectedEvent.channel != 'snapshot') {
+        bus.$emit('msg.destroy')
+        bus.$emit('msg.error', 'Please select a snapshot!')
+      }
+      const eventObj = JSON.parse(state.selectedEvent.content)
+      console.log(eventObj);
+      api.exportSnapshotFromEvent(eventObj)
+        .then(response => {
+          bus.$emit('msg.destroy')
+          bus.$emit('msg.success', 'Snapshot export! ID: ' + response.data.group_id)
+        })
+        .catch(error => {
+          bus.$emit('msg.destroy')
+          bus.$emit('msg.error', 'Snapshot export failed: ' + error.data.message)
+        })
+
     }
   }
 }
