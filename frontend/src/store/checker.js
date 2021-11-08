@@ -11,23 +11,12 @@ export default {
   mutations: {
     setCheckers (state, checkers) {
       state.checkers = checkers
-    },
-    setFocusChecker (state, focusChecker) {
-      state.focusChecker = focusChecker
       if (state.checkers.length) {
         state.focusCheckerPanel = state.checkers[0].key
       }
-      for (const checker_groups of state.checkers) {
-          for (const script_group of checker_groups.script_group) {
-              for (const checker of script_group.scripts) {
-                  if (state.focusChecker === checker.name) {
-                      checker.selected = true
-                  } else {
-                      checker.selected = false
-                  }
-              }
-          }
-      }
+    },
+    setFocusChecker (state, focusChecker) {
+      state.focusChecker = focusChecker
     },
     setFocusCheckerDetail (state, focusCheckerDetail) {
       state.focusCheckerDetail = focusCheckerDetail

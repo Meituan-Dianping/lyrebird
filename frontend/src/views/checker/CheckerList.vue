@@ -4,13 +4,13 @@
       <Strong>Checker scripts</Strong>
     </div>
     <Tabs v-if="checkerList.length" :value="focusPanel" class="checker-list">
-      <TabPane v-for="checker_group in checkerList" :key="checker_group.key" :label="checker_group.type" :name="checker_group.key">
+      <TabPane v-for="checker_group in checkerList" :key="checker_group.key" :label="checker_group.status" :name="checker_group.key">
         <CellGroup v-if="checker_group.script_group.length" @on-click="onClickCell">
           <template v-for="script_group in checker_group.script_group">
             <Cell 
               :key="script_group.category" 
               :title="script_group.category" 
-              name="type_cell"
+              name="category_cell"
               disabled 
               style="padding:3px 3px;border-bottom:1px solid #dcdee2;border-top:1px solid #dcdee2;"
             >
@@ -22,7 +22,7 @@
               :label="checker.name" 
               :key="checker.name"
               :name="checker.name"
-              :selected="checker.selected"
+              :selected="isSelected(checker.name)"
             >{{checker.title}}
               <Tooltip content="Debug" placement="bottom-start" :delay="500" transfer>
                 <Icon v-if="checker.debug" type="ios-build" color="#2b85e4" size="16"/>
@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     onClickCell(name) {
-      if (name === 'type_cell') {
+      if (name === 'category_cell') {
         return;
       }
       this.$store.commit('setFocusChecker', name)
@@ -59,6 +59,9 @@ export default {
     },
     changeStatus(checker) {
       this.$store.dispatch('updateCheckerStatus', checker)
+    },
+    isSelected(name) {
+      return name === this.$store.state.checker.focusChecker
     }
   }
 }
@@ -94,6 +97,10 @@ export default {
 }
 .ivu-cell-disabled {
   color:#0fccbf
+}
+.ivu-cell-disabled:hover {
+  color:#0fccbf;
+  cursor: default;
 }
 
 .checker-list .ivu-tabs-bar {
