@@ -1,8 +1,8 @@
 from lyrebird import on_response
-from lyrebird.checker import CheckerCatetory
+from lyrebird.checker import CheckerCategory
 
 TITLE = '<示例脚本>在Response中添加Header Key'
-CATEGORY = CheckerCatetory.MODIFY
+CATEGORY = CheckerCategory.MODIFY
 
 @on_response(rules={
     "request.url": "(?=.*poi/detail)"

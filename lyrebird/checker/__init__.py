@@ -207,7 +207,7 @@ class Checker:
         self._update = False
         self._funcs_map = {}
         self.title = '<No Title>'
-        self.category = CheckerCatetory.DEFAULT
+        self.category = CheckerCategory.DEFAULT
 
         try:
             self._load_checker()
