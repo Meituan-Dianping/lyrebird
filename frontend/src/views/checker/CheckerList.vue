@@ -1,18 +1,20 @@
 <template>
   <div>
-    <div class="cell-border" style="background:#f8f8f9;font-size:14px;color:#515A6E">
-      <Strong>Checker scripts</Strong>
-    </div>
-    <Tabs v-if="checkerList.length" :value="focusPanel" class="checker-list" @on-click="onClickPanel">
+    <Row class="title-bar">
+      <span>
+        <b style="padding-left:5px">Checker scripts</b>
+      </span>
+    </Row>
+    <Tabs v-if="checkerList.length" :value="focusPanel" :animated="false" class="checker-list" @on-click="onClickPanel">
       <TabPane v-for="checker_group in checkerList" :key="checker_group.key" :label="checker_group.status" :name="checker_group.key">
-        <CellGroup v-if="checker_group.script_group.length" @on-click="onClickCell" v-show="checker_group.key === focusPanel">
+        <CellGroup v-if="checker_group.script_group.length" @on-click="onClickCell">
           <template v-for="script_group in checker_group.script_group">
             <Cell 
               :key="script_group.category" 
               :title="script_group.category" 
               name="category_cell"
               disabled 
-              style="padding:3px 3px;border-bottom:1px solid #dcdee2;border-top:1px solid #dcdee2;"
+              style="padding:3px 3px;background-color:#f8f8f9;font-weight:bold"
             >
               <Icon slot="icon" type="md-pricetag" />
             </Cell>
@@ -91,6 +93,10 @@ export default {
   padding: 5px 5px;
   border-bottom: 1px dashed #dcdee2;
 }
+.ivu-cell-title {
+    line-height: 18px;
+    font-size: 13px;
+}
 .checker-list .ivu-collapse-content {
   padding: 0;
 }
@@ -99,14 +105,20 @@ export default {
   padding-bottom: 0;
 }
 .ivu-cell-disabled {
-  color:#0fccbf
+  color:#515a6e
 }
 .ivu-cell-disabled:hover {
-  color:#0fccbf;
+  color:#515a6e;
   cursor: default;
 }
-
 .checker-list .ivu-tabs-bar {
   margin-bottom: 0;
 }
+.title-bar {
+  height: 27px;
+  line-height: 27px;
+  border-bottom: 1px solid #ddd;
+  background-color: #f8f8f9;
+}
 </style>
+
