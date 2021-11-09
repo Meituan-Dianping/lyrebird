@@ -3,9 +3,9 @@
     <div class="cell-border" style="background:#f8f8f9;font-size:14px;color:#515A6E">
       <Strong>Checker scripts</Strong>
     </div>
-    <Tabs v-if="checkerList.length" :value="focusPanel" :animated="false" class="checker-list" @on-click="onClickPanel">
+    <Tabs v-if="checkerList.length" :value="focusPanel" class="checker-list" @on-click="onClickPanel">
       <TabPane v-for="checker_group in checkerList" :key="checker_group.key" :label="checker_group.status" :name="checker_group.key">
-        <CellGroup v-if="checker_group.script_group.length" @on-click="onClickCell">
+        <CellGroup v-if="checker_group.script_group.length" @on-click="onClickCell" v-show="checker_group.key === focusPanel">
           <template v-for="script_group in checker_group.script_group">
             <Cell 
               :key="script_group.category" 
