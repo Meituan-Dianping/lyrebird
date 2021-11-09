@@ -48,6 +48,8 @@ class CheckerCategory:
     @classmethod
     def get_order(cls, category):
         orders = [cls.EDITOR, cls.CHECKER, cls.DEFAULT]
+        if category not in orders:
+            return len(orders) + 1
         return orders.index(category)
 
 class LyrebirdCheckerServer(ThreadServer):
