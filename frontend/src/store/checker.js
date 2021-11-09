@@ -18,6 +18,9 @@ export default {
     setFocusChecker (state, focusChecker) {
       state.focusChecker = focusChecker
     },
+    setFocusCheckerPanel (state, focusCheckerPanel) {
+      state.focusCheckerPanel = focusCheckerPanel
+    },
     setFocusCheckerDetail (state, focusCheckerDetail) {
       state.focusCheckerDetail = focusCheckerDetail
     }

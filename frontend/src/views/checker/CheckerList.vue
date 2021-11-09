@@ -3,7 +3,7 @@
     <div class="cell-border" style="background:#f8f8f9;font-size:14px;color:#515A6E">
       <Strong>Checker scripts</Strong>
     </div>
-    <Tabs v-if="checkerList.length" :value="focusPanel" :animated="false" class="checker-list">
+    <Tabs v-if="checkerList.length" :value="focusPanel" :animated="false" class="checker-list" @on-click="onClickPanel">
       <TabPane v-for="checker_group in checkerList" :key="checker_group.key" :label="checker_group.status" :name="checker_group.key">
         <CellGroup v-if="checker_group.script_group.length" @on-click="onClickCell">
           <template v-for="script_group in checker_group.script_group">
@@ -56,6 +56,9 @@ export default {
       }
       this.$store.commit('setFocusChecker', name)
       this.$store.dispatch('loadCheckerDetail', name)
+    },
+    onClickPanel(name) {
+      this.$store.commit('setFocusCheckerPanel', name)
     },
     changeStatus(checker) {
       this.$store.dispatch('updateCheckerStatus', checker)
