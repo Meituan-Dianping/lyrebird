@@ -65,3 +65,7 @@ def responseheaders(flow):
         flow.response.stream = False
         return
     flow.response.stream = True
+
+    command = flow.response.headers.get('Lyrebird-Mitmproxy-Command')
+    if command == 'kill':
+        flow.kill()

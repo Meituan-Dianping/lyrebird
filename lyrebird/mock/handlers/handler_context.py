@@ -6,6 +6,7 @@ import json
 from .. import context
 from lyrebird import utils
 from lyrebird import application
+from lyrebird.mock import headers
 from lyrebird.log import get_logger
 from lyrebird.mock.blueprints.apis.bandwidth import config
 from urllib.parse import urlparse, unquote
@@ -37,12 +38,14 @@ class HandlerContext:
             size=0,
             duration=0,
             start_time=time.time(),
+            status='',
             request={},
             response={}
             )
         self.client_address = None
         self.is_request_edited = False
         self.is_response_edited = False
+        self.request_source = ''
         self.response_source = ''
         self.is_proxiable = True
         self.response_chunk_size = 2048
@@ -55,7 +58,9 @@ class HandlerContext:
         raw_headers = None
         # Read raw headers
         if 'Proxy-Raw-Headers' in self.request.headers:
+            self.request_source = 'mitmproxy'
             raw_headers = json.loads(self.request.headers['Proxy-Raw-Headers'])
+            raw_headers['Request-Source'] = 'mitmproxy'
 
         # parse path
         request_info = self._read_origin_request_info_from_url()
@@ -112,6 +117,14 @@ class HandlerContext:
             path=unquote(parsed_path.path)
         )
         return _request
+
+    def update_request_status(self):
+        if self.request_source == 'mitmproxy':
+            if self.flow['request']['headers'].get(headers.header_mitmproxy_command):
+                self.flow['status'] = self.flow['request']['headers'][headers.header_mitmproxy_command]
+
+    def is_request_status_success(self):
+        return self.flow['status'] == 'success'
 
     def _read_origin_request_info_from_header(self, headers=None):
         proxy_headers = application.config['mock.proxy_headers']

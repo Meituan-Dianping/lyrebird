@@ -15,6 +15,8 @@
           <Tag v-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
           <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
           <Tag v-else size="small" class="flow-list-item-tag">pending</Tag>
+
+          <Tag v-show="row.status === 'kill'" class="flow-list-item-tag" size="small" color="red">Kill</Tag>
         </Tooltip>
 
         <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="bottom-start" transfer>
