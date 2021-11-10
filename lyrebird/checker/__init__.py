@@ -52,6 +52,15 @@ class CheckerCategory:
             return len(orders) + 1
         return orders.index(category)
 
+    @classmethod
+    def get_description(cls, category):
+        descriptions = {
+            cls.EDITOR: '脚本分类：修改类', 
+            cls.CHECKER: '脚本分类：检测类', 
+            cls.DEFAULT: '脚本分类：其他(可测性/数据管理/复杂应用...)'
+        }
+        return descriptions.get(category, '脚本分类：自定义类型')
+
 class LyrebirdCheckerServer(ThreadServer):
     def __init__(self):
         super().__init__()
@@ -165,6 +174,7 @@ class LyrebirdCheckerServer(ThreadServer):
         if activated_checkers:
             activated_checkers_list = [{
                 'category': checker_category,
+                'description': CheckerCategory.get_description(checker_category),
                 'scripts': checker_scripts
             } for checker_category, checker_scripts in activated_checkers.items()]
             activated_checkers_list.sort(key=lambda k: CheckerCategory.get_order(k['category']))
@@ -177,6 +187,7 @@ class LyrebirdCheckerServer(ThreadServer):
         if inactivated_checkers:
             inactivated_checkers_list = [{
                 'category': checker_category,
+                'description': CheckerCategory.get_description(checker_category),
                 'scripts': checker_scripts
             } for checker_category, checker_scripts in inactivated_checkers.items()]
             inactivated_checkers_list.sort(key=lambda k: CheckerCategory.get_order(k['category']))

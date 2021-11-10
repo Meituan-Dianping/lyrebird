@@ -24,7 +24,7 @@ class Menu(Resource):
             },
             {
                 'name': 'checker',
-                'title': 'Checker',
+                'title': 'Extension',
                 'type': 'router',
                 'path': '/checker',
                 'icon': 'mdi-script-text-outline'

@@ -2,7 +2,7 @@
   <div>
     <Row class="title-bar">
       <span>
-        <b style="padding-left:5px">Checker scripts</b>
+        <b style="padding-left:5px">Extension</b>
       </span>
     </Row>
     <Tabs v-if="checkerList.length" :value="focusPanel" :animated="false" class="checker-list" @on-click="onClickPanel">
@@ -17,6 +17,9 @@
               style="padding:3px 3px;background-color:#f8f8f9;font-weight:bold"
             >
               <Icon slot="icon" type="md-pricetag" />
+              <Tooltip slot="extra" :content="script_group.description" placement="bottom-start" :delay="500" transfer>
+                <Icon v-if="script_group.description" type="ios-alert-outline" size="16"/>
+              </Tooltip>
             </Cell>
             <Cell 
               class="cell-border" 
