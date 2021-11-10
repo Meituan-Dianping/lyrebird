@@ -5,21 +5,21 @@ export default {
   state: {
     checkers: [],
     focusChecker: null,
-    focusCheckerDetail: null
+    focusCheckerDetail: null,
+    focusCheckerPanel:'activated'
   },
   mutations: {
     setCheckers (state, checkers) {
       state.checkers = checkers
+      if (state.checkers.length) {
+        state.focusCheckerPanel = state.checkers[0].key
+      }
     },
     setFocusChecker (state, focusChecker) {
       state.focusChecker = focusChecker
-      for (const checker of state.checkers) {
-        if (state.focusChecker === checker.name) {
-          checker.select = true
-        } else {
-          checker.select = false
-        }
-      }
+    },
+    setFocusCheckerPanel (state, focusCheckerPanel) {
+      state.focusCheckerPanel = focusCheckerPanel
     },
     setFocusCheckerDetail (state, focusCheckerDetail) {
       state.focusCheckerDetail = focusCheckerDetail

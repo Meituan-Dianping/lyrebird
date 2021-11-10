@@ -6,10 +6,8 @@ from lyrebird import application
 class Checker(Resource):
     def get(self, checker_id=None):
         if not checker_id:
-            checkers = application.checkers
-            script_info_list = [checkers[checker_name].json() for checker_name in checkers]
-            script_info_list.sort(key=lambda x:x['name'])
-            return application.make_ok_response(data=script_info_list)
+            sorted_checker_groups = application.server['checker'].get_sorted_checker_groups()
+            return application.make_ok_response(data=sorted_checker_groups)
 
         _checker = application.checkers.get(checker_id)
         if not _checker:
