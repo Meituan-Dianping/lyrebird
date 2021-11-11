@@ -278,8 +278,8 @@ export default {
   /* total:100vh
   header: 38px
   buttonBar: 38px
-  divider:1px
-  mode-tag:34px
+  divider: 1px
+  mode-tag: 34px
   table
   padding: 9px
   footer: 28px
