@@ -7,6 +7,7 @@ from lyrebird import log
 from lyrebird import application
 from lyrebird.mock import context
 from lyrebird.base_server import ThreadServer
+from lyrebird.checker.kill import kill_flow
 
 from .event import event
 from .on_request import on_request

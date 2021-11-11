@@ -1,6 +1,6 @@
 from lyrebird.mock import headers
 
-def kill(flow):
+def kill_flow(flow):
     request_headers = flow['request']['headers']
     if not request_headers.get(headers.mitmproxy_client_address):
         return
