@@ -3,7 +3,6 @@ from flask import Blueprint, request, Response
 from ..handlers.mock_handler import MockHandler
 from ..handlers.proxy_handler import ProxyHandler
 from ..handlers.path_not_found_handler import RequestPathNotFound
-from ..handlers.kill_request_handler import RequestKilled
 from ..handlers.handler_context import HandlerContext
 from ..handlers.flow_editor_handler import FlowEditorHandler
 from .. import context
@@ -14,7 +13,6 @@ logger = log.get_logger()
 mock_handler = MockHandler()
 proxy_handler = ProxyHandler()
 path_not_found_handler = RequestPathNotFound()
-request_killed = RequestKilled()
 flow_editor_handler = FlowEditorHandler()
 
 
@@ -34,27 +32,21 @@ def index(path=''):
 
     req_context.update_server_req_time()
 
-    if req_context.is_request_status_success():
-        mock_handler.handle(req_context)
+    mock_handler.handle(req_context)
 
-        if not req_context.response_source:
-            flow_editor_handler.on_request_upstream_handler(req_context)
-            proxy_handler.handle(req_context)
-            if req_context.is_proxiable:
-                req_context.set_response_source_proxy()
-                req_context.update_response_headers_code2flow()
-                flow_editor_handler.on_response_upstream_handler(req_context)
+    if not req_context.response_source:
+        flow_editor_handler.on_request_upstream_handler(req_context)
+        proxy_handler.handle(req_context)
+        if req_context.is_proxiable:
+            req_context.set_response_source_proxy()
+            req_context.update_response_headers_code2flow()
+            flow_editor_handler.on_response_upstream_handler(req_context)
 
-        req_context.update_server_resp_time()
+    req_context.update_server_resp_time()
 
-        flow_editor_handler.on_response_handler(req_context)
+    flow_editor_handler.on_response_handler(req_context)
 
-    if req_context.flow['status']:
-        req_context.update_server_resp_time()
-        request_killed.handle(req_context)
-        req_context.update_client_resp_time()
-        resp = req_context.response
-    elif req_context.response_source:
+    if req_context.response_source:
         gen = req_context.get_response_generator()
         resp = Response(
             gen(),

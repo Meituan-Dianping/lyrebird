@@ -60,8 +60,8 @@ class FlowList(Resource):
                     'code': item['proxy_response']['code']
                 }
             # Change status
-            if item['status']:
-                info['status'] = item['status']
+            if item['request']['headers'].get(headers.mitmproxy_command):
+                info['status'] = item['request']['headers'][headers.mitmproxy_command]
             req_list.append(info)
 
         return Response(json.dumps(req_list, ensure_ascii=False), mimetype='application/json', status=200)

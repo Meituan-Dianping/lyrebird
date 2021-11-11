@@ -38,7 +38,6 @@ class HandlerContext:
             size=0,
             duration=0,
             start_time=time.time(),
-            status='',
             request={},
             response={}
             )
@@ -58,9 +57,7 @@ class HandlerContext:
         raw_headers = None
         # Read raw headers
         if 'Proxy-Raw-Headers' in self.request.headers:
-            self.request_source = 'mitmproxy'
             raw_headers = json.loads(self.request.headers['Proxy-Raw-Headers'])
-            raw_headers['Request-Source'] = 'mitmproxy'
 
         # parse path
         request_info = self._read_origin_request_info_from_url()
@@ -117,14 +114,6 @@ class HandlerContext:
             path=unquote(parsed_path.path)
         )
         return _request
-
-    def update_request_status(self):
-        if self.request_source == 'mitmproxy':
-            if self.flow['request']['headers'].get(headers.header_mitmproxy_command):
-                self.flow['status'] = self.flow['request']['headers'][headers.header_mitmproxy_command]
-
-    def is_request_status_success(self):
-        return self.flow['status'] == 'success'
 
     def _read_origin_request_info_from_header(self, headers=None):
         proxy_headers = application.config['mock.proxy_headers']
