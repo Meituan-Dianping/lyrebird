@@ -1,2 +1,2 @@
-mitmproxy_command = 'Lyrebird-Mitmproxy-Command'
-mitmproxy_client_address = 'Lyrebird-Client-Address'
+MITMPROXY_COMMAND = 'Lyrebird-Mitmproxy-Command'
+MITMPROXY_CLIENT_ADDRESS = 'Lyrebird-Client-Address'
