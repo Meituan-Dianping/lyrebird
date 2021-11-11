@@ -11,14 +11,11 @@
       class="data-table"
     >
       <template slot-scope="{ row }" slot="source">
-        <Tooltip class="flow-list-item-source" :content="row.response.mock" :disabled="!row.response.mock" placement="bottom-start" transfer>
-          <Tag v-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
+        <Tooltip class="flow-list-item-source" :content="getSourceTooltipContent(row)" placement="bottom-start" transfer>
+          <Tag v-if="row.status === 'kill'" class="flow-list-item-tag" size="small" color="red">kill</Tag>
+          <Tag v-else-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
           <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
           <Tag v-else size="small" class="flow-list-item-tag">pending</Tag>
-        </Tooltip>
-
-        <Tooltip class="flow-list-item-source" content="Request is killed by lyrebird" placement="bottom-start" transfer>
-          <Tag v-show="row.status === 'kill'" class="flow-list-item-tag" size="small" color="red">Kill</Tag>
         </Tooltip>
 
         <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="bottom-start" transfer>
@@ -115,7 +112,7 @@ export default {
         {
           title: 'Source',
           slot: 'source',
-          width: 100
+          width: 105
         },
         {
           title: 'Method',
@@ -248,6 +245,12 @@ export default {
         return (duration * 1000).toFixed(0) + 'ms'
       }
     },
+    getSourceTooltipContent (row) {
+      if (row.status === 'kill') {
+        return 'Request is killed by lyrebird'
+      } 
+      return row.response.mock
+    },
     onUrlCopy () {
       this.$bus.$emit('msg.success', 'URL copied!')
     },
@@ -284,6 +287,7 @@ export default {
   overflow-y: auto;
 }
 .flow-list-item-source {
+  text-transform: capitalize;
   padding: 0px;
 }
 .flow-list-item-tag {
