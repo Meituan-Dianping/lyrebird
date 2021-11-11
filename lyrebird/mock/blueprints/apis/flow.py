@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from lyrebird.mock import context
+from lyrebird.mock import context, headers
 from lyrebird import application
 from lyrebird import utils
 from urllib.parse import urlencode, unquote
@@ -59,6 +59,9 @@ class FlowList(Resource):
                 info['proxy_response'] = {
                     'code': item['proxy_response']['code']
                 }
+            # Change status
+            if item['request']['headers'].get(headers.MITMPROXY_COMMAND):
+                info['status'] = item['request']['headers'][headers.MITMPROXY_COMMAND]
             req_list.append(info)
 
         return Response(json.dumps(req_list, ensure_ascii=False), mimetype='application/json', status=200)
