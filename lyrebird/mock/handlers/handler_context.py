@@ -6,7 +6,6 @@ import json
 from .. import context
 from lyrebird import utils
 from lyrebird import application
-from lyrebird.mock import headers
 from lyrebird.log import get_logger
 from lyrebird.mock.blueprints.apis.bandwidth import config
 from urllib.parse import urlparse, unquote
@@ -44,7 +43,6 @@ class HandlerContext:
         self.client_address = None
         self.is_request_edited = False
         self.is_response_edited = False
-        self.request_source = ''
         self.response_source = ''
         self.is_proxiable = True
         self.response_chunk_size = 2048
