@@ -247,7 +247,7 @@ class DataManager:
     def _is_target_pattern_matched(self, pattern, targets):
         for target in targets:
             try:
-                search_result = re.search(pattern, target)
+                search_result = re.search(pattern, str(target))
             except:
                 logger.warning(f'Illegal regular match in mock data!\n {traceback.format_exc()}')
                 return False
