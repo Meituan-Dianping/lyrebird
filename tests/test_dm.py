@@ -67,6 +67,42 @@ dataF = {
     }
 }
 
+dataG = {
+    'id': 'dataG-UUID',
+    'name': 'dataG',
+    'rule': {
+        'request.data.sort': 1,
+        'request.url': '(?=.*search)'
+    },
+    'request': {
+        'url': 'http://unittest.com/api/detail'
+    }
+}
+
+dataH = {
+    'id': 'dataH-UUID',
+    'name': 'dataH',
+    'rule': {
+        'request.data.sort': True,
+        'request.url': '(?=.*search)'
+    },
+    'request': {
+        'url': 'http://unittest.com/api/detail'
+    }
+}
+
+dataI = {
+    'id': 'dataI-UUID',
+    'name': 'dataI',
+    'rule': {
+        'request.data.sort': None,
+        'request.url': '(?=.*search)'
+    },
+    'request': {
+        'url': 'http://unittest.com/api/detail'
+    }
+}
+
 label_a = {'name':'label_a','color':'red','description':'description label_a'}
 label_b = {'name':'label_b','color':'green','description':'description label_b'}
 
@@ -206,6 +242,24 @@ prop = {
                     'type': 'data',
                     'parent_id': 'groupJ-UUID'
                 },
+                {
+                    'id': 'dataG-UUID',
+                    'name': 'dataG',
+                    'type': 'data',
+                    'parent_id': 'groupJ-UUID'
+                },
+                {
+                    'id': 'dataH-UUID',
+                    'name': 'dataH',
+                    'type': 'data',
+                    'parent_id': 'groupJ-UUID'
+                },
+                {
+                    'id': 'dataI-UUID',
+                    'name': 'dataI',
+                    'type': 'data',
+                    'parent_id': 'groupJ-UUID'
+                },
             ]
         }
     ]
@@ -254,6 +308,12 @@ def root(tmpdir):
         json.dump(dataD, f)
     with codecs.open(tmpdir / 'dataF-UUID', 'w') as f:
         json.dump(dataF, f)
+    with codecs.open(tmpdir / 'dataG-UUID', 'w') as f:
+        json.dump(dataG, f)
+    with codecs.open(tmpdir / 'dataH-UUID', 'w') as f:
+        json.dump(dataH, f)
+    with codecs.open(tmpdir / 'dataI-UUID', 'w') as f:
+        json.dump(dataI, f)
     with codecs.open(tmpdir / '.lyrebird_prop', 'w') as f:
         json.dump(prop, f)
     return tmpdir
@@ -357,6 +417,134 @@ def test_mock_rule_with_jsonpath(data_manager):
         }
     }
     mock_data_list = data_manager.get_matched_data(flowB)
+    assert len(mock_data_list) == 0
+
+
+def test_mock_rule_number_with_jsonpath(data_manager):
+    flowA = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                'sort': 1
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowA)
+    assert len(mock_data_list) == 0
+
+    data_manager.activate('groupJ-UUID')
+    mock_data_list = data_manager.get_matched_data(flowA)
+    assert len(mock_data_list) == 1
+
+    flowB = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                'sort': 1.0
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowB)
+    assert len(mock_data_list) == 0
+
+    flowC = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                'sort': 222
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowC)
+    assert len(mock_data_list) == 0
+
+    flowD = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                'sort': '1'
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowD)
+    assert len(mock_data_list) == 0
+
+
+def test_mock_rule_bool_with_jsonpath(data_manager):
+    flowA = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                'sort': True
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowA)
+    assert len(mock_data_list) == 0
+
+    data_manager.activate('groupJ-UUID')
+    mock_data_list = data_manager.get_matched_data(flowA)
+    assert len(mock_data_list) == 1
+
+    flowB = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                'sort': False
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowB)
+    assert len(mock_data_list) == 0
+
+    flowC = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                'sort': 'True'
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowC)
+    assert len(mock_data_list) == 0
+
+
+def test_mock_rule_null_with_jsonpath(data_manager):
+    flowA = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                'sort': None
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowA)
+    assert len(mock_data_list) == 0
+
+    data_manager.activate('groupJ-UUID')
+    mock_data_list = data_manager.get_matched_data(flowA)
+    assert len(mock_data_list) == 1
+
+    flowB = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                'sort': ''
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowB)
+    assert len(mock_data_list) == 0
+
+    flowC = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                'sort': 'None'
+            }
+        }
+    }
+    mock_data_list = data_manager.get_matched_data(flowC)
     assert len(mock_data_list) == 0
 
 

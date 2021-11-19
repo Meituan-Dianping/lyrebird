@@ -56,7 +56,7 @@ def is_target_match_patterns(pattern_list, target):
     if not pattern_list or not target:
         return False
     for pattern in pattern_list:
-        if TargetMatch(target, pattern).is_match():
+        if TargetMatch.is_match(target, pattern):
             return True
     return False
 
@@ -120,38 +120,40 @@ class CaseInsensitiveDict(dict):
         return super(CaseInsensitiveDict, self).get(key.lower(), default)
 
 class TargetMatch:
-    
-    def __init__(self, target, pattern):
-        self._target = target
-        self._pattern = pattern
 
-    def is_match(self):
-        if not self._match_type():
+    @staticmethod
+    def is_match(target, pattern):
+        if not TargetMatch._match_type(target, pattern):
             return False
-        if type(self._target) == str:
-            return self._match_string()
-        elif type(self._target) in [int, float]:
-            return self._match_numbers()
-        elif type(self._target) == bool:
-            return self._match_boolean()
-        elif self._target is None:
-            return self._match_null()
+        if type(target) == str:
+            return TargetMatch._match_string(target, pattern)
+        elif type(target) in [int, float]:
+            return TargetMatch._match_numbers(target, pattern)
+        elif type(target) == bool:
+            return TargetMatch._match_boolean(target, pattern)
+        elif type(target).__name__ == 'NoneType':
+            return TargetMatch._match_null(target, pattern)
         else:
-            logger.warning(f'Illegal match target type: {type(self._target)}')
+            logger.warning(f'Illegal match target type: {type(target)}')
             return False
 
-    def _match_type(self):
-        return isinstance(self._target, type(self._pattern))
+    @staticmethod
+    def _match_type(target, pattern):
+        return isinstance(target, type(pattern))
 
-    def _match_string(self):
-        return True if re.search(self._pattern, self._target) else False
+    @staticmethod
+    def _match_string(target, pattern):
+        return True if re.search(pattern, target) else False
 
-    def _match_numbers(self):
-        return self._target == self._pattern
+    @staticmethod
+    def _match_numbers(target, pattern):
+        return target == pattern
 
-    def _match_boolean(self):
-        return self._target == self._pattern
+    @staticmethod
+    def _match_boolean(target, pattern):
+        return target == pattern
 
-    def _match_null(self):
-        return self._target == self._pattern
+    @staticmethod
+    def _match_null(target, pattern):
+        return target == pattern
     

@@ -232,7 +232,7 @@ class DataManager:
             return False
         for rule_key, pattern in rules.items():
             targets = self._get_rule_targets(rule_key, flow)
-            if not targets:
+            if targets == []:
                 return False
             if not self._is_target_pattern_matched(pattern, targets):
                 return False
@@ -241,12 +241,12 @@ class DataManager:
     def _get_rule_targets(self, rule_key, flow):
         search_res = jsonpath.search(flow, rule_key)
         if not search_res:
-            return None
-        return [s.node for s in search_res if s.node]
+            return []
+        return [s.node for s in search_res]
 
     def _is_target_pattern_matched(self, pattern, targets):
         for target in targets:
-            if not utils.TargetMatch(target, pattern).is_match():
+            if not utils.TargetMatch.is_match(target, pattern):
                 return False
         return True
 
