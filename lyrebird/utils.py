@@ -156,4 +156,3 @@ class TargetMatch:
     @staticmethod
     def _match_null(target, pattern):
         return target == pattern
-    
