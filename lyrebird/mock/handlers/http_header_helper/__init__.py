@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from .content_length import ContentLengthHandler
+from lyrebird.utils import CaseInsensitiveDict
 
 origin2flow_handlers = OrderedDict({
 })
@@ -13,11 +14,17 @@ class HeadersHelper:
 
     @staticmethod
     def origin2flow(origin_obj, output=None):
-        _headers = origin_obj.headers
-        if not _headers:
+        _origin_headers = origin_obj.headers
+        if not _origin_headers:
             return
 
-        _headers = {k: v for k, v in _headers}
+        _headers = CaseInsensitiveDict({})
+
+        for k, v in _origin_headers:
+            if k.lower() == 'set-cookie' and k.lower() in _headers:
+                _headers[k] += f', {v}'
+                continue
+            _headers[k] = v
 
         for headers_key, func in origin2flow_handlers.items():
             _headers[headers_key] = func.flow2origin(origin_obj)

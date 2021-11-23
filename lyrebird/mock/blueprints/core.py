@@ -71,6 +71,12 @@ def index(path=''):
             req_context.update_response_headers_code2flow(output_key='proxy_response')
             req_context.update_response_data2flow(output_key='proxy_response')
 
+    resp.headers.remove('set-cookie')
+    for k, v in req_context.response.headers.items():
+        if k.lower() != 'set-cookie':
+            continue
+        resp.headers.add_header('Set-Cookie', v)
+
     context.emit('action', 'add flow log')
 
     return resp
