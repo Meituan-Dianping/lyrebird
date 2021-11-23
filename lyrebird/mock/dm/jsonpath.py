@@ -56,7 +56,7 @@ class JSONPath:
         is_list = re.match('\[(\d+|\*)\]', key)
 
         if not is_list:
-            if isinstance(root, dict) and root.get(key):
+            if isinstance(root, dict) and (key in root):
                 return (key,)
             else:
                 return ()
