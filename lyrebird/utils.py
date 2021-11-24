@@ -7,7 +7,9 @@ import tarfile
 import requests
 from pathlib import Path
 from contextlib import closing
+from lyrebird.log import get_logger
 
+logger = get_logger()
 
 def convert_size(size_bytes):
     if size_bytes == 0:
@@ -54,7 +56,7 @@ def is_target_match_patterns(pattern_list, target):
     if not pattern_list or not target:
         return False
     for pattern in pattern_list:
-        if re.search(pattern, target):
+        if TargetMatch.is_match(target, pattern):
             return True
     return False
 
@@ -116,3 +118,41 @@ class CaseInsensitiveDict(dict):
     
     def get(self, key, default=None):
         return super(CaseInsensitiveDict, self).get(key.lower(), default)
+
+class TargetMatch:
+
+    @staticmethod
+    def is_match(target, pattern):
+        if not TargetMatch._match_type(target, pattern):
+            return False
+        if type(target) == str:
+            return TargetMatch._match_string(target, pattern)
+        elif type(target) in [int, float]:
+            return TargetMatch._match_numbers(target, pattern)
+        elif type(target) == bool:
+            return TargetMatch._match_boolean(target, pattern)
+        elif type(target).__name__ == 'NoneType':
+            return TargetMatch._match_null(target, pattern)
+        else:
+            logger.warning(f'Illegal match target type: {type(target)}')
+            return False
+
+    @staticmethod
+    def _match_type(target, pattern):
+        return isinstance(target, type(pattern))
+
+    @staticmethod
+    def _match_string(target, pattern):
+        return True if re.search(pattern, target) else False
+
+    @staticmethod
+    def _match_numbers(target, pattern):
+        return target == pattern
+
+    @staticmethod
+    def _match_boolean(target, pattern):
+        return target == pattern
+
+    @staticmethod
+    def _match_null(target, pattern):
+        return target == pattern
