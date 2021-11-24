@@ -18,11 +18,11 @@ class HeadersHelper:
         if not _origin_headers:
             return
 
-        _headers = CaseInsensitiveDict({})
+        _headers = {}
 
         for k, v in _origin_headers:
             if k.lower() == 'set-cookie' and k.lower() in _headers:
-                _headers[k] += f', {v}'
+                _headers[k.lower()] += f', {v}'
                 continue
             _headers[k] = v
 
