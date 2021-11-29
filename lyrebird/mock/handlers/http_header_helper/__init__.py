@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from .content_length import ContentLengthHandler
-from lyrebird.utils import CaseInsensitiveDict
+from ..duplicate_header_key_handler import DuplicateHeaderKeyHandler
 
 origin2flow_handlers = OrderedDict({
 })
@@ -18,13 +18,7 @@ class HeadersHelper:
         if not _origin_headers:
             return
 
-        _headers = {}
-
-        for k, v in _origin_headers:
-            if k.lower() == 'set-cookie' and k.lower() in _headers:
-                _headers[k.lower()] += f', {v}'
-                continue
-            _headers[k] = v
+        _headers = DuplicateHeaderKeyHandler.format_header_distinct_key(_origin_headers)
 
         for headers_key, func in origin2flow_handlers.items():
             _headers[headers_key] = func.flow2origin(origin_obj)
