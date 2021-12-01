@@ -2,7 +2,7 @@ from lyrebird import on_response
 from lyrebird.checker import CheckerCategory
 
 TITLE = '<示例脚本>在Response中添加Header Key'
-CATEGORY = CheckerCategory.MODIFY
+CATEGORY = CheckerCategory.EDITOR
 
 @on_response(rules={
     "request.url": "(?=.*poi/detail)"

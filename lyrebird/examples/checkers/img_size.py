@@ -24,7 +24,7 @@ from decimal import Decimal
 from lyrebird.checker import CheckerCategory
 
 TITLE = '<示例脚本>获取图片大小'
-CATEGORY = CheckerCategory.CHECK
+CATEGORY = CheckerCategory.CHECKER
 
 
 # THRESHOLD_IMG_SIZE: image size limitation

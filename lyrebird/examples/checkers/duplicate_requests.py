@@ -28,7 +28,7 @@ from urllib.parse import urlparse, urlencode, parse_qsl
 from lyrebird.checker import CheckerCategory
 
 TITLE = '<示例脚本>检测重复请求'
-CATEGORY = CheckerCategory.CHECK
+CATEGORY = CheckerCategory.CHECKER
 
 
 # THRESHOLD_TIME: Range of duplicate requests in seconds
