@@ -4,6 +4,7 @@ Script for mitmdump
 Redirect request from proxy server to mock server
 """
 
+from urllib.parse import urlparse
 from mitmproxy import http
 from lyrebird import log
 import os
@@ -19,6 +20,11 @@ PROXY_FILTERS = json.loads(os.environ.get('PROXY_FILTERS'))
 
 
 def to_mock_server(flow: http.HTTPFlow):
+    # 获取原始的请求host，加入Header key:Host, 用于重定向
+    raw_url = urlparse(flow.request.url)
+    raw_host = raw_url.hostname
+    if raw_url.port:
+        raw_host += f':{raw_url.port}'
     # mock path 为/mock开头加上原始url
     flow.request.path = '/mock/' + flow.request.url
     # mock scheme 统一为http
@@ -35,6 +41,7 @@ def to_mock_server(flow: http.HTTPFlow):
     
     flow.request.headers['Lyrebird-Client-Address'] = address
     flow.request.headers['Mitmproxy-Proxy'] = address
+    flow.request.headers['Host'] = raw_host
     flow.request.headers['Proxy-Raw-Headers'] = json.dumps({name: flow.request.headers[name] for name in flow.request.headers}, ensure_ascii=False)
 
     _logger.info('Redirect-> %s' % flow.request.url[:100])

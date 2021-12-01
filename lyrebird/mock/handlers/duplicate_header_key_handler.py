@@ -1,3 +1,4 @@
+import json
 from flask import Response
 from lyrebird.mock import lb_http_status
 from lyrebird.log import get_logger
@@ -57,11 +58,17 @@ class DuplicateHeaderKeyHandler:
     
     @staticmethod
     def _trans_header_key_duplicate_to_distinct(header_dict, key, value_list):
-        header_dict[key] = ', '.join([value.replace(', ', '\\,\\') for value in value_list])
+        if len(value_list) == 1:
+            header_dict[key] = value_list[0]
+        else:
+            header_dict[key] = json.dumps(value_list)
     
     @staticmethod
     def _trans_header_key_distinct_to_duplicate(header_list, key, value):
-        value_list = value.split(', ')
-        for value in value_list:
-            header_list.append((key, value.replace('\\,\\', ', ')))
+        raw_value = json.loads(value)
+        if type(raw_value) == list:
+            for value in raw_value:
+                header_list.append((key, value))
+        else:
+            header_list.append((key, raw_value))
 
