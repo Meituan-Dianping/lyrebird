@@ -156,9 +156,6 @@ class HandlerContext:
     def set_response_source_mock(self):
         self.response_source = 'mock'
 
-    def is_response_source_mock(self):
-        return self.response_source == 'mock'
-
     def set_response_source_proxy(self):
         self.response_source = 'proxy'
     

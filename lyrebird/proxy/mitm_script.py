@@ -20,7 +20,6 @@ PROXY_FILTERS = json.loads(os.environ.get('PROXY_FILTERS'))
 
 
 def to_mock_server(flow: http.HTTPFlow):
-    # 获取原始的请求host，加入Header key:Host, 用于重定向
     raw_url = urlparse(flow.request.url)
     raw_host = raw_url.hostname
     if raw_url.port:
@@ -41,6 +40,7 @@ def to_mock_server(flow: http.HTTPFlow):
     
     flow.request.headers['Lyrebird-Client-Address'] = address
     flow.request.headers['Mitmproxy-Proxy'] = address
+    # 获取原始的请求host，加入Header key:Host, 用于重定向
     flow.request.headers['Host'] = raw_host
     flow.request.headers['Proxy-Raw-Headers'] = json.dumps({name: flow.request.headers[name] for name in flow.request.headers}, ensure_ascii=False)
 
@@ -77,3 +77,14 @@ def responseheaders(flow):
     command = flow.response.headers.get('Lyrebird-Mitmproxy-Command')
     if command == 'kill':
         flow.kill()
+    _recover_response_header_location(flow.response.headers)
+
+
+def _recover_response_header_location(response_header):
+    """
+        Recover response header key <Location>’s raw value for redirect against cookie missing.
+    """
+    raw_location = response_header.get('Raw-Location')
+    if raw_location:
+        response_header.update({'Location': raw_location})
+        response_header.pop('Raw-Location')

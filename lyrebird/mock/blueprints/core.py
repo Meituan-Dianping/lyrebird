@@ -3,6 +3,7 @@ from flask import Blueprint, request, Response
 from ..handlers.mock_handler import MockHandler
 from ..handlers.proxy_handler import ProxyHandler
 from ..handlers.duplicate_header_key_handler import DuplicateHeaderKeyHandler
+from ..handlers.http_header_helper import HeadersHelper
 from ..handlers.path_not_found_handler import RequestPathNotFound
 from ..handlers.handler_context import HandlerContext
 from ..handlers.flow_editor_handler import FlowEditorHandler
@@ -35,7 +36,7 @@ def index(path=''):
 
     mock_handler.handle(req_context)
 
-    if req_context.is_response_source_mock():
+    if req_context.response_source == 'mock':
         # Build raw headers
         raw_headers = DuplicateHeaderKeyHandler.format_header_duplicate_key(req_context.flow['response']['headers'])
         req_context.set_response_raw_headers(raw_headers)
@@ -78,6 +79,7 @@ def index(path=''):
             req_context.update_response_data2flow(output_key='proxy_response')
 
     DuplicateHeaderKeyHandler.recover_duplicate_key(resp.headers, req_context.response_raw_headers)
+    HeadersHelper.save_raw_location(resp.headers)
 
     context.emit('action', 'add flow log')
 
