@@ -214,6 +214,7 @@ class DataManager:
     def _format_respose_data(self, flow):
         # TODO render mock data before response, support more functions
         params = {
+            'config': config,
             'ip': config.get('ip'),
             'port': config.get('mock.port'),
             'today': datetime.date.today(),
