@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from .content_length import ContentLengthHandler
+from ..duplicate_header_key_handler import DuplicateHeaderKeyHandler
 
 origin2flow_handlers = OrderedDict({
 })
@@ -13,11 +14,11 @@ class HeadersHelper:
 
     @staticmethod
     def origin2flow(origin_obj, output=None):
-        _headers = origin_obj.headers
-        if not _headers:
+        _origin_headers = origin_obj.headers
+        if not _origin_headers:
             return
 
-        _headers = {k: v for k, v in _headers}
+        _headers = DuplicateHeaderKeyHandler.origin2flow(_origin_headers)
 
         for headers_key, func in origin2flow_handlers.items():
             _headers[headers_key] = func.flow2origin(origin_obj)
@@ -40,3 +41,14 @@ class HeadersHelper:
             output.headers = _headers
         else:
             return _headers
+
+    @staticmethod
+    def save_raw_location(header_obj):
+        """
+        Save raw location for request redirect against the cookie missing.
+        Recover at the mitm_script:responseheaders callback.
+        """
+        raw_location = header_obj.get('Location')
+
+        if raw_location:
+            header_obj.add_header('Raw-Location', raw_location)
