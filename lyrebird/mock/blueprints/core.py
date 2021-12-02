@@ -73,9 +73,7 @@ def index(path=''):
             req_context.update_response_headers_code2flow(output_key='proxy_response')
             req_context.update_response_data2flow(output_key='proxy_response')
 
-
-    raw_response_headers = DuplicateHeaderKeyHandler.format_header_duplicate_key(req_context.flow['response']['headers'])
-    DuplicateHeaderKeyHandler.recover_duplicate_key(resp.headers, raw_response_headers)
+    DuplicateHeaderKeyHandler.set_origin_header(resp.headers, req_context.flow['response']['headers'])
     HeadersHelper.save_raw_location(resp.headers)
 
     context.emit('action', 'add flow log')

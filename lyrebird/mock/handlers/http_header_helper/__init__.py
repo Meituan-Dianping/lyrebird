@@ -18,7 +18,7 @@ class HeadersHelper:
         if not _origin_headers:
             return
 
-        _headers = DuplicateHeaderKeyHandler.format_header_distinct_key(_origin_headers)
+        _headers = DuplicateHeaderKeyHandler.origin2flow(_origin_headers)
 
         for headers_key, func in origin2flow_handlers.items():
             _headers[headers_key] = func.flow2origin(origin_obj)
