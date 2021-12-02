@@ -36,11 +36,6 @@ def index(path=''):
 
     mock_handler.handle(req_context)
 
-    if req_context.response_source == 'mock':
-        # Build raw headers
-        raw_headers = DuplicateHeaderKeyHandler.format_header_duplicate_key(req_context.flow['response']['headers'])
-        req_context.set_response_raw_headers(raw_headers)
-
     if not req_context.response_source:
         flow_editor_handler.on_request_upstream_handler(req_context)
         proxy_handler.handle(req_context)
@@ -78,7 +73,9 @@ def index(path=''):
             req_context.update_response_headers_code2flow(output_key='proxy_response')
             req_context.update_response_data2flow(output_key='proxy_response')
 
-    DuplicateHeaderKeyHandler.recover_duplicate_key(resp.headers, req_context.response_raw_headers)
+
+    raw_response_headers = DuplicateHeaderKeyHandler.format_header_duplicate_key(req_context.flow['response']['headers'])
+    DuplicateHeaderKeyHandler.recover_duplicate_key(resp.headers, raw_response_headers)
     HeadersHelper.save_raw_location(resp.headers)
 
     context.emit('action', 'add flow log')

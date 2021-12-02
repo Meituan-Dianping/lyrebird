@@ -65,7 +65,11 @@ class DuplicateHeaderKeyHandler:
     
     @staticmethod
     def _trans_header_key_distinct_to_duplicate(header_list, key, value):
-        raw_value = json.loads(value)
+        try:
+            raw_value = json.loads(value)
+        except:
+            # as a string
+            raw_value = value
         if type(raw_value) == list:
             for value in raw_value:
                 header_list.append((key, value))

@@ -94,6 +94,3 @@ class ProxyHandler:
             stream_with_context(r.iter_content(chunk_size=handler_context.response_chunk_size)),
             status=r.status_code,
             headers=resp_headers)
-        
-        # Save raw response header
-        handler_context.set_response_raw_headers(resp_headers)

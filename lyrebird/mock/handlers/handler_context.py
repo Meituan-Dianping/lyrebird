@@ -28,7 +28,6 @@ class HandlerContext:
         self.id = str(uuid.uuid4())
         self.request = request
         self.response = None
-        self.response_raw_headers = None
         self.client_req_time = None
         self.client_resp_time = None
         self.server_req_time = None
@@ -158,9 +157,6 @@ class HandlerContext:
 
     def set_response_source_proxy(self):
         self.response_source = 'proxy'
-    
-    def set_response_raw_headers(self, raw_header):
-        self.response_raw_headers = raw_header
 
     def get_request_body(self):
         if self.is_request_edited:
