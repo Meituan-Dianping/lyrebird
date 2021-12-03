@@ -52,7 +52,9 @@ class LyrebirdProxyServer():
             '-p', self.proxy_port,
             '--ssl-insecure',
             '--no-http2',
-            '-q'
+            '-q',
+            '--set',
+            'block_global=false'
         ]
         if self.ignore_hosts:
             mitm_arguments += ['--ignore-hosts', self.ignore_hosts]
