@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-system-bar app dense flat height="38px" color="#0fccbf">
+    <v-system-bar app dense flat height="38px" color="primary">
       <div class="logo">
         <img src="@/assets/lyrebird.shadow.png" />
         <span>Lyrebird</span>
@@ -34,7 +34,7 @@
       </div>
     </v-main>
 
-    <v-footer app color="#0fccbf" class="main-footer">
+    <v-footer app color="primary" class="main-footer">
       <span class="main-footer-status-placeholder"></span>
       <span v-show="activatedGroupName" class="main-footer-status-no-pointer">
         <b>Activated mock group: {{activatedGroupName}}</b>

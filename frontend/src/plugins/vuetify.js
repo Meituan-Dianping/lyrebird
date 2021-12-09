@@ -16,7 +16,7 @@ const opts = {
     disable: false,
     themes: {
       light: {
-        primary: '#2d8cf0',
+        primary: '#5F5CCA',
         secondary: '#515a6e',
         accent: '#000',
         error: '#03a9f4',
@@ -25,13 +25,13 @@ const opts = {
         success: '#ff5722'
       },
       dark: {
-        primary: '#1976D2',
+        primary: '#5F5CCA',
         secondary: '#424242',
         accent: '#fff',
         error: '#FF5252',
+        warning: '#FB8C00',
         info: '#2196F3',
         success: '#4CAF50',
-        warning: '#FB8C00',
       },
     },
   },
