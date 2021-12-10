@@ -41,14 +41,18 @@ FUNC_MAP_HANDLERS = {
 }
 
 
-class CheckerCategory:
-    EDITOR = "Editor"
+class ExtensionCategory:
+    MODIFIER = "Modifier"
     CHECKER = "Checker"
-    DEFAULT = "Other"
+    OTHER = "Other"
+
+    # TODO: For old version compatibility, need to delete
+    DEFAULT = "Other" 
+    EDITOR = "Modifier"
 
     @classmethod
     def get_order(cls, category):
-        orders = [cls.EDITOR, cls.CHECKER, cls.DEFAULT]
+        orders = [cls.MODIFIER, cls.EDITOR, cls.CHECKER, cls.OTHER, cls.DEFAULT]
         if category not in orders:
             return len(orders) + 1
         return orders.index(category)
@@ -56,11 +60,18 @@ class CheckerCategory:
     @classmethod
     def get_description(cls, category):
         descriptions = {
-            cls.EDITOR: 'Modify flow', 
+            cls.MODIFIER: 'Modify flow', 
             cls.CHECKER: 'Check event and make notification', 
-            cls.DEFAULT: 'Testability support, Advanced usage, etc.'
+            cls.DEFAULT: 'Testability support, Advanced usage, etc.',
+            
+            # TODO: For old version compatibility, need to delete
+            cls.EDITOR: 'Modify flow', 
+            cls.OTHER: 'Testability support, Advanced usage, etc.',
         }
         return descriptions.get(category, 'Custom category')
+
+# TODO: For old version compatibility, need to delete
+CheckerCategory = ExtensionCategory
 
 class LyrebirdCheckerServer(ThreadServer):
     def __init__(self):
@@ -175,10 +186,10 @@ class LyrebirdCheckerServer(ThreadServer):
         if activated_checkers:
             activated_checkers_list = [{
                 'category': checker_category,
-                'description': CheckerCategory.get_description(checker_category),
+                'description': ExtensionCategory.get_description(checker_category),
                 'scripts': checker_scripts
             } for checker_category, checker_scripts in activated_checkers.items()]
-            activated_checkers_list.sort(key=lambda k: CheckerCategory.get_order(k['category']))
+            activated_checkers_list.sort(key=lambda k: ExtensionCategory.get_order(k['category']))
             sorted_checker_groups.append({
                 'status': 'Activated',
                 'key': 'activated',
@@ -188,10 +199,10 @@ class LyrebirdCheckerServer(ThreadServer):
         if deactivated_checkers:
             deactivated_checkers_list = [{
                 'category': checker_category,
-                'description': CheckerCategory.get_description(checker_category),
+                'description': ExtensionCategory.get_description(checker_category),
                 'scripts': checker_scripts
             } for checker_category, checker_scripts in deactivated_checkers.items()]
-            deactivated_checkers_list.sort(key=lambda k: CheckerCategory.get_order(k['category']))
+            deactivated_checkers_list.sort(key=lambda k: ExtensionCategory.get_order(k['category']))
             sorted_checker_groups.append(
                 {
                     'status': 'Deactivated',
@@ -219,7 +230,7 @@ class Checker:
         self._update = False
         self._funcs_map = {}
         self.title = '<No Title>'
-        self.category = CheckerCategory.DEFAULT
+        self.category = ExtensionCategory.DEFAULT
 
         try:
             self._load_checker()
