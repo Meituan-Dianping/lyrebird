@@ -21,10 +21,10 @@ Info used in channel flow
 
 from lyrebird import event
 from decimal import Decimal
-from lyrebird.checker import ExtensionCategory
+from lyrebird.checker import CheckerCategory
 
 TITLE = '<示例脚本>获取图片大小'
-CATEGORY = ExtensionCategory.CHECKER
+CATEGORY = CheckerCategory.CHECKER
 
 
 # THRESHOLD_IMG_SIZE: image size limitation
