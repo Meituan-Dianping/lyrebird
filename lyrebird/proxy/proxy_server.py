@@ -3,10 +3,9 @@ from colorama import Fore
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird.log import get_logger
-import subprocess
+import multiprocessing
 import os
 import json
-import sys
 
 
 """
@@ -14,12 +13,25 @@ HTTP proxy server
 
 Default port 4272
 """
+logger = get_logger()
+
 
 CURRENT_PATH = Path(__file__).parent
 SCRIPT_FILE = CURRENT_PATH/'mitm_script.py'
 MITMDUMP_FILE = CURRENT_PATH/'mitm_exec.py'
 
-logger = get_logger()
+
+def run_mitmproxy(**kwargs):
+    import sys
+    from mitmproxy.tools.main import mitmdump
+
+    custom_env = kwargs.get('env')
+    os.environ.update(custom_env)
+
+    args = kwargs.get('args')
+
+    sys.argv = ['mitmdump.py', *args]
+    sys.exit(mitmdump())
 
 
 class LyrebirdProxyServer():
@@ -61,11 +73,19 @@ class LyrebirdProxyServer():
         mitmenv = os.environ
         mitmenv['PROXY_PORT'] = str(application.config.get('mock.port', 9090))
         mitmenv['PROXY_FILTERS'] = json.dumps(application.config.get('proxy.filters', []))
-        self._proxy_server_process = subprocess.Popen(f'{sys.executable} {str(MITMDUMP_FILE)} {" ".join(mitm_arguments)}', shell=True, env=mitmenv)
+
+        self._proxy_server_process = multiprocessing.Process(
+            group=None,
+            target=run_mitmproxy,
+            kwargs={
+                'env': {
+                    'PROXY_PORT': str(application.config.get('mock.port', 9090)),
+                    'PROXY_FILTERS': json.dumps(application.config.get('proxy.filters', []))
+                },
+                'args': mitm_arguments})
+        self._proxy_server_process.start()
 
     def stop(self):
         if self._proxy_server_process:
             self._proxy_server_process.terminate()
             logger.warning('ProxyServer shutdown')
-
-
