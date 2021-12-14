@@ -1,6 +1,7 @@
 import os
 import imp
 import inspect
+import traceback
 from pathlib import Path
 from collections import namedtuple
 
@@ -81,8 +82,8 @@ def load_all_from_ep():
             if plugin.project_name in plugins:
                 logger.error('Load plugin failed: More than one manifest in this plugin')
                 continue
-        except ManifestError as e:
-            logger.error(f'Load plugin failed: {e}')
+        except Exception as e:
+            logger.error(f'Load plugin {ep.name} failed: {ep.dist}\n{e}\n{traceback.format_exc()}')
             continue
         plugins[plugin.project_name] = plugin
     return plugins
@@ -137,6 +138,7 @@ def load_from_path(plugin_path):
     plugin.location = str(Path(caller_info.filename).parent)
     return plugin
 
+
 def get_plugin_storage():
     """
     Get plugins storage dir path
@@ -150,6 +152,7 @@ def get_plugin_storage():
     if not os.path.exists(plugin_storage_dir):
         os.makedirs(plugin_storage_dir)
     return plugin_storage_dir
+
 
 def _caller_info(index=1):
     stack = inspect.stack()
