@@ -88,10 +88,6 @@ export default {
   data () {
     return {
       currentTab: "information",
-      undisplayedKey: ['children', 'type', 'parent_id'],
-      undeletableKey: ['id', 'rule', 'name', 'label', 'category'],
-      uneditableKey: ['id', 'rule'],
-      stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label'],
       conflictCheckNode: {},
       newPropKey: '',
       newPropValue: ''
@@ -135,7 +131,19 @@ export default {
     },
     isLoadConflictInfo () {
       return this.$store.state.dataManager.isLoadConflictInfo
-    }
+    },
+    undisplayedKey () {
+      return this.$store.state.dataManager.undisplayedKey
+    },
+    undeletableKey () {
+      return this.$store.state.dataManager.undeletableKey
+    },
+    uneditableKey () {
+      return this.$store.state.dataManager.uneditableKey
+    },
+    stickyTopKey () {
+      return this.$store.state.dataManager.stickyTopKey
+    },
   },
   methods: {
     saveGroupDetail () {

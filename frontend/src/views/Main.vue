@@ -62,6 +62,7 @@ export default {
   mounted () {
     this.$store.dispatch('loadMenu')
     this.$store.dispatch('loadManifest')
+    this.$store.dispatch('loadConfig')
     this._keydownListener = (e) => {
       this.$bus.$emit('keydown', e)
     }
