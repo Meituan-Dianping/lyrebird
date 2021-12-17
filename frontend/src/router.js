@@ -4,6 +4,7 @@ import Main from './views/Main.vue'
 import Inspector from './views/inspector/Inspector.vue'
 import DataManager from './views/datamanager/DataManager.vue'
 import Checker from './views/checker/Checker.vue'
+import EventInspector from '@/views/event/EventInspector.vue'
 import PluginView from './views/PluginView.vue'
 
 Vue.use(Router)
@@ -49,6 +50,17 @@ export default new Router({
           path: '',
           name: 'checker',
           component: Checker
+        }
+      ]
+    },
+    {
+      path: '/advanced',
+      component: Main,
+      children: [
+        {
+          path: '',
+          name: 'advanced',
+          component: EventInspector
         }
       ]
     },

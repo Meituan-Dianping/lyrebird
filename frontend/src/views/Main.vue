@@ -1,37 +1,29 @@
 <template>
   <div>
-    <v-system-bar app dense flat height="38px" color="primary">
-      <div class="logo">
-        <img src="@/assets/lyrebird.shadow.png" />
-        <span>Lyrebird</span>
-      </div>
-      <v-spacer/>
-      <!-- todo:change theme -->
-      <v-btn icon @click="changeTheme" v-show="false">
-        <v-icon size="18px" color="white" v-if= this.$vuetify.theme.dark>mdi-brightness-4</v-icon>
-        <v-icon size="18px" color="#9e9e9e" v-else >mdi-brightness-5</v-icon>
-      </v-btn>
-      <notice-center></notice-center>
-    </v-system-bar>
+    <AppBar/>
 
-    <v-navigation-drawer app permanent expand-on-hover class="secondary" width="200px">
+    <v-navigation-drawer absolute permanent expand-on-hover 
+      class="navigation-drawer background" width="200px"
+    >
+    <!-- Use mini-variant-width, the init width is not set when unfolding -->
+    <!-- <v-navigation-drawer absolute permanent expand-on-hover 
+      class="navigation-drawer background" width="200px"
+      mini-variant-width=50
+    > -->
       <v-list nav dense> 
-        <v-list-item-group v-model="activeMenuItemIndex" color="#4BD2c0">
+        <v-list-item-group v-model="activeMenuItemIndex" color="#9B9CB7" active-class="v-item--active">
           <v-list-item v-for="(menuItem, index) in menu" :key="index" link @click.native="menuItemOnClick(menuItem, index)">
             <v-list-item-icon>
-              <v-icon color="white">{{menuItem.icon}}</v-icon> 
+              <v-icon>{{menuItem.icon}}</v-icon> 
             </v-list-item-icon>
-            <v-list-item-title style="color:white; font-weight:700;">{{menuItemTitle(menuItem)}}
-            </v-list-item-title>
+            <v-list-item-title style="color:#9B9CB7; font-weight:700;">{{menuItemTitle(menuItem)}}</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
 
-    <v-main>
-      <div class="main-container">
-        <router-view></router-view>
-      </div>
+    <v-main class="background">
+      <router-view style="margin-left:66px; background-color:white"/>
     </v-main>
 
     <v-footer app color="primary" class="main-footer">
@@ -48,14 +40,16 @@
 </template>
 
 <script>
-import NoticeCenter from '@/views/notice/NoticeCenter.vue'
+import svgIcon from 'vue-svg-icon/Icon.vue'
+import AppBar from '@/views/appbar/AppBar.vue'
 import StatusBar from '@/views/statusbar/StatusBar.vue'
 import StatusInfo from '@/views/statusbar/StatusInfo.vue'
 
 export default {
   name: 'MainLayout',
   components: {
-    NoticeCenter,
+    svgIcon,
+    AppBar,
     StatusBar,
     StatusInfo
   },
@@ -194,39 +188,20 @@ export default {
 </script>
 
 <style scoped>
-.logo {
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.v-item--active {
+  background-color: #5A57C4 10%;
+  color: #5A57C4 !important;
 }
-.logo span {
-  color: white;
-  font-size: 18px;
-  font-weight: bolder;
-  font-style: italic;
-  margin-left: 15px;
-  text-shadow: #000 3px 4px 5px
-}
-.logo img {
-  margin-left: 8px;
-  padding-top: 4px;
-  width: 28px
-}
-.main-header {
-  height: 38px;
-  line-height: 38px;
-  padding: 0;
-  margin: 0;
-  background-color: #0fccbf;
-}
+.v-item--active:not(.v-list-item--active):not(.v-list-item--disabled) {
+  color: #9B9CB7 !important;
+} 
 .main-footer {
   height: 28px;
   line-height: 28px;
   padding: 0;
 }
 .main-container {
-  height: calc(100vh - 66px);
+  height: calc(100vh - 44px - 28px);
   background: #fff;
 }
 </style>
@@ -253,12 +228,20 @@ export default {
   display: inline-block;
 }
 .main-footer-status:hover {
-  background-color: #4BD2c0;
+  background-color: #6A67D4;
+}
+.main-footer-status:active {
+  background-color: #7B79D0;
 }
 .main-footer-status-button {
   color: #f8f8f9;
 }
 .main-footer-status-placeholder {
   margin-left: 5px;
+}
+.navigation-drawer {
+  margin-top: 44px;
+  margin-bottom: 28px;
+  height: calc(100% - 44px - 28px);
 }
 </style>

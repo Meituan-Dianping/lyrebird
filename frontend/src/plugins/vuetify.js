@@ -7,8 +7,8 @@ Vue.use(Vuetify)
 
 const opts = {
   icons: {
-      iconfont: 'mdi',
-      values: {},
+    iconfont: 'mdi',
+    values: {},
   },
   theme: {
     dark: false,
@@ -18,11 +18,13 @@ const opts = {
       light: {
         primary: '#5F5CCA',
         secondary: '#515a6e',
-        accent: '#000',
-        error: '#03a9f4',
+        accent: '#000520',
+        error: '#FF4B4B',
         warning: '#2d8cf0',
         info: '#ffc107',
-        success: '#ff5722'
+        success: '#ff5722',
+        shading: '#FAF9FA',
+        background: '#FFF'
       },
       dark: {
         primary: '#5F5CCA',
@@ -32,6 +34,8 @@ const opts = {
         warning: '#FB8C00',
         info: '#2196F3',
         success: '#4CAF50',
+        shading: '#222222',
+        background: '#121212'
       },
     },
   },
