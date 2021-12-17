@@ -36,11 +36,25 @@ export default {
   height: calc(100vh - 66px);
   border: 1px solid #dcdee2;
 }
-.checker-empty {
+.extension-empty {
   position: absolute; 
-  top:40%;
+  top:50%;
   left:50%;
   transform:translate(-50%,-50%);
   text-align: center;
+}
+.empty-icon {
+  height: 72px !important;
+  width: 72px !important;
+  font-size: 72px !important;
+  margin-bottom: 16px;
+}
+.empty-text {
+  font-weight: 400;
+  font-family: PingFangSC-Regular;
+  font-size: 14px;
+  color: #000520;
+  line-height: 14px;
+  margin-bottom: 0px !important;
 }
 </style>

@@ -2,7 +2,7 @@
   <div>
     <v-toolbar-title class="extension-title">Extension</v-toolbar-title>
     <v-tabs
-      v-if="checkerList.length"
+      v-if="extensionList.length"
       hide-slider
       fixed-tabs
       active-class="active-tab"
@@ -13,12 +13,12 @@
       <v-tab class="rounded rounded-r-0" key="activated">Activated</v-tab>
       <v-tab class="rounded rounded-l-0" key="deactivated">Deactivated</v-tab>
     </v-tabs>
-    <v-divider class="extension-divider" v-if="checkerList.length"></v-divider>
-    <v-card v-if="checkerList.length" class="extension-tab-content" flat>
+    <v-divider class="extension-divider"></v-divider>
+    <v-card v-if="extensionList.length" class="extension-tab-content" flat>
     <v-tabs-items :value="focusPanel">
       <v-tab-item
-        v-for="checker_group in checkerList"
-        :key="checker_group.key"
+        v-for="extension_group in extensionList"
+        :key="extension_group.key"
       >
         <v-list class="extension-list">
           <v-list-group
@@ -26,7 +26,7 @@
             no-action
             sub-group
             class="group-head"
-            v-for="script_group in checker_group.script_group"
+            v-for="script_group in extension_group.script_group"
             :key="script_group.category"
           >
             <template v-slot:activator>
@@ -52,25 +52,25 @@
                 </v-list-item-title>
               </v-list-item-content>
             </template>
-            <template v-for="(checker, index) in script_group.scripts">
+            <template v-for="(extension, index) in script_group.scripts">
               <v-list-item
                 class="extension-card"
                 active-class="active-extension-card"
-                :key="checker.name"
-                :input-value="isSelected(checker.name)"
-                @click="onClickItem(checker.name)"
+                :key="extension.name"
+                :input-value="isSelected(extension.name)"
+                @click="onClickItem(extension.name)"
               >
                 <v-list-item-content class="extension-card-content">
-                  <v-list-item-title class="extension-card-title">{{checker.title}}</v-list-item-title>
-                  <v-list-item-subtitle class="extension-card-subtitle">{{checker.name}}</v-list-item-subtitle>
+                  <v-list-item-title class="extension-card-title">{{extension.title}}</v-list-item-title>
+                  <v-list-item-subtitle class="extension-card-subtitle">{{extension.name}}</v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action class="extension-card-action">
                   <v-switch
                     inset
                     dense
                     class="extension-switch"
-                    v-model="checker.activated"
-                    @change="changeStatus(checker)"
+                    v-model="extension.activated"
+                    @change="changeStatus(extension)"
                   ></v-switch>
                 </v-list-item-action>
               </v-list-item>
@@ -85,8 +85,8 @@
       </v-tab-item>
     </v-tabs-items>
     </v-card>
-    <div v-else class="checker-empty">
-      No scripts
+    <div v-else class="extension-empty">
+      <p class="empty-text">No Scripts</p>
     </div>
   </div>
 </template>
@@ -94,7 +94,7 @@
 <script>
 export default {
   computed: {
-    checkerList() {
+    extensionList() {
       return this.$store.state.checker.checkers
     },
     focusPanel() {
@@ -109,8 +109,8 @@ export default {
     onClickTab(name) {
       this.$store.commit('setFocusCheckerPanel', name)
     },
-    changeStatus(checker) {
-      this.$store.dispatch('updateCheckerStatus', checker)
+    changeStatus(extension) {
+      this.$store.dispatch('updateCheckerStatus', extension)
     },
     isSelected(name) {
       return name === this.$store.state.checker.focusChecker

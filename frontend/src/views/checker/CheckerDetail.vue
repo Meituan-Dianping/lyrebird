@@ -24,8 +24,9 @@
       </v-tooltip>
     </div>
   </div>
-  <div v-else class="checker-empty">
-    No selected script
+  <div v-else class="extension-empty">
+    <v-icon class="empty-icon" large>mdi-package-variant-closed</v-icon>
+    <p class="empty-text">No Selected Script</p>
   </div>
 </template>
 
