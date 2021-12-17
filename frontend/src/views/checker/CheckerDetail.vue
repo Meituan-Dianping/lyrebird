@@ -2,11 +2,26 @@
   <div v-if="checkerDetail">
     <code-editor :language="codeType" v-model="checkerDetail" class="checker-detail"></code-editor>
     <div class="save-btn" v-if="checkerDetail">
-      <Tooltip content="Save (⌘+s)" placement="top" :delay="500">
-        <Button type="primary" shape="circle" @click="saveCheckerDetail">
-          <icon name="md-save" scale="4"></icon>
-        </Button>
-      </Tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            fab
+            dark
+            color="primary"
+            class="save-btn-detail"
+            @click="saveCheckerDetail"
+          >
+            <v-icon 
+            class="save-btn-icon"
+            dark>
+              mdi-content-save-outline
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>Save (⌘+s)</span>
+      </v-tooltip>
     </div>
   </div>
   <div v-else class="checker-empty">
@@ -80,14 +95,18 @@ export default {
     width: 3rem;
     height: 3rem;
     position: fixed;
-    right: 50px;
-    bottom: 70px;
+    right: 60px;
+    bottom: 60px;
     border-radius: 50%;
     z-index: 500;
   }
-  .save-btn > .ivu-tooltip > .ivu-tooltip-rel > .ivu-btn {
-    padding: 5px 8px 5px;
-    background-color: #0fccbf;
-    border-color: #0fccbf;
+  .save-btn-detail {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .save-btn-icon {
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
   }
 </style>
