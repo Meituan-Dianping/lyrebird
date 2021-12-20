@@ -9,8 +9,6 @@
       </v-app-bar-title>
       <v-spacer/>
 
-      <v-icon size="18px" color="accent">mdi-brightness-4</v-icon>
-
       <!-- Load plugin status which placement is top-right -->
       <!-- <span v-for="status in statusTopRightList">
         {{statusBarDetail}}

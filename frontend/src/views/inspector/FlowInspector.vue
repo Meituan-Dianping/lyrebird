@@ -51,14 +51,14 @@ export default {
   margin-left: 5px;
 }
 .inspector-realtime-split {
-  height: calc(100vh - 44px - 38px - 28px);
+  height: calc(100vh - 44px - 38px - 28px - 2px);
   /* total:100vh
   header: 44px
   buttonBar: 38px
   split
+  border: 2px
   footer: 28px
     */
-  border: 1px solid #dcdee2;
 }
 .flow-detail-empty {
   position: absolute;
