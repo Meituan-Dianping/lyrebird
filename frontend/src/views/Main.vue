@@ -14,14 +14,14 @@
       <notice-center></notice-center>
     </v-system-bar>
 
-    <v-navigation-drawer app permanent expand-on-hover class="secondary" width="200px">
+    <v-navigation-drawer app permanent expand-on-hover width="200px">
       <v-list nav dense> 
-        <v-list-item-group v-model="activeMenuItemIndex" color="#4BD2c0">
+        <v-list-item-group v-model="activeMenuItemIndex" active-class="v-list-active">
           <v-list-item v-for="(menuItem, index) in menu" :key="index" link @click.native="menuItemOnClick(menuItem, index)">
             <v-list-item-icon>
-              <v-icon color="white">{{menuItem.icon}}</v-icon> 
+              <v-icon>{{menuItem.icon}}</v-icon> 
             </v-list-item-icon>
-            <v-list-item-title style="color:white; font-weight:700;">{{menuItemTitle(menuItem)}}
+            <v-list-item-title style="font-weight:700;">{{menuItemTitle(menuItem)}}
             </v-list-item-title>
           </v-list-item>
         </v-list-item-group>
@@ -228,6 +228,13 @@ export default {
 .main-container {
   height: calc(100vh - 66px);
   background: #fff;
+}
+.v-list-active {
+  background-color: #eeeef9;
+  color: #5F5CCA !important;
+}
+.v-list-item:not(.v-list-item--active):not(.v-list-item--disabled) {
+  color: #9B9CB7 !important;
 }
 </style>
 
