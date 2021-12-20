@@ -28,6 +28,13 @@ class Menu(Resource):
                 'type': 'router',
                 'path': '/checker',
                 'icon': 'mdi-script-text-outline'
+            },
+            {
+                'name': 'advanced',
+                'title': 'Advanced',
+                'type': 'router',
+                'path': '/advanced',
+                'icon': 'mdi-timeline-outline'
             }]
 
         # Load plugins from new plugin manager

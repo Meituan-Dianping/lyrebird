@@ -210,15 +210,12 @@ export default {
     },
     onResize () {
       /* reset table height
-      Header 38px
-      ButtonBar 38px
-      Tab 34px
-      5px
+      Header 44px
       PaginationBar 32px
       5px
       Footer 28px
       */
-      this.tableHeight = window.innerHeight - 180
+      this.tableHeight = window.innerHeight - 44 - 32 - 5 - 28
     }
   }
 }
@@ -226,7 +223,7 @@ export default {
 
 <style less>
 .event-list {
-  height: calc(100vh - 140px);
+  height: calc(100vh - 44px - 28px);
   /* total:100vh
   header: 38px
   buttonBar: 38px

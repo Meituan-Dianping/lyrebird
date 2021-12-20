@@ -110,7 +110,7 @@ export default {
 
 <style scoped>
 .bandwidth-btn-highlight {
-  background-color: #0fccbf !important;
+  background-color: #5F5CCA !important;
   color: #fff;
   outline: none;
 }
