@@ -8,16 +8,16 @@
         style="font-weight: bold; padding-left: 3px; padding-right: 3px"
         :style="{color: responseCodeColor}"
       >{{event.flow.response.code}}</span>
-      <a
+      <span
         v-if="isLegalURL()"
-        style="font-weight: bold; padding-left: 3px; padding-right: 3px"
+        style="font-weight: bold; padding-left: 3px; padding-right: 3px; cursor: pointer"
         @click.capture="openURL"
       >
         {{event.flow.request.scheme}}://{{event.flow.request.host}}{{event.flow.request.path}}
-      </a>
-      <a v-else style="font-weight: bold; padding-left: 3px; padding-right: 3px; cursor: default">
+      </span>
+      <span v-else style="font-weight: bold; padding-left: 3px; padding-right: 3px; cursor: default">
         {{event.flow.request.path}}
-      </a>
+      </span>
     </div>
     <div>
       <span class="property_font">Duration: {{duration}}</span>

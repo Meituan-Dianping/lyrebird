@@ -17,12 +17,12 @@
       class="background mt-11"
     >
       <v-list nav dense> 
-        <v-list-item-group v-model="activeMenuItemIndex" color="#9B9CB7" active-class="v-item--active">
+        <v-list-item-group v-model="activeMenuItemIndex" active-class="v-item--active">
           <v-list-item v-for="(menuItem, index) in menu" :key="index" link @click.native="menuItemOnClick(menuItem, index)">
             <v-list-item-icon>
               <v-icon>{{menuItem.icon}}</v-icon> 
             </v-list-item-icon>
-            <v-list-item-title style="color:#9B9CB7; font-weight:700;">{{menuItemTitle(menuItem)}}</v-list-item-title>
+            <v-list-item-title style="font-weight:700;">{{menuItemTitle(menuItem)}}</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -190,7 +190,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .v-item--active {
   background-color: #5A57C4 10%;
   color: #5A57C4 !important;
@@ -206,6 +206,13 @@ export default {
 .main-container {
   height: calc(100vh - 44px - 28px);
   background: #fff;
+}
+.v-list-active {
+  background-color: #eeeef9;
+  color: #5F5CCA !important;
+}
+.v-list-item:not(.v-list-item--active):not(.v-list-item--disabled) {
+  color: #9B9CB7 !important;
 }
 </style>
 
