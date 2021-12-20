@@ -51,11 +51,10 @@ export default {
   margin-left: 5px;
 }
 .inspector-realtime-split {
-  height: calc(100vh - 138px);
+  height: calc(100vh - 44px - 38px - 28px);
   /* total:100vh
-  header: 38px
+  header: 44px
   buttonBar: 38px
-  mode-tab 34px
   split
   footer: 28px
     */

@@ -2,14 +2,20 @@
   <div>
     <AppBar/>
 
-    <v-navigation-drawer absolute permanent expand-on-hover 
-      class="navigation-drawer background" width="200px"
+    <!-- The navigation drawer display from y-axis 0px by default -->
+    <!-- keep the navigation drawer from being blocked by the app bar by margin-top, which is mt-11 -->
+
+    <!-- mini-variant-width cannot set the initial width of the unfloding animation  -->
+    <!-- <v-navigation-drawer mini-variant-width=50> -->
+
+    <v-navigation-drawer
+      absolute
+      permanent
+      expand-on-hover 
+      width=200
+      height="calc(100% - 44px)"
+      class="background mt-11"
     >
-    <!-- Use mini-variant-width, the init width is not set when unfolding -->
-    <!-- <v-navigation-drawer absolute permanent expand-on-hover 
-      class="navigation-drawer background" width="200px"
-      mini-variant-width=50
-    > -->
       <v-list nav dense> 
         <v-list-item-group v-model="activeMenuItemIndex" color="#9B9CB7" active-class="v-item--active">
           <v-list-item v-for="(menuItem, index) in menu" :key="index" link @click.native="menuItemOnClick(menuItem, index)">
@@ -119,9 +125,6 @@ export default {
     }
   },
   methods: {
-    changeTheme () {
-      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
-    },
     menuItemTitle (menuItem) {
         return menuItem.title
     },
@@ -238,10 +241,5 @@ export default {
 }
 .main-footer-status-placeholder {
   margin-left: 5px;
-}
-.navigation-drawer {
-  margin-top: 44px;
-  margin-bottom: 28px;
-  height: calc(100% - 44px - 28px);
 }
 </style>

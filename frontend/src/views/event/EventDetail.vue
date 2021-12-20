@@ -58,18 +58,16 @@ export default {
   margin-bottom: 0;
 }
 .event-detail {
-  height: calc(100vh - 172px);
+  height: calc(100vh - 44px - 34px - 28px);
   /* total:100vh
-    header 38px
-    button-bar 38px
-    mode-tab 34px
+    header 44px
     message-tab 34px
     footer 28px
     */
 }
 .event-message {
   width: 100%;
-  height: calc(100vh - 177px);
+  height: calc(100vh - 44px - 34px - 28px);
   overflow: auto;
   margin: 0px;
   padding: 5px 0 0px 10px;
