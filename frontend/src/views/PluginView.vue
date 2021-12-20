@@ -1,5 +1,5 @@
 <template>
-  <div style="height:100%">
+  <div style="height:calc(100vh - 44px - 28px)">
     <iframe :src="src" frameborder="0" class="plugin-frame" @load="onLoad"></iframe>
   </div>
 </template>
