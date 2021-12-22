@@ -274,12 +274,10 @@ export default {
 
 <style scoped>
 .flow-list {
-  height: calc(100vh - 148px);
+  height: calc(100vh - 44px - 38px - 28px);
   /* total:100vh
-  header: 38px
+  header: 44px
   buttonBar: 38px
-  divider: 1px
-  mode-tag: 34px
   table
   padding: 9px
   footer: 28px
