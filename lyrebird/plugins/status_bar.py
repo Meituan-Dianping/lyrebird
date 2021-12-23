@@ -106,7 +106,6 @@ class Selector:
     prepend_icon = None
     placement = PLACEMENT_BOTTOM_LEFT
 
-
     def __init__(self):
         self.id = str(uuid.uuid4())
         self.type = self.get_type()
