@@ -31,7 +31,7 @@
       >
         <span class="main-footer-status-button">
           <Icon type="ios-arrow-up" style="padding-right:3px;"/>
-          <b>Version {{status.version}}</b>
+          <b>Lyrebird {{status.version}}</b>
         </span>
         <div slot="title">
           <b>Lyrebird {{status.version}}</b>

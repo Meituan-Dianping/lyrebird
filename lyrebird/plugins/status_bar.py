@@ -20,23 +20,19 @@ class ClickableStatusText:
         - icon: Display in QRCode
     """
 
+    rank = 0
+    prepend_icon = None
+    placement = PLACEMENT_BOTTOM_LEFT
+
     def __init__(self):
         self.id = str(uuid.uuid4())
         self.type = self.get_type()
         if not hasattr(self, 'name'):
             self.name = self.id
-        if not hasattr(self, 'rank'):
-            self.rank = 0
-        if not hasattr(self, 'icon'):
-            self.icon = ''
-        if not hasattr(self, 'prepend_icon'):
-            self.prepend_icon = None
-        if not hasattr(self, 'placement'):
-            self.placement = PLACEMENT_BOTTOM_LEFT
 
     @classmethod
     def get_type(cls):
-        return cls.__bases__[0].__name__
+        return cls.__base__.__name__
 
     def get_text(self):
         """
@@ -106,22 +102,20 @@ class Selector:
         - rank: The larger the data, the closer to the target placement
     """
 
+    rank = 0
+    prepend_icon = None
+    placement = PLACEMENT_BOTTOM_LEFT
+
 
     def __init__(self):
         self.id = str(uuid.uuid4())
         self.type = self.get_type()
         if not hasattr(self, 'name'):
             self.name = self.id
-        if not hasattr(self, 'rank'):
-            self.rank = 0
-        if not hasattr(self, 'prepend_icon'):
-            self.prepend_icon = None
-        if not hasattr(self, 'placement'):
-            self.placement = PLACEMENT_BOTTOM_LEFT
 
     @classmethod
     def get_type(cls):
-        return cls.__bases__[0].__name__
+        return cls.__base__.__name__
 
     def get_menu(self):
         """

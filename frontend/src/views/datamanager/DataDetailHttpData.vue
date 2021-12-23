@@ -16,11 +16,26 @@
       ></CodeEditor>
     </div>
     <div class="save-btn" v-if="dataDetail">
-      <Tooltip content="Save (⌘+s)" placement="top" :delay="500">
-        <Button type="primary" shape="circle" @click="save">
-          <svg-icon name="md-save" scale="4"></svg-icon>
-        </Button>
-      </Tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            fab
+            dark
+            color="primary"
+            class="save-btn-detail"
+            @click="save"
+          >
+            <v-icon 
+            class="save-btn-icon"
+            dark>
+              mdi-content-save-outline
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>Save (⌘+s)</span>
+      </v-tooltip>
     </div>
   </div>
 </template>
@@ -156,23 +171,5 @@ export default {
 }
 .small-tab > .ivu-tabs > .ivu-tabs-bar {
   margin-bottom: 0;
-}
-.save-btn {
-  color: #fff;
-  font-size: 0.6rem;
-  text-align: center;
-  line-height: 3rem;
-  width: 3rem;
-  height: 3rem;
-  position: fixed;
-  right: 50px;
-  bottom: 70px;
-  border-radius: 50%;
-  z-index: 500;
-}
-.save-btn > .ivu-tooltip > .ivu-tooltip-rel > .ivu-btn {
-  padding: 5px 8px 5px;
-  background-color: #0fccbf;
-  border-color: #0fccbf;
 }
 </style>
