@@ -157,9 +157,3 @@ export const getSnapShotDetail = (id) => {
     url: '/api/snapshot/' + id
   })
 }
-
-export const getLyrebirdConfig = () => {
-  return axios({
-    url: '/api/conf'
-  })
-}

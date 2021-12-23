@@ -11,26 +11,19 @@ class StatusBar(Resource):
             return self._get_menu_by_status_item_name(item_id)
 
     def _get_all_status_item(self):
-        status_item_ranked = []
-        status_item_unranked = []
+        status_dict = {}
+
         plugin_server = application.server['plugin']
-        for plugin_name in plugin_server.plugins:
-            plugin = plugin_server.plugins[plugin_name]
+        for plugin in plugin_server.plugins.values():
             for status_item in plugin.status:
-                if status_item.rank:
-                    status_item_ranked.append({
-                        'id': status_item.name,
-                        'rank': status_item.rank,
-                        'text': status_item.get_text()
-                    })
-                    continue
-                status_item_unranked.append({
-                    'id': status_item.name,
-                    'text': status_item.get_text()
-                })
-        status_item_ranked.sort(key=lambda x:x['rank'])
-        all_status_item = status_item_ranked + status_item_unranked
-        return application.make_ok_response(data=all_status_item)
+                if status_item.placement not in status_dict:
+                    status_dict[status_item.placement] = []
+                status_detail = status_item.json()
+                status_dict[status_item.placement].append(status_detail)
+
+        for status_list in status_dict.values():
+            status_list.sort(key=lambda x:x['rank'], reverse=True)
+        return application.make_ok_response(**status_dict)
 
     def _get_menu_by_status_item_name(self, name):
         plugin_server = application.server['plugin']

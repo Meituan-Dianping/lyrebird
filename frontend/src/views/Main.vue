@@ -62,6 +62,8 @@ export default {
   mounted () {
     this.$store.dispatch('loadMenu')
     this.$store.dispatch('loadManifest')
+    this.$store.dispatch('loadConfig')
+    this.$store.dispatch('loadAllStatusList')
     this._keydownListener = (e) => {
       this.$bus.$emit('keydown', e)
     }
@@ -70,6 +72,7 @@ export default {
   beforeDestroy () {
     document.removeEventListener('keydown', this._keydownListener)
     this.$io.removeListener('activatedGroupUpdate', this.loadActivatedGroup)
+    this.$io.removeListener('statusBarUpdate', this.loadAllStatusList)
     this.$io.removeListener('msgSuccess', this.successMessage) 
   },
   created () {
@@ -79,6 +82,7 @@ export default {
     this.$bus.$on('msg.error', this.errorMessage)
     this.$bus.$on('msg.destroy', this.destroyMessage)
     this.$io.on('activatedGroupUpdate', this.loadActivatedGroup)
+    this.$io.on('statusBarUpdate', this.loadAllStatusList)
     this.$io.on('msgSuccess', this.successMessage)
   },
   watch: {
@@ -154,6 +158,9 @@ export default {
     },
     loadActivatedGroup () {
       this.$store.dispatch('loadActivatedGroup')
+    },
+    loadAllStatusList () {
+      this.$store.dispatch('loadAllStatusList')
     },
     successMessage (msg) {
       this.$Message.success({
