@@ -168,7 +168,7 @@ export default {
   font-family: PingFangSC-Semibold;
   line-height: 14px;
 }
-.v-list-item__icon {
+.extension-list .v-list-item__icon {
   margin-top: 9px !important;
   margin-bottom: 9px !important;
   margin-right: 6px !important;

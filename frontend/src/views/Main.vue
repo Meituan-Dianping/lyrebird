@@ -13,6 +13,7 @@
       permanent
       width=200
       floating
+      expand-on-hover
       height="calc(100vh - 44px - 28px)"
       class="background mt-11"
     >
