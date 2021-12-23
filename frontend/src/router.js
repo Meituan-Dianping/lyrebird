@@ -54,12 +54,12 @@ export default new Router({
       ]
     },
     {
-      path: '/advanced',
+      path: '/inspector-pro',
       component: Main,
       children: [
         {
           path: '',
-          name: 'advanced',
+          name: 'inspector-pro',
           component: EventInspector
         }
       ]

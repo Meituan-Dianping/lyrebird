@@ -1,16 +1,21 @@
 <template>
   <span>
-    <span v-for="(item, index) in statusBarList" :key="index" class="main-footer-status">
+    <span v-for="(item, index) in statusBottomLeftList" :key="index" class="main-footer-status">
       <Poptip
         content="content"
         placement="top-start"
-        @on-popper-show="getStatusBarDetail(item.id)"
+        @on-popper-show="getStatusBarDetail(item.name)"
         :width="getPoptipWidth()"
         word-wrap
         padding="10px 20px 10px 20px"
         transfer
       >
-        <b class="main-footer-status-button"> {{item.text}}</b>
+        <b class="main-footer-status-button">
+          <v-icon v-if="item.prepend_icon" small color="white mr-1">
+            {{item.prepend_icon}}
+          </v-icon>
+          {{item.text}}
+        </b>
 
         <div slot="content">
           <div v-for="(item, index) in statusBarDetail" :key="index">
@@ -32,19 +37,7 @@
 import { makeRequest } from '@/api'
 
 export default {
-  mounted () {
-    this.$store.dispatch('loadStatusBarList')
-  },
-  created () {
-    this.$io.on('statusBarUpdate', this.loadStatusBarList)
-  },
-  destroyed() {
-    this.$io.removeListener('statusBarUpdate', this.loadStatusBarList)
-  },
   methods: {
-    loadStatusBarList () {
-      this.$store.dispatch('loadStatusBarList')
-    },
     getStatusBarDetail (statusItemId) {
       this.$store.dispatch('loadStatusBarDetail', statusItemId)
     },
@@ -71,8 +64,11 @@ export default {
     }
   },
   computed: {
-    statusBarList () {
-      return this.$store.state.statusbar.statusBarList
+    statusBottomLeftList () {
+      return this.$store.state.statusbar.statusBottomLeftList
+    },
+    statusBottomRightList () {
+      return this.$store.state.statusbar.statusBottomRightList
     },
     statusBarDetail () {
       return this.$store.state.statusbar.statusBarDetail
