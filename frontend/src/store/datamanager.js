@@ -20,7 +20,11 @@ export default {
     labels: [],
     isLoading: false,
     dataListSelectedLabel: [],
-    isLabelDisplay: true
+    isLabelDisplay: true,
+    undisplayedKey: ['children', 'type', 'parent_id'],
+    undeletableKey: ['id', 'rule', 'name', 'label', 'category'],
+    uneditableKey: ['id', 'rule'],
+    stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label']
   },
   mutations: {
     setGroupList (state, groupList) {
@@ -105,6 +109,30 @@ export default {
     },
     setIsLabelDisplay (state, isLabelDisplay) {
       state.isLabelDisplay = isLabelDisplay
+    },
+    setUndisplayedKey (state, undisplayedKey) {
+      state.undisplayedKey = undisplayedKey
+    },
+    concatUndisplayedKey (state, undisplayedKey) {
+      state.undisplayedKey = state.undisplayedKey.concat(undisplayedKey)
+    },
+    setUneditableKey (state, uneditableKey) {
+      state.uneditableKey = uneditableKey
+    },
+    concatUneditableKey (state, uneditableKey) {
+      state.uneditableKey = state.uneditableKey.concat(uneditableKey)
+    },
+    setUndeletableKey (state, undeletableKey) {
+      state.undeletableKey = undeletableKey
+    },
+    concatUndeletableKey (state, undeletableKey) {
+      state.undeletableKey = state.undeletableKey.concat(undeletableKey)
+    },
+    setStickyTopKey (state, stickyTopKey) {
+      state.stickyTopKey = stickyTopKey
+    },
+    concatStickyTopKey (state, stickyTopKey) {
+      state.stickyTopKey = state.stickyTopKey.concat(stickyTopKey)
     }
   },
   actions: {
@@ -333,13 +361,5 @@ export default {
           bus.$emit('msg.error', 'Load snapshot information error: ' + err.data.message)
         })
     },
-    loadIsLabelDisplay ({ commit }) {
-      api.getLyrebirdConfig()
-        .then(response => {
-          if (response.data.hasOwnProperty('mock.data.showLabel')) {
-            commit('setIsLabelDisplay', response.data['mock.data.showLabel'])
-          }
-        })
-    }
   }
 }

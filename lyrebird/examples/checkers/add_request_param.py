@@ -1,8 +1,8 @@
 from lyrebird import on_request
-from lyrebird.checker import CheckerCategory
+from lyrebird.checker import ExtensionCategory
 
 TITLE = '<示例脚本>在Request中添加Param'
-CATEGORY = CheckerCategory.EDITOR
+CATEGORY = ExtensionCategory.MODIFIER
 
 @on_request(rules={
     "request.url": "(?=.*poi/detail)"

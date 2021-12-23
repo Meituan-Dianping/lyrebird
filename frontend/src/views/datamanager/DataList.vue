@@ -17,18 +17,6 @@
             @click="changeSearchModalOpenState"
           />
         </Tooltip>
-        <span @click.stop v-show="false">
-          <Dropdown>
-            <a href="javascript:void(0)">
-              <Icon type="ios-more-outline" class="button-bar-btn"/>
-            </a>
-            <DropdownMenu slot="list">
-              <DropdownItem>Import...</DropdownItem>
-              <DropdownItem>Export...</DropdownItem>
-              <DropdownItem>Reload</DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </span>
       </span>
       <span class="button-bar-group-right">
         <LabelDropdown :initLabels="selectedLabel" :placement="'bottom-end'" @onLabelChange="editLabel">

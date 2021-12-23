@@ -30,10 +30,10 @@ class Menu(Resource):
                 'icon': 'mdi-script-text-outline'
             },
             {
-                'name': 'advanced',
-                'title': 'Advanced',
+                'name': 'inspector-pro',
+                'title': 'Inspector Pro',
                 'type': 'router',
-                'path': '/advanced',
+                'path': '/inspector-pro',
                 'icon': 'mdi-timeline-outline'
             }]
 

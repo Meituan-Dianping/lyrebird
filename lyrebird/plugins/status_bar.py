@@ -1,5 +1,10 @@
 import uuid
+from lyrebird.utils import JSONFormat
 
+
+PLACEMENT_BOTTOM_LEFT = 'bottom_left'
+PLACEMENT_BOTTOM_RIGHT = 'bottom_right'
+PLACEMENT_TOP_RIGHT = 'top_right'
 
 class ClickableStatusText:
     """
@@ -7,6 +12,12 @@ class ClickableStatusText:
 
     On main UI rendering , Lyrebird will call getText function and display its return on footbar.
     If user click that text， Lyrebird will call getMenu function for loading menu items.
+
+    Attributes:
+        - prepend_icon use Material Design icon
+        - placement: accept PLACEMENT_BOTTOM_LEFT, PLACEMENT_BOTTOM_RIGHT and PLACEMENT_TOP_RIGHT
+        - rank: The larger the data, the closer to the target placement
+        - icon: Display in QRCode
     """
 
     def __init__(self):
@@ -15,6 +26,12 @@ class ClickableStatusText:
             self.name = self.id
         if not hasattr(self, 'rank'):
             self.rank = 0
+        if not hasattr(self, 'icon'):
+            self.icon = ''
+        if not hasattr(self, 'prepend_icon'):
+            self.prepend_icon = None
+        if not hasattr(self, 'placement'):
+            self.placement = PLACEMENT_BOTTOM_LEFT
 
     def get_text(self):
         """
@@ -30,6 +47,13 @@ class ClickableStatusText:
         return [TextMenuItem('Hello'), TextMenuItem('World')]
         """
         pass
+
+    def json(self):
+        info = JSONFormat.json(self)
+        info.update({
+            'text': self.get_text()
+        })
+        return info
 
 
 class MenuItem:
@@ -59,6 +83,21 @@ class TextMenuItem(MenuItem):
 
 class LinkMenuItem(MenuItem):
     """
+    src: link
+    """
+    pass
+
+
+class SelectItem(MenuItem):
+    """
     src: selector
+    [{
+        'selectedIndex': 0,
+        # Has no selectedIndex, set -1
+        'allItem': [{
+            'text': '', 
+            'api': ''
+        }]
+    }]
     """
     pass
