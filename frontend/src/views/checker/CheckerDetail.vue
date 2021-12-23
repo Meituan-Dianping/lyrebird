@@ -79,12 +79,12 @@ export default {
 
 <style>
   .checker-detail {
-    height: calc(100vh - 68px);
+    height: calc(100vh - 44px - 40px - 28px - 12px);
     /* total:100vh
-    header: 38px
-    border: 1px
+    header: 44px
+    title: 40px
     editor
-    border: 1px
+    margin-bottom: 12px
     footer: 28px
     */
   }

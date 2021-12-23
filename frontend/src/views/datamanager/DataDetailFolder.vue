@@ -3,7 +3,7 @@
     <tabs v-model="currentTab" :animated="false" size="small">
       <tab-pane label="Information" name="information">
         <div class="data-detail">
-          <div style="margin:10px 5px 10px 10px">
+          <div class="data-detail-content">
             <div v-for="(value, key) in groupInfoStickyTop" :key="key">
               <DataDetailInfo
                 :infoKey="key"
@@ -64,12 +64,28 @@
         </div>
       </tab-pane>
     </tabs>
+
     <div class="save-btn" v-if="groupInfo">
-      <Tooltip content="Save (⌘+s)" placement="top" :delay="500">
-        <Button type="primary" shape="circle" @click="saveGroupDetail">
-          <icon name="md-save" scale="4"></icon>
-        </Button>
-      </Tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            fab
+            dark
+            color="primary"
+            class="save-btn-detail"
+            @click="saveGroupDetail"
+          >
+            <v-icon 
+            class="save-btn-icon"
+            dark>
+              mdi-content-save-outline
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>Save (⌘+s)</span>
+      </v-tooltip>
     </div>
   </div>
 </template>
@@ -179,18 +195,23 @@ export default {
 
 <style>
 .data-detail {
-  height: calc(100vh - 127px);
+  height: calc(100vh - 44px - 40px - 28px - 33px - 28px - 12px);
   /* total:100vh
-  header: 38px
-  buttonBar: 24px
-  tab-header: 34px
-  buttonBar: 34px
-  padding: 10px
-  table
+  header: 44px
+  title: 40px
+  breadcrumb: 28px
+  buttonBar: 33px
+  codeEditor
+  margin-botton:12px
   footer: 28px
     */
   overflow-y: auto;
   font-size: 14px;
+}
+.data-detail-content {
+  margin:10px 5px 10px 10px;
+  height:calc(100vh - 44px - 40px - 28px - 33px - 28px - 12px - 20px); 
+  overflow-y:scroll
 }
 .save-btn {
   color: #fff;
@@ -200,14 +221,18 @@ export default {
   width: 3rem;
   height: 3rem;
   position: fixed;
-  right: 50px;
-  bottom: 70px;
+  right: 60px;
+  bottom: 60px;
   border-radius: 50%;
   z-index: 500;
 }
-.save-btn > .ivu-tooltip > .ivu-tooltip-rel > .ivu-btn {
-  padding: 5px 8px 5px;
-  background-color: #0fccbf;
-  border-color: #0fccbf;
+.save-btn-detail {
+  width: 36px !important;
+  height: 36px !important;
+}
+.save-btn-icon {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
 }
 </style>

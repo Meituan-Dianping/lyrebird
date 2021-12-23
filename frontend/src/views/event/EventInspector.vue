@@ -84,7 +84,7 @@ export default {
 
 <style scoped>
 .inspector-event-split {
-  height: calc(100vh - 44px - 28px);
+  height: calc(100vh - 44px - 40px - 28px - 12px);
   /* total:100vh
   header: 44px
   split
@@ -95,6 +95,7 @@ export default {
   margin-right: 0px;
 }
 .inspector-event-right {
+  height: calc(100vh - 44px - 40px - 28px - 12px);
   margin-left: 5px;
 }
 .event-detail-empty {

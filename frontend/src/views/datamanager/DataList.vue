@@ -191,7 +191,7 @@ export default {
 
 <style scoped>
 .data-list {
-  height: calc(100vh - 94px);
+  height: calc(100vh - 44px - 28px - 40px - 28px - 12px);
   /* total:100vh
     header: 38px
     buttonBar: 28px
@@ -205,7 +205,7 @@ export default {
   height: 27px;
   line-height: 27px;
   border-bottom: 1px solid #ddd;
-  background-color: #f8f8f9;
+  background-color: #ffffff;
 }
 .button-bar-group-right {
   float: right;
