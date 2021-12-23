@@ -210,7 +210,7 @@ export default {
 }
 .data-detail-content {
   margin:10px 5px 10px 10px;
-  height:calc(100vh - 44px - 40px - 28px - 33px - 28px - 12px - 20px); 
+  height:calc(100vh - 44px - 40px - 28px - 33px - 28px - 12px); 
   overflow-y:scroll
 }
 .save-btn {

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="information && information.length" style="margin:0px 5px 10px 10px">
+  <div v-if="information && information.length" class="conflict-content">
     <Row v-for="(value, index) in information" :key="index" style="margin-top:10px;word-break:break-all;border:1px solid #ddd;">
       <Row style="background-color:#f8f8f9;padding:5px 0px 5px 0px">
         <Col span="18">
@@ -28,9 +28,14 @@ export default {
 <style>
 .data-detail-empty {
   position: absolute; 
-  top:20%;
+  top:50%;
   left:50%;
   transform:translate(-50%,-50%);
   text-align: center;
+}
+.conflict-content {
+  margin:10px 5px 10px 10px;
+  height:calc(100vh - 44px - 40px - 47px - 28px - 33px - 28px - 12px); 
+  overflow-y:auto
 }
 </style>
