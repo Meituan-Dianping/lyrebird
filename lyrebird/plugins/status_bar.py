@@ -1,5 +1,5 @@
 import uuid
-from lyrebird.db.database_server import JSONFormat
+from lyrebird.utils import JSONFormat
 
 
 PLACEMENT_BOTTOM_LEFT = 'bottom_left'

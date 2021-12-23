@@ -11,7 +11,7 @@
         transfer
       >
         <b class="main-footer-status-button">
-          <v-icon v-if="item.prepend_icon" small color="white mr-1">
+          <v-icon v-if="item.prepend_icon" small color="white">
             {{item.prepend_icon}}
           </v-icon>
           {{item.text}}
