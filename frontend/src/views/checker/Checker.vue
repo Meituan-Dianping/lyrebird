@@ -32,16 +32,8 @@ export default {
 </script>
 
 <style>
-.extension-title {
-  font-weight: 600;
-  font-family: PingFangSC-Semibold;
-  font-size: 16px;
-  color: #000520;
-  line-height: 16px;
-}
 .checker-split{
   height: calc(100vh - 44px - 40px - 28px - 12px);
-  /* border: 0px solid #dcdee2; */
 }
 .extension-empty {
   position: absolute; 
