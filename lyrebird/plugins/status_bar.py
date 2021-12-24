@@ -26,13 +26,12 @@ class ClickableStatusText:
 
     def __init__(self):
         self.id = str(uuid.uuid4())
-        self.type = self.get_type()
         if not hasattr(self, 'name'):
             self.name = self.id
 
-    @classmethod
-    def get_type(cls):
-        return cls.__base__.__name__
+    @property
+    def type(self):
+        return self.__class__.__base__.__name__
 
     def get_text(self):
         """
@@ -48,6 +47,9 @@ class ClickableStatusText:
         return [TextMenuItem('Hello'), TextMenuItem('World')]
         """
         pass
+
+    def get_detail(self):
+        return [menu_item.json() for menu_item in self.get_menu()]
 
     def json(self):
         info = JSONFormat.json(self)
@@ -108,19 +110,29 @@ class Selector:
 
     def __init__(self):
         self.id = str(uuid.uuid4())
-        self.type = self.get_type()
         if not hasattr(self, 'name'):
             self.name = self.id
 
-    @classmethod
-    def get_type(cls):
-        return cls.__base__.__name__
+    @property
+    def type(self):
+        return self.__class__.__base__.__name__
 
     def get_menu(self):
         """
-        return a string
+        return a dict
+        {
+            'selectedIndex': selected_index,
+            'selected': selected_text,
+            'allItem': [{
+                'text': 'Display text',
+                'api': ''
+            }]
+        }
         """
         pass
+
+    def get_detail(self):
+        return self.get_menu()
 
     def json(self):
         info = JSONFormat.json(self)

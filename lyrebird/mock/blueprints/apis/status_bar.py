@@ -27,10 +27,12 @@ class StatusBar(Resource):
 
     def _get_menu_by_status_item_name(self, name):
         plugin_server = application.server['plugin']
-        for plugin_name in plugin_server.plugins:
-            plugin = plugin_server.plugins[plugin_name]
+        for plugin in plugin_server.plugins.values():
             for status_item in plugin.status:
-                if status_item.name == name:
-                    menu_list = [menu_item.json() for menu_item in status_item.get_menu()]
-                    return application.make_ok_response(data=menu_list)
+                if status_item.name != name:
+                    continue
+
+                menu_list = status_item.get_detail()
+                return application.make_ok_response(data=menu_list)
+
         return application.make_fail_response(f'Status item not found, id={name}')
