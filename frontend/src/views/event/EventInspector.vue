@@ -87,7 +87,9 @@ export default {
   height: calc(100vh - 44px - 40px - 28px - 12px);
   /* total:100vh
   header: 44px
+  title: 40px
   split
+  margin-bottom: 12px
   footer: 28px
   */
 }
@@ -96,6 +98,13 @@ export default {
 }
 .inspector-event-right {
   height: calc(100vh - 44px - 40px - 28px - 12px);
+  /* total:100vh
+  header: 44px
+  title: 40px
+  split
+  margin-bottom: 12px
+  footer: 28px
+  */
   margin-left: 5px;
 }
 .event-detail-empty {

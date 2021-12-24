@@ -3,7 +3,7 @@ import {bus} from '../eventbus'
 
 export default {
   state: {
-    bandwidth: -1,
+    bandwidth: "UNLIMITED",
     bandwidthTemplates: []
   },
   mutations: {

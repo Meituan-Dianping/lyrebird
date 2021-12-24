@@ -229,6 +229,9 @@ export default {
 }
 .main-container {
   height: calc(100vh - 28px);
+  /*
+  footer:28px
+   */
 }
 .v-list-active {
   background-color: #eeeef9;

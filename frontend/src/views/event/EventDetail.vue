@@ -70,6 +70,13 @@ export default {
 .event-message {
   width: 100%;
   height: calc(100vh - 44px - 40px - 34px - 28px - 12px);
+  /* total:100vh
+    header 44px
+    title 40px
+    message-tab 34px
+    margin-bottom: 12px
+    footer 28px
+    */
   overflow: auto;
   margin: 0px;
   padding: 5px 0 0px 10px;

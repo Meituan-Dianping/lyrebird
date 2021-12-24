@@ -10,43 +10,25 @@
       <v-spacer/>
 
       <!-- Load plugin status which placement is top-right -->
-      <span v-for="item in statusTopRightList" :key="item.id" class="mr-1 top-bar-item">
+      <span v-for="item in statusTopRightList" :key="item.id" class="top-bar-item mr-5">
         <v-select
-          v-model="item.src.selectedValue"
+          v-model="item.src.selected"
           :items="item.src.allItem"
           item-text="text"
           item-value="api"
           :prepend-icon="item.prepend_icon"
           dense
+          outlined
+          color="primary"
+          height="26"
+          class="top-bar-item-select"
+          :menu-props="{ bottom: true, offsetY: true }"
           @change="onChangeItem"
         />
-      
       </span>
 
       <!-- Add Bandwidth here -->
-      <span>
-        <Poptip
-          content="content"
-          placement="top-start"
-          width="250"
-        >
-          <b>Bandwidth: {{bandwidthExplanation}} </b>
-          <div slot="title">
-            <b>Bandwidth</b>
-          </div>
-          <div slot="content">
-            <Row type="flex" justify="space-around">
-              <Col span="12" v-for="(item, index) in bandwidthTemplates" :key="index">
-                <Button
-                  style="min-width:95px;margin-top:5px;"
-                  :class="item.bandwidth == bandwidth ? 'bandwidth-btn-highlight' : ''"
-                  @click.prevent="updateBandwidth(item.template_name)"
-                >{{ item.template_name }}</Button>
-              </Col>
-            </Row>
-          </div>
-        </Poptip>
-      </span>
+      <Bandwidth />
       <!-- <Bandwidth/> -->
 
       <!-- Settings -->
@@ -79,32 +61,12 @@ export default {
     NoticeCenter,
   },
   mounted () {
-    this.$store.dispatch('loadBandwidth')
-    this.$store.dispatch('loadBandwidthTemplates')
   },
   created () {
   },
   computed: {
     statusTopRightList () {
       return this.$store.state.statusbar.statusTopRightList
-    },
-    bandwidth () {
-      return this.$store.state.bandwidth.bandwidth
-    },
-    bandwidthTemplates () {
-      return this.$store.state.bandwidth.bandwidthTemplates
-    },
-    bandwidthExplanation () {
-      for (let v of this.bandwidthTemplates) {
-        if (this.bandwidth == v['bandwidth']) {
-          if (this.bandwidth == -1) {
-            return v['template_name']
-          }
-          else {
-            return `${v['template_name']} ( ${v['bandwidth']} Kb/s)`
-          }
-        }
-      }
     }
   },
   methods: {
@@ -121,15 +83,12 @@ export default {
         .catch(error => {
           this.$bus.$emit('msg.error', error.data.message)
         })
-    },
-    updateBandwidth (template_name) {
-      this.$store.dispatch('updateBandwidth', template_name)
     }
   }
 }
 </script>
 
-<style scoped>
+<style>
 .logo {
   height: 38px;
   display: flex;
@@ -145,16 +104,54 @@ export default {
   padding: 0;
 }
 .top-bar-item {
-  width: 90px + 6px + 24px;
-  height: 30px;
-}
-.top-bar-item-icon {
-  width: 24px;
-  height: 24px;
+  width: 140px !important;
+  height: 26px;
+  margin-bottom: 9px;
+  margin-top: 9px;
 }
 .top-bar-item-select {
-  width: 90px;
-  height: 26px;
-  margin-left: 6px;
+  width: 150px;
+  min-height: 26px !important;
+  height: 26px !important;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  font-family: PingFangSC-Regular;
+}
+.top-bar-item .v-input__slot {
+  min-height: 26px !important;
+  height: 26px !important;
+}
+.top-bar-item .v-select__selections{
+  min-height: 26px !important;
+  height: 26px !important;
+  padding: 6px 0 !important;
+}
+.top-bar-item .v-select__selection {
+  line-height: 14px;
+  margin: 0 4px 15px 0 !important;
+}
+.top-bar-item .v-input__icon--append {
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  margin-bottom: 15px;
+  margin-left: 0;
+}
+.top-bar-item .v-input__prepend-outer {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  min-width: 24px;
+  margin-bottom: 10px;
+  margin-left: 0;
+  margin-right: 8px;
+  margin-top: 2px !important;
+}
+.top-bar-item .v-icon {
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  min-width: 14px;
 }
 </style>

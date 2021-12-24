@@ -211,8 +211,10 @@ export default {
     onResize () {
       /* reset table height
       Header 44px
+      Title 40px
       PaginationBar 32px
       5px
+      Margin Bottom: 12px
       Footer 28px
       */
       this.tableHeight = window.innerHeight - 44 - 32 - 5 - 28 - 12

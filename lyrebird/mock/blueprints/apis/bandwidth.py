@@ -6,26 +6,30 @@ logger = log.get_logger()
 
 class Conf:
     def __init__(self):
-        self.bandwidth = -1
+        self.bandwidth = "UNLIMITED"
         self.bandwidth_templates = [
             {
                 "template_name": "UNLIMITED",
-                "bandwidth": -1
+                "bandwidth": -1,
+                "display": "UNLIMITED"
             },
             {
                 "template_name": "2G",
-                "bandwidth": 10
+                "bandwidth": 10,
+                "display": "2G (10 Kb/s)"
             }, {
                 "template_name": "2.5G",
-                "bandwidth": 35
+                "bandwidth": 35,
+                "display": "2.5G (35 Kb/s)"
             },
             {
                 "template_name": "3G",
-                "bandwidth": 120
+                "bandwidth": 120,
+                "display": "3G (120 Kb/s)"
             }
         ]
         self.indexes_by_name = {
-            i["template_name"]: i["bandwidth"] for i in self.bandwidth_templates}
+            i["template_name"]: i["template_name"] for i in self.bandwidth_templates}
 config = Conf()
 
 class Bandwidth(Resource):
