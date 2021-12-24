@@ -3,6 +3,7 @@
     <v-badge
       color="error"
       :content="noticeList.length > 999 ? '999+' : noticeList.length"
+      :value="noticeList.length"
       offset-x="10"
       offset-y="8"
     >
