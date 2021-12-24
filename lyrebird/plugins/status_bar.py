@@ -122,7 +122,7 @@ class Selector:
         return a dict
         {
             'selectedIndex': selected_index,
-            'selected': selected_value,
+            'selected': selected_api,
             'allItem': [{
                 'text': 'Display text',
                 'api': ''
