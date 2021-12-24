@@ -10,23 +10,17 @@
       <v-spacer/>
 
       <!-- Load plugin status which placement is top-right -->
-      <span v-for="item in statusTopRightList" :key="item.id" class="mr-1">
-        <v-col style="height:30px">
-          <v-icon v-if="item.prepend_icon" small class="top-bar-item-icon" color="primary">
-            {{item.prepend_icon}}
-          </v-icon>
-          <v-select
-            v-if="statusBarDetail != null"
-            :value="statusBarDetail.src.selectedIndex"
-            :items="statusBarDetail.src.allItem"
-            item-text="text"
-            item-value="api"
-            dense
-            class="d-flex"
-            @change="onChangeItem"
-          ></v-select>
-        </v-col>
-        
+      <span v-for="item in statusTopRightList" :key="item.id" class="mr-1 top-bar-item">
+        <v-select
+          v-model="item.src.selectedValue"
+          :items="item.src.allItem"
+          item-text="text"
+          item-value="api"
+          :prepend-icon="item.prepend_icon"
+          dense
+          @change="onChangeItem"
+        />
+      
       </span>
 
       <!-- Add Bandwidth here -->
@@ -85,7 +79,6 @@ export default {
     NoticeCenter,
   },
   mounted () {
-    this.getStatusBarDetail('Env-switch')
     this.$store.dispatch('loadBandwidth')
     this.$store.dispatch('loadBandwidthTemplates')
   },
@@ -94,13 +87,6 @@ export default {
   computed: {
     statusTopRightList () {
       return this.$store.state.statusbar.statusTopRightList
-    },
-    statusBarDetail () {
-      if (this.$store.state.statusbar.statusBarDetail != null) {
-        return this.$store.state.statusbar.statusBarDetail[0]
-      } else {
-        return null
-      }
     },
     bandwidth () {
       return this.$store.state.bandwidth.bandwidth
@@ -122,9 +108,6 @@ export default {
     }
   },
   methods: {
-    getStatusBarDetail (statusItemId) {
-      this.$store.dispatch('loadStatusBarDetail', statusItemId)
-    },
     changeTheme () {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark
     },
@@ -161,8 +144,17 @@ export default {
   line-height: 28px;
   padding: 0;
 }
+.top-bar-item {
+  width: 90px + 6px + 24px;
+  height: 30px;
+}
 .top-bar-item-icon {
   width: 24px;
   height: 24px;
+}
+.top-bar-item-select {
+  width: 90px;
+  height: 26px;
+  margin-left: 6px;
 }
 </style>
