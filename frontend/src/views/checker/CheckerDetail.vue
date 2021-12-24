@@ -88,26 +88,4 @@ export default {
     footer: 28px
     */
   }
-  .save-btn {
-    color: #fff;
-    font-size: 0.6rem;
-    text-align: center;
-    line-height: 3rem;
-    width: 3rem;
-    height: 3rem;
-    position: fixed;
-    right: 60px;
-    bottom: 60px;
-    border-radius: 50%;
-    z-index: 500;
-  }
-  .save-btn-detail {
-    width: 36px !important;
-    height: 36px !important;
-  }
-  .save-btn-icon {
-    font-size: 20px !important;
-    width: 20px !important;
-    height: 20px !important;
-  }
 </style>
