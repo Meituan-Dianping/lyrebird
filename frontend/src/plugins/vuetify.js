@@ -27,10 +27,10 @@ const opts = {
 
         accent: '#000520',
         content: '#9B9CB7',
-        
+
         border: '#F1F0F4',
         shading: '#FAF9FA',
-        background: '#FFF',
+        background: '#FFF'
       },
       dark: {
         primary: '#5F5CCA',
@@ -47,7 +47,7 @@ const opts = {
 
         border: '#F1F0F4',
         shading: '#222222',
-        background: '#121212',
+        background: '#121212'
       },
     },
   },
