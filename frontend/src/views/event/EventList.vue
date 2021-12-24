@@ -215,7 +215,7 @@ export default {
       5px
       Footer 28px
       */
-      this.tableHeight = window.innerHeight - 44 - 32 - 5 - 28
+      this.tableHeight = window.innerHeight - 44 - 32 - 5 - 28 - 12
     }
   }
 }
@@ -223,14 +223,12 @@ export default {
 
 <style less>
 .event-list {
-  height: calc(100vh - 44px - 28px);
+  height: calc(100vh - 44px - 40px - 28px - 12px);
   /* total:100vh
-  header: 38px
-  buttonBar: 38px
-  divider:1px
-  mode-tag:34px
-  padding: 1px
+  header: 44px
+  title: 40px
   footer: 28px
+  margin-bottom:12px
     */
   overflow-y: auto;
 }

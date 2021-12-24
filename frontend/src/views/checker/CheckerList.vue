@@ -1,18 +1,19 @@
 <template>
   <div>
-    <v-toolbar-title class="extension-title">Extension</v-toolbar-title>
-    <v-tabs
-      v-if="extensionList.length"
-      hide-slider
-      fixed-tabs
-      active-class="active-tab"
-      class="extension-tabs"
-      :value="focusPanel"
-      @change="onClickTab"
-    >
-      <v-tab class="rounded rounded-r-0" key="activated">Activated</v-tab>
-      <v-tab class="rounded rounded-l-0" key="deactivated">Deactivated</v-tab>
-    </v-tabs>
+    
+    <v-card v-if="extensionList.length" flat>
+      <v-tabs
+        hide-slider
+        fixed-tabs
+        active-class="active-tab"
+        class="extension-tabs"
+        :value="focusPanel"
+        @change="onClickTab"
+      >
+        <v-tab class="rounded rounded-r-0" key="activated">Activated</v-tab>
+        <v-tab class="rounded rounded-l-0" key="deactivated">Deactivated</v-tab>
+      </v-tabs>
+    </v-card>
     <v-divider class="extension-divider"></v-divider>
     <v-card v-if="extensionList.length" class="extension-tab-content" flat>
     <v-tabs-items :value="focusPanel">
@@ -77,7 +78,7 @@
               <v-divider 
               :key="index"
               v-if="index !== script_group.scripts.length-1"
-              class="extention-card-divider">
+              class="extension-card-divider">
               </v-divider>
             </template>
           </v-list-group>
@@ -120,24 +121,15 @@ export default {
 </script>
 
 <style>
-.extension-title {
-  padding-left: 12px;
-  padding-bottom: 19px;
-  padding-top: 16px;
-  font-weight: 600;
-  font-family: PingFangSC-Semibold;
-  font-size: 16px;
-  color: #000520;
-  line-height: 16px;
-}
 .extension-tab-content {
   overflow-y: scroll;
-  height: calc(100vh - 155px)
+  height: calc(100vh - 44px - 40px - 53px - 28px - 12px)
 }
 .extension-tabs {
   padding-left: 12px;
   padding-right: 12px;
   padding-bottom: 15px;
+  padding-top: 12px;
 }
 .active-tab {
   background-color: #eeeef9;
@@ -176,7 +168,7 @@ export default {
   font-family: PingFangSC-Semibold;
   line-height: 14px;
 }
-.v-list-item__icon {
+.extension-list .v-list-item__icon {
   margin-top: 9px !important;
   margin-bottom: 9px !important;
   margin-right: 6px !important;
@@ -232,7 +224,7 @@ export default {
   padding-right: 0px !important;
   min-height: 52px !important;
 }
-.extention-card-divider {
+.extension-card-divider {
   margin-left: 36px;
   background: #F1F0F4;
 }

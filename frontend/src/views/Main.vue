@@ -11,9 +11,10 @@
     <v-navigation-drawer
       absolute
       permanent
-      expand-on-hover 
       width=200
-      height="calc(100% - 44px)"
+      floating
+      expand-on-hover
+      height="calc(100vh - 44px - 28px)"
       class="background mt-11"
     >
       <v-list nav dense> 
@@ -28,8 +29,9 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-main class="background">
-      <router-view style="margin-left:66px; background-color:white"/>
+    <v-main class="shading main-container pb-0">
+      <v-toolbar-title class="shading pt-4 pb-2 page-title">{{activeMenuItemName}}</v-toolbar-title>
+      <router-view class="background mr-3 mb-3" style="margin-left: 68px"/>
     </v-main>
 
     <v-footer app color="primary" class="main-footer">
@@ -111,6 +113,13 @@ export default {
 
 
         
+      }
+    },
+    activeMenuItemName() {
+      if (this.$store.state.activeMenuItem == null) {
+        return ""
+      } else {
+        return this.$store.state.activeMenuItem.title
       }
     },
     activatedGroupName () {
@@ -198,6 +207,14 @@ export default {
 </script>
 
 <style>
+.page-title {
+  font-weight: 600;
+  font-family: PingFangSC-Semibold;
+  font-size: 16px;
+  color: #000520;
+  line-height: 16px;
+  margin-left: 68px;
+}
 .v-item--active {
   background-color: #5A57C4 10%;
   color: #5A57C4 !important;
@@ -211,8 +228,7 @@ export default {
   padding: 0;
 }
 .main-container {
-  height: calc(100vh - 44px - 28px);
-  background: #fff;
+  height: calc(100vh - 28px);
 }
 .v-list-active {
   background-color: #eeeef9;

@@ -274,12 +274,13 @@ export default {
 
 <style scoped>
 .flow-list {
-  height: calc(100vh - 44px - 38px - 28px);
+  height: calc(100vh - 44px - 40px - 38px - 28px - 12px);
   /* total:100vh
   header: 44px
+  title: 40px
   buttonBar: 38px
   table
-  padding: 9px
+  margin-bottom: 12px
   footer: 28px
     */
   overflow-y: auto;

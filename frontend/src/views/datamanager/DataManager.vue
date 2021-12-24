@@ -47,12 +47,13 @@ export default {
 
 <style scoped>
 .datamanager-split{
-  height: calc(100vh - 66px);
+  height: calc(100vh - 44px - 40px - 28px - 12px);
   /* total:100vh
-    header: 38px
+    header: 44px
+    title: 40px
     tree
+    margin-bottom: 12px
     footer: 28px
   */
-  border: 1px solid #dcdee2;
 }
 </style>

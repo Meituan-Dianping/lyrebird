@@ -3,7 +3,7 @@
     <tabs v-model="currentTab" :animated="false" size="small">
       <tab-pane label="Information" name="information">
         <div class="data-detail">
-          <div style="margin:10px 5px 10px 10px">
+          <div class="data-detail-content">
             <div v-for="(value, key) in groupInfoStickyTop" :key="key">
               <DataDetailInfo
                 :infoKey="key"
@@ -64,6 +64,7 @@
         </div>
       </tab-pane>
     </tabs>
+
     <div class="save-btn" v-if="groupInfo">
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
@@ -76,7 +77,7 @@
             class="save-btn-detail"
             @click="saveGroupDetail"
           >
-            <v-icon 
+            <v-icon
             class="save-btn-icon"
             dark>
               mdi-content-save-outline
@@ -202,17 +203,22 @@ export default {
 
 <style>
 .data-detail {
-  height: calc(100vh - 127px);
+  height: calc(100vh - 44px - 40px - 28px - 33px - 28px - 12px);
   /* total:100vh
-  header: 38px
-  buttonBar: 24px
-  tab-header: 34px
-  buttonBar: 34px
-  padding: 10px
-  table
+  header: 44px
+  title: 40px
+  breadcrumb: 28px
+  buttonBar: 33px
+  codeEditor
+  margin-botton:12px
   footer: 28px
     */
   overflow-y: auto;
   font-size: 14px;
+}
+.data-detail-content {
+  margin:10px 5px 10px 10px;
+  height:calc(100vh - 44px - 40px - 28px - 33px - 28px - 12px);
+  overflow-y:scroll
 }
 </style>

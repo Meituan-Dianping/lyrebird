@@ -89,7 +89,7 @@ export default {
   align-items: center;
   padding: 10px;
   border-bottom: 1px solid #ddd;
-  background-color: #f8f8f9;
+  background-color: #ffffff;
 }
 .button-bar-line {
   display: inline-block;

@@ -33,8 +33,7 @@ export default {
 
 <style>
 .checker-split{
-  height: calc(100vh - 66px);
-  border: 1px solid #dcdee2;
+  height: calc(100vh - 44px - 40px - 28px - 12px);
 }
 .extension-empty {
   position: absolute; 
