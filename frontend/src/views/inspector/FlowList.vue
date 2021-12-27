@@ -525,11 +525,6 @@ export default {
 .flow-list-item-source > span {
   padding: 0px 8px !important;
 }
-.flow-list .v-data-table-header{
-  /* position: absolute !important;  */ 
-  /* z-index not work without position: absolute */
-  z-index: 0 !important;
-}
 .tabel-pagination .v-pagination {
   justify-content: right;
 }
@@ -587,6 +582,6 @@ export default {
   cursor: pointer;
 }
 .tabel-pagination {
-  margin: 0px;
+  margin: 0px !important;
 }
 </style>

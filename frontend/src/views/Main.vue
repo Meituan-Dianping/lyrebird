@@ -15,7 +15,7 @@
       floating
       expand-on-hover
       height="calc(100vh - 44px - 28px)"
-      class="background mt-11"
+      class="background mt-11 side-navgation"
     >
       <v-list nav dense> 
         <v-list-item-group v-model="activeMenuItemIndex" active-class="v-item--active">
@@ -31,7 +31,7 @@
 
     <v-main class="shading main-container pb-0">
       <v-toolbar-title class="shading pt-4 pb-2 page-title">{{activeMenuItemName}}</v-toolbar-title>
-      <router-view class="background mr-3 mb-3" style="margin-left: 68px"/>
+      <router-view class="router-container background mr-3 mb-3" style="margin-left: 68px"/>
     </v-main>
 
     <v-footer app color="primary" class="main-footer">
@@ -215,6 +215,19 @@ export default {
   line-height: 16px;
   margin-left: 68px;
 }
+.router-container{
+  height: calc(100vh - 44px - 40px - 28px - 12px);
+    /* total:100vh
+    header: 44px
+    title: 40px
+    extension-container
+    margin-bottom: 12px
+    footer: 28px
+    */
+}
+.ivu-split-trigger-con {
+  z-index: 2;
+}
 .v-item--active {
   background-color: #5A57C4 10%;
   color: #5A57C4 !important;
@@ -243,6 +256,9 @@ export default {
 </style>
 
 <style>
+.side-navgation {
+  z-index: 4;
+}
 .ivu-split-pane {
   overflow: hidden;
 }
@@ -261,7 +277,7 @@ export default {
   right: 60px;
   bottom: 60px;
   border-radius: 50%;
-  z-index: 500;
+  z-index: 2;
 }
 .save-btn-detail {
   width: 36px !important;
