@@ -10,18 +10,22 @@ class Conf:
         self.bandwidth_templates = [
             {
                 "template_name": "UNLIMITED",
-                "bandwidth": -1
+                "bandwidth": -1,
+                "display": "UNLIMITED"
             },
             {
                 "template_name": "2G",
-                "bandwidth": 10
+                "bandwidth": 10,
+                "display": "2G (10 Kb/s)"
             }, {
                 "template_name": "2.5G",
-                "bandwidth": 35
+                "bandwidth": 35,
+                "display": "2.5G (35 Kb/s)"
             },
             {
                 "template_name": "3G",
-                "bandwidth": 120
+                "bandwidth": 120,
+                "display": "3G (120 Kb/s)"
             }
         ]
         self.indexes_by_name = {

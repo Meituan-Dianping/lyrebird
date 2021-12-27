@@ -159,18 +159,6 @@ export default {
 </script>
 
 <style scoped>
-.data-detail {
-  height: calc(100vh - 44px - 40px - 28px - 33px - 28px - 12px);
-  /* total:100vh
-    header: 44px
-    title: 40px
-    breadcrumb: 28px
-    buttonBar: 33px
-    codeEditor
-    margin-botton:12px
-    footer: 28px
-  */
-}
 .small-tab > .ivu-tabs > .ivu-tabs-bar {
   margin-bottom: 0;
 }

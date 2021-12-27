@@ -1,6 +1,5 @@
 <template>
   <div>
-    
     <v-card v-if="extensionList.length" flat>
       <v-tabs
         hide-slider
@@ -122,8 +121,16 @@ export default {
 
 <style>
 .extension-tab-content {
-  overflow-y: scroll;
+  overflow-y: auto;
   height: calc(100vh - 44px - 40px - 53px - 28px - 12px)
+  /* total:100vh
+  header: 44px
+  title: 40px
+  tabs: 53px
+  editor
+  margin-bottom: 12px
+  footer: 28px
+  */
 }
 .extension-tabs {
   padding-left: 12px;
