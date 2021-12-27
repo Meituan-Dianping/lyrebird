@@ -4,10 +4,11 @@
       :value="bandwidth"
       :items="bandwidthTemplates"
       item-text="display"
-      item-value="template_name"
+      item-value="bandwidth"
       prepend-icon="mdi-speedometer"
       dense
       outlined
+      return-object
       height="26"
       color="primary"
       class="top-bar-item-select"
@@ -36,8 +37,8 @@ export default {
     }
   },
   methods: {
-    updateBandwidth (template_name) {
-      this.$store.dispatch('updateBandwidth', template_name)
+    updateBandwidth (bandwidthObj) {
+      this.$store.dispatch('updateBandwidth', bandwidthObj.template_name)
     }
   }
 }

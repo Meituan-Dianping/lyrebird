@@ -3,7 +3,7 @@ import {bus} from '../eventbus'
 
 export default {
   state: {
-    bandwidth: "UNLIMITED",
+    bandwidth: -1,
     bandwidthTemplates: []
   },
   mutations: {
@@ -53,7 +53,6 @@ export default {
         .updateBandwidth(templateName)
         .then(response => {
           if (response.data.code === 1000) {
-            console.log(response.data.bandwidth)
             context.commit('setBandwidth', response.data.bandwidth)
           } else {
             bus.$emit('msg.error', response.data.message)

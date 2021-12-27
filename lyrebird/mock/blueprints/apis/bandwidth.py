@@ -6,7 +6,7 @@ logger = log.get_logger()
 
 class Conf:
     def __init__(self):
-        self.bandwidth = "UNLIMITED"
+        self.bandwidth = -1
         self.bandwidth_templates = [
             {
                 "template_name": "UNLIMITED",
@@ -29,7 +29,7 @@ class Conf:
             }
         ]
         self.indexes_by_name = {
-            i["template_name"]: i["template_name"] for i in self.bandwidth_templates}
+            i["template_name"]: i["bandwidth"] for i in self.bandwidth_templates}
 config = Conf()
 
 class Bandwidth(Resource):
