@@ -1,4 +1,10 @@
 <template>
+
+  <div>
+    <Row class="inspector-container-button-bar">
+      <ButtonBar/>
+    </Row>
+
   <div class="inspector-realtime-split">
     <Split v-model="split" min="0px" max="0px">
       <div slot="left">
@@ -10,14 +16,22 @@
       </div>
     </Split>
   </div>
+
+  </div>
+
+
+
+  
 </template>
 
 <script>
+import ButtonBar from '@/views/inspector/ButtonBar.vue'
 import FlowList from '@/views/inspector/FlowList.vue'
 import FlowDetail from '@/views/inspector/FlowDetail.vue'
 
 export default {
   components: {
+    ButtonBar,
     FlowList,
     FlowDetail
   },
@@ -44,6 +58,11 @@ export default {
 </script>
 
 <style scope>
+.inspector-container-button-bar {
+  height: 38px;
+  display: flex;
+  align-items: center;
+}
 .inspector-realtime-left {
   margin-right: 0px;
 }
@@ -60,6 +79,7 @@ export default {
   margin-bottom: 12px
   footer: 28px
     */
+  width: calc(100vw - 5px - 68px - 12px);
 }
 .flow-detail-empty {
   position: absolute;

@@ -5,6 +5,7 @@ export default {
   state: {
     activatedGroup: {},
     searchStr: '',
+    selectedFlows: [],
     selectedIds: [],
     focusedFlow: null,
     focusedFlowDetail: null,
@@ -25,6 +26,9 @@ export default {
     },
     clearSelectedId (state) {
       state.selectedIds = []
+    },
+    setSelectedFlows (state, selectedFlows) {
+      state.selectedFlows = selectedFlows
     },
     setFocusedFlow (state, flow) {
       state.focusedFlow = flow

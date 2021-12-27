@@ -1,6 +1,144 @@
 <template>
   <div class="flow-list">
-    <Table
+
+
+    <v-data-table
+      :height="tableSize.height"
+      show-select
+      fixed-header
+      calculate-widths
+      hide-default-footer
+      v-model="selectedFlows"
+      v-resize="onTableResize"
+      :headers="headers"
+      :items="flowList"
+      :search="searchStr"
+      :page.sync="currentPage"
+      :items-per-page="pageSize"
+      @click:row="selectFlow"
+      @page-count="pageCount = $event"
+    >
+      <template
+        v-slot:header.data-table-select="{ on, props }"
+      >
+        <v-simple-checkbox
+          color="purple"
+          v-bind="props"
+          v-on="on"
+        ></v-simple-checkbox>
+      </template>
+
+      <template v-slot:item.source="{ item }">
+
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <span v-bind="attrs" v-on="on" class="flow-list-item-source">
+              <v-chip label small v-if="item.status === 'kill'" class="flow-list-item-tag" color="red">kill</v-chip>
+              <v-chip label small v-else-if="item.response.mock === 'mock'" class="flow-list-item-tag"  color="green">mock</v-chip>
+              <v-chip label small v-else-if="item.response.mock === 'proxy'" class="flow-list-item-tag" >proxy</v-chip>
+              <v-chip label small v-else class="flow-list-item-tag">pending</v-chip>
+            </span>
+          </template>
+          <span>{{getSourceTooltipContent(item)}}</span>
+        </v-tooltip>
+
+        <v-tooltip bottom v-if="item.proxy_response">
+          <template v-slot:activator="{ on, attrs }">
+            <span v-bind="attrs" v-on="on" class="flow-list-item-source">
+              <v-chip label small class="flow-list-item-tag" color="blue">diff</v-chip>
+            </span>
+          </template>
+          <span>Get the server response while the request is mocked</span>
+        </v-tooltip>
+
+        <v-tooltip bottom v-if="getRequestEditors(item).length">
+          <template v-slot:activator="{ on, attrs }">
+            <span v-bind="attrs" v-on="on" class="flow-list-item-source">
+              <v-icon x-small color="accent">mdi-wrench</v-icon>
+            </span>
+          </template>
+          <p>Request modification:</p>
+          <p v-for="(value, index) in getRequestEditors(item)" :key=index style="line-height:1">{{index + 1}}. {{value.name}}</p>
+        </v-tooltip>
+      </template>
+
+      <template v-slot:item.method="{ item }">
+        <span>{{ item.request.method }}</span>
+      </template>
+
+      <template v-slot:item.status="{ item }">
+        <span v-if="item.response.code === 200">{{ item.response.code }}</span>
+        <span v-else-if="item.response.code >= 300 && item.response.code <= 399" style="color:olive">{{ item.response.code }}</span>
+        <span v-else style="color:red">{{ item.response.code }}</span>
+      </template>
+
+      <template v-slot:item.request="{ item }">
+        <span class="flow-list-item-url">
+          <span>{{ item.request.scheme }}</span>
+          <span v-if="item.request.scheme">://</span>
+
+          <span class="flow-list-item-url-host">{{ item.request.host}}</span>
+          <span class="flow-list-item-url-path">{{ item.request.path}}</span>
+
+          <span class="flow-list-item-url-params" v-if="item.request.params">?</span>
+          <span class="flow-list-item-url-params">{{ item.request.params }}</span>
+        </span>
+        <span class="flow-list-item-copy-btn" @click.stop>
+
+
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <span v-bind="attrs" v-on="on">
+
+                <v-btn
+                  icon
+                  x-small
+                  plain
+                >
+                  <v-icon
+                    x-small
+                    color="accent"
+                    v-clipboard:copy="item.request.url"
+                    v-clipboard:success="onUrlCopy"
+                    v-clipboard:error="onUrlCopyError"
+                  >mdi-content-copy</v-icon>
+                </v-btn>
+              </span>
+            </template>
+            Copy
+          </v-tooltip>
+
+        </span>
+      </template>
+
+      <template v-slot:item.start_time="{ item }">
+        <span>{{timestampToTime(item.start_time)}}</span>
+      </template>
+
+      <template v-slot:item.duration="{ item }">
+        <span>{{readablizeDuration(item.duration)}}</span>
+      </template>
+
+      <template v-slot:item.size="{ item }">
+        <span>{{readablizeBytes(item.size)}}</span>
+      </template>
+
+    </v-data-table>
+
+    <v-row>
+      <v-spacer></v-spacer>
+      <v-col>
+        <v-pagination
+        v-model="currentPage"
+        :length="pageCount"
+        @input="refreshFlowList"
+      ></v-pagination>
+      </v-col>
+    </v-row>
+
+    
+    
+    <!-- <Table
       highlight-row
       size="small"
       ref="selection"
@@ -77,6 +215,8 @@
         <span>{{readablizeBytes(row.size)}}</span>
       </template>
     </Table>
+     -->
+    <!-- 
     <div style="float: right; margin-top: 5px">
       <Page
         :total="displayFlowCount"
@@ -84,7 +224,7 @@
         :current.sync="currentPage"
         @on-change="refreshFlowList"
       />
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -97,12 +237,61 @@ export default {
   },
   data () {
     return {
+      tableSize: {
+        width: 0,
+        height: 0,
+      },
       flowList: [],
       refreshFlowListTimer: null,
       displayFlowCount: 0,
-      pageSize: 50,
+      pageSize: 20,
       pageCount: 0,
       currentPage: 1,
+      headers: [
+        {
+          text: 'Source',
+          value: 'source',
+          sortable: false,
+          width: 105
+        },
+        {
+          text: 'Method',
+          value: 'method',
+          sortable: false,
+          filterable: false,
+          width: 60
+        },
+        {
+          text: 'Status',
+          value: 'status',
+          sortable: false,
+          filterable: false,
+          width: 50
+        },
+        {
+          text: 'URL',
+          value: 'request',
+          sortable: false,
+        },
+        {
+          text: 'Start',
+          value: 'start_time',
+          filterable: false,
+          width: 80
+        },
+        {
+          text: 'Duration',
+          value: 'duration',
+          filterable: false,
+          width: 100
+        },
+        {
+          text: 'Size',
+          value: 'size',
+          filterable: false,
+          width: 80
+        }
+      ],
       columns: [
         {
           type: 'selection',
@@ -165,8 +354,14 @@ export default {
     searchStr () {
       return this.$store.state.inspector.searchStr
     },
-    selectedIds () {
-      return this.$store.state.inspector.selectedIds
+    selectedFlows: {
+      get () {
+        return this.$store.state.inspector.selectedFlows
+      },
+      set (val) {
+        this.$store.commit('setSelectedFlows', val)
+        this.itemSelectChange(val)
+      }
     }
   },
   watch: {
@@ -186,6 +381,21 @@ export default {
   methods: {
     reload () {
       this.$store.dispatch('loadFlowList')
+    },
+    onTableResize () {
+      const height = window.innerHeight - 44 - 40 - 38 - 12 - 28 - 68
+      /* reset table height
+      Header 44px
+      Title 40px
+      buttonbar 38px
+      tabel
+      Margin Bottom: 12px
+      Footer 28px
+      */
+      this.tableSize = { 
+        width: window.innerWidth,
+        height: height
+      }
     },
     selectFlow (flow) {
       this.$store.dispatch('focusFlow', flow)
@@ -270,6 +480,11 @@ export default {
   padding-left: 2px;
   padding-right: 2px;
 }
+.flow-list .v-data-table-header{
+  /* position: absolute !important;  */ 
+  /* z-index not work without position: absolute */
+  z-index: 0 !important;
+}
 </style>
 
 <style scoped>
@@ -285,6 +500,9 @@ export default {
     */
   overflow-y: auto;
 }
+.flow-list .v-data-table>.v-data-table__wrapper>table {
+  width: calc(100% - 20px) !important;
+}
 .flow-list-item-source {
   text-transform: capitalize;
   padding: 0px;
@@ -295,7 +513,7 @@ export default {
 .flow-list-item-url {
   display: inline-block;
   word-break: keep-all;
-  max-width: calc(100% - 24px);
+  max-width: calc(100% - 50px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -305,11 +523,11 @@ export default {
   color: unset;
 }
 .flow-list-item-url-host {
-  color: #3780AF;
+  color: #5F5CCA;
   font-weight: 500;
 }
 .flow-list-item-url-path {
-  color:seagreen;
+  color:#318CD7;
   font-weight: 500;
 }
 .flow-list-item-url-params {

@@ -246,6 +246,10 @@ export default {
 .ivu-split-pane {
   overflow: hidden;
 }
+.ivu-split-trigger {
+  border-bottom: 1px solid #dcdee2;
+  border-top: 1px solid #dcdee2;
+}
 .save-btn {
   color: #fff;
   font-size: 0.6rem;
