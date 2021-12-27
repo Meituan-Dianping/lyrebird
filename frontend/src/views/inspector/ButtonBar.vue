@@ -20,16 +20,6 @@
         <span>Delete</span>
       </v-tooltip>
 
-      <!-- <Tooltip content="Delete" :delay="500"> -->
-      <!-- <Icon
-          class="inspector-button"
-          @click="deleteSelectedFlow"
-          type="md-trash"
-          color="#666"
-          size="18"
-        /> -->
-      <!-- </Tooltip> -->
-
       <v-tooltip bottom open-delay=500>
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="showClearModal=true" v-bind="attrs" v-on="on">
@@ -39,18 +29,13 @@
         <span>Clear</span>
       </v-tooltip>
 
-      <!-- <Tooltip content="Clear" :delay="500">
-        <div class="inspector-button ivu-icon" @click="showClearModal=true">
-          <svg-icon class="ivu-icon" name="short-broom" color="#666" scale="5"></svg-icon>
-        </div>
-      </Tooltip> -->
       <v-divider vertical color="accent"/>
 
       <div class="inline">
         <Divider type="vertical" />
       </div>
         <b style="padding-right:5px">Diff Mode</b>
-        <v-switch v-model="diffMode" small dense inset color="primary"/>
+        <v-switch v-model="diffMode" small dense inset color="primary" @change="changeDiffMode"/>
       <v-tooltip bottom open-delay=500>
         <template v-slot:activator="{ on, attrs }">
           <v-btn plain icon v-bind="attrs" v-on="on">
@@ -75,7 +60,7 @@
 
     <v-divider vertical color="accent"/>
 
-      <b style="padding-right:5px">Mock Group</b>
+    <b style="padding-right:5px">Mock Group</b>
 
       <v-chip
         label small outlined close
@@ -120,7 +105,7 @@
       </ButtonGroup> -->
     <!-- </label> -->
 
-    <div class="inline inspector-searchbox inspector-search">
+    <div class="inspector-searchbox inspector-search">
       <v-text-field
         outlined
         dense
@@ -132,7 +117,7 @@
       />
     </div>
 
-    <span class="inline inspector-searchbox flow-filter">
+    <span class="inspector-searchbox flow-filter">
 
       <v-select
         dense
@@ -381,8 +366,6 @@ export default {
 .flow-filter {
   width: 100px !important;
   height: 26px;
-  margin-bottom: 9px;
-  margin-top: 9px;
 }
 .flow-filter-select {
   width: 100px;
@@ -432,8 +415,6 @@ export default {
 .inspector-search {
   width: 320px !important;
   height: 26px;
-  margin-bottom: 9px;
-  margin-top: 9px;
 }
 .inspector-search-text {
   width: 320px;

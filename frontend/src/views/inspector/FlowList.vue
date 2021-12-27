@@ -1,8 +1,8 @@
 <template>
   <div class="flow-list">
-
-
     <v-data-table
+      class="flow-table"
+      checkbox-color="primary"
       :height="tableSize.height"
       show-select
       fixed-header
@@ -33,10 +33,30 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <span v-bind="attrs" v-on="on" class="flow-list-item-source">
-              <v-chip label small v-if="item.status === 'kill'" class="flow-list-item-tag" color="red">kill</v-chip>
-              <v-chip label small v-else-if="item.response.mock === 'mock'" class="flow-list-item-tag"  color="green">mock</v-chip>
-              <v-chip label small v-else-if="item.response.mock === 'proxy'" class="flow-list-item-tag" >proxy</v-chip>
-              <v-chip label small v-else class="flow-list-item-tag">pending</v-chip>
+              <v-chip label small
+                v-if="item.status === 'kill'"
+                class="flow-list-item-tag"
+                color="error"
+                text-color="red"
+              >kill</v-chip>
+              <v-chip label small
+                v-else-if="item.response.mock === 'mock'"
+                class="flow-list-item-tag"
+                color="primaryMost"
+                text-color="primary"
+              >mock</v-chip>
+              <v-chip label small
+                v-else-if="item.response.mock === 'proxy'"
+                color="border"
+                class="flow-list-item-tag"
+                text-color="accent"
+              >proxy</v-chip>
+              <v-chip label small
+                v-else
+                class="flow-list-item-tag"
+                color="border"
+                text-color="content"
+              >pending</v-chip>
             </span>
           </template>
           <span>{{getSourceTooltipContent(item)}}</span>
@@ -45,7 +65,11 @@
         <v-tooltip bottom v-if="item.proxy_response">
           <template v-slot:activator="{ on, attrs }">
             <span v-bind="attrs" v-on="on" class="flow-list-item-source">
-              <v-chip label small class="flow-list-item-tag" color="blue">diff</v-chip>
+              <v-chip label small
+                class="flow-list-item-tag"
+                color="#FFF7E2"
+                text-color="#D69600"
+              >diff</v-chip>
             </span>
           </template>
           <span>Get the server response while the request is mocked</span>
@@ -125,13 +149,14 @@
 
     </v-data-table>
 
-    <v-row>
+    <v-row class="tabel-pagination">
       <v-spacer></v-spacer>
       <v-col>
         <v-pagination
         v-model="currentPage"
         :length="pageCount"
         @input="refreshFlowList"
+        total-visible=7
       ></v-pagination>
       </v-col>
     </v-row>
@@ -426,7 +451,7 @@ export default {
         isMatch ? displayFlowList.push(flow) : null
       }
       this.displayFlowCount = displayFlowList.length
-      this.pageCount = Math.ceil(this.displayFlowCount / this.pageSize)
+      this.pageCount = Math.ceil(this.displayFlowCount / this.pageSize) // todo
       this.currentPage = this.pageCount && (this.currentPage > this.pageCount) ? this.pageCount : this.currentPage
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
@@ -472,18 +497,41 @@ export default {
 </script>
 
 <style lang="css">
-.data-table th div {
-  padding-left: 5px;
-  padding-right: 5px;
+.flow-table table>thead>tr>th{
+  padding: 0px !important;
+  height: 30px !important;
+  font-size: 12px !important;
+  background-color: #FAF9FA !important;
+  /* padding-left: 5px !important;
+  padding-right: 5px !important; */
 }
-.data-table td div {
-  padding-left: 2px;
-  padding-right: 2px;
+.flow-table table>thead>tr>th>span{
+  color: #000520 !important;
+  /* padding-left: 5px !important;
+  padding-right: 5px !important; */
+}
+.flow-table table>tbody>tr>td {
+  padding: 0px !important;
+  height: 36px !important;
+  font-size: 12px !important;
+  /* padding-left: 2px !important;
+  padding-right: 2px !important; */
+}
+.flow-table table>tbody>tr>td>span {
+  color: #9B9CB7 !important;
+  /* padding-left: 2px !important;
+  padding-right: 2px !important; */
+}
+.flow-list-item-source > span {
+  padding: 0px 8px !important;
 }
 .flow-list .v-data-table-header{
   /* position: absolute !important;  */ 
   /* z-index not work without position: absolute */
   z-index: 0 !important;
+}
+.tabel-pagination .v-pagination {
+  justify-content: right;
 }
 </style>
 
@@ -537,5 +585,8 @@ export default {
   display: inline-block;
   overflow: hidden;
   cursor: pointer;
+}
+.tabel-pagination {
+  margin: 0px;
 }
 </style>
