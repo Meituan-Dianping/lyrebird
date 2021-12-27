@@ -8,7 +8,7 @@
       offset-y="8"
     >
       <v-icon small>
-        mdi-bell
+        mdi-bell-outline
       </v-icon>
     </v-badge>
 

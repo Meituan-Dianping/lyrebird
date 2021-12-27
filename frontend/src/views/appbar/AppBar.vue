@@ -110,7 +110,7 @@ export default {
   margin-top: 9px;
 }
 .top-bar-item-select {
-  width: 150px;
+  width: 140px;
   min-height: 26px !important;
   height: 26px !important;
   font-size: 14px;

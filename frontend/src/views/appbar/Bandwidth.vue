@@ -44,4 +44,10 @@ export default {
 </script>
 
 <style scoped>
+.top-bar-item {
+  width: 180px !important;
+}
+.top-bar-item-select {
+  width: 180px;
+}
 </style>

@@ -1,6 +1,5 @@
 <template>
   <div>
-    
     <v-card v-if="extensionList.length" flat>
       <v-tabs
         hide-slider
