@@ -44,11 +44,7 @@
           <svg-icon class="ivu-icon" name="short-broom" color="#666" scale="5"></svg-icon>
         </div>
       </Tooltip> -->
-      <v-divider vertical color="accent"/>
-
-      <div class="inline">
-        <Divider type="vertical" />
-      </div>
+      <v-divider vertical class="button-bar-divider border"/>
         <b style="padding-right:5px">Diff Mode</b>
         <v-switch v-model="diffMode" small dense inset color="primary"/>
       <v-tooltip bottom open-delay=500>
@@ -60,11 +56,10 @@
         <span>Get the proxy response while the request is mocked</span>
       </v-tooltip>
 
-    </div>
 
-    <div class="inline">
+    <!-- <div class="inline">
       <Divider type="vertical" />
-    </div>
+    </div> -->
 
     <!-- <Tooltip content="Get the proxy response while the request is mocked" placement="bottom-start" max-width="200" :delay="500">
     <label>
@@ -73,7 +68,7 @@
     </label>
     </Tooltip> -->
 
-    <v-divider vertical color="accent"/>
+    <v-divider vertical class="button-bar-divider border"/>
 
       <b style="padding-right:5px">Mock Group</b>
 
@@ -98,6 +93,7 @@
         <span>Select a mock group</span>
       </v-tooltip>
 
+    </div>
 
 
 
@@ -351,22 +347,47 @@ export default {
 }
 </script>
 
-// <style lang="scss">
+<style lang="scss">
 // $color: red;
-// </style>
+</style>
 
 <style>
 .v-input--switch {
   display: inline-block;
 }
+.inspector-button-bar {
+  height: 26px;
+}
 .inspector-button-bar .v-chip__close.v-icon.v-icon--right{
   font-size: 16px !important;
 }
 .inline {
-  display: inline;
+  display: inline-flex;
+  justify-content: center;
+  min-height: 26px;
+  height: 26px;
+  max-height: 26px;
+  align-content: flex-start;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin-bottom: 7px;
+}
+.button-bar-divider {
+  margin-left: 16px;
+  margin-right: 16px;
+  /* color: #F1F0F4;
+  border-color: #F1F0F4 !important; */
 }
 .inspector-button-bar {
   flex-grow: 1;
+}
+.inspector-button-bar .v-input--switch {
+  height: 20px;
+  margin-top: 0;
+  padding-top: 0;
+  margin-left: 6px;
+  margin-right: 6px;
+  width: 32px;
 }
 .inspector-button {
   padding: 3px 8px 3px;
@@ -381,8 +402,6 @@ export default {
 .flow-filter {
   width: 100px !important;
   height: 26px;
-  margin-bottom: 9px;
-  margin-top: 9px;
 }
 .flow-filter-select {
   width: 100px;
@@ -432,8 +451,6 @@ export default {
 .inspector-search {
   width: 320px !important;
   height: 26px;
-  margin-bottom: 9px;
-  margin-top: 9px;
 }
 .inspector-search-text {
   width: 320px;

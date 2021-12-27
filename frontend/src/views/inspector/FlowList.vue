@@ -125,7 +125,7 @@
 
     </v-data-table>
 
-    <v-row>
+    <v-row class="content-row">
       <v-spacer></v-spacer>
       <v-col>
         <v-pagination
@@ -480,10 +480,8 @@ export default {
   padding-left: 2px;
   padding-right: 2px;
 }
-.flow-list .v-data-table-header{
-  /* position: absolute !important;  */ 
-  /* z-index not work without position: absolute */
-  z-index: 0 !important;
+.content-row {
+  margin: 0 !important
 }
 </style>
 

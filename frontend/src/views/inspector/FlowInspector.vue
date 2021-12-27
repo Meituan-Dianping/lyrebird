@@ -1,10 +1,10 @@
 <template>
 
   <div>
-    <Row class="inspector-container-button-bar">
+    <v-row class="inspector-container-button-bar content-row">
       <ButtonBar/>
-    </Row>
-
+    </v-row>
+  <v-divider class="border"></v-divider>
   <div class="inspector-realtime-split">
     <Split v-model="split" min="0px" max="0px">
       <div slot="left">
@@ -59,9 +59,13 @@ export default {
 
 <style scope>
 .inspector-container-button-bar {
-  height: 38px;
+  height: 45px;
   display: flex;
   align-items: center;
+  padding-top: 12px;
+  padding-bottom: 7px;
+  padding-left: 17px;
+  padding-right: 12px;
 }
 .inspector-realtime-left {
   margin-right: 0px;

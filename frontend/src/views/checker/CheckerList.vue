@@ -13,7 +13,7 @@
         <v-tab class="rounded rounded-l-0" key="deactivated">Deactivated</v-tab>
       </v-tabs>
     </v-card>
-    <v-divider class="extension-divider"></v-divider>
+    <v-divider class="border"></v-divider>
     <v-card v-if="extensionList.length" class="extension-tab-content" flat>
     <v-tabs-items :value="focusPanel">
       <v-tab-item
@@ -36,7 +36,7 @@
                   class="list-grop-icon">
                     mdi-folder-outline
                   </v-icon> {{script_group.category}}
-                  <v-tooltip v-if="script_group.description" right z-index="10">
+                  <v-tooltip v-if="script_group.description" right z-index="2">
                     <template v-slot:activator="{ on, attrs }">
                       <v-icon
                         small
@@ -77,7 +77,7 @@
               <v-divider 
               :key="index"
               v-if="index !== script_group.scripts.length-1"
-              class="extension-card-divider">
+              class="extension-card-divider border">
               </v-divider>
             </template>
           </v-list-group>
@@ -233,10 +233,6 @@ export default {
 }
 .extension-card-divider {
   margin-left: 36px;
-  background: #F1F0F4;
-}
-.extension-divider {
-  background: #F1F0F4;
 }
 </style>
 
