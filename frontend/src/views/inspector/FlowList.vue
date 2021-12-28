@@ -10,23 +10,13 @@
       hide-default-footer
       v-model="selectedFlows"
       v-resize="onTableResize"
+      :header-props="{sortIcon:'mdi-menu-down'}"
       :headers="headers"
       :items="flowList"
-      :search="searchStr"
       :page.sync="currentPage"
       :items-per-page="pageSize"
       @click:row="selectFlow"
-      @page-count="pageCount = $event"
     >
-      <template
-        v-slot:header.data-table-select="{ on, props }"
-      >
-        <v-simple-checkbox
-          color="purple"
-          v-bind="props"
-          v-on="on"
-        ></v-simple-checkbox>
-      </template>
 
       <template v-slot:item.source="{ item }">
 
@@ -91,9 +81,10 @@
       </template>
 
       <template v-slot:item.status="{ item }">
-        <span v-if="item.response.code === 200">{{ item.response.code }}</span>
-        <span v-else-if="item.response.code >= 300 && item.response.code <= 399" style="color:olive">{{ item.response.code }}</span>
-        <span v-else style="color:red">{{ item.response.code }}</span>
+        <span>
+          <span v-if="item.response.code >= 400" class="flow-list-status-error">{{ item.response.code }}</span>
+          <span v-else>{{ item.response.code }}</span>
+        </span>
       </template>
 
       <template v-slot:item.request="{ item }">
@@ -107,18 +98,12 @@
           <span class="flow-list-item-url-params" v-if="item.request.params">?</span>
           <span class="flow-list-item-url-params">{{ item.request.params }}</span>
         </span>
+
         <span class="flow-list-item-copy-btn" @click.stop>
-
-
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <span v-bind="attrs" v-on="on">
-
-                <v-btn
-                  icon
-                  x-small
-                  plain
-                >
+                <v-btn icon x-small plain>
                   <v-icon
                     x-small
                     color="accent"
@@ -160,96 +145,6 @@
       ></v-pagination>
       </v-col>
     </v-row>
-
-    
-    
-    <!-- <Table
-      highlight-row
-      size="small"
-      ref="selection"
-      :columns="columns"
-      :data="flowList"
-      @on-row-click="selectFlow"
-      @on-selection-change="itemSelectChange"
-      class="data-table"
-    >
-      <template slot-scope="{ row }" slot="source">
-        <Tooltip class="flow-list-item-source" :content="getSourceTooltipContent(row)" placement="bottom-start" transfer>
-          <Tag v-if="row.status === 'kill'" class="flow-list-item-tag" size="small" color="red">kill</Tag>
-          <Tag v-else-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
-          <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
-          <Tag v-else size="small" class="flow-list-item-tag">pending</Tag>
-        </Tooltip>
-
-        <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="bottom-start" transfer>
-          <Tag size="small" class="flow-list-item-tag" color="blue">diff</Tag>
-        </Tooltip>
-
-        <Tooltip class="flow-list-item-source" v-if="getRequestEditors(row).length" placement="bottom-start" transfer>
-          <Icon type="md-build" />
-          <div slot="content">
-            <p>Request modification:</p>
-            <p v-for="(value, index) in getRequestEditors(row)" :key=index>{{index + 1}}. {{value.name}}</p>
-          </div>
-        </Tooltip>
-      </template>
-
-      <template slot-scope="{ row }" slot="method">
-        <span style="color:green">{{ row.request.method }}</span>
-      </template>
-
-      <template slot-scope="{ row }" slot="status">
-        <span v-if="row.response.code === 200" style="color:green">{{ row.response.code }}</span>
-        <span v-else-if="row.response.code >= 300 && row.response.code <= 399" style="color:olive">{{ row.response.code }}</span>
-        <span v-else style="color:red">{{ row.response.code }}</span>
-      </template>
-
-      <template slot-scope="{ row }" slot="request">
-        <span class="flow-list-item-url">
-          <span class="flow-list-item-url-scheme">{{ row.request.scheme }}</span>
-          <span class="flow-list-item-url-scheme" v-if="row.request.scheme">://</span>
-
-          <span class="flow-list-item-url-host">{{ row.request.host}}</span>
-          <span class="flow-list-item-url-path">{{ row.request.path}}</span>
-
-          <span class="flow-list-item-url-params" v-if="row.request.params">?</span>
-          <span class="flow-list-item-url-params">{{ row.request.params }}</span>
-        </span>
-        <span class="flow-list-item-copy-btn" @click.stop>
-          <Tooltip placement="bottom" content="Copy" :delay="500" transfer>
-            <Icon
-              type="ios-copy-outline"
-              size="16"
-              v-clipboard:copy="row.request.url"
-              v-clipboard:success="onUrlCopy"
-              v-clipboard:error="onUrlCopyError"
-            />
-          </Tooltip>
-        </span>
-      </template>
-
-      <template slot-scope="{ row }" slot="start_time">
-        <span>{{timestampToTime(row.start_time)}}</span>
-      </template>
-
-      <template slot-scope="{ row }" slot="duration">
-        <span>{{readablizeDuration(row.duration)}}</span>
-      </template>
-
-      <template slot-scope="{ row }" slot="size">
-        <span>{{readablizeBytes(row.size)}}</span>
-      </template>
-    </Table>
-     -->
-    <!-- 
-    <div style="float: right; margin-top: 5px">
-      <Page
-        :total="displayFlowCount"
-        :page-size="pageSize"
-        :current.sync="currentPage"
-        @on-change="refreshFlowList"
-      />
-    </div> -->
   </div>
 </template>
 
@@ -269,7 +164,7 @@ export default {
       flowList: [],
       refreshFlowListTimer: null,
       displayFlowCount: 0,
-      pageSize: 20,
+      pageSize: 50,
       pageCount: 0,
       currentPage: 1,
       headers: [
@@ -316,51 +211,7 @@ export default {
           filterable: false,
           width: 80
         }
-      ],
-      columns: [
-        {
-          type: 'selection',
-          width: 30,
-          align: 'center'
-        },
-        {
-          title: 'Source',
-          slot: 'source',
-          width: 105
-        },
-        {
-          title: 'Method',
-          slot: 'method',
-          width: 60
-        },
-        {
-          title: 'Status',
-          slot: 'status',
-          width: 50
-        },
-        {
-          title: 'URL',
-          slot: 'request'
-        },
-        {
-          title: 'Start',
-          slot: 'start_time',
-          width: 60,
-          sortable: true
-        },
-        {
-          title: 'Duration',
-          slot: 'duration',
-          width: 80,
-          sortable: true
-        },
-        {
-          title: 'Size',
-          slot: 'size',
-          sortable: true,
-          width: 60
-        }
-      ],
+      ]
     }
   },
   created () {
@@ -408,12 +259,14 @@ export default {
       this.$store.dispatch('loadFlowList')
     },
     onTableResize () {
-      const height = window.innerHeight - 44 - 40 - 38 - 12 - 28 - 68
+      const height = window.innerHeight - 44 - 40 - 38 - 8 - 68 - 12 - 28
       /* reset table height
       Header 44px
       Title 40px
       buttonbar 38px
+      margin-top 8px
       tabel
+      pagination 68px
       Margin Bottom: 12px
       Footer 28px
       */
@@ -451,7 +304,7 @@ export default {
         isMatch ? displayFlowList.push(flow) : null
       }
       this.displayFlowCount = displayFlowList.length
-      this.pageCount = Math.ceil(this.displayFlowCount / this.pageSize) // todo
+      this.pageCount = Math.max(Math.ceil(this.displayFlowCount / this.pageSize), 1)
       this.currentPage = this.pageCount && (this.currentPage > this.pageCount) ? this.pageCount : this.currentPage
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
@@ -497,33 +350,36 @@ export default {
 </script>
 
 <style lang="css">
-.flow-table table>thead>tr>th{
+.flow-table table > thead > tr > th{
   padding: 0px !important;
   height: 30px !important;
   font-size: 12px !important;
   background-color: #FAF9FA !important;
-  /* padding-left: 5px !important;
-  padding-right: 5px !important; */
 }
-.flow-table table>thead>tr>th>span{
+.flow-table table > thead > tr > th > span{
   color: #000520 !important;
-  /* padding-left: 5px !important;
-  padding-right: 5px !important; */
 }
-.flow-table table>tbody>tr>td {
+.flow-table table > thead > tr > th > div > div > i{
+  padding-left: 5px;
+  font-size: 18px !important;
+}
+.flow-table table > tbody > tr > td {
   padding: 0px !important;
   height: 36px !important;
   font-size: 12px !important;
-  /* padding-left: 2px !important;
-  padding-right: 2px !important; */
+}
+.flow-table table > tbody > tr > td > div > div > i {
+  padding-left: 5px;
+  font-size: 18px !important;
 }
 .flow-table table>tbody>tr>td>span {
   color: #9B9CB7 !important;
-  /* padding-left: 2px !important;
-  padding-right: 2px !important; */
 }
 .flow-list-item-source > span {
   padding: 0px 8px !important;
+}
+.tabel-pagination {
+  margin: 0 !important
 }
 .tabel-pagination .v-pagination {
   justify-content: right;
@@ -532,11 +388,12 @@ export default {
 
 <style scoped>
 .flow-list {
-  height: calc(100vh - 44px - 40px - 38px - 28px - 12px);
+  /* height: calc(100vh - 44px - 40px - 38px - 8px - 28px - 12px); */
   /* total:100vh
   header: 44px
   title: 40px
   buttonBar: 38px
+  margin-top: 8px
   table
   margin-bottom: 12px
   footer: 28px
@@ -553,6 +410,10 @@ export default {
 .flow-list-item-tag {
   margin: 0px 2px;
 }
+.flow-list-status-error {
+  color: #F51818;
+  font-weight: 400;
+}
 .flow-list-item-url {
   display: inline-block;
   word-break: keep-all;
@@ -567,11 +428,11 @@ export default {
 }
 .flow-list-item-url-host {
   color: #5F5CCA;
-  font-weight: 500;
+  font-weight: 400;
 }
 .flow-list-item-url-path {
   color:#318CD7;
-  font-weight: 500;
+  font-weight: 400;
 }
 .flow-list-item-url-params {
   color: unset;
@@ -580,8 +441,5 @@ export default {
   display: inline-block;
   overflow: hidden;
   cursor: pointer;
-}
-.tabel-pagination {
-  margin: 0px !important;
 }
 </style>

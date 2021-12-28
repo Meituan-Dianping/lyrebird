@@ -29,14 +29,18 @@
         <span>Clear</span>
       </v-tooltip>
 
-      <!-- <Tooltip content="Clear" :delay="500">
-        <div class="inspector-button ivu-icon" @click="showClearModal=true">
-          <svg-icon class="ivu-icon" name="short-broom" color="#666" scale="5"></svg-icon>
-        </div>
-      </Tooltip> -->
       <v-divider vertical class="button-bar-divider border"/>
-        <b style="padding-right:5px">Diff Mode</b>
-        <v-switch v-model="diffMode" small dense inset color="primary" @change="changeDiffMode"/>
+      <b style="padding-right:5px">Diff Mode</b>
+      <v-switch
+        small
+        dense
+        inset
+        v-model="diffMode"
+        color="primary"
+        class="button-bar-diff-mode"
+        @change="changeDiffMode"
+      />
+
       <v-tooltip bottom open-delay=500>
         <template v-slot:activator="{ on, attrs }">
           <v-btn plain icon v-bind="attrs" v-on="on">
@@ -46,22 +50,21 @@
         <span>Get the proxy response while the request is mocked</span>
       </v-tooltip>
 
-
-    <!-- <div class="inline">
-      <Divider type="vertical" />
-    </div> -->
-
-    <!-- <Tooltip content="Get the proxy response while the request is mocked" placement="bottom-start" max-width="200" :delay="500">
-    <label>
-      <b style="padding-right:5px">Diff Mode</b>
-      <i-switch size="small" v-model="diffMode" @on-change="changeDiffMode" />
-    </label>
-    </Tooltip> -->
-
     <v-divider vertical class="button-bar-divider border"/>
 
     <b style="padding-right:5px">Mock Group</b>
 
+    <v-chip
+      label small outlined
+      color="#D9DADE"
+      text-color="content"
+      v-if="Object.keys(activatedGroups).length === 0"
+      @click="showMockDataSelector"
+    >
+      <span>None</span>
+    </v-chip>
+
+    <span v-else>
       <v-chip
         label small outlined close
         color="#D9DADE"
@@ -70,9 +73,14 @@
         text-color="content"
         @click="showMockDataSelector"
         @click:close="resetActivatedData"
+        v-for="(group, groupId) in activatedGroups"
+        :key="groupId"
       >
-        <span style="color:#000520">{{activateBtnText}}</span>
+        <span style="color:#000520">
+          {{group.name}}
+        </span>
       </v-chip>
+    </span>
 
       <v-tooltip bottom open-delay=500>
         <template v-slot:activator="{ on, attrs }">
@@ -84,27 +92,6 @@
       </v-tooltip>
 
     </div>
-
-
-
-      <!-- <v-tooltip bottom open-delay=500>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn plain icon @click="showClearModal=true" v-bind="attrs" v-on="on">
-            <v-icon size="18px" color="accent">mdi-help-circle-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>Activate and deactivate mock group</span>
-      </v-tooltip> -->
-
-      <!-- <ButtonGroup>
-        <Button @click="showMockDataSelector" size="small">{{activateBtnText}}</Button>
-        <Button size="small" @click="resetActivatedData">
-          <Tooltip content="Deactivate mock group" :delay="500">
-            <Icon type="ios-backspace-outline" color="red" size="16" />
-          </Tooltip>
-        </Button>
-      </ButtonGroup> -->
-    <!-- </label> -->
 
     <div class="inspector-searchbox inspector-search">
       <v-text-field
@@ -118,7 +105,7 @@
       />
     </div>
 
-    <span class="inspector-searchbox flow-filter">
+    <div class="inspector-searchbox flow-filter">
 
       <v-select
         dense
@@ -130,47 +117,11 @@
         :items="flowFilters"
         item-text="name"
         item-value="name"
+        style="border-bottom:none!important;"
         :menu-props="{ bottom: true, offsetY: true }"
         @change="changeFLowFilter"
       />
-    </span>
-
-    <!-- <div class="inline inspector-searchbox">
-      <Input
-        size="small"
-        search
-        clearable
-        v-model="searchStr"
-        placeholder="Separate multiple keywords by spaces"
-      >
-        <Icon type="ios-funnel" slot="prepend" :color="selectedFLowFilter?'#2d8cf0':''"/>
-        <Select
-          v-model="selectedFLowFilter"
-          size="small"
-          slot="prepend"
-          style="width:80px;"
-          placeholder="Filters"
-          not-found-text="No filters"
-          @on-change="changeFLowFilter"
-          clearable
-          transfer
-        >
-          <Option v-for="(filter, index) in flowFilters" :value="filter.name" :key="filter.name">
-            <Tooltip
-              v-if="filter.desc"
-              :delay="500"
-              max-width="200"
-              placement="bottom-start"
-              :content="filter.desc"
-              transfer
-            >
-              <Icon type="ios-help-circle-outline" size="14"/>
-            </Tooltip>
-            {{filter.name}}
-          </Option>
-        </Select>
-      </Input>
-    </div> -->
+    </div>
 
     <Modal
       v-model="showClearModal"
@@ -337,10 +288,6 @@ export default {
 }
 </script>
 
-<style lang="scss">
-// $color: red;
-</style>
-
 <style>
 .v-input--switch {
   display: inline-block;
@@ -371,13 +318,13 @@ export default {
 .inspector-button-bar {
   flex-grow: 1;
 }
-.inspector-button-bar .v-input--switch {
-  height: 20px;
-  margin-top: 0;
-  padding-top: 0;
-  margin-left: 6px;
-  margin-right: 6px;
-  width: 32px;
+.button-bar-diff-mode .v-input--switch__track {
+  height: 19px !important;
+  width: 32px !important;
+}
+.button-bar-diff-mode .v-input--switch__thumb {
+  height: 15px !important;
+  width: 15px !important;
 }
 .inspector-button {
   padding: 3px 8px 3px;
@@ -387,7 +334,18 @@ export default {
 .inspector-searchbox {
   width: 20vw;
   float: right;
-  margin-right: 5px;
+}
+.inspector-search .v-text-field--outlined, .v-text-field--solo {
+  border-radius: 0px 4px 4px 0px !important;
+}
+.inspector-search .v-input__append-inner {
+  margin-top: 2px !important;
+}
+.inspector-search .v-input__slot {
+  padding-right: 4px !important;
+}
+.inspector-search .v-icon {
+  font-size: 14px !important;
 }
 .flow-filter {
   width: 100px !important;
@@ -400,6 +358,9 @@ export default {
   font-size: 14px;
   font-weight: 400;
   line-height: 14px;
+}
+.flow-filter .v-text-field--outlined, .v-text-field--solo {
+  border-radius: 4px 0px 0px 4px !important;
 }
 .v-input__slot {
   min-height: 26px !important;

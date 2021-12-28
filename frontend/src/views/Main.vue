@@ -35,11 +35,6 @@
     </v-main>
 
     <v-footer app color="primary" class="main-footer">
-      <span class="main-footer-status-placeholder"></span>
-      <span v-show="activatedGroupName" class="main-footer-status-no-pointer">
-        <b>Activated mock group: {{activatedGroupName}}</b>
-        <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
-      </span>
       <StatusBar />
       <v-spacer></v-spacer>
       <StatusInfo />
@@ -73,7 +68,6 @@ export default {
   },
   beforeDestroy () {
     document.removeEventListener('keydown', this._keydownListener)
-    this.$io.removeListener('activatedGroupUpdate', this.loadActivatedGroup)
     this.$io.removeListener('statusBarUpdate', this.loadAllStatusList)
     this.$io.removeListener('msgSuccess', this.successMessage) 
   },
@@ -83,7 +77,6 @@ export default {
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
     this.$bus.$on('msg.destroy', this.destroyMessage)
-    this.$io.on('activatedGroupUpdate', this.loadActivatedGroup)
     this.$io.on('statusBarUpdate', this.loadAllStatusList)
     this.$io.on('msgSuccess', this.successMessage)
   },
@@ -110,9 +103,6 @@ export default {
         // 2,In order to solve the problem of losing the selected state, first assign ActiveMenuItemIndex to -1, 
         //  and the real value will be set by method menuItemOnClick
         this.$store.commit('setActiveMenuItemIndex', -1)
-
-
-        
       }
     },
     activeMenuItemName() {
@@ -121,20 +111,6 @@ export default {
       } else {
         return this.$store.state.activeMenuItem.title
       }
-    },
-    activatedGroupName () {
-      const activatedGroups = this.$store.state.inspector.activatedGroup
-      if (activatedGroups === null) {
-        return null
-      }
-      if (Object.keys(activatedGroups) === 0) {
-        return null
-      }
-      let text = ''
-      for (const groupId in activatedGroups) {
-        text = text + activatedGroups[groupId].name + ' '
-      }
-      return text
     }
   },
   methods: {
@@ -161,12 +137,6 @@ export default {
       } else {
         window.open(menuItem.path, '_self')
       }
-    },
-    resetActivatedData () {
-      this.$store.dispatch('deactivateGroup')
-    },
-    loadActivatedGroup () {
-      this.$store.dispatch('loadActivatedGroup')
     },
     loadAllStatusList () {
       this.$store.dispatch('loadAllStatusList')

@@ -1,27 +1,24 @@
 <template>
 
-  <div>
-    <v-row class="inspector-container-button-bar content-row">
+  <div style="padding:12px">
+    <v-row class="inspector-container-button-bar">
       <ButtonBar/>
     </v-row>
-  <v-divider class="border"></v-divider>
-  <div class="inspector-realtime-split">
-    <Split v-model="split" min="0px" max="0px">
-      <div slot="left">
-        <FlowList class="inspector-realtime-left"></FlowList>
-      </div>
-      <div slot="right">
-        <FlowDetail v-if="focusedFlowDetail" class="inspector-realtime-right"></FlowDetail>
-        <div v-else class="flow-detail-empty">No selected flow</div>
-      </div>
-    </Split>
+
+    <v-divider class="border"/>
+
+    <div class="inspector-realtime-split mt-2">
+      <Split v-model="split" min="0px" max="0px">
+        <div slot="left">
+          <FlowList class="inspector-realtime-left"></FlowList>
+        </div>
+        <div slot="right">
+          <FlowDetail v-if="focusedFlowDetail" class="inspector-realtime-right"></FlowDetail>
+          <div v-else class="flow-detail-empty">No selected flow</div>
+        </div>
+      </Split>
+    </div>
   </div>
-
-  </div>
-
-
-
-  
 </template>
 
 <script>
@@ -59,13 +56,10 @@ export default {
 
 <style scope>
 .inspector-container-button-bar {
-  height: 45px;
+  height: 26px;
   display: flex;
   align-items: center;
-  padding-top: 12px;
-  padding-bottom: 7px;
-  padding-left: 17px;
-  padding-right: 12px;
+  margin: 0px 0px 7px 0px !important;
 }
 .inspector-realtime-left {
   margin-right: 0px;
@@ -74,16 +68,18 @@ export default {
   margin-left: 5px;
 }
 .inspector-realtime-split {
-  height: calc(100vh - 44px - 40px - 38px - 28px - 12px);
+  height: calc(100vh - 44px - 40px - 38px - 28px - 12px - 12px - 12px);
   /* total:100vh
   header: 44px
   title: 40px
   buttonBar: 38px
+  margin-top: 12px
   split
+  margin-bottom: 12px
   margin-bottom: 12px
   footer: 28px
     */
-  width: calc(100vw - 5px - 68px - 12px);
+  width: calc(100vw - 5px - 68px - 12px - 12px - 12px);
 }
 .flow-detail-empty {
   position: absolute;
