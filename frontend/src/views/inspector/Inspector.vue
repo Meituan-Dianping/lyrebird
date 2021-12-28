@@ -54,7 +54,7 @@ export default {
 }
 </script>
 
-<style scope>
+<style scoped>
 .inspector-container-button-bar {
   height: 26px;
   display: flex;
