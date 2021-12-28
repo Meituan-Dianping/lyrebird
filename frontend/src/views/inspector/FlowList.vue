@@ -259,7 +259,7 @@ export default {
       this.$store.dispatch('loadFlowList')
     },
     onTableResize () {
-      const height = window.innerHeight - 44 - 40 - 12 - 26 - 7 - 1 - 8 - 12 - 40 - 12 - 12 - 28
+      const height = window.innerHeight - 44 - 40 - 12 - 26 - 7 - 1 - 8 - 12 - 32 - 12 - 12 - 28
       /* reset table height
       Header 44px
       Title 40px
@@ -270,7 +270,7 @@ export default {
       margin-top 8px
       tabel
       margin-top 12px
-      pagination 40px
+      pagination 32px
       padding 12px
       margin-bottom 12px
       Footer 28px
