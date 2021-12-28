@@ -137,7 +137,7 @@
     <MockDataSelector ref="searchModal" :showRoot="false">
       <template #selected>
         <div v-if="activatedGroups">
-          <label style="padding-right:5px">Select Mock Group</label>
+          <label style="padding-right:5px">Activated Mock Group</label>
           <Tag v-for="group in activatedGroups" :key="group.id">{{group.name}}</Tag>
         </div>
       </template>
@@ -176,7 +176,6 @@ export default {
   },
   data () {
     return {
-      isDisplayFLowFilterMenu: false,
       showClearModal: false,
       diffMode: false,
       clearTypes: ['Real-time']

@@ -12,7 +12,7 @@
             @click="resetActivatedData"
             style="cursor:pointer;"
           >
-            <b >Mock group {{activatedGroupName}}</b>
+            <b >Mock group: {{activatedGroupName}}</b>
           </span>
         </template>
         <span>Click to deactivate</span>
