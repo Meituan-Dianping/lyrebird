@@ -138,11 +138,11 @@
       <v-spacer></v-spacer>
       <v-col class="inspector-tabel-pagination-col">
         <v-pagination
-        v-model="currentPage"
-        :length="pageCount"
-        @input="refreshFlowList"
-        total-visible=7
-      ></v-pagination>
+          v-model="currentPage"
+          :length="pageCount"
+          @input="refreshFlowList"
+          total-visible=7
+        />
       </v-col>
     </v-row>
   </div>
@@ -164,7 +164,7 @@ export default {
       flowList: [],
       refreshFlowListTimer: null,
       displayFlowCount: 0,
-      pageSize: 50,
+      pageSize: 2,
       pageCount: 0,
       currentPage: 1,
       headers: [
@@ -394,11 +394,21 @@ export default {
   margin: 5px !important;
   height: 30px;
   width: 30px;
+  box-shadow: none !important;
+  background-color: #F9F8FA !important;
 }
-.inspector-tabel-pagination-row .v-pagination__item {
+.inspector-tabel-pagination-row .v-pagination .v-pagination__item {
   margin: 5px !important;
   height: 30px;
   min-width: 30px;
+  box-shadow: none !important;
+}
+.inspector-tabel-pagination-row .v-pagination .v-pagination__item:not(.v-pagination__item--active) {
+  margin: 5px !important;
+  height: 30px;
+  min-width: 30px;
+  box-shadow: none !important;
+  background-color: #F9F8FA !important;
 }
 .inspector-tabel-pagination-col {
   padding: 12px 0px 0px;
