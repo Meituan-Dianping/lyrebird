@@ -134,9 +134,9 @@
 
     </v-data-table>
 
-    <v-row class="tabel-pagination">
+    <v-row class="inspector-tabel-pagination-row">
       <v-spacer></v-spacer>
-      <v-col>
+      <v-col class="inspector-tabel-pagination-col">
         <v-pagination
         v-model="currentPage"
         :length="pageCount"
@@ -259,15 +259,20 @@ export default {
       this.$store.dispatch('loadFlowList')
     },
     onTableResize () {
-      const height = window.innerHeight - 44 - 40 - 38 - 8 - 68 - 12 - 28
+      const height = window.innerHeight - 44 - 40 - 12 - 26 - 7 - 1 - 8 - 12 - 40 - 12 - 12 - 28
       /* reset table height
       Header 44px
       Title 40px
-      buttonbar 38px
+      padding 12px
+      buttonbar 26px
+      buttombar margin-bottom 7
+      divider 1
       margin-top 8px
       tabel
-      pagination 68px
-      Margin Bottom: 12px
+      margin-top 12px
+      pagination 40px
+      padding 12px
+      margin-bottom 12px
       Footer 28px
       */
       this.tableSize = { 
@@ -378,11 +383,25 @@ export default {
 .flow-list-item-source > span {
   padding: 0px 8px !important;
 }
-.tabel-pagination {
-  margin: 0 !important
+.inspector-tabel-pagination-row {
+  margin: 0 !important;
+  padding: 0 in !important;
 }
-.tabel-pagination .v-pagination {
+.inspector-tabel-pagination-row .v-pagination {
   justify-content: right;
+}
+.inspector-tabel-pagination-row .v-pagination__navigation {
+  margin: 5px !important;
+  height: 30px;
+  width: 30px;
+}
+.inspector-tabel-pagination-row .v-pagination__item {
+  margin: 5px !important;
+  height: 30px;
+  min-width: 30px;
+}
+.inspector-tabel-pagination-col {
+  padding: 12px 0px 0px;
 }
 </style>
 
