@@ -19,7 +19,7 @@ const opts = {
         primary: '#5F5CCA',
         primaryLight: '#6A67D4',
         primaryBright: '#7B79D0',
-        primaryMost: 'E6E5FF',
+        primaryBrightest: '#E6E5FF',
 
         error: '#FF4B4B',
         warning: '#FB8C00',
@@ -37,7 +37,7 @@ const opts = {
         primary: '#5F5CCA',
         primaryLight: '#6A67D4',
         primaryBright: '#7B79D0',
-        primaryMost: 'E6E5FF',
+        primaryBrightest: '#E6E5FF',
 
         error: '#FF5252',
         warning: '#FB8C00',

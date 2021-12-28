@@ -16,6 +16,7 @@
       :page.sync="currentPage"
       :items-per-page="pageSize"
       @click:row="selectFlow"
+      :item-class="getFlowTableItemClass"
     >
 
       <template v-slot:item.source="{ item }">
@@ -32,7 +33,7 @@
               <v-chip label small
                 v-else-if="item.response.mock === 'mock'"
                 class="flow-list-item-tag"
-                color="primaryMost"
+                color="primaryBrightest"
                 text-color="primary"
               >mock</v-chip>
               <v-chip label small
@@ -280,10 +281,16 @@ export default {
         height: height
       }
     },
+    getFlowTableItemClass(item) {
+      if (!this.$store.state.inspector.focusedFlow) {
+        return ''
+      }
+      if (item.id === this.$store.state.inspector.focusedFlow.id) {
+        return 'flow-list-item-focused'
+      }
+    },
     selectFlow (flow) {
       this.$store.dispatch('focusFlow', flow)
-      this.$store.commit('addSelectedFlow', flow)
-      this.itemSelectChange(this.$store.state.inspector.selectedFlows)
     },
     itemSelectChange (event) {
       let selectedIds = []
@@ -384,6 +391,9 @@ export default {
 }
 .flow-list-item-source > span {
   padding: 0px 8px !important;
+}
+.flow-list-item-focused {
+  background-color: #5b57c41A;
 }
 .inspector-tabel-pagination-row {
   margin: 0 !important;
