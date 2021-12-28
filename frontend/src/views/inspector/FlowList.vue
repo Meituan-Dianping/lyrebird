@@ -164,7 +164,7 @@ export default {
       flowList: [],
       refreshFlowListTimer: null,
       displayFlowCount: 0,
-      pageSize: 2,
+      pageSize: 50,
       pageCount: 0,
       currentPage: 1,
       headers: [
