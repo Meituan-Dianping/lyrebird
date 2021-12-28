@@ -1,5 +1,24 @@
 <template>
   <span>
+    <span class="main-footer-status-placeholder"/>
+
+    <span class="main-footer-status" v-show="activatedGroupName">
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <span
+            v-bind="attrs"
+            v-on="on"
+            class="main-footer-status-button"
+            @click="resetActivatedData"
+            style="cursor:pointer;"
+          >
+            <b >Mock group: {{activatedGroupName}}</b>
+          </span>
+        </template>
+        <span>Click to deactivate</span>
+      </v-tooltip>
+    </span>
+
     <span v-for="(item, index) in statusBottomLeftList" :key="index" class="main-footer-status">
       <Poptip
         content="content"
@@ -37,6 +56,37 @@
 import { makeRequest } from '@/api'
 
 export default {
+  created () {
+    this.$io.on('activatedGroupUpdate', this.loadActivatedGroup)
+  },
+  beforeDestroy () {
+    this.$io.removeListener('activatedGroupUpdate', this.loadActivatedGroup)
+  },
+  computed: {
+    statusBottomLeftList () {
+      return this.$store.state.statusbar.statusBottomLeftList
+    },
+    statusBottomRightList () {
+      return this.$store.state.statusbar.statusBottomRightList
+    },
+    statusBarDetail () {
+      return this.$store.state.statusbar.statusBarDetail
+    },
+    activatedGroupName () {
+      const activatedGroups = this.$store.state.inspector.activatedGroup
+      if (activatedGroups === null) {
+        return null
+      }
+      if (Object.keys(activatedGroups) === 0) {
+        return null
+      }
+      let text = ''
+      for (const groupId in activatedGroups) {
+        text = text + activatedGroups[groupId].name + ' '
+      }
+      return text
+    }
+  },
   methods: {
     getStatusBarDetail (statusItemId) {
       this.$store.dispatch('loadStatusBarDetail', statusItemId)
@@ -61,17 +111,12 @@ export default {
         .catch(error => {
           this.$bus.$emit('msg.error', error.data.message)
         })
-    }
-  },
-  computed: {
-    statusBottomLeftList () {
-      return this.$store.state.statusbar.statusBottomLeftList
     },
-    statusBottomRightList () {
-      return this.$store.state.statusbar.statusBottomRightList
+    resetActivatedData () {
+      this.$store.dispatch('deactivateGroup')
     },
-    statusBarDetail () {
-      return this.$store.state.statusbar.statusBarDetail
+    loadActivatedGroup () {
+      this.$store.dispatch('loadActivatedGroup')
     },
   }
 }

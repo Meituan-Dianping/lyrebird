@@ -1,139 +1,143 @@
 <template>
   <div class="inspector-button-bar">
-    <Tooltip v-if="isRecordMode" content="Stop recording" placement="bottom-start" :delay="500">
-      <Icon
-        class="inspector-button"
-        type="md-square"
-        color="black"
-        @click="switchRecord"
-        style="margin-right:3px"
-        size="18"
-      />
-    </Tooltip>
-    <Tooltip v-else content="Record" placement="bottom-start" :delay="500">
-      <Icon
-        class="inspector-button"
-        type="md-radio-button-on"
-        color="red"
-        @click="switchRecord"
-        style="margin-right:3px"
-        size="18"
-      />
-    </Tooltip>
-
-    <Tooltip content="Clear" :delay="500">
-      <div class="inspector-button ivu-icon" @click="showClearModal=true">
-        <svg-icon class="ivu-icon" name="short-broom" color="#666" scale="5"></svg-icon>
-      </div>
-    </Tooltip>
-
-    <div class="inline" v-if="hasSelectedId">
-      <div class="inline">
-        <Divider type="vertical"></Divider>
-      </div>
-
-      <Tooltip content="Save" :delay="500">
-        <div class="inspector-button ivu-icon" @click="saveSelectedFlow">
-          <svg-icon class="ivu-icon" name="md-save" color="#666" scale="4"></svg-icon>
-        </div>
-      </Tooltip>
-
-      <Tooltip content="Delete" :delay="500">
-        <Icon
-          class="inspector-button"
-          @click="deleteSelectedFlow"
-          type="md-trash"
-          color="#666"
-          size="18"
-        />
-      </Tooltip>
-    </div>
-
     <div class="inline">
-      <Divider type="vertical" />
-    </div>
 
-    <Tooltip content="Get the proxy response while the request is mocked" placement="bottom-start" max-width="200" :delay="500">
-    <label>
-      <b style="padding-right:5px">Diff mode:</b>
-      <i-switch size="small" v-model="diffMode" @on-change="changeDiffMode" />
-    </label>
-    </Tooltip>
+      <v-tooltip bottom open-delay=500>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="saveSelectedFlow" v-bind="attrs" v-on="on" :disabled="isEmptySelectedFlow">
+            <v-icon size="18px" color="accent">mdi-content-save-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>Save</span>
+      </v-tooltip>
 
-    <div class="inline">
-      <Divider type="vertical"></Divider>
-    </div>
+      <v-tooltip bottom open-delay=500>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="deleteSelectedFlow" v-bind="attrs" v-on="on" :disabled="isEmptySelectedFlow">
+            <v-icon size="18px" color="accent">mdi-delete-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>Delete</span>
+      </v-tooltip>
 
-    <label>
-      <b style="padding-right:5px">Activated Mock Group:</b>
-      <ButtonGroup>
-        <Button @click="showMockDataSelector" size="small">{{activateBtnText}}</Button>
-        <Button size="small" @click="resetActivatedData">
-          <Tooltip content="Deactivate mock group" :delay="500">
-            <Icon type="ios-backspace-outline" color="red" size="16" />
-          </Tooltip>
-        </Button>
-      </ButtonGroup>
-    </label>
+      <v-tooltip bottom open-delay=500>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="showClearModal=true" v-bind="attrs" v-on="on">
+            <v-icon size="18px" color="accent">mdi-eraser</v-icon>
+          </v-btn>
+        </template>
+        <span>Clear</span>
+      </v-tooltip>
 
-    <div class="inline inspector-searchbox">
-      <Input
-        size="small"
-        search
-        clearable
-        v-model="searchStr"
-        placeholder="Separate multiple keywords by spaces"
+      <v-divider vertical class="button-bar-divider border"/>
+      <b style="padding-right:5px">Diff Mode</b>
+      <v-switch
+        small
+        dense
+        inset
+        v-model="diffMode"
+        color="primary"
+        class="button-bar-diff-mode"
+        @change="changeDiffMode"
+      />
+
+      <v-tooltip bottom open-delay=500>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn plain icon small v-bind="attrs" v-on="on">
+            <v-icon small size="18px" color="content">mdi-help-circle-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>Get the proxy response while the request is mocked</span>
+      </v-tooltip>
+
+    <v-divider vertical class="button-bar-divider border"/>
+
+    <b style="padding-right:5px">Mock Group</b>
+
+    <v-chip
+      label small outlined
+      color="#D9DADE"
+      text-color="content"
+      v-if="Object.keys(activatedGroups).length === 0"
+      @click="showMockDataSelector"
+    >
+      <span>None</span>
+    </v-chip>
+
+    <span v-else>
+      <v-chip
+        label small outlined close
+        color="#D9DADE"
+        close-icon="mdi-close-circle"
+        close-label="Reset selected mock group"
+        text-color="content"
+        @click="showMockDataSelector"
+        @click:close="resetActivatedData"
+        v-for="(group, groupId) in activatedGroups"
+        :key="groupId"
       >
-        <Icon type="ios-funnel" slot="prepend" :color="selectedFLowFilter?'#2d8cf0':''"/>
-        <Select
-          v-model="selectedFLowFilter"
-          size="small"
-          slot="prepend"
-          style="width:80px;"
-          placeholder="Filters"
-          not-found-text="No filters"
-          @on-change="changeFLowFilter"
-          clearable
-          transfer
-        >
-          <Option v-for="(filter, index) in flowFilters" :value="filter.name" :key="filter.name">
-            <Tooltip
-              v-if="filter.desc"
-              :delay="500"
-              max-width="200"
-              placement="bottom-start"
-              :content="filter.desc"
-              transfer
-            >
-              <Icon type="ios-help-circle-outline" size="14"/>
-            </Tooltip>
-            {{filter.name}}
-          </Option>
-        </Select>
-      </Input>
+        <span style="color:#000520">
+          {{group.name}}
+        </span>
+      </v-chip>
+    </span>
+
+      <v-tooltip bottom open-delay=500>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn plain icon v-bind="attrs" v-on="on" small>
+            <v-icon size="18px" color="content" small style="opacity:1">mdi-help-circle-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>Select a mock group</span>
+      </v-tooltip>
+
+    </div>
+
+    <div class="inspector-searchbox inspector-search">
+      <v-text-field
+        outlined
+        dense
+        height=26
+        v-model="searchStr"
+        class="inspector-search-text"
+        label="Separate multiple keywords by spaces"
+        clearable
+        @click:clear="clearInspectorSearch"
+      />
+    </div>
+
+    <div class="inspector-searchbox flow-filter">
+
+      <v-select
+        dense
+        hide-details
+        color="primary"
+        class="flow-filter-select"
+        outlined
+        v-model="selectedFLowFilter"
+        :items="flowFilters"
+        item-text="name"
+        item-value="name"
+        style="border-bottom:none!important;"
+        :menu-props="{ bottom: true, offsetY: true }"
+        @change="changeFLowFilter"
+      />
     </div>
 
     <Modal
       v-model="showClearModal"
-      title="Clear Inspector"
+      title="Clear Inspector Flow"
       @on-ok="clearAllFlow"
       @on-cancel="showClearModal=false"
       width=300px
     >
-      <CheckboxGroup v-model="clearTypes" size=default>
-        <Tooltip max-width="200" content="This operation will clear all your Real-time flow list." placement="top-start">
-          <Checkbox label="Real-time" border />
-        </Tooltip>
-        <Tooltip max-width="200" content="This operation will delete all your local saved data." placement="top-start">
-          <Checkbox label="Advanced" border />
-        </Tooltip>
-      </CheckboxGroup>
+      <p>Clear flow list?</p>
     </Modal>
 
     <MockDataSelector ref="searchModal" :showRoot="false">
       <template #selected>
         <div v-if="activatedGroups">
-          <label style="padding-right:5px">Activated Mock Group:</label>
+          <label style="padding-right:5px">Activated Mock Group</label>
           <Tag v-for="group in activatedGroups" :key="group.id">{{group.name}}</Tag>
         </div>
       </template>
@@ -178,7 +182,6 @@ export default {
     }
   },
   mounted () {
-    this.getRecordStatus()
     this.loadDiffModeStatus()
     this.loadFLowFilters()
   },
@@ -186,8 +189,11 @@ export default {
     isRecordMode () {
       return this.$store.state.inspector.recordMode === 'record'
     },
-    hasSelectedId () {
-      return this.$store.state.inspector.selectedIds.length > 0
+    isEmptySelectedFlow () {
+      return this.$store.state.inspector.selectedFlows.length === 0
+    },
+    selectedFlows () {
+      return this.$store.state.inspector.selectedFlows
     },
     activatedGroups () {
       return this.$store.state.inspector.activatedGroup
@@ -249,23 +255,19 @@ export default {
     changeFLowFilter (payload) {
       this.$store.dispatch('saveFLowFilters', payload)
     },
-    switchRecord () {
-      let mode = this.$store.state.inspector.recordMode === 'record' ? 'normal' : 'record'
-      this.$store.commit('setRecordMode', mode)
-      this.$store.dispatch('saveRecordMode')
-    },
-    getRecordStatus () {
-      this.$store.dispatch('loadRecordMode')
-    },
     clearAllFlow () {
       this.$store.dispatch('clearInspector', this.clearTypes)
     },
     resetActivatedData () {
       this.$store.dispatch('deactivateGroup')
     },
+    clearInspectorSearch () {
+      this.$store.commit('setSearchStr', '')
+    },
     saveSelectedFlow () {
       if (Object.keys(this.activatedGroups).length <= 0) {
-        this.$bus.$emit('msg.error', 'Save flow error: No activated group')
+        this.$bus.$emit('msg.info', 'Select a mock group')
+        this.showMockDataSelector()
         return
       }
       this.$store.dispatch('saveSelectedFlow')
@@ -281,11 +283,44 @@ export default {
 </script>
 
 <style>
+.v-input--switch {
+  display: inline-block;
+}
+.inspector-button-bar {
+  height: 26px;
+}
+.inspector-button-bar .v-chip__close.v-icon.v-icon--right{
+  font-size: 16px !important;
+}
 .inline {
-  display: inline;
+  display: inline-flex;
+  justify-content: center;
+  min-height: 26px;
+  height: 26px;
+  max-height: 26px;
+  align-content: flex-start;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin-bottom: 7px;
+}
+.button-bar-divider {
+  margin-left: 8px;
+  margin-right: 8px;
 }
 .inspector-button-bar {
   flex-grow: 1;
+}
+.button-bar-diff-mode .v-input--switch__track {
+  height: 19px !important;
+  width: 32px !important;
+}
+.button-bar-diff-mode .v-input--selection-controls__input {
+  margin-right: 0px !important;
+  width: 32px !important;
+}
+.button-bar-diff-mode .v-input--switch__thumb {
+  height: 15px !important;
+  width: 15px !important;
 }
 .inspector-button {
   padding: 3px 8px 3px;
@@ -293,8 +328,87 @@ export default {
   cursor: pointer;
 }
 .inspector-searchbox {
-  width: 30vw;
+  width: 20vw;
   float: right;
-  margin-right: 5px;
+}
+.inspector-search .v-text-field--outlined, .v-text-field--solo {
+  border-radius: 0px 4px 4px 0px !important;
+}
+.inspector-search .v-input__append-inner {
+  margin-top: 2px !important;
+}
+.inspector-search .v-input__slot {
+  padding-right: 4px !important;
+}
+.inspector-search .v-icon {
+  font-size: 14px !important;
+}
+.flow-filter {
+  width: 100px !important;
+  height: 26px;
+}
+.flow-filter-select {
+  width: 100px;
+  min-height: 26px !important;
+  height: 26px !important;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+}
+.flow-filter .v-text-field--outlined, .v-text-field--solo {
+  border-radius: 4px 0px 0px 4px !important;
+}
+.v-input__slot {
+  min-height: 26px !important;
+  height: 26px !important;
+}
+.flow-filter .v-select__selections{
+  min-height: 26px !important;
+  height: 26px !important;
+  padding: 6px 0 !important;
+}
+.flow-filter .v-select__selection {
+  line-height: 14px;
+  margin: 0 4px 15px 0 !important;
+}
+.flow-filter .v-input__icon--append {
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  margin-bottom: 15px;
+  margin-left: 0;
+}
+.flow-filter .v-input__prepend-outer {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  min-width: 24px;
+  margin-bottom: 10px;
+  margin-left: 0;
+  margin-right: 8px;
+  margin-top: 2px !important;
+}
+.flow-filter .v-icon {
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  min-width: 14px;
+}
+
+.inspector-search {
+  width: 320px !important;
+  height: 26px;
+}
+.inspector-search-text {
+  width: 320px;
+  min-height: 26px !important;
+  height: 26px !important;
+  font-size: 14px !important;
+  font-weight: 400;
+  line-height: 14px !important;
+}
+.inspector-search-text .v-label{
+  font-size: 14px !important;
+  top: 5px !important;
 }
 </style>

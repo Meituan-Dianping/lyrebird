@@ -1,5 +1,5 @@
 <template>
-  <div class="checker-split">
+  <div>
     <Split v-model="split" min=220px>
       <div slot="left">
         <checker-list></checker-list>
@@ -32,16 +32,6 @@ export default {
 </script>
 
 <style>
-.checker-split{
-  height: calc(100vh - 44px - 40px - 28px - 12px);
-    /* total:100vh
-    header: 44px
-    title: 40px
-    extension-container
-    margin-bottom: 12px
-    footer: 28px
-    */
-}
 .extension-empty {
   position: absolute; 
   top:50%;

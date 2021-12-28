@@ -15,7 +15,7 @@
       floating
       expand-on-hover
       height="calc(100vh - 44px - 28px)"
-      class="background mt-11"
+      class="background mt-11 side-navgation"
     >
       <v-list nav dense> 
         <v-list-item-group v-model="activeMenuItemIndex" active-class="v-item--active">
@@ -31,17 +31,12 @@
 
     <v-main class="shading main-container pb-0">
       <v-toolbar-title class="shading pt-4 pb-2 page-title">{{activeMenuItemName}}</v-toolbar-title>
-      <router-view class="background mr-3 mb-3" style="margin-left: 68px"/>
+      <router-view class="router-container background mr-3 mb-3" style="margin-left: 68px"/>
     </v-main>
 
     <v-footer app color="primary" class="main-footer">
-      <span class="main-footer-status-placeholder"></span>
-      <span v-show="activatedGroupName" class="main-footer-status-no-pointer">
-        <b>Activated mock group: {{activatedGroupName}}</b>
-        <Icon type="md-close-circle" style="cursor:pointer;" @click="resetActivatedData" />
-      </span>
       <StatusBar />
-      <v-spacer></v-spacer>
+      <v-spacer />
       <StatusInfo />
     </v-footer>
   </div>
@@ -73,7 +68,6 @@ export default {
   },
   beforeDestroy () {
     document.removeEventListener('keydown', this._keydownListener)
-    this.$io.removeListener('activatedGroupUpdate', this.loadActivatedGroup)
     this.$io.removeListener('statusBarUpdate', this.loadAllStatusList)
     this.$io.removeListener('msgSuccess', this.successMessage) 
   },
@@ -83,7 +77,6 @@ export default {
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
     this.$bus.$on('msg.destroy', this.destroyMessage)
-    this.$io.on('activatedGroupUpdate', this.loadActivatedGroup)
     this.$io.on('statusBarUpdate', this.loadAllStatusList)
     this.$io.on('msgSuccess', this.successMessage)
   },
@@ -110,9 +103,6 @@ export default {
         // 2,In order to solve the problem of losing the selected state, first assign ActiveMenuItemIndex to -1, 
         //  and the real value will be set by method menuItemOnClick
         this.$store.commit('setActiveMenuItemIndex', -1)
-
-
-        
       }
     },
     activeMenuItemName() {
@@ -121,20 +111,6 @@ export default {
       } else {
         return this.$store.state.activeMenuItem.title
       }
-    },
-    activatedGroupName () {
-      const activatedGroups = this.$store.state.inspector.activatedGroup
-      if (activatedGroups === null) {
-        return null
-      }
-      if (Object.keys(activatedGroups) === 0) {
-        return null
-      }
-      let text = ''
-      for (const groupId in activatedGroups) {
-        text = text + activatedGroups[groupId].name + ' '
-      }
-      return text
     }
   },
   methods: {
@@ -161,12 +137,6 @@ export default {
       } else {
         window.open(menuItem.path, '_self')
       }
-    },
-    resetActivatedData () {
-      this.$store.dispatch('deactivateGroup')
-    },
-    loadActivatedGroup () {
-      this.$store.dispatch('loadActivatedGroup')
     },
     loadAllStatusList () {
       this.$store.dispatch('loadAllStatusList')
@@ -215,6 +185,19 @@ export default {
   line-height: 16px;
   margin-left: 68px;
 }
+.router-container{
+  height: calc(100vh - 44px - 40px - 28px - 12px);
+    /* total:100vh
+    header: 44px
+    title: 40px
+    extension-container
+    margin-bottom: 12px
+    footer: 28px
+    */
+}
+.ivu-split-trigger-con {
+  z-index: 2;
+}
 .v-item--active {
   background-color: #5A57C4 10%;
   color: #5A57C4 !important;
@@ -243,8 +226,15 @@ export default {
 </style>
 
 <style>
+.side-navgation {
+  z-index: 4;
+}
 .ivu-split-pane {
   overflow: hidden;
+}
+.ivu-split-trigger {
+  border-bottom: 1px solid #dcdee2;
+  border-top: 1px solid #dcdee2;
 }
 .save-btn {
   color: #fff;
@@ -257,7 +247,7 @@ export default {
   right: 60px;
   bottom: 60px;
   border-radius: 50%;
-  z-index: 500;
+  z-index: 2;
 }
 .save-btn-detail {
   width: 36px !important;
