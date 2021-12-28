@@ -43,8 +43,8 @@
 
       <v-tooltip bottom open-delay=500>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn plain icon v-bind="attrs" v-on="on">
-            <v-icon size="18px" color="content">mdi-help-circle-outline</v-icon>
+          <v-btn plain icon small v-bind="attrs" v-on="on">
+            <v-icon small size="18px" color="content">mdi-help-circle-outline</v-icon>
           </v-btn>
         </template>
         <span>Get the proxy response while the request is mocked</span>
@@ -84,8 +84,8 @@
 
       <v-tooltip bottom open-delay=500>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn plain icon v-bind="attrs" v-on="on">
-            <v-icon size="18px" color="content" style="opacity:1">mdi-help-circle-outline</v-icon>
+          <v-btn plain icon v-bind="attrs" v-on="on" small>
+            <v-icon size="18px" color="content" small style="opacity:1">mdi-help-circle-outline</v-icon>
           </v-btn>
         </template>
         <span>Select a mock group</span>
@@ -310,16 +310,18 @@ export default {
   margin-bottom: 7px;
 }
 .button-bar-divider {
-  margin-left: 16px;
-  margin-right: 16px;
-  /* color: #F1F0F4;
-  border-color: #F1F0F4 !important; */
+  margin-left: 8px;
+  margin-right: 8px;
 }
 .inspector-button-bar {
   flex-grow: 1;
 }
 .button-bar-diff-mode .v-input--switch__track {
   height: 19px !important;
+  width: 32px !important;
+}
+.button-bar-diff-mode .v-input--selection-controls__input {
+  margin-right: 0px !important;
   width: 32px !important;
 }
 .button-bar-diff-mode .v-input--switch__thumb {
