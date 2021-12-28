@@ -30,6 +30,9 @@ export default {
     setSelectedFlows (state, selectedFlows) {
       state.selectedFlows = selectedFlows
     },
+    addSelectedFlow (state, flow) {
+      state.selectedFlows.push(flow)
+    },
     setFocusedFlow (state, flow) {
       state.focusedFlow = flow
     },
@@ -118,15 +121,6 @@ export default {
         })
         .catch(error => {
           bus.$emit('msg.error', 'Load flow list error: ' + error.data.message)
-        })
-    },
-    loadRecordMode ({ commit }) {
-      api.getRecordMode()
-        .then(response => {
-          commit('setRecordMode', response.data.data)
-        })
-        .catch(error => {
-          bus.$emit('msg.error', 'Load record mode error: ' + error.data.message)
         })
     },
     saveRecordMode ({ state }) {

@@ -102,6 +102,7 @@
         class="inspector-search-text"
         label="Separate multiple keywords by spaces"
         clearable
+        @click:clear="clearInspectorSearch"
       />
     </div>
 
@@ -182,7 +183,6 @@ export default {
     }
   },
   mounted () {
-    this.getRecordStatus()
     this.loadDiffModeStatus()
     this.loadFLowFilters()
   },
@@ -256,19 +256,14 @@ export default {
     changeFLowFilter (payload) {
       this.$store.dispatch('saveFLowFilters', payload)
     },
-    switchRecord () {
-      let mode = this.$store.state.inspector.recordMode === 'record' ? 'normal' : 'record'
-      this.$store.commit('setRecordMode', mode)
-      this.$store.dispatch('saveRecordMode')
-    },
-    getRecordStatus () {
-      this.$store.dispatch('loadRecordMode')
-    },
     clearAllFlow () {
       this.$store.dispatch('clearInspector', this.clearTypes)
     },
     resetActivatedData () {
       this.$store.dispatch('deactivateGroup')
+    },
+    clearInspectorSearch () {
+      this.$store.commit('setSearchStr', '')
     },
     saveSelectedFlow () {
       if (Object.keys(this.activatedGroups).length <= 0) {

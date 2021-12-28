@@ -282,6 +282,8 @@ export default {
     },
     selectFlow (flow) {
       this.$store.dispatch('focusFlow', flow)
+      this.$store.commit('addSelectedFlow', flow)
+      this.itemSelectChange(this.$store.state.inspector.selectedFlows)
     },
     itemSelectChange (event) {
       let selectedIds = []
@@ -295,7 +297,7 @@ export default {
     },
     refreshFlowList () {
       let displayFlowList = []
-      let searchStr = this.searchStr.trim()
+      let searchStr = typeof(this.searchStr) === 'string' ? this.searchStr.trim() : ''
       // Split searchStr by one or more spaces
       let searchStrList = searchStr.split(/\s+/)
       for (const flow of this.originFlowList) {
@@ -431,6 +433,9 @@ export default {
 }
 .flow-list .v-data-table>.v-data-table__wrapper>table {
   width: calc(100% - 20px) !important;
+}
+.flow-table-active table > tbody > tr > td {
+  background-color: red !important;
 }
 .flow-list-item-source {
   text-transform: capitalize;
