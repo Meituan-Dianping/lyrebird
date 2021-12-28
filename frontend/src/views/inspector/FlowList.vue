@@ -27,8 +27,8 @@
               <v-chip label small
                 v-if="item.status === 'kill'"
                 class="flow-list-item-tag"
-                color="error"
-                text-color="red"
+                color="#fff1f0"
+                text-color="#f5222d"
               >kill</v-chip>
               <v-chip label small
                 v-else-if="item.response.mock === 'mock'"
@@ -136,7 +136,7 @@
     </v-data-table>
 
     <v-row class="inspector-tabel-pagination-row">
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-col class="inspector-tabel-pagination-col">
         <v-pagination
           v-model="currentPage"
@@ -443,9 +443,6 @@ export default {
 }
 .flow-list .v-data-table>.v-data-table__wrapper>table {
   width: calc(100% - 20px) !important;
-}
-.flow-table-active table > tbody > tr > td {
-  background-color: red !important;
 }
 .flow-list-item-source {
   text-transform: capitalize;

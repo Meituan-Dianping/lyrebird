@@ -62,7 +62,6 @@ export default {
   beforeDestroy () {
     this.$io.removeListener('activatedGroupUpdate', this.loadActivatedGroup)
   },
-  
   computed: {
     statusBottomLeftList () {
       return this.$store.state.statusbar.statusBottomLeftList

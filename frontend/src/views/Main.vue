@@ -36,7 +36,7 @@
 
     <v-footer app color="primary" class="main-footer">
       <StatusBar />
-      <v-spacer></v-spacer>
+      <v-spacer />
       <StatusInfo />
     </v-footer>
   </div>
