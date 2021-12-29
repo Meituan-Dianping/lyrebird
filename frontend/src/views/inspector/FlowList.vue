@@ -192,7 +192,7 @@ export default {
         {
           text: 'URL',
           value: 'request',
-          sortable: false,
+          sortable: false
         },
         {
           text: 'Start',
@@ -277,15 +277,15 @@ export default {
       Footer 28px
       */
       this.tableSize = { 
-        width: 840,
+        width: 800,
         height: height
       }
     },
     getFlowTableItemClass(item) {
-      if (!this.$store.state.inspector.focusedFlow) {
+      if (!this.$store.state.inspector.focusedFlowDetail) {
         return ''
       }
-      if (item.id === this.$store.state.inspector.focusedFlow.id) {
+      if (item.id === this.$store.state.inspector.focusedFlowDetail.id) {
         return 'flow-list-item-focused'
       }
     },
