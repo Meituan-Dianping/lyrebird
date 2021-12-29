@@ -93,8 +93,8 @@ Lyrebird 1.6.0
 
 ## --script 
 
-从指定路径加载[检查器](./checker.html)([Checker](./checker.html))脚本
-用于调试检查器脚本
+从指定路径加载[扩展](./checker.html)([Extension](./checker.html))脚本
+用于调试扩展脚本
 
 ## --plugin 
 
