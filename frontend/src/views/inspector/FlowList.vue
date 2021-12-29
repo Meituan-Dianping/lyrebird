@@ -180,7 +180,7 @@ export default {
           value: 'method',
           sortable: false,
           filterable: false,
-          width: 60
+          width: 50
         },
         {
           text: 'Status',
@@ -198,19 +198,19 @@ export default {
           text: 'Start',
           value: 'start_time',
           filterable: false,
-          width: 80
+          width: 70
         },
         {
           text: 'Duration',
           value: 'duration',
           filterable: false,
-          width: 100
+          width: 70
         },
         {
           text: 'Size',
           value: 'size',
           filterable: false,
-          width: 80
+          width: 70
         }
       ]
     }
@@ -277,15 +277,15 @@ export default {
       Footer 28px
       */
       this.tableSize = { 
-        width: window.innerWidth,
+        width: 800,
         height: height
       }
     },
     getFlowTableItemClass(item) {
-      if (!this.$store.state.inspector.focusedFlow) {
+      if (!this.$store.state.inspector.focusedFlowDetail) {
         return ''
       }
-      if (item.id === this.$store.state.inspector.focusedFlow.id) {
+      if (item.id === this.$store.state.inspector.focusedFlowDetail.id) {
         return 'flow-list-item-focused'
       }
     },
@@ -387,7 +387,10 @@ export default {
   font-size: 18px !important;
 }
 .flow-table table>tbody>tr>td>span {
-  color: #9B9CB7 !important;
+  color: #666 !important;
+}
+.flow-table {
+  width: 100%;
 }
 .flow-list-item-source > span {
   padding: 0px 8px !important;
@@ -439,6 +442,7 @@ export default {
   margin-bottom: 12px
   footer: 28px
     */
+  width: 100%;
   overflow-y: auto;
 }
 .flow-list .v-data-table>.v-data-table__wrapper>table {
@@ -458,7 +462,8 @@ export default {
 .flow-list-item-url {
   display: inline-block;
   word-break: keep-all;
-  max-width: calc(100% - 50px);
+  max-width: 840px;
+  width: calc(100% - 50px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

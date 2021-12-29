@@ -30,6 +30,9 @@ export default {
     setSelectedFlows (state, selectedFlows) {
       state.selectedFlows = selectedFlows
     },
+    cleaerSelectedFlows (state) {
+      state.selectedFlows = []
+    },
     addSelectedFlow (state, flow) {
       state.selectedFlows.push(flow)
     },
@@ -155,6 +158,7 @@ export default {
         api.deleteAllFlow()
         .then(response => { 
           commit('clearSelectedId')
+          commit('cleaerSelectedFlows')
         }).catch(error => {
           bus.$emit('msg.error', 'Clear flow error: ' + error.data.message)
           return
@@ -189,6 +193,7 @@ export default {
             commit('clearFocusedFlowDetail')
           }
           commit('clearSelectedId')
+          commit('cleaerSelectedFlows')
           bus.$emit('msg.success', selectedIdLength + ' flow deleted!')
         })
         .catch(error => {
