@@ -1,11 +1,9 @@
 <template>
   <div>
     <v-app-bar app dense elevation="3" height="44" color="background">
-      <v-app-bar-nav-icon width="30">
-          <img src="@/assets/logo.svg" width="40" class="ml-3"/>
-      </v-app-bar-nav-icon>
       <v-app-bar-title width="30">
-          <img src="@/assets/lyrebird.svg" width="120"/>
+        <img src="@/assets/logo.svg" width="40" class="app-bar-logo"/>
+        <img src="@/assets/lyrebird.svg" width="120" class="app-bar-lyrebird"/>
       </v-app-bar-title>
       <v-spacer/>
 
@@ -97,6 +95,12 @@ export default {
 }
 .logo img {
   width: 200px
+}
+app-bar-logo {
+  margin: 12px 12px 0px -8px;
+}
+app-bar-lyrebird {
+  margin-bottom: 8px;
 }
 .main-footer {
   height: 28px;
