@@ -387,7 +387,7 @@ export default {
   font-size: 18px !important;
 }
 .flow-table table>tbody>tr>td>span {
-  color: #9B9CB7 !important;
+  color: #666 !important;
 }
 .flow-list-item-source > span {
   padding: 0px 8px !important;
