@@ -2,7 +2,7 @@
 
 BugIt 是一个Issue提交的插件，目前应用于提交Bug场景下。
 
-配合其他插件，BugIt提供了一种准确、快捷、有效的Issue生成服务。除填写Issue配置字段外，BugIt还提供Lyrebird中[检查器](../checker/)([Checker](../checker/))与其他[插件](../plugins/)([Android](./android.md)、[iOS](./ios.md))数据。
+配合其他插件，BugIt提供了一种准确、快捷、有效的Issue生成服务。除填写Issue配置字段外，BugIt还提供Lyrebird中[扩展](../checker/)([Extension](../checker/))与其他[插件](../plugins/)([Android](./android.md)、[iOS](./ios.md))数据。
 
 通过脚本配置，可支持任意Bug管理系统。
 
@@ -53,17 +53,22 @@ BugIt支持自动填充Lyrebird运行过程中抓取到的数据信息。
 
 ### 报警获取
 
-在[检查器](../checker/)([Checker](../checker/))捕获报警后，可以通过通知中心随时跳转至BugIt。
+在[扩展](../checker/)([Extension](../checker/))捕获报警后，可以通过通知中心随时跳转至BugIt。
 
 在右侧数据面板中，可以对历史[消息总线](/advance/eventbus.md)中的信息进行回溯，补充至Bug中。
 
 ![](../img/bugit_alert.gif)
 
-### 缓存功能
+### 保存草稿功能
 
-按下[Commond]+[s]键，会将Bug相关字段信息进行存储。
+按下[Commond]+[s]键，会将Bug相关字段信息进行存储为默认草稿Default。
 
-缓存信息不受Lyrebird服务开关、浏览器缓存、脚本/界面切换的影响。
+自定义草稿步骤如下：
+- 点击Draft按钮 <img src="../img/bugit-draft.png" width=70>
+- 在弹出框中编辑草稿名称(默认为Default)，草稿名称不能重复。
+- 点击保存会将Bug相关字段信息进行存储为该模板下的一份草稿。
+
+草稿信息不受Lyrebird服务开关、浏览器缓存、脚本/界面切换的影响。
 
 ![](../img/bugit_cache.gif)
 
