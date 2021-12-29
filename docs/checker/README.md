@@ -5,8 +5,8 @@
 无需搭建工程和前端开发，扩展可灵活、轻巧、便捷、准确的对[消息总线](/advance/eventbus.md)频道中的数据进行分析和校验。
 
 Extension默认支持三种类型：
-1. 请求修改器(Modifier): 如为请求添加Header Key、[修改请求的Param](/checker/request_editor.html#修改请求)等
-2. 请求检查器(Checker): 如可通过检查器监听网络请求频道，检测网络请求中的[图片大小](/checker/examples.html#大图检测)是否满足预期，或检测是否[重复请求](/checker/examples.html#重复请求检测)了同一个接口等
+1. [请求修改器(Modifier)](/checker/request_editor.html): 如为请求添加Header Key、[修改请求的Param](/checker/request_editor.html#修改请求)等
+2. [请求检查器(Checker)](/checker/dev_debug.html): 如可通过检查器监听网络请求频道，检测网络请求中的[图片大小](/checker/examples.html#大图检测)是否满足预期，或检测是否[重复请求](/checker/examples.html#重复请求检测)了同一个接口等
 3. 其他(Other): 未分类或者综合应用
 
 可在脚本中使用全局变量**ExtensionCategory**(String类型)人为指定Extension类型
