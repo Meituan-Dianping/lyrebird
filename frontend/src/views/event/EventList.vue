@@ -243,8 +243,8 @@ export default {
   /* total:100vh
   header: 44px
   title: 40px
-  table-header: 32px
-  pagation
+  margin-top: 5px
+  Page: 32px
   footer: 28px
   margin-bottom:12px
     */
