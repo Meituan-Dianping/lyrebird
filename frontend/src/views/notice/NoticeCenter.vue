@@ -5,9 +5,9 @@
       :content="noticeList.length > 999 ? '999+' : noticeList.length"
       :value="noticeList.length"
       offset-x="10"
-      offset-y="8"
+      offset-y="16"
     >
-      <v-icon small>
+      <v-icon>
         mdi-bell-outline
       </v-icon>
     </v-badge>

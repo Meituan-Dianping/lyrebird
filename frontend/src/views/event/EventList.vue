@@ -217,7 +217,7 @@ export default {
       Margin Bottom: 12px
       Footer 28px
       */
-      this.tableHeight = window.innerHeight - 44 - 32 - 5 - 28 - 12
+      this.tableHeight = window.innerHeight - 44 - 40 - 32 - 5 - 28 - 12
     }
   }
 }
@@ -237,6 +237,17 @@ export default {
 .page {
   text-align: center;
   margin-top: 5px;
+}
+.event-table {
+  height: calc(100vh - 44px - 40px - 32px - 5px - 28px - 12px) !important;
+  /* total:100vh
+  header: 44px
+  title: 40px
+  table-header: 32px
+  pagation
+  footer: 28px
+  margin-bottom:12px
+    */
 }
 .event-table .ivu-table-cell {
   padding-left: 3px;
