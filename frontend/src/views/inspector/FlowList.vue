@@ -192,7 +192,7 @@ export default {
         {
           text: 'URL',
           value: 'request',
-          sortable: false
+          sortable: false,
         },
         {
           text: 'Start',
