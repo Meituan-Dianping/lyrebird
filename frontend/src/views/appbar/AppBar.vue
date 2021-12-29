@@ -133,7 +133,7 @@ app-bar-lyrebird {
 }
 .top-bar-item .v-select__selection {
   line-height: 14px;
-  margin: 0 4px 17px 0 !important;
+  margin: 0 4px 18px 0 !important;
 }
 .top-bar-item .v-input__append-inner {
   margin-top: 7px !important;
