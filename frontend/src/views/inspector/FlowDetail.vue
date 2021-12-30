@@ -144,13 +144,14 @@ export default {
   margin-bottom: 0;
 }
 .flow-detail {
-  height: calc(100vh - 172px);
+  height: calc(100vh - 44px - 40px - 38px - 33px - 28px - 12px);
   /* total:100vh
-    header 38px
-    button-bar 38px
-    mode-tab 34px
-    message-tab 34px
+    header 44px
+    title 40px
+    head-line: 38px
+    button-bar: 33px
     footer 28px
+    margin-bottom: 12px
     */
 }
 </style>

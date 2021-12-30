@@ -1,90 +1,151 @@
 <template>
   <div class="flow-list">
-    <Table
-      highlight-row
-      size="small"
-      ref="selection"
-      :columns="columns"
-      :data="flowList"
-      @on-row-click="selectFlow"
-      @on-selection-change="itemSelectChange"
-      class="data-table"
+    <v-data-table
+      class="flow-table"
+      checkbox-color="primary"
+      :height="tableSize.height"
+      show-select
+      fixed-header
+      calculate-widths
+      hide-default-footer
+      v-model="selectedFlows"
+      v-resize="onTableResize"
+      :header-props="{sortIcon:'mdi-menu-down'}"
+      :headers="headers"
+      :items="flowList"
+      :page.sync="currentPage"
+      :items-per-page="pageSize"
+      @click:row="selectFlow"
+      :item-class="getFlowTableItemClass"
     >
-      <template slot-scope="{ row }" slot="source">
-        <Tooltip class="flow-list-item-source" :content="getSourceTooltipContent(row)" placement="bottom-start" transfer>
-          <Tag v-if="row.status === 'kill'" class="flow-list-item-tag" size="small" color="red">kill</Tag>
-          <Tag v-else-if="row.response.mock === 'mock'" class="flow-list-item-tag" size="small" color="green">mock</Tag>
-          <Tag v-else-if="row.response.mock === 'proxy'" class="flow-list-item-tag" size="small">proxy</Tag>
-          <Tag v-else size="small" class="flow-list-item-tag">pending</Tag>
-        </Tooltip>
 
-        <Tooltip class="flow-list-item-source" v-if="row.proxy_response" content="diff" placement="bottom-start" transfer>
-          <Tag size="small" class="flow-list-item-tag" color="blue">diff</Tag>
-        </Tooltip>
+      <template v-slot:item.source="{ item }">
 
-        <Tooltip class="flow-list-item-source" v-if="getRequestEditors(row).length" placement="bottom-start" transfer>
-          <Icon type="md-build" />
-          <div slot="content">
-            <p>Request modification:</p>
-            <p v-for="(value, index) in getRequestEditors(row)" :key=index>{{index + 1}}. {{value.name}}</p>
-          </div>
-        </Tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <span v-bind="attrs" v-on="on" class="flow-list-item-source">
+              <v-chip label small
+                v-if="item.status === 'kill'"
+                class="flow-list-item-tag"
+                color="#fff1f0"
+                text-color="#f5222d"
+              >kill</v-chip>
+              <v-chip label small
+                v-else-if="item.response.mock === 'mock'"
+                class="flow-list-item-tag"
+                color="primaryBrightest"
+                text-color="primary"
+              >mock</v-chip>
+              <v-chip label small
+                v-else-if="item.response.mock === 'proxy'"
+                color="border"
+                class="flow-list-item-tag"
+                text-color="accent"
+              >proxy</v-chip>
+              <v-chip label small
+                v-else
+                class="flow-list-item-tag"
+                color="border"
+                text-color="content"
+              >pending</v-chip>
+            </span>
+          </template>
+          <span>{{getSourceTooltipContent(item)}}</span>
+        </v-tooltip>
+
+        <v-tooltip bottom v-if="item.proxy_response">
+          <template v-slot:activator="{ on, attrs }">
+            <span v-bind="attrs" v-on="on" class="flow-list-item-source">
+              <v-chip label small
+                class="flow-list-item-tag"
+                color="#FFF7E2"
+                text-color="#D69600"
+              >diff</v-chip>
+            </span>
+          </template>
+          <span>Get the server response while the request is mocked</span>
+        </v-tooltip>
+
+        <v-tooltip bottom v-if="getRequestEditors(item).length">
+          <template v-slot:activator="{ on, attrs }">
+            <span v-bind="attrs" v-on="on" class="flow-list-item-source">
+              <v-icon x-small color="accent">mdi-wrench</v-icon>
+            </span>
+          </template>
+          <p>Request modification:</p>
+          <p v-for="(value, index) in getRequestEditors(item)" :key=index style="line-height:1">{{index + 1}}. {{value.name}}</p>
+        </v-tooltip>
       </template>
 
-      <template slot-scope="{ row }" slot="method">
-        <span style="color:green">{{ row.request.method }}</span>
+      <template v-slot:item.method="{ item }">
+        <span>{{ item.request.method }}</span>
       </template>
 
-      <template slot-scope="{ row }" slot="status">
-        <span v-if="row.response.code === 200" style="color:green">{{ row.response.code }}</span>
-        <span v-else-if="row.response.code >= 300 && row.response.code <= 399" style="color:olive">{{ row.response.code }}</span>
-        <span v-else style="color:red">{{ row.response.code }}</span>
+      <template v-slot:item.status="{ item }">
+        <span>
+          <span v-if="item.response.code >= 400" class="flow-list-status-error">{{ item.response.code }}</span>
+          <span v-else>{{ item.response.code }}</span>
+        </span>
       </template>
 
-      <template slot-scope="{ row }" slot="request">
+      <template v-slot:item.request="{ item }">
         <span class="flow-list-item-url">
-          <span class="flow-list-item-url-scheme">{{ row.request.scheme }}</span>
-          <span class="flow-list-item-url-scheme" v-if="row.request.scheme">://</span>
+          <span>{{ item.request.scheme }}</span>
+          <span v-if="item.request.scheme">://</span>
 
-          <span class="flow-list-item-url-host">{{ row.request.host}}</span>
-          <span class="flow-list-item-url-path">{{ row.request.path}}</span>
+          <span class="flow-list-item-url-host">{{ item.request.host}}</span>
+          <span class="flow-list-item-url-path">{{ item.request.path}}</span>
 
-          <span class="flow-list-item-url-params" v-if="row.request.params">?</span>
-          <span class="flow-list-item-url-params">{{ row.request.params }}</span>
+          <span class="flow-list-item-url-params" v-if="item.request.params">?</span>
+          <span class="flow-list-item-url-params">{{ item.request.params }}</span>
         </span>
+
         <span class="flow-list-item-copy-btn" @click.stop>
-          <Tooltip placement="bottom" content="Copy" :delay="500" transfer>
-            <Icon
-              type="ios-copy-outline"
-              size="16"
-              v-clipboard:copy="row.request.url"
-              v-clipboard:success="onUrlCopy"
-              v-clipboard:error="onUrlCopyError"
-            />
-          </Tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <span v-bind="attrs" v-on="on">
+                <v-btn icon x-small plain>
+                  <v-icon
+                    x-small
+                    color="accent"
+                    v-clipboard:copy="item.request.url"
+                    v-clipboard:success="onUrlCopy"
+                    v-clipboard:error="onUrlCopyError"
+                  >mdi-content-copy</v-icon>
+                </v-btn>
+              </span>
+            </template>
+            Copy
+          </v-tooltip>
+
         </span>
       </template>
 
-      <template slot-scope="{ row }" slot="start_time">
-        <span>{{timestampToTime(row.start_time)}}</span>
+      <template v-slot:item.start_time="{ item }">
+        <span>{{timestampToTime(item.start_time)}}</span>
       </template>
 
-      <template slot-scope="{ row }" slot="duration">
-        <span>{{readablizeDuration(row.duration)}}</span>
+      <template v-slot:item.duration="{ item }">
+        <span>{{readablizeDuration(item.duration)}}</span>
       </template>
 
-      <template slot-scope="{ row }" slot="size">
-        <span>{{readablizeBytes(row.size)}}</span>
+      <template v-slot:item.size="{ item }">
+        <span>{{readablizeBytes(item.size)}}</span>
       </template>
-    </Table>
-    <div style="float: right; margin-top: 5px">
-      <Page
-        :total="displayFlowCount"
-        :page-size="pageSize"
-        :current.sync="currentPage"
-        @on-change="refreshFlowList"
-      />
-    </div>
+
+    </v-data-table>
+
+    <v-row class="inspector-tabel-pagination-row">
+      <v-spacer />
+      <v-col class="inspector-tabel-pagination-col">
+        <v-pagination
+          v-model="currentPage"
+          :length="pageCount"
+          @input="refreshFlowList"
+          total-visible=7
+        />
+      </v-col>
+    </v-row>
   </div>
 </template>
 
@@ -97,56 +158,61 @@ export default {
   },
   data () {
     return {
+      tableSize: {
+        width: 0,
+        height: 0,
+      },
       flowList: [],
       refreshFlowListTimer: null,
       displayFlowCount: 0,
       pageSize: 50,
       pageCount: 0,
       currentPage: 1,
-      columns: [
+      headers: [
         {
-          type: 'selection',
-          width: 30,
-          align: 'center'
-        },
-        {
-          title: 'Source',
-          slot: 'source',
+          text: 'Source',
+          value: 'source',
+          sortable: false,
           width: 105
         },
         {
-          title: 'Method',
-          slot: 'method',
-          width: 60
-        },
-        {
-          title: 'Status',
-          slot: 'status',
+          text: 'Method',
+          value: 'method',
+          sortable: false,
+          filterable: false,
           width: 50
         },
         {
-          title: 'URL',
-          slot: 'request'
+          text: 'Status',
+          value: 'status',
+          sortable: false,
+          filterable: false,
+          width: 50
         },
         {
-          title: 'Start',
-          slot: 'start_time',
-          width: 60,
-          sortable: true
+          text: 'URL',
+          value: 'request',
+          sortable: false,
         },
         {
-          title: 'Duration',
-          slot: 'duration',
-          width: 80,
-          sortable: true
+          text: 'Start',
+          value: 'start_time',
+          filterable: false,
+          width: 70
         },
         {
-          title: 'Size',
-          slot: 'size',
-          sortable: true,
-          width: 60
+          text: 'Duration',
+          value: 'duration',
+          filterable: false,
+          width: 70
+        },
+        {
+          text: 'Size',
+          value: 'size',
+          filterable: false,
+          width: 70
         }
-      ],
+      ]
     }
   },
   created () {
@@ -165,8 +231,14 @@ export default {
     searchStr () {
       return this.$store.state.inspector.searchStr
     },
-    selectedIds () {
-      return this.$store.state.inspector.selectedIds
+    selectedFlows: {
+      get () {
+        return this.$store.state.inspector.selectedFlows
+      },
+      set (val) {
+        this.$store.commit('setSelectedFlows', val)
+        this.itemSelectChange(val)
+      }
     }
   },
   watch: {
@@ -187,6 +259,36 @@ export default {
     reload () {
       this.$store.dispatch('loadFlowList')
     },
+    onTableResize () {
+      const height = window.innerHeight - 44 - 40 - 12 - 26 - 7 - 1 - 8 - 12 - 32 - 12 - 12 - 28
+      /* reset table height
+      Header 44px
+      Title 40px
+      padding 12px
+      buttonbar 26px
+      buttombar margin-bottom 7
+      divider 1
+      margin-top 8px
+      tabel
+      margin-top 12px
+      pagination 32px
+      padding 12px
+      margin-bottom 12px
+      Footer 28px
+      */
+      this.tableSize = { 
+        width: 800,
+        height: height
+      }
+    },
+    getFlowTableItemClass(item) {
+      if (!this.$store.state.inspector.focusedFlowDetail) {
+        return ''
+      }
+      if (item.id === this.$store.state.inspector.focusedFlowDetail.id) {
+        return 'flow-list-item-focused'
+      }
+    },
     selectFlow (flow) {
       this.$store.dispatch('focusFlow', flow)
     },
@@ -202,7 +304,7 @@ export default {
     },
     refreshFlowList () {
       let displayFlowList = []
-      let searchStr = this.searchStr.trim()
+      let searchStr = typeof(this.searchStr) === 'string' ? this.searchStr.trim() : ''
       // Split searchStr by one or more spaces
       let searchStrList = searchStr.split(/\s+/)
       for (const flow of this.originFlowList) {
@@ -216,7 +318,7 @@ export default {
         isMatch ? displayFlowList.push(flow) : null
       }
       this.displayFlowCount = displayFlowList.length
-      this.pageCount = Math.ceil(this.displayFlowCount / this.pageSize)
+      this.pageCount = Math.max(Math.ceil(this.displayFlowCount / this.pageSize), 1)
       this.currentPage = this.pageCount && (this.currentPage > this.pageCount) ? this.pageCount : this.currentPage
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
@@ -262,29 +364,89 @@ export default {
 </script>
 
 <style lang="css">
-.data-table th div {
-  padding-left: 5px;
-  padding-right: 5px;
+.flow-table table > thead > tr > th{
+  padding: 0px !important;
+  height: 30px !important;
+  font-size: 12px !important;
+  background-color: #FAF9FA !important;
 }
-.data-table td div {
-  padding-left: 2px;
-  padding-right: 2px;
+.flow-table table > thead > tr > th > span{
+  color: #000520 !important;
+}
+.flow-table table > thead > tr > th > div > div > i{
+  padding-left: 5px;
+  font-size: 18px !important;
+}
+.flow-table table > tbody > tr > td {
+  padding: 0px !important;
+  height: 36px !important;
+  font-size: 12px !important;
+}
+.flow-table table > tbody > tr > td > div > div > i {
+  padding-left: 5px;
+  font-size: 18px !important;
+}
+.flow-table table>tbody>tr>td>span {
+  color: #666 !important;
+}
+.flow-table {
+  width: 100%;
+}
+.flow-list-item-source > span {
+  padding: 0px 8px !important;
+}
+.flow-list-item-focused {
+  background-color: #5b57c41A;
+}
+.inspector-tabel-pagination-row {
+  margin: 0 !important;
+  padding: 0 in !important;
+}
+.inspector-tabel-pagination-row .v-pagination {
+  justify-content: right;
+}
+.inspector-tabel-pagination-row .v-pagination__navigation {
+  margin: 5px !important;
+  height: 30px;
+  width: 30px;
+  box-shadow: none !important;
+  background-color: #F9F8FA !important;
+}
+.inspector-tabel-pagination-row .v-pagination .v-pagination__item {
+  margin: 5px !important;
+  height: 30px;
+  min-width: 30px;
+  box-shadow: none !important;
+}
+.inspector-tabel-pagination-row .v-pagination .v-pagination__item:not(.v-pagination__item--active) {
+  margin: 5px !important;
+  height: 30px;
+  min-width: 30px;
+  box-shadow: none !important;
+  background-color: #F9F8FA !important;
+}
+.inspector-tabel-pagination-col {
+  padding: 12px 0px 0px;
 }
 </style>
 
 <style scoped>
 .flow-list {
-  height: calc(100vh - 148px);
+  /* height: calc(100vh - 44px - 40px - 38px - 8px - 28px - 12px); */
   /* total:100vh
-  header: 38px
+  header: 44px
+  title: 40px
   buttonBar: 38px
-  divider: 1px
-  mode-tag: 34px
+  margin-top: 8px
   table
-  padding: 9px
+  margin-bottom: 12px
   footer: 28px
     */
+  width: 100%;
   overflow-y: auto;
+}
+.flow-list .v-data-table>.v-data-table__wrapper>table {
+  width: calc(100% - 20px) !important;
 }
 .flow-list-item-source {
   text-transform: capitalize;
@@ -293,10 +455,15 @@ export default {
 .flow-list-item-tag {
   margin: 0px 2px;
 }
+.flow-list-status-error {
+  color: #F51818;
+  font-weight: 400;
+}
 .flow-list-item-url {
   display: inline-block;
   word-break: keep-all;
-  max-width: calc(100% - 24px);
+  max-width: 840px;
+  width: calc(100% - 50px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -306,12 +473,12 @@ export default {
   color: unset;
 }
 .flow-list-item-url-host {
-  color: #3780AF;
-  font-weight: 500;
+  color: #5F5CCA;
+  font-weight: 400;
 }
 .flow-list-item-url-path {
-  color:seagreen;
-  font-weight: 500;
+  color:#318CD7;
+  font-weight: 400;
 }
 .flow-list-item-url-params {
   color: unset;

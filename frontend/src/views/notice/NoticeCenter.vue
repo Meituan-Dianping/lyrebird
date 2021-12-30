@@ -1,12 +1,17 @@
 <template>
   <div class="main-header-notice" @click="drawerIsCollapsed=true">
-    <a>
-      <Badge :count="noticeList.length" overflow-count="999" :offset="offset" class-name="notice-badge">
-        <v-btn icon>
-          <v-icon size="15px" color="white">mdi-bell</v-icon>
-        </v-btn>
-      </Badge>
-    </a>
+    <v-badge
+      color="error"
+      :content="noticeList.length > 999 ? '999+' : noticeList.length"
+      :value="noticeList.length"
+      offset-x="10"
+      offset-y="16"
+    >
+      <v-icon>
+        mdi-bell-outline
+      </v-icon>
+    </v-badge>
+
     <Drawer width="380" :closable="true" :mask="false" v-model="drawerIsCollapsed">
       <div class="drawer-header">
         <ButtonGroup>

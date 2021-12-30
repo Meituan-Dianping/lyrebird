@@ -45,7 +45,7 @@ lyrebird
 
 ## 查看及录制数据
 
-![](../img/1_7_0_inspector.gif)
+![](../img/inspector.gif)
 
 * 在Inspector上激活一个数据组(数据组需要在DataManager创建)。
 
@@ -54,7 +54,7 @@ lyrebird
 
 ## 使用mock数据
 
-![](../img/1_7_0_inspector_mock.gif)
+![](../img/inspector_mock.gif)
 
 * 在DataManager中可编辑已保存的Mock数据。
 
@@ -62,6 +62,6 @@ lyrebird
 
 ## 管理mock数据
 
-![](../img/1_7_0_data_manager.gif)
+![](../img/data_manager.gif)
 
 * 在DataManager上完全的管理Mock数据：激活、剪切、复制、删除等

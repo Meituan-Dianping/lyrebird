@@ -171,6 +171,8 @@ class LyrebirdCheckerServer(ThreadServer):
     def get_sorted_checker_groups(self):
         activated_checkers = {}
         deactivated_checkers = {}
+        activated_checkers_list = []
+        deactivated_checkers_list = []
         sorted_checker_groups = []
         for checker in self.checkers.values():
             category = checker.category
@@ -192,11 +194,12 @@ class LyrebirdCheckerServer(ThreadServer):
                 'scripts': checker_scripts
             } for checker_category, checker_scripts in activated_checkers.items()]
             activated_checkers_list.sort(key=lambda k: ExtensionCategory.get_order(k['category']))
-            sorted_checker_groups.append({
-                'status': 'Activated',
-                'key': 'activated',
-                'script_group': activated_checkers_list
-            })
+
+        sorted_checker_groups.append({
+            'status': 'Activated',
+            'key': 'activated',
+            'script_group': activated_checkers_list
+        })
     
         if deactivated_checkers:
             deactivated_checkers_list = [{
@@ -205,13 +208,12 @@ class LyrebirdCheckerServer(ThreadServer):
                 'scripts': checker_scripts
             } for checker_category, checker_scripts in deactivated_checkers.items()]
             deactivated_checkers_list.sort(key=lambda k: ExtensionCategory.get_order(k['category']))
-            sorted_checker_groups.append(
-                {
-                    'status': 'Deactivated',
-                    'key': 'deactivated',
-                    'script_group': deactivated_checkers_list
-                }
-            )
+            
+        sorted_checker_groups.append({
+            'status': 'Deactivated',
+            'key': 'deactivated',
+            'script_group': deactivated_checkers_list
+        })
         return sorted_checker_groups
 
     def run(self):

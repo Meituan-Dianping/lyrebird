@@ -89,7 +89,6 @@ export default {
   align-items: center;
   padding: 10px;
   border-bottom: 1px solid #ddd;
-  background-color: #f8f8f9;
 }
 .button-bar-line {
   display: inline-block;
@@ -99,24 +98,6 @@ export default {
 }
 .small-tab > .ivu-tabs > .ivu-tabs-bar {
   margin-bottom: 0;
-}
-.save-btn {
-  color: #fff;
-  font-size: 0.6rem;
-  text-align: center;
-  line-height: 3rem;
-  width: 3rem;
-  height: 3rem;
-  position: fixed;
-  right: 50px;
-  bottom: 70px;
-  border-radius: 50%;
-  z-index: 500;
-}
-.save-btn > .ivu-tooltip > .ivu-tooltip-rel > .ivu-btn {
-  padding: 5px 8px 5px;
-  background-color: #0fccbf;
-  border-color: #0fccbf;
 }
 .data-detail-empty {
   position: absolute;

@@ -119,7 +119,7 @@ label | 数据组标签，可用于搜索 | True | False
 
 点击左侧文件树顶部的搜索按钮<img src="../img/datamanager/icon-search.png" width=15>展开搜索弹框。搜索时支持输入数据组name和id。
 
-<img src="../img/datamanager/search-modal-result.png" width=400>
+<img src="../img/datamanager/search-modal-result.png" width=600>
 
 未输入搜索词，或搜索词为空时，搜索结果默认展示当前Mock数据仓库中的全部数据组。点击搜索结果，搜索弹框自动关闭，并展示所点击的数据组。
 
