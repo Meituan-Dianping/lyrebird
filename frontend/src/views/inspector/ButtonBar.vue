@@ -369,7 +369,7 @@ export default {
 }
 .flow-filter .v-select__selection {
   line-height: 14px;
-  margin: 0 4px 15px 0 !important;
+  margin: 0 4px 18px 0 !important;
 }
 .flow-filter .v-input__icon--append {
   width: 14px;

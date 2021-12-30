@@ -1,11 +1,9 @@
 <template>
   <div>
     <v-app-bar app dense elevation="3" height="44" color="background">
-      <v-app-bar-nav-icon width="30">
-          <img src="@/assets/logo.svg" width="40" class="ml-3"/>
-      </v-app-bar-nav-icon>
       <v-app-bar-title width="30">
-          <img src="@/assets/lyrebird.svg" width="120"/>
+        <img src="@/assets/logo.svg" width="40" style="margin: 12px 12px 0px -8px;"/>
+        <img src="@/assets/lyrebird.svg" width="120" style="margin-bottom:8px;"/>
       </v-app-bar-title>
       <v-spacer/>
 
@@ -129,7 +127,7 @@ export default {
 }
 .top-bar-item .v-select__selection {
   line-height: 14px;
-  margin: 0 4px 17px 0 !important;
+  margin: 0 4px 18px 0 !important;
 }
 .top-bar-item .v-input__append-inner {
   margin-top: 7px !important;
