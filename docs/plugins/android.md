@@ -44,37 +44,24 @@ lyrebird
 屏幕快照存储于```~/.lyrebird/plugins/lyrebird_android/screenshot/```目录中，会在lyrebird启动时清空并删除上述目录
 :::
 
-### 查看设备信息
+### 控制应用
 
-设备接入后，设备信息区中展示如下设备信息：
+应用信息区中可以查看设备中所有的package，可对package进行如下操作：
+- Start
+- Stop
+- Install
+- Uninstall
+- Clear Cache
 
-key | 说明
-:-- | :--
-Device ID | 设备序列号
-Model | 设备类型
-Android Version | 系统版本
+![](../img/plugin-android-app-control.png)
 
-![](../img/plugin-android-deviceinfo.png)
+#### 拉起应用
+支持在拉起应用时传入参数，该参数将以--es的方式传入App。
 
-::: tip
-可以通过设备信息区顶部的按钮，获取设备屏幕快照和更多设备信息。
-:::
+#### 安装应用
+通过安装链接安装应用。
 
-### 查看应用信息
-
-应用信息区中可以查看设备中所有的package，选择某个package可以查看应用信息：
-
-key | 说明
-:-- | :--
-PackageName | 应用包名
-StartActivity | 启动Activity
-App Version | 应用版本
-
-![](../img/plugin-android-appinfo.png)
-
-::: tip
-点击more detail可以获得更多应用信息。
-:::
+#### 指定默认读取应用
 
 可指定启动后默认读取的应用。默认读取的应用存储于Lyrebird统一管理的配置文件中，通过设置或修改"plugin.android"的"package"值来更改默认应用。
 
@@ -90,7 +77,6 @@ App Version | 应用版本
 
 Lyrebird统一管理的配置文件，默认存放在~/.lyrebird/conf.json文件中。
 
-### 拉起或关闭指定应用
 
 应用信息区提供启动应用和关闭应用的功能。
 
@@ -118,6 +104,6 @@ Lyrebird统一管理的配置文件，默认存放在~/.lyrebird/conf.json文件
 
 此外，提供格式化展示命令的窗口，可以将命令切分展示，使之更便于阅读。
 
-![](../img/plugin-android-console.gif)
+![](../img/plugin-android-console-format.png)
 
 Android插件的更多内容，详见[代码仓库](https://github.com/Meituan-Dianping/lyrebird-android)

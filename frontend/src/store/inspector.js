@@ -5,6 +5,7 @@ export default {
   state: {
     activatedGroup: {},
     searchStr: '',
+    selectedFlows: [],
     selectedIds: [],
     focusedFlow: null,
     focusedFlowDetail: null,
@@ -25,6 +26,15 @@ export default {
     },
     clearSelectedId (state) {
       state.selectedIds = []
+    },
+    setSelectedFlows (state, selectedFlows) {
+      state.selectedFlows = selectedFlows
+    },
+    cleaerSelectedFlows (state) {
+      state.selectedFlows = []
+    },
+    addSelectedFlow (state, flow) {
+      state.selectedFlows.push(flow)
     },
     setFocusedFlow (state, flow) {
       state.focusedFlow = flow
@@ -116,15 +126,6 @@ export default {
           bus.$emit('msg.error', 'Load flow list error: ' + error.data.message)
         })
     },
-    loadRecordMode ({ commit }) {
-      api.getRecordMode()
-        .then(response => {
-          commit('setRecordMode', response.data.data)
-        })
-        .catch(error => {
-          bus.$emit('msg.error', 'Load record mode error: ' + error.data.message)
-        })
-    },
     saveRecordMode ({ state }) {
       api.setRecordMode(state.recordMode)
         .catch(error => {
@@ -157,6 +158,7 @@ export default {
         api.deleteAllFlow()
         .then(response => { 
           commit('clearSelectedId')
+          commit('cleaerSelectedFlows')
         }).catch(error => {
           bus.$emit('msg.error', 'Clear flow error: ' + error.data.message)
           return
@@ -191,6 +193,7 @@ export default {
             commit('clearFocusedFlowDetail')
           }
           commit('clearSelectedId')
+          commit('cleaerSelectedFlows')
           bus.$emit('msg.success', selectedIdLength + ' flow deleted!')
         })
         .catch(error => {

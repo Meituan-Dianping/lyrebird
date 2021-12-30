@@ -210,15 +210,14 @@ export default {
     },
     onResize () {
       /* reset table height
-      Header 38px
-      ButtonBar 38px
-      Tab 34px
-      5px
+      Header 44px
+      Title 40px
       PaginationBar 32px
       5px
+      Margin Bottom: 12px
       Footer 28px
       */
-      this.tableHeight = window.innerHeight - 180
+      this.tableHeight = window.innerHeight - 44 - 40 - 32 - 5 - 28 - 12
     }
   }
 }
@@ -226,20 +225,29 @@ export default {
 
 <style less>
 .event-list {
-  height: calc(100vh - 140px);
+  height: calc(100vh - 44px - 40px - 28px - 12px);
   /* total:100vh
-  header: 38px
-  buttonBar: 38px
-  divider:1px
-  mode-tag:34px
-  padding: 1px
+  header: 44px
+  title: 40px
   footer: 28px
+  margin-bottom:12px
     */
   overflow-y: auto;
 }
 .page {
   text-align: center;
   margin-top: 5px;
+}
+.event-table {
+  height: calc(100vh - 44px - 40px - 32px - 5px - 28px - 12px) !important;
+  /* total:100vh
+  header: 44px
+  title: 40px
+  margin-top: 5px
+  Page: 32px
+  footer: 28px
+  margin-bottom:12px
+    */
 }
 .event-table .ivu-table-cell {
   padding-left: 3px;

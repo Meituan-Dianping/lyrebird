@@ -1,16 +1,40 @@
 <template>
   <span>
-    <span v-for="(item, index) in statusBarList" :key="index" class="main-footer-status">
+    <span class="main-footer-status-placeholder"/>
+
+    <span class="main-footer-status" v-show="activatedGroupName">
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <span
+            v-bind="attrs"
+            v-on="on"
+            class="main-footer-status-button"
+            @click="resetActivatedData"
+            style="cursor:pointer;"
+          >
+            <b >Mock group: {{activatedGroupName}}</b>
+          </span>
+        </template>
+        <span>Click to deactivate</span>
+      </v-tooltip>
+    </span>
+
+    <span v-for="(item, index) in statusBottomLeftList" :key="index" class="main-footer-status">
       <Poptip
         content="content"
         placement="top-start"
-        @on-popper-show="getStatusBarDetail(item.id)"
+        @on-popper-show="getStatusBarDetail(item.name)"
         :width="getPoptipWidth()"
         word-wrap
         padding="10px 20px 10px 20px"
         transfer
       >
-        <b class="main-footer-status-button"> {{item.text}}</b>
+        <b class="main-footer-status-button">
+          <v-icon v-if="item.prepend_icon" small color="white">
+            {{item.prepend_icon}}
+          </v-icon>
+          {{item.text}}
+        </b>
 
         <div slot="content">
           <div v-for="(item, index) in statusBarDetail" :key="index">
@@ -32,19 +56,38 @@
 import { makeRequest } from '@/api'
 
 export default {
-  mounted () {
-    this.$store.dispatch('loadStatusBarList')
-  },
   created () {
-    this.$io.on('statusBarUpdate', this.loadStatusBarList)
+    this.$io.on('activatedGroupUpdate', this.loadActivatedGroup)
   },
-  destroyed() {
-    this.$io.removeListener('statusBarUpdate', this.loadStatusBarList)
+  beforeDestroy () {
+    this.$io.removeListener('activatedGroupUpdate', this.loadActivatedGroup)
+  },
+  computed: {
+    statusBottomLeftList () {
+      return this.$store.state.statusbar.statusBottomLeftList
+    },
+    statusBottomRightList () {
+      return this.$store.state.statusbar.statusBottomRightList
+    },
+    statusBarDetail () {
+      return this.$store.state.statusbar.statusBarDetail
+    },
+    activatedGroupName () {
+      const activatedGroups = this.$store.state.inspector.activatedGroup
+      if (activatedGroups === null) {
+        return null
+      }
+      if (Object.keys(activatedGroups) === 0) {
+        return null
+      }
+      let text = ''
+      for (const groupId in activatedGroups) {
+        text = text + activatedGroups[groupId].name + ' '
+      }
+      return text
+    }
   },
   methods: {
-    loadStatusBarList () {
-      this.$store.dispatch('loadStatusBarList')
-    },
     getStatusBarDetail (statusItemId) {
       this.$store.dispatch('loadStatusBarDetail', statusItemId)
     },
@@ -68,14 +111,12 @@ export default {
         .catch(error => {
           this.$bus.$emit('msg.error', error.data.message)
         })
-    }
-  },
-  computed: {
-    statusBarList () {
-      return this.$store.state.statusbar.statusBarList
     },
-    statusBarDetail () {
-      return this.$store.state.statusbar.statusBarDetail
+    resetActivatedData () {
+      this.$store.dispatch('deactivateGroup')
+    },
+    loadActivatedGroup () {
+      this.$store.dispatch('loadActivatedGroup')
     },
   }
 }

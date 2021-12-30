@@ -1,43 +1,54 @@
 <template>
-  <div class="small-tab">
-    <Row class="inspector-container-button-bar">
-      <button-bar></button-bar>
-    </Row>
-    <div class="divider"></div>
-    <Tabs :value="selectedModeTab" size="small" @on-click="switchTab">
-      <TabPane label="Real-time" name="realtime"></TabPane>
-      <TabPane label="Advanced" name="advanced"></TabPane>
-    </Tabs>
-    <FlowInspector v-if="selectedModeTab==='realtime'"></FlowInspector>
-    <EventInspector v-if="selectedModeTab==='advanced'"></EventInspector>
+
+  <div style="padding:12px">
+    <v-row class="inspector-container-button-bar">
+      <ButtonBar/>
+    </v-row>
+
+    <v-divider class="border"/>
+
+    <div class="inspector-realtime-split mt-2">
+      <Split v-model="split" min="0px" max="0px">
+        <div slot="left">
+          <FlowList class="inspector-realtime-left"></FlowList>
+        </div>
+        <div slot="right">
+          <FlowDetail v-if="focusedFlowDetail" class="inspector-realtime-right"></FlowDetail>
+          <div v-else class="flow-detail-empty">No selected flow</div>
+        </div>
+      </Split>
+    </div>
   </div>
 </template>
 
 <script>
 import ButtonBar from '@/views/inspector/ButtonBar.vue'
-import EventInspector from '@/views/event/EventInspector.vue'
-import FlowInspector from '@/views/inspector/FlowInspector.vue'
+import FlowList from '@/views/inspector/FlowList.vue'
+import FlowDetail from '@/views/inspector/FlowDetail.vue'
 
 export default {
-  name: 'Inspector',
-  data () {
-    return {
-      activatedData: null,
-      selectedDataGroup: '',
-      selectedModeTab: 'realtime'
-    }
-  },
   components: {
     ButtonBar,
-    EventInspector,
-    FlowInspector
+    FlowList,
+    FlowDetail
   },
-  mounted() {
-    this.$store.dispatch('loadActivatedGroup')
+  data () {
+    return {
+      split: 1
+    }
   },
-  methods: {
-    switchTab (name) {
-      this.selectedModeTab = name
+  computed: {
+    focusedFlowDetail () {
+      return this.$store.state.inspector.focusedFlowDetail
+    },
+  },
+  watch: {
+    focusedFlowDetail (val) {
+      if (!val) {
+        this.split = 1
+      } else if (this.split === 1) {
+        this.split = 0.5
+      } else { }
     }
   }
 }
@@ -45,19 +56,36 @@ export default {
 
 <style scoped>
 .inspector-container-button-bar {
-  height: 38px;
+  height: 26px;
   display: flex;
   align-items: center;
+  margin: 0px 0px 7px 0px !important;
 }
-.divider {
-  display: block;
-  width: 100%;
-  height: 1px;
-  background: #eee;
-  top: 0;
-  left: 0;
+.inspector-realtime-left {
+  margin-right: 0px;
 }
-.small-tab > .ivu-tabs > .ivu-tabs-bar {
-  margin-bottom: 0;
+.inspector-realtime-right {
+  margin-left: 5px;
+}
+.inspector-realtime-split {
+  height: calc(100vh - 44px - 40px - 38px - 28px - 12px - 12px - 12px);
+  /* total:100vh
+  header: 44px
+  title: 40px
+  buttonBar: 38px
+  margin-top: 12px
+  split
+  margin-bottom: 12px
+  margin-bottom: 12px
+  footer: 28px
+    */
+  width: calc(100vw - 5px - 68px - 12px - 12px - 12px);
+}
+.flow-detail-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 </style>

@@ -54,8 +54,13 @@ class Application:
         self.cache = cache.get_cache()
         self.work_mode = Mode.NORMAL
         self.is_diff_mode = MockMode.NORMAL
-        self.filters = []
-        self.selected_filter = None
+        self.default_filter = {
+            'name': 'All',
+            'desc': 'Display all requests',
+            'ignore': []
+        }
+        self.filters = [self.default_filter]
+        self.selected_filter = self.default_filter
         self.data_manager = DataManager()
         # SocketIO
         self.socket_io: SocketIO = None
@@ -81,7 +86,7 @@ class Application:
             self.is_diff_mode = MockMode.MULTIPLE
 
         if _conf.get('inspector.filters'):
-            self.filters = _conf.get('inspector.filters')
+            self.filters.extend(_conf.get('inspector.filters'))
 
         default_filter = _conf.get('inspector.default_filter')
         for f in self.filters:

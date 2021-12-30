@@ -7,6 +7,7 @@ from queue import Queue
 from pathlib import Path
 from lyrebird import application
 from lyrebird import log
+from lyrebird.utils import JSONFormat
 from lyrebird.base_server import ThreadServer
 from sqlalchemy import event
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -144,21 +145,6 @@ class LyrebirdDatabaseServer(ThreadServer):
         # TODO After self.stop() could terminate Thread, change `self.running = True` into self.start()
         self.running = True
 
-
-class JSONFormat:
-
-    def json(self):
-        prop_collection = {}
-        props = dir(self)
-        for prop in props:
-            if prop.startswith('_'):
-                continue
-            prop_obj = getattr(self, prop)
-            if isinstance(prop_obj, (str, int, bool, float)):
-                prop_collection[prop] = prop_obj
-            elif isinstance(prop_obj, datetime.datetime):
-                prop_collection[prop] = prop_obj.timestamp()
-        return prop_collection
 
 
 class Event(Base, JSONFormat):

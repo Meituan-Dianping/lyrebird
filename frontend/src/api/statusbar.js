@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const getStatusBarList = () => {
+export const getAllStatusList = () => {
   let url = '/api/statusbar'
   return axios({
     url,
