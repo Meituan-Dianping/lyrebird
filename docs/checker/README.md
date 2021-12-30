@@ -1,30 +1,30 @@
 # 使用指南
 
-扩展(Extension)是一种支持用户⾃定义的Python脚本，在Lyrebird运行的过程中，于后台并行地工作。
+扩展(Extension)-自定义脚本是一种支持用户⾃定义的Python脚本，在Lyrebird运行的过程中，于后台并行地工作。
 
-无需搭建工程和前端开发，扩展可灵活、轻巧、便捷、准确的对[消息总线](/advance/eventbus.md)频道中的数据进行分析和校验。
+无需搭建工程和前端开发，自定义脚本可灵活、轻巧、便捷、准确的对[消息总线](/advance/eventbus.md)频道中的数据进行分析和校验。
 
-Extension默认支持三种类型：
+自定义脚本默认支持三种类型：
 1. [请求修改器(Modifier)](/checker/request_editor.html): 如为请求添加Header Key、[修改请求的Param](/checker/request_editor.html#修改请求)等
 2. [请求检查器(Checker)](/checker/dev_debug.html): 如可通过检查器监听网络请求频道，检测网络请求中的[图片大小](/checker/examples.html#大图检测)是否满足预期，或检测是否[重复请求](/checker/examples.html#重复请求检测)了同一个接口等
 3. 其他(Other): 未分类或者综合应用
 
 可在脚本中使用全局变量**ExtensionCategory**(String类型)人为指定Extension类型
 
-可以在Lyrebird运行过程中随时开启或关闭扩展，即插即用，方便灵活。
+可以在Lyrebird运行过程中随时开启或关闭自定义脚本，即插即用，方便灵活。
 
 ![](../img/checker-a.png)
 
-> 展开Extension标签可查看当前运行的扩展，按组别聚合。
+> 展开Extension标签可查看当前运行的自定义脚本，按组别聚合。
 > Activated Tab展示已激活的Extension, Deactivated Tab展示未激活的Extension
 
-如果需要高级的检查和展示，可使用[插件](/plugins/)开发实现更复杂的场景和功能。
+如果需要高级的检查和展示，可使用[自定义插件](/plugins/)开发实现更复杂的场景和功能。
 
-## 载入扩展
+## 载入自定义脚本
 
-运行时携带的扩展存放在默认路径~/.lyrebird/checkers下。对扩展的新增、修改、删除，可在默认目录下操作文件。
+运行时携带的自定义脚本存放在默认路径~/.lyrebird/checkers下。对自定义脚本的新增、修改、删除，可在默认目录下操作文件。
 
-当默认目录中没有可用的扩展时，会自动载入示例脚本。目前提供的示例脚本如下：
+当默认目录中没有可用的自定义脚本时，会自动载入示例脚本。目前提供的示例脚本如下：
 
 | Filename | Type | Description |
 | :------- | :------- | :------- |
