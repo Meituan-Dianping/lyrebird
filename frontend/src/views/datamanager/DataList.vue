@@ -43,6 +43,7 @@
         opacity="0.8"
         color="#ffffff"
         :value="spinShow"
+        z-index=3
       >
         <v-progress-circular
           size="30"
