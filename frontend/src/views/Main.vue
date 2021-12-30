@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="shading">
     <AppBar/>
 
     <!-- The navigation drawer display from y-axis 0px by default -->
@@ -9,6 +9,7 @@
     <!-- <v-navigation-drawer mini-variant-width=50> -->
 
     <v-navigation-drawer
+      app
       absolute
       permanent
       width=200
@@ -29,9 +30,9 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-main class="shading main-container pb-0">
-      <v-toolbar-title class="shading pt-4 pb-2 page-title">{{activeMenuItemName}}</v-toolbar-title>
-      <router-view class="router-container background mr-3 mb-3" style="margin-left: 68px"/>
+    <v-main class="ma-3">
+      <v-toolbar-title class="mt-1 mb-2 page-title">{{activeMenuItemName}}</v-toolbar-title>
+      <router-view class="router-container background"/>
     </v-main>
 
     <v-footer app color="primary" class="main-footer">
@@ -183,7 +184,6 @@ export default {
   font-size: 16px;
   color: #000520;
   line-height: 16px;
-  margin-left: 68px;
 }
 .router-container{
   height: calc(100vh - 44px - 40px - 28px - 12px);
@@ -209,12 +209,6 @@ export default {
   height: 28px;
   line-height: 28px;
   padding: 0;
-}
-.main-container {
-  height: calc(100vh - 28px);
-  /*
-  footer:28px
-   */
 }
 .v-list-active {
   background-color: #eeeef9;
