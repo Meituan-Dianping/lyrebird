@@ -321,6 +321,7 @@ export default {
 .button-bar-diff-mode .v-input--switch__thumb {
   height: 15px !important;
   width: 15px !important;
+  transform: translate(12px) !important;
 }
 .inspector-button {
   padding: 3px 8px 3px;
