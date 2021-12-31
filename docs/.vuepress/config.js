@@ -10,8 +10,11 @@ module.exports = {
     themeConfig: {
         nav: [
             { text: '指南', link: '/guide/' },
-            { text: '检查器', link: '/checker/' },
-            { text: '插件', link: '/plugins/' },
+            { text: '扩展', items: [
+                { text: '自定义脚本', link: '/checker/' },
+                { text: '自定义插件', link: '/plugins/' },
+              ] 
+            },
             { text: '高级', link: '/advance/' },
             { text: '开发者指南', link: '/develop/' },
             {
@@ -25,12 +28,12 @@ module.exports = {
                 ]
             }
         ],
+        sidebarDepth: 2,
         sidebar: {
             '/guide/': [
                 '',
                 'mockdata',
                 'checker',
-                'plugin',
                 'command-line',
                 'config',
                 'api',

@@ -84,20 +84,27 @@ export default {
 
 <style scoped>
 .inspector-event-split {
-  height: calc(100vh - 138px);
+  height: calc(100vh - 44px - 40px - 28px - 12px);
   /* total:100vh
-  header: 38px
-  buttonBar: 38px
-  mode-tab 34px
+  header: 44px
+  title: 40px
   split
+  margin-bottom: 12px
   footer: 28px
-    */
-  border: 1px solid #dcdee2;
+  */
 }
 .inspector-event-left {
   margin-right: 0px;
 }
 .inspector-event-right {
+  height: calc(100vh - 44px - 40px - 28px - 12px);
+  /* total:100vh
+  header: 44px
+  title: 40px
+  split
+  margin-bottom: 12px
+  footer: 28px
+  */
   margin-left: 5px;
 }
 .event-detail-empty {

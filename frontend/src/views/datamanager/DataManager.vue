@@ -25,8 +25,6 @@ export default {
   },
   mounted() {
     this.loadDataMap()
-    this.$store.dispatch('loadActivatedGroup')
-    this.$store.dispatch('loadIsLabelDisplay')
   },
   created () {
     this.$io.on('datamanagerUpdate', this.loadDataMap)
@@ -49,12 +47,13 @@ export default {
 
 <style scoped>
 .datamanager-split{
-  height: calc(100vh - 66px);
+  height: calc(100vh - 44px - 40px - 28px - 12px);
   /* total:100vh
-    header: 38px
+    header: 44px
+    title: 40px
     tree
+    margin-bottom: 12px
     footer: 28px
   */
-  border: 1px solid #dcdee2;
 }
 </style>

@@ -28,6 +28,13 @@ class Menu(Resource):
                 'type': 'router',
                 'path': '/checker',
                 'icon': 'mdi-script-text-outline'
+            },
+            {
+                'name': 'inspector-pro',
+                'title': 'Inspector Pro',
+                'type': 'router',
+                'path': '/inspector-pro',
+                'icon': 'mdi-timeline-outline'
             }]
 
         # Load plugins from new plugin manager

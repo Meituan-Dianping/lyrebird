@@ -17,18 +17,6 @@
             @click="changeSearchModalOpenState"
           />
         </Tooltip>
-        <span @click.stop v-show="false">
-          <Dropdown>
-            <a href="javascript:void(0)">
-              <Icon type="ios-more-outline" class="button-bar-btn"/>
-            </a>
-            <DropdownMenu slot="list">
-              <DropdownItem>Import...</DropdownItem>
-              <DropdownItem>Export...</DropdownItem>
-              <DropdownItem>Reload</DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </span>
       </span>
       <span class="button-bar-group-right">
         <LabelDropdown :initLabels="selectedLabel" :placement="'bottom-end'" @onLabelChange="editLabel">
@@ -55,6 +43,7 @@
         opacity="0.8"
         color="#ffffff"
         :value="spinShow"
+        z-index=3
       >
         <v-progress-circular
           size="30"
@@ -191,11 +180,13 @@ export default {
 
 <style scoped>
 .data-list {
-  height: calc(100vh - 94px);
+  height: calc(100vh - 44px - 40px - 28px - 12px - 28px);
   /* total:100vh
-    header: 38px
-    buttonBar: 28px
+    header: 44px
+    title: 40px
+    button-bar: 28px
     tree
+    margin-bottom: 12px
     footer: 28px
   */
   overflow-y: auto;
@@ -205,7 +196,6 @@ export default {
   height: 27px;
   line-height: 27px;
   border-bottom: 1px solid #ddd;
-  background-color: #f8f8f9;
 }
 .button-bar-group-right {
   float: right;

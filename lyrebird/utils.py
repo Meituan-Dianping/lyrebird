@@ -5,6 +5,7 @@ import time
 import socket
 import tarfile
 import requests
+import datetime
 from pathlib import Path
 from contextlib import closing
 from lyrebird.log import get_logger
@@ -156,3 +157,19 @@ class TargetMatch:
     @staticmethod
     def _match_null(target, pattern):
         return target == pattern
+
+
+class JSONFormat:
+
+    def json(self):
+        prop_collection = {}
+        props = dir(self)
+        for prop in props:
+            if prop.startswith('_'):
+                continue
+            prop_obj = getattr(self, prop)
+            if isinstance(prop_obj, (str, int, bool, float)):
+                prop_collection[prop] = prop_obj
+            elif isinstance(prop_obj, datetime.datetime):
+                prop_collection[prop] = prop_obj.timestamp()
+        return prop_collection
