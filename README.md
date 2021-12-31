@@ -123,7 +123,7 @@ b. 直连
 >
 > 选中请求后，可以将它保存到已激活的 mock 数据组中。
 
-<img src="./image/1_7_0_inspector.gif" width="800">
+<img src="./image/inspector.gif" width="800">
 
 ## 使用 Mock 数据
 
@@ -131,13 +131,13 @@ b. 直连
 >
 > 可以在 DataManager 界面管理 mock 数据。
 
-<img src="./image/1_7_0_inspector_mock.gif" width="800">
+<img src="./image/inspector_mock.gif" width="800">
 
 ## Mock 数据管理
 
 > mock 数据可由左边导航栏切换到 DataManager 界面进行编辑管理
 
-<img src="./image/1_7_0_data_manager.gif" width="800">
+<img src="./image/data_manager.gif" width="800">
 
 ---
 
