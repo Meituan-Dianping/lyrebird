@@ -7,7 +7,6 @@
       </v-app-bar-title>
       <v-spacer/>
 
-      <!-- Load plugin status which placement is top-right -->
       <span v-for="item in statusTopRightList" :key="item.id" class="top-bar-item mr-5">
         <v-select
           v-model="item.src.selected"
@@ -25,9 +24,7 @@
         />
       </span>
 
-      <!-- Add Bandwidth here -->
       <Bandwidth />
-      <!-- <Bandwidth/> -->
 
       <!-- Settings -->
       <!-- Not display -->

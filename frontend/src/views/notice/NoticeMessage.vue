@@ -71,7 +71,6 @@ export default {
       } else {
         this.$store.dispatch('deleteNotRemind', noticeKey)
       }
-      
     },
     jump(notice) {
       this.$bus.$emit('toggleNotice')
