@@ -6,13 +6,24 @@
       :value="noticeList.length"
       offset-x="10"
       offset-y="16"
+      class="main-header-notice-badge"
     >
       <v-icon>
         mdi-bell-outline
       </v-icon>
     </v-badge>
 
-    <Drawer width="380" :closable="true" :mask="false" v-model="drawerIsCollapsed">
+    <v-navigation-drawer
+      v-model="drawerIsCollapsed"
+      app
+      absolute
+      temporary
+      hide-overlay
+      right
+      class="side-navgation-right"
+      width="400"
+      color="rgba(230, 230, 230, 0.6)"
+    >
       <div class="drawer-header">
         <ButtonGroup>
           <Button v-for="tab in tabList" :key="tab" :class="[setResultClass(tab)]" @click="setTargetTab(tab)"><p>{{tab}}</p></Button>
@@ -21,7 +32,7 @@
       <div v-if="selectedTab === tabList[0]">
         <div v-if="noticeList.length" style="height:calc(100% - 31px);overflow-x:auto">
           <div v-for="(notice, index) in noticeList" :key="index" style="padding: 5px 10px;">
-            <NoticeMessage :notice="notice"></NoticeMessage>
+            <NoticeMessage :notice="notice" :alert="true"/>
           </div>
         </div>
         <div v-else class="notice-empty">
@@ -31,28 +42,26 @@
       <div v-else-if="selectedTab === tabList[1]">
         <div v-if="notRemindList.length" style="height:calc(100% - 31px);overflow-x:auto">
           <div v-for="(notice, index) in notRemindList" :key="index" style="padding: 5px 10px;">
-            <NotRemindMessage :notice="notice"></NotRemindMessage>
+            <NoticeMessage :notice="notice" :alert="false"/>
           </div>
         </div>
         <div v-else class="notice-empty">
           <p>Nothing here</p>
         </div>
       </div>
-    </Drawer>
+    </v-navigation-drawer>
   </div>
 </template>
 
 <script>
 import Alert from '@/views/notice/Alert.vue'
 import NoticeMessage from '@/views/notice/NoticeMessage.vue'
-import NotRemindMessage from '@/views/notice/NotRemindMessage.vue'
 
 export default {
   name: "noticeCenter",
   components: {
     Alert,
-    NoticeMessage,
-    NotRemindMessage
+    NoticeMessage
   },
   data() {
     return {
@@ -114,8 +123,11 @@ export default {
 
 <style>
 .main-header-notice {
- float: right;
- margin-right: 15px;
+  float: right;
+  margin-right: 15px;
+}
+.main-header-notice-badge {
+  cursor: pointer;
 }
 .drawer-header {
   height: 38px;
@@ -161,10 +173,7 @@ export default {
   background: #cccccc;
   color: #ffffff;
 }
-.ivu-drawer-right > .ivu-drawer-content {
-  background:  rgba(230,230,230,0.8);
-}
-.ivu-drawer-content > .ivu-drawer-body {
-  padding: 0px;
+.side-navgation-right p {
+  margin-bottom: 0px;
 }
 </style>

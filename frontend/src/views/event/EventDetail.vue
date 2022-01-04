@@ -6,8 +6,8 @@
       </Col>
       <Col span="23" class="small-tab">
         <Tabs :value="currentTab" :animated="false" size="small" @on-click="switchTab">
-          <TabPane label="Message" name="msg"></TabPane>
-          <TabPane label="Raw" name="raw"></TabPane>
+          <TabPane label="Raw" name="raw"/>
+          <TabPane label="Message" name="msg"/>
         </Tabs>
       </Col>
     </Row>
