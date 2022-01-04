@@ -46,8 +46,8 @@
 
 <script>
 export default {
-  name: "noticeMessage",
-  props: ["notice", "alert"],
+  name: 'noticeMessage',
+  props: ['notice', 'alert'],
   data() {
     return {
       isDisplayDate: true,
