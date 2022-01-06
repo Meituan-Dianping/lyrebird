@@ -321,7 +321,13 @@ export default {
 .button-bar-diff-mode .v-input--switch__thumb {
   height: 15px !important;
   width: 15px !important;
-  transform: translate(12px) !important;
+}
+.v-application--is-ltr .button-bar-diff-mode.v-input--is-label-active .v-input--switch__thumb {
+  transform: translate(11px) !important;
+}
+.v-application--is-ltr .button-bar-diff-mode.v-input--is-label-active .v-input--selection-controls__ripple
+{
+  transform: translate(11px) !important;
 }
 .inspector-button {
   padding: 3px 8px 3px;
