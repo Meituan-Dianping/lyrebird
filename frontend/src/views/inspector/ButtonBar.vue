@@ -41,7 +41,7 @@
         @change="changeDiffMode"
       />
 
-      <v-tooltip bottom open-delay=500>
+      <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn plain icon small v-bind="attrs" v-on="on">
             <v-icon small size="18px" color="content">mdi-help-circle-outline</v-icon>
@@ -82,7 +82,7 @@
       </v-chip>
     </span>
 
-      <v-tooltip bottom open-delay=500>
+      <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn plain icon v-bind="attrs" v-on="on" small>
             <v-icon size="18px" color="content" small style="opacity:1">mdi-help-circle-outline</v-icon>

@@ -7,7 +7,12 @@
             <span style="display:inline-block;max-width:245px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
               {{notice.sender.file}}
             </span>
-            <Badge v-if="notice.count > 1" :count="notice.count" class-name="notice-badge" style="padding-left:5px"></Badge>
+            <Badge
+              v-if="notice.count > 1"
+              :count="notice.count"
+              :class-name="alert?'notice-badge':'notice-badge-gray'"
+              style="padding-left:5px"
+            />
           </div>
         </Col>
         <Col span="8" align="right">
@@ -30,8 +35,9 @@
         </p>
       </Col>
       <Col span="24" align="right">
-        <a href="#" @click.stop="changeNoticeStatusToFalse(notice)" title="Don't remind again">
-          <Icon type="ios-eye-off" style="font-size:16px"/>
+        <a href="#" @click.stop="changeNoticeStatus(notice)" :title="alert?'Don\'t remind again':'Remind me again'">
+          <Icon v-if="alert" type="ios-eye-off" style="font-size:16px"/>
+          <Icon v-else type="ios-eye" style="font-size:16px"/>
         </a>
       </Col>
     </Row>
@@ -40,8 +46,8 @@
 
 <script>
 export default {
-  name: "noticeMessage",
-  props: ["notice"],
+  name: 'noticeMessage',
+  props: ['notice', 'alert'],
   data() {
     return {
       isDisplayDate: true,
@@ -60,7 +66,11 @@ export default {
       return month + '/' + date + ' ' + hour + ':' + minute + ':' + second
     },
     deleteNotice(noticeKey){
-      this.$store.dispatch('deleteNotice', noticeKey)
+      if (alert) {
+        this.$store.dispatch('deleteNotice', noticeKey)
+      } else {
+        this.$store.dispatch('deleteNotRemind', noticeKey)
+      }
     },
     jump(notice) {
       this.$bus.$emit('toggleNotice')
@@ -77,13 +87,12 @@ export default {
       }
       this.$store.commit('plugin/setSrc', this.jumpToUrl)
       this.$router.push({name:'plugin-view', params:{name:this.jumpToName, query:'event_id='+this.notice.id}})
-      // this.$store.dispatch("createIssue", notice)
-      this.$store.dispatch('deleteNotice', notice.key)
+      this.deleteNotice(notice.key)
     },
-    changeNoticeStatusToFalse(notice) {
+    changeNoticeStatus(notice) {
       this.$store.dispatch('updateNoticeStatus', {
-        key:notice.key,
-        status:false
+        key: notice.key,
+        status: !this.alert
       })
     }
   }
