@@ -1,13 +1,12 @@
 <template>
   <div>
-    <v-app-bar app dense elevation="3" height="44" color="background">
+    <v-app-bar app dense clipped-left elevation="3" height="44" color="background">
       <v-app-bar-title width="30">
         <img src="@/assets/logo.svg" width="40" style="margin: 12px 12px 0px -8px;"/>
         <img src="@/assets/lyrebird.svg" width="120" style="margin-bottom:8px;"/>
       </v-app-bar-title>
       <v-spacer/>
 
-      <!-- Load plugin status which placement is top-right -->
       <span v-for="item in statusTopRightList" :key="item.id" class="top-bar-item mr-5">
         <v-select
           v-model="item.src.selected"
@@ -25,9 +24,7 @@
         />
       </span>
 
-      <!-- Add Bandwidth here -->
       <Bandwidth />
-      <!-- <Bandwidth/> -->
 
       <!-- Settings -->
       <!-- Not display -->

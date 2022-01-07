@@ -41,7 +41,7 @@
         @change="changeDiffMode"
       />
 
-      <v-tooltip bottom open-delay=500>
+      <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn plain icon small v-bind="attrs" v-on="on">
             <v-icon small size="18px" color="content">mdi-help-circle-outline</v-icon>
@@ -82,7 +82,7 @@
       </v-chip>
     </span>
 
-      <v-tooltip bottom open-delay=500>
+      <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn plain icon v-bind="attrs" v-on="on" small>
             <v-icon size="18px" color="content" small style="opacity:1">mdi-help-circle-outline</v-icon>
@@ -321,6 +321,13 @@ export default {
 .button-bar-diff-mode .v-input--switch__thumb {
   height: 15px !important;
   width: 15px !important;
+}
+.v-application--is-ltr .button-bar-diff-mode.v-input--is-label-active .v-input--switch__thumb {
+  transform: translate(11px) !important;
+}
+.v-application--is-ltr .button-bar-diff-mode.v-input--is-label-active .v-input--selection-controls__ripple
+{
+  transform: translate(11px) !important;
 }
 .inspector-button {
   padding: 3px 8px 3px;
