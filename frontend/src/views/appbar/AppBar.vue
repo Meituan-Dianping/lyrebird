@@ -1,10 +1,12 @@
 <template>
   <div>
     <v-app-bar app dense clipped-left elevation="3" height="44" color="background">
-      <v-app-bar-title width="30">
-        <img src="@/assets/logo.svg" width="40" style="margin: 12px 12px 0px -8px;"/>
-        <img src="@/assets/lyrebird.svg" width="120" style="margin-bottom:8px;"/>
-      </v-app-bar-title>
+      <span>
+        <v-app-bar-title width="30">
+          <img src="@/assets/logo.svg" width="40" style="margin: 12px 12px 0px -8px;"/>
+          <img src="@/assets/lyrebird.svg" width="120" style="margin-bottom:8px;"/>
+        </v-app-bar-title>
+      </span>
       <v-spacer/>
 
       <span v-for="item in statusTopRightList" :key="item.id" class="top-bar-item mr-5">

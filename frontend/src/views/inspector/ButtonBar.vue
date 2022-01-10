@@ -288,6 +288,7 @@ export default {
 }
 .inspector-button-bar {
   height: 26px;
+  overflow-x: hidden;
 }
 .inspector-button-bar .v-chip__close.v-icon.v-icon--right{
   font-size: 16px !important;

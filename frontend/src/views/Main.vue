@@ -281,4 +281,7 @@ export default {
 .main-footer-status-placeholder {
   margin-left: 5px;
 }
+.v-text-field--outlined fieldset {
+  border: 1px #D9DADE solid;
+}
 </style>
