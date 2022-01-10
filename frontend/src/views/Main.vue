@@ -31,7 +31,7 @@
     </v-navigation-drawer>
 
     <v-main class="ma-3">
-      <v-toolbar-title class="mt-1 mb-2 page-title">{{activeMenuItemName}}</v-toolbar-title>
+      <v-toolbar-title class="mb-2 page-title">{{activeMenuItemName}}</v-toolbar-title>
       <router-view class="router-container background"/>
     </v-main>
 
@@ -183,7 +183,7 @@ export default {
   font-family: PingFangSC-Semibold;
   font-size: 16px;
   color: #000520;
-  line-height: 16px;
+  line-height: 20px;
 }
 .router-container{
   height: calc(100vh - 44px - 40px - 28px - 12px);
