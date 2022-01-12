@@ -213,7 +213,6 @@ export default {
   margin-botton:12px
   footer: 28px
     */
-  overflow-y: auto;
   font-size: 14px;
 }
 .data-detail-content {
