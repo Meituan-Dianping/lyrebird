@@ -1,5 +1,5 @@
 <template>
-  <div class="inspector-button-bar">
+  <div class="inspector-button-bar d-flex justify-space-between flex-grow-1">
     <div class="inline">
 
       <v-tooltip bottom open-delay=500>
@@ -50,37 +50,37 @@
         <span>Get the proxy response while the request is mocked</span>
       </v-tooltip>
 
-    <v-divider vertical class="button-bar-divider border"/>
+      <v-divider vertical class="button-bar-divider border"/>
 
-    <b style="padding-right:5px">Mock Group</b>
+      <b style="padding-right:5px">Mock Group</b>
 
-    <v-chip
-      label small outlined
-      color="#D9DADE"
-      text-color="content"
-      v-if="Object.keys(activatedGroups).length === 0"
-      @click="showMockDataSelector"
-    >
-      <span>None</span>
-    </v-chip>
-
-    <span v-else>
       <v-chip
-        label small outlined close
+        label small outlined
         color="#D9DADE"
-        close-icon="mdi-close-circle"
-        close-label="Reset selected mock group"
         text-color="content"
+        v-if="Object.keys(activatedGroups).length === 0"
         @click="showMockDataSelector"
-        @click:close="resetActivatedData"
-        v-for="(group, groupId) in activatedGroups"
-        :key="groupId"
       >
-        <span style="color:#000520">
-          {{group.name}}
-        </span>
+        <span>None</span>
       </v-chip>
-    </span>
+
+      <span v-else>
+        <v-chip
+          label small outlined close
+          color="#D9DADE"
+          close-icon="mdi-close-circle"
+          close-label="Reset selected mock group"
+          text-color="content"
+          @click="showMockDataSelector"
+          @click:close="resetActivatedData"
+          v-for="(group, groupId) in activatedGroups"
+          :key="groupId"
+        >
+          <span style="color:#000520">
+            {{group.name}}
+          </span>
+        </v-chip>
+      </span>
 
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -93,35 +93,35 @@
 
     </div>
 
-    <div class="inspector-searchbox inspector-search">
-      <v-text-field
-        outlined
-        dense
-        height=26
-        v-model="searchStr"
-        class="inspector-search-text"
-        label="Separate multiple keywords by spaces"
-        clearable
-        @click:clear="clearInspectorSearch"
-      />
-    </div>
-
-    <div class="inspector-searchbox flow-filter">
-
-      <v-select
-        dense
-        hide-details
-        color="primary"
-        class="flow-filter-select"
-        outlined
-        v-model="selectedFLowFilter"
-        :items="flowFilters"
-        item-text="name"
-        item-value="name"
-        style="border-bottom:none!important;"
-        :menu-props="{ bottom: true, offsetY: true }"
-        @change="changeFLowFilter"
-      />
+    <div class="inline">
+      <div class="flow-filter">
+        <v-select
+          dense
+          hide-details
+          color="primary"
+          class="flow-filter-select"
+          outlined
+          v-model="selectedFLowFilter"
+          :items="flowFilters"
+          item-text="name"
+          item-value="name"
+          style="border-bottom:none!important;"
+          :menu-props="{ bottom: true, offsetY: true }"
+          @change="changeFLowFilter"
+        />
+      </div>
+      <div class="inspector-search">
+        <v-text-field
+          outlined
+          dense
+          height=26
+          v-model="searchStr"
+          class="inspector-search-text"
+          label="Separate multiple keywords by spaces"
+          clearable
+          @click:clear="clearInspectorSearch"
+        />
+      </div>
     </div>
 
     <Modal
@@ -288,7 +288,6 @@ export default {
 }
 .inspector-button-bar {
   height: 26px;
-  overflow-x: hidden;
 }
 .inspector-button-bar .v-chip__close.v-icon.v-icon--right{
   font-size: 16px !important;
@@ -307,9 +306,6 @@ export default {
 .button-bar-divider {
   margin-left: 8px;
   margin-right: 8px;
-}
-.inspector-button-bar {
-  flex-grow: 1;
 }
 .button-bar-diff-mode .v-input--switch__track {
   height: 19px !important;
@@ -334,10 +330,6 @@ export default {
   padding: 3px 8px 3px;
   font-size: 14px;
   cursor: pointer;
-}
-.inspector-searchbox {
-  width: 20vw;
-  float: right;
 }
 .inspector-search .v-text-field--outlined, .v-text-field--solo {
   border-radius: 0px 4px 4px 0px !important;
@@ -385,6 +377,9 @@ export default {
   min-width: 14px;
   margin-bottom: 15px;
   margin-left: 0;
+}
+.flow-filter .v-input__append-inner {
+  margin-top: 6px !important;
 }
 .flow-filter .v-input__prepend-outer {
   width: 24px;
