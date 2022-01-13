@@ -51,7 +51,7 @@ setup(
         "click==7.1.2",
         "urllib3==1.24.2",
         "qrcode==6.1",
-        "Pillow==8.0.1",
+        "Pillow==9.0.0",
         "eventlet==0.30.1"
     ],
     extras_require={
