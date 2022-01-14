@@ -129,7 +129,7 @@ export default {
   margin: 0 4px 18px 0 !important;
 }
 .top-bar-item .v-input__append-inner {
-  margin-top: 7px !important;
+  margin-top: 6px !important;
 }
 .top-bar-item .v-input__icon--append {
   width: 14px;
