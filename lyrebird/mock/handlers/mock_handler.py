@@ -28,7 +28,7 @@ class MockHandler:
 
         handler_context.flow['response']['code'] = hit_data['response']['code']
         handler_context.flow['response']['headers'] = {k:v for k,v in hit_data['response']['headers'].items()}
-        handler_context.flow['response']['data'] = hit_data['response']['data']
+        handler_context.flow['response']['data'] = hit_data['response'].get('data', '')
 
         handler_context.set_response_edited()
         handler_context.set_response_source_mock()
