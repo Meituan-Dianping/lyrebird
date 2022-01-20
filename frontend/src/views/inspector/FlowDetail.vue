@@ -117,7 +117,7 @@ export default {
     },
     parseResponseByContentType (response) {
       let codeContent = ''
-      if (response.data === null) {
+      if (response.data === undefined || response.data === null) {
         codeContent = this.parseNullData(response.data)
       } else if (response.headers.hasOwnProperty('Content-Type')) {
         let contentType = response.headers['Content-Type']
