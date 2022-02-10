@@ -142,6 +142,7 @@ b. 直连
 ---
 
 ## 插件
+> 文档在建中
 
 ---
 
@@ -181,7 +182,6 @@ b. 直连
 
 ## Contributors
 
-This project exists thanks to all the people who contribute.
 <a href="https://github.com/Meituan-Dianping/lyrebird/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Meituan-Dianping/lyrebird" />
 </a>
