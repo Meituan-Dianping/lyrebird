@@ -2,7 +2,7 @@ FROM node:14.15-alpine as nodebuilder
 ARG USE_MIRROR 
 COPY . /usr/src
 WORKDIR /usr/src/frontend
-RUN if [[ -n "$USE_MIRROR" ]] ; then npm --registry https://registry.npm.taobao.org install ; else npm install ; fi \
+RUN if [[ -n "$USE_MIRROR" ]] ; then npm --registry https://registry.npmmirror.com install ; else npm install ; fi \
   && npm run build
 
 FROM python:3.8-alpine as pybuilder
