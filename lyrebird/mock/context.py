@@ -116,7 +116,7 @@ class Application:
     def save(self):
         DEFAULT_CONF = os.path.join(
             os.path.join(os.path.expanduser('~'), '.lyrebird'), 'conf.json')
-        # TODO Lyrebird 的 conf.json 应该有恢复机制或补救措施。
+        # TODO Lyrebird 的 conf.json 应该有恢复机制或补救措施。
         with codecs.open(DEFAULT_CONF, 'w', 'utf-8') as f:
             f.write(json.dumps(self._conf, ensure_ascii=False, indent=4))
 
