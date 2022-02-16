@@ -21,22 +21,51 @@ class JSONPath:
         if not path or not isinstance(path, str) or not isinstance(root, (list, dict)):
             return
 
-        if path.startswith('$.'):
-            path = path.replace('$.', '', 1)
+        if path.startswith('$'):
+            path = path.replace('$', '', 1)
 
         # split by `.` and drop `.`, split by `[ ]` and keep `[ ]`
         # EXAMPLE
-        # path = 'data[0][1].name'
-        # keys = ['data', '[0]', '[1]', 'name']
+        # path = 'data[*][1].name'
+        # keys = ['data', '[*]', '[1]', 'name']
 
         pattern = r'(?:\.)|(?=\[.*\])'
-        keys = re.split(pattern, path)
+        origin_keys = re.split(pattern, path)
+
+        # There is a bug in re.split splitting with (?=)
+        # The following code `re_split_handle` is used to solve this problem
+        # Remove when Python 3.6 is not supported
+        keys = JSONPath.re_split_handle(origin_keys)
+
         if not keys or not len(keys):
             return
 
         result = []
         JSONPath._search_iterator(root, keys, result)
         return result
+
+    @staticmethod
+    def re_split_handle(origin_keys):
+        # EXAMPLE
+        # origin_keys = ['data[*][1]', 'name']
+        # return keys = ['data', '[*]', '[1]', 'name']
+
+        keys = []
+
+        for key in origin_keys:
+            if not key:
+                continue
+
+            if not re.match('.+\[(\d+|\*)\]', key):
+                keys.append(key)
+                continue
+
+            while re.search('\[(\d+|\*)\]', key):
+                r = re.search('\[(\d+|\*)\]', key)
+                keys.extend([key[:r.start()], key[r.start():r.end()]])
+                key = key[r.end():]
+
+        return [k for k in keys if k]
 
     @staticmethod
     def _search_iterator(root, prop_keys, result):
