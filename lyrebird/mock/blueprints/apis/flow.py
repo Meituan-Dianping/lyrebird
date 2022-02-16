@@ -1,6 +1,5 @@
 from flask_restful import Resource
 from lyrebird.mock import context, headers
-from lyrebird.mock.handlers.function_executor import FunctionExecutor
 from lyrebird import application
 from lyrebird import utils
 from urllib.parse import urlencode, unquote
@@ -35,6 +34,10 @@ class FlowList(Resource):
         all_items = context.application.cache.items()[::-1]
         req_list = []
         for item in all_items:
+            if ignore_values and utils.is_json_target_match_patterns(ignore_values, item, filter_target):
+                continue
+            if filter_values and (not utils.is_json_target_match_patterns(filter_values, item, filter_target)):
+                continue
             info = dict(
                 id=item['id'],
                 size=item['size'],
@@ -55,16 +58,6 @@ class FlowList(Resource):
                 )if item.get('response') else {},
                 action=item.get('action', [])
             )
-            if ignore_values:
-                target_value = FunctionExecutor._get_rule_target(filter_target, info)
-                is_ignore = utils.is_target_match_patterns(ignore_values, target_value)
-                if is_ignore:
-                    continue
-            if filter_values:
-                target_value = FunctionExecutor._get_rule_target(filter_target, info)
-                is_match = utils.is_target_match_patterns(filter_values, target_value)
-                if not is_match:
-                    continue
             # Add key `proxy_response` into info only if item contains proxy_response
             if item.get('proxy_response'):
                 info['proxy_response'] = {
