@@ -1,4 +1,6 @@
 import re
+import platform
+from packaging import version
 from lyrebird.log import get_logger
 
 logger = get_logger()
@@ -21,22 +23,41 @@ class JSONPath:
         if not path or not isinstance(path, str) or not isinstance(root, (list, dict)):
             return
 
-        if path.startswith('$.'):
-            path = path.replace('$.', '', 1)
+        if path.startswith('$'):
+            path = path.replace('$', '', 1)
 
         # split by `.` and drop `.`, split by `[ ]` and keep `[ ]`
         # EXAMPLE
-        # path = 'data[0][1].name'
-        # keys = ['data', '[0]', '[1]', 'name']
+        # path = 'data[*][1].name'
+        # keys = ['data', '[*]', '[1]', 'name']
 
         pattern = r'(?:\.)|(?=\[.*\])'
-        keys = re.split(pattern, path)
+        origin_keys = re.split(pattern, path)
+
+        # There is a bug in re.split splitting with (?=) in Python 3.6 and below
+        # The following code `re_split_handle` is used to solve this problem
+        # Remove when Python 3.6 is not supported
+        keys = [k for k in JSONPath.re_split_handle(origin_keys) if k]
+
         if not keys or not len(keys):
             return
 
         result = []
         JSONPath._search_iterator(root, keys, result)
         return result
+
+    @staticmethod
+    def re_split_handle(origin_keys):
+        # EXAMPLE
+        # origin_keys = ['data[*][1]', 'name']
+        # return keys = ['data', '[*]', '[1]', 'name']
+        if version.parse(platform.python_version()) >= version.parse('3.7.0'):
+            return origin_keys
+
+        keys = []
+        for key in origin_keys:
+            keys.extend(re.findall('\[?[\w\*]+\]?', key))
+        return keys
 
     @staticmethod
     def _search_iterator(root, prop_keys, result):
