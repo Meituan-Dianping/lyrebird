@@ -60,7 +60,7 @@ docker pull overbridge/lyrebird
 
 **Lyrebird** 也可作为服务端接口测试 mock 工具使用。
 
-**Lyrebird** 可以通过**插件**扩展能力，实现埋点自动测试、API 覆盖率统计、移动设备及 APP 控制和信息记录、自定义检查脚本等一系列功能。
+**Lyrebird** 可以通过**插件**扩展能力，实现埋点自动测试、API 覆盖率统计、移动设备及 App 控制和信息记录、自定义检查脚本等一系列功能。
 
 > Lyrebird (琴鸟) 不但美丽壮观，且能歌善舞。它不但能模仿各种鸟类的鸣叫声，还能学人间的各种声音。如汽车喇叭声、火车喷气声、斧头伐木声、修路碎石机声及领号人的喊叫声等。歌声婉转动听，舞姿轻盈合拍，是澳洲鸟类中最受人喜爱的珍禽之一。
 
@@ -75,7 +75,7 @@ docker pull overbridge/lyrebird
 * Python >= 3.6
 
 ```bash
-# 推荐使用Homebrew(https://brew.sh/#install)安装Python3
+# macOS系统中推荐使用Homebrew(https://brew.sh/#install)安装Python3
 brew install python3
 ```
 
@@ -142,6 +142,7 @@ b. 直连
 ---
 
 ## 插件
+> 文档在建中
 
 ---
 
@@ -181,5 +182,6 @@ b. 直连
 
 ## Contributors
 
-This project exists thanks to all the people who contribute.
-<a href="https://github.com/Meituan-Dianping/lyrebird/graphs/contributors"><img src="https://opencollective.com/lyrebird/contributors.svg?width=890&button=false" /></a>
+<a href="https://github.com/Meituan-Dianping/lyrebird/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Meituan-Dianping/lyrebird" />
+</a>
