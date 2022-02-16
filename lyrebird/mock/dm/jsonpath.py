@@ -32,7 +32,7 @@ class JSONPath:
         pattern = r'(?:\.)|(?=\[.*\])'
         origin_keys = re.split(pattern, path)
 
-        # There is a bug in re.split splitting with (?=)
+        # There is a bug in re.split splitting with (?=) in Python 3.6 and below
         # The following code `re_split_handle` is used to solve this problem
         # Remove when Python 3.6 is not supported
         keys = JSONPath.re_split_handle(origin_keys)
