@@ -51,6 +51,8 @@ class JSONPath:
         # EXAMPLE
         # origin_keys = ['data[*][1]', 'name']
         # return keys = ['data', '[*]', '[1]', 'name']
+        if version.parse(platform.python_version()) >= version.parse('3.7.0'):
+            return origin_keys
 
         keys = []
 
