@@ -42,13 +42,3 @@ class HeadersHelper:
         else:
             return _headers
 
-    @staticmethod
-    def save_raw_location(header_obj):
-        """
-        Save raw location for request redirect against the cookie missing.
-        Recover at the mitm_script:responseheaders callback.
-        """
-        raw_location = header_obj.get('Location')
-
-        if raw_location:
-            header_obj.add_header('Raw-Location', raw_location)
