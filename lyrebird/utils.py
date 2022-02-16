@@ -63,7 +63,7 @@ def is_target_match_patterns(pattern_list, target):
     return False
 
 
-def is_json_target_match_patterns(pattern_list, json_obj, target_rule):
+def is_jsonpath_match_patterns(pattern_list, json_obj, target_rule):
     target_nodes = jsonpath.search(json_obj, target_rule)
     for node in target_nodes:
         is_match = is_target_match_patterns(pattern_list, node.node)

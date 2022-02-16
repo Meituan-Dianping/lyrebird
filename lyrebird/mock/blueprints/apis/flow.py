@@ -34,9 +34,9 @@ class FlowList(Resource):
         all_items = context.application.cache.items()[::-1]
         req_list = []
         for item in all_items:
-            if ignore_values and utils.is_json_target_match_patterns(ignore_values, item, filter_target):
+            if ignore_values and utils.is_jsonpath_match_patterns(ignore_values, item, filter_target):
                 continue
-            if filter_values and (not utils.is_json_target_match_patterns(filter_values, item, filter_target)):
+            if filter_values and (not utils.is_jsonpath_match_patterns(filter_values, item, filter_target)):
                 continue
             info = dict(
                 id=item['id'],
