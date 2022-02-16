@@ -74,8 +74,10 @@ def index(path=''):
             req_context.update_response_data2flow(output_key='proxy_response')
 
     DuplicateHeaderKeyHandler.set_origin_header(resp.headers, req_context.flow['response']['headers'])
-    HeadersHelper.save_raw_location(resp.headers)
 
     context.emit('action', 'add flow log')
+
+    # Close autocorrect response location.
+    resp.autocorrect_location_header = False
 
     return resp
