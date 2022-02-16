@@ -37,7 +37,7 @@ class JSONPath:
         # There is a bug in re.split splitting with (?=) in Python 3.6 and below
         # The following code `re_split_handle` is used to solve this problem
         # Remove when Python 3.6 is not supported
-        keys = JSONPath.re_split_handle(origin_keys)
+        keys = [k for k in JSONPath.re_split_handle(origin_keys) if k]
 
         if not keys or not len(keys):
             return
@@ -55,21 +55,9 @@ class JSONPath:
             return origin_keys
 
         keys = []
-
         for key in origin_keys:
-            if not key:
-                continue
-
-            if not re.match('.+\[(\d+|\*)\]', key):
-                keys.append(key)
-                continue
-
-            while re.search('\[(\d+|\*)\]', key):
-                r = re.search('\[(\d+|\*)\]', key)
-                keys.extend([key[:r.start()], key[r.start():r.end()]])
-                key = key[r.end():]
-
-        return [k for k in keys if k]
+            keys.extend(re.findall('\[?[\w\*]+\]?', key))
+        return keys
 
     @staticmethod
     def _search_iterator(root, prop_keys, result):
