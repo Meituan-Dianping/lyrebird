@@ -6,6 +6,7 @@ from urllib.parse import urlencode, unquote
 from flask import request, Response
 import json
 
+
 class Flow(Resource):
     """
     当前请求单条数据
@@ -27,12 +28,15 @@ class FlowList(Resource):
     """
 
     def get(self):
-        ignore_host = context.application.selected_filter.get('ignore', []) if context.application.selected_filter else []
+        ignore_values = context.application.selected_filter.get('ignore', []) if context.application.selected_filter else []
+        filter_values = context.application.selected_filter.get('filter', []) if context.application.selected_filter else []
+        filter_target = context.application.selected_filter.get('target', 'request.host') if context.application.selected_filter else 'request.host'
         all_items = context.application.cache.items()[::-1]
         req_list = []
         for item in all_items:
-            is_ignore = utils.is_target_match_patterns(ignore_host, item['request'].get('host'))
-            if is_ignore:
+            if ignore_values and utils.is_jsonpath_match_patterns(ignore_values, item, filter_target):
+                continue
+            if filter_values and (not utils.is_jsonpath_match_patterns(filter_values, item, filter_target)):
                 continue
             info = dict(
                 id=item['id'],

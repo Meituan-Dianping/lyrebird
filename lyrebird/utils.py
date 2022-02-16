@@ -9,6 +9,7 @@ import datetime
 from pathlib import Path
 from contextlib import closing
 from lyrebird.log import get_logger
+from lyrebird.mock.dm.jsonpath import jsonpath
 
 logger = get_logger()
 
@@ -58,6 +59,15 @@ def is_target_match_patterns(pattern_list, target):
         return False
     for pattern in pattern_list:
         if TargetMatch.is_match(target, pattern):
+            return True
+    return False
+
+
+def is_jsonpath_match_patterns(pattern_list, json_obj, target_rule):
+    target_nodes = jsonpath.search(json_obj, target_rule)
+    for node in target_nodes:
+        is_match = is_target_match_patterns(pattern_list, node.node)
+        if is_match:
             return True
     return False
 
