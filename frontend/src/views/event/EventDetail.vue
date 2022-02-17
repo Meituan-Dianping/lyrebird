@@ -34,7 +34,7 @@ export default {
   },
   data () {
     return {
-      currentTab: 'msg'
+      currentTab: 'raw'
     }
   },
   computed: {
