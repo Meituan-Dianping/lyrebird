@@ -21,6 +21,7 @@ export default {
     isLoading: false,
     dataListSelectedLabel: [],
     isLabelDisplay: true,
+    isReloadTreeWhenUpdate: false,
     undisplayedKey: ['children', 'type', 'parent_id'],
     undeletableKey: ['id', 'rule', 'name', 'label', 'category'],
     uneditableKey: ['id', 'rule'],
@@ -113,6 +114,9 @@ export default {
     setUndisplayedKey (state, undisplayedKey) {
       state.undisplayedKey = undisplayedKey
     },
+    setIsReloadTreeWhenUpdate (state, isReloadTreeWhenUpdate) {
+      state.isReloadTreeWhenUpdate = isReloadTreeWhenUpdate
+    },
     concatUndisplayedKey (state, undisplayedKey) {
       state.undisplayedKey = state.undisplayedKey.concat(undisplayedKey)
     },
@@ -181,11 +185,14 @@ export default {
           bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error.data.message)
         })
     },
-    saveDataDetail ({ dispatch }, payload) {
+    saveDataDetail ({ state, commit, dispatch }, payload) {
       api.updateData(payload)
         .then(response => {
-          dispatch('loadDataMap')
           dispatch('loadDataDetail', payload)
+          if (state.isReloadTreeWhenUpdate) {
+            dispatch('loadDataMap')
+            commit('setIsReloadTreeWhenUpdate', false)
+          }
           bus.$emit('msg.success', 'Data ' + payload.name + ' update!')
         })
         .catch(error => {
