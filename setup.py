@@ -42,6 +42,7 @@ setup(
         "Flask==1.1.1",
         "Flask-RESTful==0.3.7",
         "Flask-SocketIO==4.2.1",
+        "itsdangerous==2.0.1",
         "mitmproxy==5.3.0",
         "packaging==19.0",
         "portpicker==1.3.1",
