@@ -22,7 +22,7 @@
       right
       class="side-navgation-right"
       width="400"
-      color="rgba(230, 230, 230, 0.6)"
+      color="rgba(230, 230, 230, 0.8)"
     >
       <div class="drawer-header">
         <ButtonGroup>

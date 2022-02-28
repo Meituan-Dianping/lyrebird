@@ -120,6 +120,9 @@ export default {
       Object.assign(newResp, JSON.parse(this.editorCache.resp))
       newResp['data'] = this.editorCache.respData
       newData['response'] = newResp
+
+      this.$store.commit('setIsReloadTreeWhenUpdate', this.dataDetail.name !== newData.name)
+
       this.$store.dispatch('saveDataDetail', newData)
     },
     onJsonPathChange (payload) {
