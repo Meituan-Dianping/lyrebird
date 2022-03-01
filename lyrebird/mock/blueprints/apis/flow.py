@@ -28,12 +28,24 @@ class FlowList(Resource):
     """
 
     def get(self):
-        ignore_host = context.application.selected_filter.get('ignore', []) if context.application.selected_filter else []
+        advanced_filter = context.application.selected_filter.get('advanced', None) if context.application.selected_filter else None
+        if advanced_filter:
+            must_filter = advanced_filter.get('must', {})
+            must_not_filter = advanced_filter.get('must_not', {})
+        else:
+            must_filter = {}
+            must_not_filter = {}
+            ignore_host = context.application.selected_filter.get('ignore', []) if context.application.selected_filter else []
+            if ignore_host:
+                must_not_filter = {
+                    'request.host': ignore_host
+                }
         all_items = context.application.cache.items()[::-1]
         req_list = []
         for item in all_items:
-            is_ignore = utils.is_target_match_patterns(ignore_host, item['request'].get('host'))
-            if is_ignore:
+            if must_not_filter and utils.is_flow_match_filter(must_not_filter, item):
+                continue
+            if must_filter and (not utils.is_flow_match_filter(must_filter, item)):
                 continue
             info = dict(
                 id=item['id'],

@@ -72,6 +72,15 @@ def is_jsonpath_match_patterns(pattern_list, json_obj, target_rule):
     return False
 
 
+def is_flow_match_filter(filter_dict, flow):
+    for target_rule, patterns in filter_dict.items():
+        if type(patterns) != list:
+            patterns = [patterns]
+        if not is_jsonpath_match_patterns(patterns, flow, target_rule):
+            return False
+    return True
+
+
 def find_free_port():
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
         s.bind(('', 0))
