@@ -1,7 +1,6 @@
 from flask_restful import Resource
 from lyrebird.mock import context, headers
 from lyrebird import application
-from lyrebird import utils
 from lyrebird.event_filter import Filter
 from urllib.parse import urlencode, unquote
 from flask import request, Response
