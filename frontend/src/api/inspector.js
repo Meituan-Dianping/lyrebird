@@ -20,7 +20,7 @@ export const getFlowFilters = () => {
   })
 }
 
-export const setFLowFilter = (name) => {
+export const setFlowFilter = (name) => {
   return axios({
     url: '/api/flowfilter',
     data: { name },
