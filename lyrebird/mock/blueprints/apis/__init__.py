@@ -44,7 +44,7 @@ def on_500(error):
 api_source.add_resource(Status, '/status')
 api_source.add_resource(Manifest, '/manifest')
 api_source.add_resource(Flow, '/flow/<string:id>')
-api_source.add_resource(FlowList, '/flow')
+api_source.add_resource(FlowList, '/flow', '/flow/<string:action>')
 api_source.add_resource(Cut, '/cut/<string:_id>')
 api_source.add_resource(Copy, '/copy/<string:_id>')
 api_source.add_resource(Paste, '/paste/<string:_id>')

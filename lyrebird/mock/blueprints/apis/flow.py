@@ -79,8 +79,7 @@ class FlowList(Resource):
         context.application.socket_io.emit('action', 'delete flow log')
         return application.make_ok_response()
 
-    def post(self):
-        action = request.args.get('action', 'save')
+    def post(self, action):
         if action == 'save':
             _ids = request.json.get('ids')
             record_items = []
