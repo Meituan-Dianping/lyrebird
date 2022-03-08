@@ -101,13 +101,13 @@
           color="primary"
           class="flow-filter-select"
           outlined
-          v-model="selectedFLowFilter"
+          v-model="selectedFlowFilter"
           :items="flowFilters"
           item-text="name"
           item-value="name"
           style="border-bottom:none!important;"
           :menu-props="{ bottom: true, offsetY: true }"
-          @change="changeFLowFilter"
+          @change="changeFlowFilter"
         />
       </div>
       <div class="inspector-search">
@@ -183,7 +183,6 @@ export default {
   },
   mounted () {
     this.loadDiffModeStatus()
-    this.loadFLowFilters()
   },
   computed: {
     isRecordMode () {
@@ -215,12 +214,12 @@ export default {
     flowFilters () {
       return this.$store.state.inspector.flowFilters
     },
-    selectedFLowFilter: {
+    selectedFlowFilter: {
       get () {
-        return this.$store.state.inspector.selectedFLowFilter
+        return this.$store.state.inspector.selectedFlowFilter.name
       },
       set (val) {
-        this.$store.commit('setSelectedFLowFilter', val)
+        this.$store.commit('setSelectedFlowFilter', val)
       }
     },
     searchStr: {
@@ -249,11 +248,8 @@ export default {
       const mode = payload ? 'multiple' : 'normal'
       setDiffModeStatus(mode)
     },
-    loadFLowFilters () {
-      this.$store.dispatch('loadFlowFilters')
-    },
-    changeFLowFilter (payload) {
-      this.$store.dispatch('saveFLowFilters', payload)
+    changeFlowFilter () {
+      this.$store.dispatch('loadFlowList')
     },
     clearAllFlow () {
       this.$store.dispatch('clearInspector', this.clearTypes)

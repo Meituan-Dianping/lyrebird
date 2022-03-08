@@ -12,7 +12,7 @@ export default {
     originFlowList: [],
     recordMode: '',
     flowFilters: [],
-    selectedFLowFilter: ''
+    selectedFlowFilter: {}
   },
   mutations: {
     setActivitedGroup (state, group) {
@@ -54,11 +54,16 @@ export default {
     setRecordMode (state, recordMode) {
       state.recordMode = recordMode
     },
-    setFLowFilters (state, flowFilters) {
+    setFlowFilters (state, flowFilters) {
       state.flowFilters = flowFilters
     },
-    setSelectedFLowFilter (state, selectedFLowFilter) {
-      state.selectedFLowFilter = selectedFLowFilter
+    setSelectedFlowFilter (state, selectedFlowFilterName) {
+      for (const filter of state.flowFilters) {
+        if (filter.name === selectedFlowFilterName) {
+          state.selectedFlowFilter = filter
+          return
+        }
+      }
     }
   },
   actions: {
@@ -105,7 +110,7 @@ export default {
       dispatch('loadFlowDetail', flow.id)
     },
     loadFlowList ({ state, commit }) {
-      api.getFlowList()
+      api.searchFlowList(state.selectedFlowFilter)
         .then(response => {
           // selected
           for (const flow of response.data) {
@@ -130,27 +135,6 @@ export default {
       api.setRecordMode(state.recordMode)
         .catch(error => {
           bus.$emit('msg.error', 'Change record mode error: ' + error.data.message)
-        })
-    },
-    loadFlowFilters ({ commit }) {
-      api.getFlowFilters()
-        .then(response => {
-          commit('setFLowFilters', response.data.filters)
-          if (response.data.selected_filter) {
-            commit('setSelectedFLowFilter', response.data.selected_filter.name)
-          }
-        })
-        .catch(error => {
-          bus.$emit('msg.error', 'Load flow filters failed: ' + error.data.message)
-        })
-    },
-    saveFLowFilters ({ dispatch }, name) {
-      api.setFLowFilter(name)
-        .then(_ => {
-          dispatch('loadFlowList')
-        })
-        .catch(error => {
-          bus.$emit('msg.error', 'Change flow filter failed: ' + error.data.message)
         })
     },
     clearInspector ({ commit }, clearTypes) {

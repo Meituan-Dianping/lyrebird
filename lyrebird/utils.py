@@ -9,9 +9,9 @@ import datetime
 from pathlib import Path
 from contextlib import closing
 from lyrebird.log import get_logger
-from lyrebird.mock.dm.jsonpath import jsonpath
 
 logger = get_logger()
+
 
 def convert_size(size_bytes):
     if size_bytes == 0:
@@ -52,24 +52,6 @@ def is_port_in_use(port, host='127.0.0.1'):
     finally:
         if sock:
             sock.close()
-
-
-def is_target_match_patterns(pattern_list, target):
-    if not pattern_list or not target:
-        return False
-    for pattern in pattern_list:
-        if TargetMatch.is_match(target, pattern):
-            return True
-    return False
-
-
-def is_jsonpath_match_patterns(pattern_list, json_obj, target_rule):
-    target_nodes = jsonpath.search(json_obj, target_rule)
-    for node in target_nodes:
-        is_match = is_target_match_patterns(pattern_list, node.node)
-        if is_match:
-            return True
-    return False
 
 
 def find_free_port():
@@ -129,6 +111,7 @@ class CaseInsensitiveDict(dict):
     
     def get(self, key, default=None):
         return super(CaseInsensitiveDict, self).get(key.lower(), default)
+
 
 class TargetMatch:
 
