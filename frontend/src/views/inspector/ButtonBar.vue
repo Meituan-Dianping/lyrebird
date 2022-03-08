@@ -99,7 +99,7 @@
           dense
           hide-details
           clearable
-          label="Choose Filter"
+          label="Filter"
           color="primary"
           class="flow-filter-select"
           outlined
@@ -342,11 +342,11 @@ export default {
   font-size: 14px !important;
 }
 .flow-filter {
-  width: 130px !important;
+  width: 120px !important;
   height: 26px;
 }
 .flow-filter-select {
-  width: 130px;
+  width: 120px;
   min-height: 26px !important;
   height: 26px !important;
   font-size: 14px;
