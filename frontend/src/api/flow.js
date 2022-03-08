@@ -13,6 +13,14 @@ export const getFlowList = () => {
   })
 }
 
+export const searchFlowList = (selectedFilter) => {
+  return axios({
+    url: '/api/flow/search',
+    method: 'POST',
+    data: { selectedFilter }
+  })
+}
+
 export const deleteAllFlow = () => {
   return axios({
     url: '/api/flow',
@@ -23,7 +31,7 @@ export const deleteAllFlow = () => {
 
 export const saveSelectedFlow = (ids) => {
   return axios({
-    url: '/api/flow',
+    url: '/api/flow/save',
     method: 'POST',
     data: { ids }
   })
