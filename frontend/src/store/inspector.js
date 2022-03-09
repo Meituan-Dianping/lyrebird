@@ -58,6 +58,10 @@ export default {
       state.flowFilters = flowFilters
     },
     setSelectedFlowFilter (state, selectedFlowFilterName) {
+      if (selectedFlowFilterName === null) {
+        state.selectedFlowFilter = {}
+        return
+      }
       for (const filter of state.flowFilters) {
         if (filter.name === selectedFlowFilterName) {
           state.selectedFlowFilter = filter

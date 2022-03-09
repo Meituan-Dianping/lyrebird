@@ -98,6 +98,8 @@
         <v-select
           dense
           hide-details
+          clearable
+          label="Filter"
           color="primary"
           class="flow-filter-select"
           outlined
@@ -340,11 +342,11 @@ export default {
   font-size: 14px !important;
 }
 .flow-filter {
-  width: 100px !important;
+  width: 120px !important;
   height: 26px;
 }
 .flow-filter-select {
-  width: 100px;
+  width: 120px;
   min-height: 26px !important;
   height: 26px !important;
   font-size: 14px;
@@ -393,7 +395,19 @@ export default {
   line-height: 14px;
   min-width: 14px;
 }
-
+.flow-filter .v-input__icon--clear {
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  min-width: 14px;
+}
+.flow-filter .v-input__icon--clear button {
+  font-size: 14px;
+}
+.flow-filter .v-label{
+  font-size: 14px !important;
+  top: 5px !important;
+}
 .inspector-search {
   width: 320px !important;
   height: 26px;
