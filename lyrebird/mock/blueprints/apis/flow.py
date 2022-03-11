@@ -94,10 +94,7 @@ class FlowList(Resource):
             return application.make_ok_response()
         elif action == 'search':
             filter_obj = request.json.get('selectedFilter')
-            if not filter_obj:
-                filter_obj = context.application.selected_filter
-            if filter_obj:
-                context.application.selected_filter = filter_obj
+            context.application.selected_filter = filter_obj
             req_list = get_flow_list_by_filter(filter_obj)
             return Response(json.dumps(req_list, ensure_ascii=False), mimetype='application/json', status=200)
         else:
