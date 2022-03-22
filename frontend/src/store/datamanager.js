@@ -322,10 +322,12 @@ export default {
         })
     },
     pasteGroupOrData ({ commit, dispatch }, payload) {
+      bus.$emit('msg.loading', `Pasting ${payload.type} ${payload.name} ...`)
       api.pasteGroupOrData(payload.id)
         .then(response => {
           commit('addGroupListOpenNode', payload.id)
           dispatch('loadDataMap')
+          bus.$emit('msg.destroy')
           bus.$emit('msg.success', payload.type + ' ' + payload.name + ' paste success')
         })
         .catch(error => {

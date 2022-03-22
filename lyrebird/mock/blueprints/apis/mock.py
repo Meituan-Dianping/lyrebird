@@ -1,7 +1,9 @@
 from flask_restful import Resource
 from lyrebird.mock import context
 from flask import request
-from lyrebird import application
+from lyrebird import application, log
+
+logger = log.get_logger()
 
 
 class MockGroup(Resource):
@@ -41,9 +43,13 @@ class MockGroup(Resource):
 
 
     def post(self):
-        name = request.json.get('name')
-        parent_id = request.json.get('parent_id')
-        group_id = context.application.data_manager.add_group(parent_id, name)
+        data = request.json.get('data')
+        if not data:
+            data = {
+                'name': request.json.get('name'),
+                'parent_id': request.json.get('parent_id')
+            }
+        group_id = context.application.data_manager.add_group(data)
         return context.make_ok_response(data={'group_id': group_id})
 
     def put(self):
@@ -75,6 +81,7 @@ class MockData(Resource):
         # Import encoder for encoding the requested content
         application.encoders_decoders.encoder_handler(data)
         context.application.data_manager.update_data(data_id, data)
+        context.application.data_manager.reactive()
         return context.make_ok_response()
 
     def post(self):
@@ -98,9 +105,12 @@ class ActivatedMockGroup(Resource):
     def put(self, group_id=None, action=None):
         if action == 'activate':
             # Only one group could be activated
-            context.application.data_manager.deactivate()
             context.application.data_manager.activate(group_id)
+        elif action == 'deactivate':
+            context.application.data_manager.deactivate()
         else:
+            logger.warning('DeprecationWarning: Deactivate with no action parameter is deprecated soon,\
+                use /mock/<string:group_id>/deactivate instead')
             context.application.data_manager.deactivate()
         return context.make_ok_response()
 
@@ -116,7 +126,11 @@ class MockGroupByName(Resource):
                 if action == 'activate':
                     context.application.data_manager.deactivate()
                     context.application.data_manager.activate(group['id'])
+                elif action == 'deactivate':
+                    context.application.data_manager.deactivate()
                 else:
+                    logger.warning('DeprecationWarning: Deactivate with no action parameter is deprecated soon,\
+                        use /mock/<string:group_id>/deactivate instead')
                     context.application.data_manager.deactivate()
                 return context.make_ok_response()
         return context.make_fail_response(f'Group not found. name={group_name}')
