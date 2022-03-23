@@ -38,6 +38,9 @@ class DataManager:
         self.root = self.get_default_root()
         self._snapshot_workspace = None
 
+        self.add_group_ignore_keys = ['id', 'type', 'children']
+        self.update_group_ignore_keys = ['id', 'parent_id', 'type', 'children']
+
     @property
     def snapshot_workspace(self):
         if not self._snapshot_workspace:
@@ -145,6 +148,10 @@ class DataManager:
             ordered_data_id += self._collect_data_in_node(activated_node)
         data_list = self._adapter._load_data_by_query({'id': ordered_data_id})
 
+        # Only one group could be activated and reactived
+        # Deactivate all activated group before activate
+        self.deactivate()
+
         data_map = {d['id']: d for d in data_list}
         self.activated_data.update({i: data_map[i] for i in ordered_data_id if data_map.get(i)})
         self.activated_group[_id] = _node
@@ -184,9 +191,7 @@ class DataManager:
         self.activated_group = {}
 
     def reactive(self):
-        origin_activated_group = self.activated_group
-        self.deactivate()
-        for _group_id in origin_activated_group:
+        for _group_id in self.activated_group:
             self.activate(_group_id)
 
     def get_matched_data(self, flow):
@@ -343,26 +348,27 @@ class DataManager:
             return data
         return json.dumps(data, ensure_ascii=False)
 
-    def add_group(self, parent_id, name):
+    def add_group(self, data):
+        new_group = {k: data[k] for k in data if k not in self.add_group_ignore_keys}
+
+        parent_id = data.get('parent_id')
         if parent_id == None:
             parent_node = self.root
         else:
             parent_node = self.id_map.get(parent_id)
+
         if not parent_node:
             raise IDNotFound(parent_id)
         if parent_node.get('type') == 'data':
             raise DataObjectCannotContainAnyOtherObject
+
         # Add group
         group_id = str(uuid.uuid4())
-        new_group = {
+        new_group.update({
             'id': group_id,
-            'name': name,
             'type': 'group',
-            'parent_id': parent_id,
-            'label': [],
-            'children': [],
-            'super_id': None
-        }
+            'children': []
+        })
         # New group added in the head of child list
         if 'children' not in parent_node:
             parent_node['children'] = []
@@ -385,7 +391,10 @@ class DataManager:
                     current = child
                     break
             else:
-                group_id = self.add_group(current['id'], name)
+                group_id = self.add_group({
+                    'name': name,
+                    'parent_id': current['id']
+                })
                 current = self.id_map.get(group_id)
         return current['id']
 
@@ -636,15 +645,14 @@ class DataManager:
     # -----
 
     def update_group(self, _id, data, save=True):
-        ignore_keys = ['id', 'parent_id', 'type', 'children']
         node = self.id_map.get(_id)
         if not node:
             raise IDNotFound(_id)
 
-        update_data = {k: data[k] for k in data if k not in ignore_keys}
+        update_data = {k: data[k] for k in data if k not in self.update_group_ignore_keys}
         node.update(update_data)
 
-        delete_keys = [k for k in node if k not in data and k not in ignore_keys]
+        delete_keys = [k for k in node if k not in data and k not in self.update_group_ignore_keys]
         for key in delete_keys:
             node.pop(key)
 

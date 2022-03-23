@@ -81,9 +81,11 @@ export default {
         })
     },
     activateGroup ({ dispatch }, payload) {
+      bus.$emit('msg.loading', `Activating group ${payload.name} ...`)
       api.activateGroup(payload.id)
         .then(response => {
           dispatch('loadActivatedGroup')
+          bus.$emit('msg.destroy')
           bus.$emit('msg.success', 'Group ' + payload.name + ' activated!')
         })
         .catch(error => {
