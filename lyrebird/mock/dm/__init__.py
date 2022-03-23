@@ -352,7 +352,10 @@ class DataManager:
         new_group = {k: data[k] for k in data if k not in self.add_group_ignore_keys}
 
         parent_id = data.get('parent_id')
-        parent_node = self.id_map.get(parent_id)
+        if parent_id == None:
+            parent_node = self.root
+        else:
+            parent_node = self.id_map.get(parent_id)
 
         if not parent_node:
             raise IDNotFound(parent_id)
@@ -388,7 +391,10 @@ class DataManager:
                     current = child
                     break
             else:
-                group_id = self.add_group(current['id'], name)
+                group_id = self.add_group({
+                    'name': name,
+                    'parent_id': current['id']
+                })
                 current = self.id_map.get(group_id)
         return current['id']
 

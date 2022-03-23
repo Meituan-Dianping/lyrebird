@@ -563,7 +563,7 @@ def test_activate_groups(data_manager):
     data_manager.activate('groupB-UUID')
     flow_A_mock_data = data_manager.get_matched_data(flow_A)
     flow_B_mock_data = data_manager.get_matched_data(flow_B)
-    assert len(flow_A_mock_data) == 1
+    assert len(flow_A_mock_data) == 0
     assert len(flow_B_mock_data) == 1
 
 
@@ -588,7 +588,10 @@ def test_conflict_checker(data_manager):
 
 
 def test_add_group(data_manager):
-    new_group_id = data_manager.add_group(None, 'root_group')
+    new_group_id = data_manager.add_group({
+        'name': 'root_group',
+        'parent_id': None
+    })
     assert new_group_id in data_manager.id_map
     found_new_group = False
     for child in data_manager.root['children']:
@@ -597,6 +600,15 @@ def test_add_group(data_manager):
             break
     assert found_new_group
 
+def test_add_group_by_path(data_manager):
+    new_group_id = data_manager.add_group_by_path('/groupA')
+    assert new_group_id in data_manager.id_map
+    found_new_group = False
+    for child in data_manager.root['children']:
+        if child['id'] == new_group_id:
+            found_new_group = True
+            break
+    assert found_new_group
 
 def test_add_data_request_with_name_rule(data_manager):
     custom_name = 'CUSTOM_NAME'
