@@ -124,7 +124,6 @@ class MockGroupByName(Resource):
             group = context.application.data_manager.id_map.get(_id)
             if group['name'] == group_name:
                 if action == 'activate':
-                    context.application.data_manager.deactivate()
                     context.application.data_manager.activate(group['id'])
                 elif action == 'deactivate':
                     context.application.data_manager.deactivate()
