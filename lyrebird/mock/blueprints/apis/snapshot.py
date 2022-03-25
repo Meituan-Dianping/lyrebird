@@ -55,7 +55,6 @@ class SnapshotImport(Resource):
                 return redirect(f'/ui/?v={VERSION}#/datamanager?{urlencode(new_query)}')
 
         if queries.get('isAutoActive') == 'true':
-            context.application.data_manager.deactivate()
             context.application.data_manager.activate(group_id)
 
         display_info = queries.get('displayKey', '')

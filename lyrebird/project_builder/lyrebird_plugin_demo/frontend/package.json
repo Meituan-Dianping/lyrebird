@@ -7,7 +7,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "core-js": "^3.3.2",
     "socket.io-client": "^2.3.0",
     "view-design": "^4.0.2",
