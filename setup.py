@@ -40,6 +40,7 @@ setup(
         "beautifulsoup4==4.7.1",
         "colorama==0.4.1",
         "Flask==1.1.1",
+        "Jinja2==3.0.3",
         "Flask-RESTful==0.3.7",
         "Flask-SocketIO==4.2.1",
         "itsdangerous==2.0.1",
