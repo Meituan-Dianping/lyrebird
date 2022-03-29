@@ -1,2 +1,3 @@
 graft lyrebird
+include requirements.txt
 recursive-exclude * *.pyc *.pyo *.swo *.swp *.map *.DS_Store
