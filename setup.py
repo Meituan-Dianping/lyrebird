@@ -11,7 +11,7 @@ VERSION = runpy.run_path(
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
+with open(os.path.join(here, 'install_requires.txt'), encoding='utf-8') as f:
     install_requires_str = f.read()
     install_requires = install_requires_str.split()
 
