@@ -353,18 +353,20 @@ def test_activate(data_manager):
     assert 'dataD-UUID' in data_manager.activated_data
 
 
-def test_activate_with_super_id(data_manager):
+def test_activate_with_super_id(data_manager): # 123
     data_manager.activate('groupA-UUID')
 
     groupA_children_length = len(data_manager.id_map['groupA-UUID']['children'])
     groupB_children_length = len(data_manager.id_map['groupB-UUID']['children'])
     groupC_children_length = len(data_manager.id_map['groupC-UUID']['children'])
-    activated_data_length = groupA_children_length + groupB_children_length + groupC_children_length
+    groupD_children_length = len(data_manager.id_map['groupD-UUID']['children'])
+    activated_data_length = groupA_children_length + groupB_children_length + groupC_children_length +\
+        groupD_children_length
     assert activated_data_length == len(data_manager.activated_data)
     assert 'dataA-UUID' in data_manager.activated_data
     assert 'dataB-UUID' in data_manager.activated_data
     assert 'dataC-UUID' in data_manager.activated_data
-    assert 'dataD-UUID' not in data_manager.activated_data
+    assert 'dataD-UUID' in data_manager.activated_data
 
 
 def test_mock_rule(data_manager):
