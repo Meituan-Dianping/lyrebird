@@ -116,11 +116,17 @@ export default {
       return data
     },
     parseResponseByContentType (response) {
+      let contentType = null
+      for (const headerKey in response.headers) {
+        if (headerKey.toLowerCase() == 'content-type') {
+          contentType = response.headers[headerKey]
+          break
+        }
+      }
       let codeContent = ''
       if (response.data === undefined || response.data === null) {
         codeContent = this.parseNullData(response.data)
-      } else if (response.headers.hasOwnProperty('Content-Type')) {
-        let contentType = response.headers['Content-Type']
+      } else if (contentType) {
         if (contentType.includes('html')) {
           codeContent = this.parseHtmlData(response.data)
         } else if (contentType.includes('xml')) {

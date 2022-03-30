@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from .content_length import ContentLengthHandler
 from ..duplicate_header_key_handler import DuplicateHeaderKeyHandler
+from lyrebird.utils import CaseInsensitiveDict
 
 origin2flow_handlers = OrderedDict({
 })
@@ -23,6 +24,7 @@ class HeadersHelper:
         for headers_key, func in origin2flow_handlers.items():
             _headers[headers_key] = func.flow2origin(origin_obj)
 
+        _headers = CaseInsensitiveDict(_headers)
         if output:
             output['headers'] = _headers
         else:

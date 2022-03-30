@@ -98,19 +98,57 @@ def download(link, input_path):
 
 
 class CaseInsensitiveDict(dict):
-
-    def __init__(self, dict):
-        for k,v in dict.items():
+    
+    def __init__(self, raw_dict):
+        self.key_map = {}
+        for k, v in raw_dict.items():
             self.__setitem__(k, v)
 
+    def __get_real_key(self, key):
+        return self.key_map.get(key.lower(), key)
+
+    def __set_real_key(self, real_key):
+        if real_key.lower() not in self.key_map:
+            self.key_map[real_key.lower()] = real_key
+
     def __setitem__(self, key, value):
-        super(CaseInsensitiveDict, self).__setitem__(key.lower(), value)
+        real_key = self.__get_real_key(key)
+        self.__set_real_key(real_key)
+        super(CaseInsensitiveDict, self).__setitem__(real_key, value)
 
     def __getitem__(self, key):
-        return super(CaseInsensitiveDict, self).__getitem__(key.lower())
-    
+        return super(CaseInsensitiveDict, self).__getitem__(self.__get_real_key(key))
+
     def get(self, key, default=None):
-        return super(CaseInsensitiveDict, self).get(key.lower(), default)
+        return super(CaseInsensitiveDict, self).get(self.__get_real_key(key), default)
+
+    def __delitem__(self, key):
+        real_key = self.key_map.pop(key.lower())
+        return super(CaseInsensitiveDict, self).__delitem__(real_key)
+
+    def __contains__(self, key):
+        return key.lower() in self.key_map
+
+    def pop(self, key):
+        real_key = self.key_map.pop(key.lower())
+        return super(CaseInsensitiveDict, self).pop(real_key)
+
+    def popitem(self):
+        item = super(CaseInsensitiveDict, self).popitem()
+        del self.key_map[item[0].lower()]
+        return item
+
+    def clear(self):
+        self.key_map = {}
+        return super(CaseInsensitiveDict, self).clear()
+
+    def update(self, __m=None, **kwargs) -> None:
+        if __m:
+            for k, v in __m.items():
+                self.__setitem__(k, v)
+        if kwargs:
+            for k, v in kwargs.items():
+                self.__setitem__(k, v)
 
 
 class TargetMatch:

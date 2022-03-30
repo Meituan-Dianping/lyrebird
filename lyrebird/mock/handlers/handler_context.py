@@ -65,7 +65,7 @@ class HandlerContext:
                 request_info = request_info_from_header
 
         if raw_headers:
-            headers = raw_headers
+            headers = utils.CaseInsensitiveDict(raw_headers)
         else:
             headers = HeadersHelper.origin2flow(self.request)
 
