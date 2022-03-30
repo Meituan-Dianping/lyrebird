@@ -28,7 +28,7 @@ class DataManager:
         self.id_map = {}
         self.activated_data = OrderedDict()
         self.activated_group = {}
-        self.LEVEL_SUPER_ACTIVATED = 2
+        self.LEVEL_SUPER_ACTIVATED = 3
         self.clipboard = None
         self.save_to_group_id = None
         self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'label': [], 'children': []}
@@ -168,7 +168,7 @@ class DataManager:
         _super_id = node.get('super_id')
         _super_node = self.id_map.get(_super_id)
         if not _super_node:
-            raise IDNotFound(f'Super node ID: {_super_node}')
+            raise IDNotFound(f'Super node ID: {_super_id}')
 
         id_list.extend(self._collect_activate_node(_super_node, level_lefted=level_lefted-1))
         return id_list
