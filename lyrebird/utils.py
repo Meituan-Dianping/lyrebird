@@ -175,7 +175,7 @@ class HookedDict(dict):
     def __init__(self, raw_dict):
         for k, v in raw_dict.items():
             if isinstance(v, dict):
-                if k == 'headers':
+                if k.lower() == 'headers':
                     v = CaseInsensitiveDict(v)
                 else:
                     v = HookedDict(v)
@@ -183,7 +183,7 @@ class HookedDict(dict):
 
     def __setitem__(self, __k, __v) -> None:
         if isinstance(__v, dict):
-            if __k == 'headers':
+            if __k.lower() == 'headers':
                 __v = CaseInsensitiveDict(__v)
             else:
                 __v = HookedDict(__v)
