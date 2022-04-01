@@ -97,6 +97,13 @@ def download(link, input_path):
             f.write(chunck)
 
 class CaseInsensitiveDict(dict):
+    '''
+    A dict data-structure that ignore key's case.
+    Any read or write related operations will igonre key's case.
+
+    Example: 
+    <key: 'abc'> & <key: 'ABC'> will be treated as the same key, only one exists in this dict.
+    '''
     
     def __init__(self, raw_dict):
         self.__key_map = {}
@@ -159,18 +166,27 @@ class CaseInsensitiveDict(dict):
             for k, v in kwargs.items():
                 self.__setitem__(k, v)
 
-class HookedDict(CaseInsensitiveDict):
+class HookedDict(dict):
+    '''
+    Hook build-in dict to protect CaseInsensitiveDict data type.
+    Only <headers> value is CaseInsensitiveDict at present.
+    '''
     
     def __init__(self, raw_dict):
-        super(HookedDict, self).__init__(raw_dict)
         for k, v in raw_dict.items():
             if isinstance(v, dict):
-                v = HookedDict(v)
+                if k == 'headers':
+                    v = CaseInsensitiveDict(v)
+                else:
+                    v = HookedDict(v)
             self.__setitem__(k, v)
 
     def __setitem__(self, __k, __v) -> None:
         if isinstance(__v, dict):
-            __v = HookedDict(__v)
+            if __k == 'headers':
+                __v = CaseInsensitiveDict(__v)
+            else:
+                __v = HookedDict(__v)
         return super(HookedDict, self).__setitem__(__k, __v)
 
 class TargetMatch:

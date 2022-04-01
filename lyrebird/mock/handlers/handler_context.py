@@ -38,10 +38,10 @@ class HandlerContext:
             'duration': 0,
             'start_time': time.time(),
             'request': utils.HookedDict({
-                'headers': utils.HookedDict({})
+                'headers': utils.CaseInsensitiveDict({})
             }),
             'response': utils.HookedDict({
-                'headers': utils.HookedDict({})
+                'headers': utils.CaseInsensitiveDict({})
             })
         })
         self.client_address = None
