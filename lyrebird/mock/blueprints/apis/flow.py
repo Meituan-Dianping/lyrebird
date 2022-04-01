@@ -1,4 +1,3 @@
-import traceback
 from flask_restful import Resource
 from lyrebird.mock import context, headers
 from lyrebird import application
