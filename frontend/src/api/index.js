@@ -14,6 +14,9 @@ import { bus } from '@/eventbus'
 
 
 const successHandler = (response) => {
+  if (!response.data) {
+    return response
+  }
   if (!response.data.hasOwnProperty('code')) {
     return response
   }
