@@ -20,6 +20,7 @@ def _wait(func, args=[], kwargs={}, timeout=15):
         if count > timeout:
             raise TimeoutError
 
+
 def _wait_exception(func, args=[], kwargs={}, timeout=15):
     count = 0
     while True:
@@ -31,6 +32,7 @@ def _wait_exception(func, args=[], kwargs={}, timeout=15):
             return
         if count > timeout:
             raise TimeoutError
+
 
 class MockServer:
     def __init__(self):
@@ -46,7 +48,8 @@ class MockServer:
         self.api_post = f'http://127.0.0.1:{self.port}/e2e_serve'
 
     def start(self):
-        self.mock_server_process = subprocess.Popen(f'python3 ./assets/serve.py -port {self.port}', shell=True, start_new_session=True)
+        self.mock_server_process = subprocess.Popen(
+            f'python3 ./assets/serve.py -port {self.port}', shell=True, start_new_session=True)
         _wait(requests.get, args=[self.api_status])
 
     def stop(self):
@@ -54,6 +57,7 @@ class MockServer:
             os.killpg(self.mock_server_process.pid, signal.SIGTERM)
             _wait_exception(requests.get, args=[self.api_status])
             self.mock_server_process = None
+
 
 class Lyrebird:
 
@@ -67,11 +71,17 @@ class Lyrebird:
         self._init_port()
 
     def _init_port(self):
-        self.port = 9090
-        self.proxy_port = 4272
-        self.extra_mock_port = 9999
+        self.port = self._find_free_port()
+        self.proxy_port = self._find_free_port()
+        self.extra_mock_port = self._find_free_port()
         self.api_status = f'http://127.0.0.1:{self.port}/api/status'
         self.uri_mock = f'http://127.0.0.1:{self.port}/mock/'
+
+    def _find_free_port(self):
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+            s.bind(('', 0))
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            return s.getsockname()[1]
 
     def start(self, checker_path=None):
         cmdline = f'lyrebird -b -v --mock {self.port} --proxy {self.proxy_port} --extra-mock {self.extra_mock_port}'
@@ -89,11 +99,12 @@ class Lyrebird:
             os.killpg(self.lyrebird_process.pid, signal.SIGTERM)
             _wait_exception(requests.get, args=[self.api_status])
             self.lyrebird_process = None
-            
+
 
 @pytest.fixture
 def lyrebird(request):
     lb = Lyrebird()
+
     def stop_server():
         lb.stop()
     request.addfinalizer(stop_server)
@@ -104,6 +115,7 @@ def lyrebird(request):
 @pytest.fixture
 def lyrebird_with_args(request):
     lb = Lyrebird()
+
     def stop_server():
         lb.stop()
     request.addfinalizer(stop_server)
@@ -114,6 +126,7 @@ def lyrebird_with_args(request):
 def mock_server(request):
     mserver = MockServer()
     mserver.start()
+
     def stop_server():
         mserver.stop()
     request.addfinalizer(stop_server)

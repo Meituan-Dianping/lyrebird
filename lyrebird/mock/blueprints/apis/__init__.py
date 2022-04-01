@@ -36,11 +36,6 @@ def after_request(response):
     return response
 
 
-@api.errorhandler(Exception)
-def on_500(error):
-    return application.make_fail_response(f'{error.__class__.__name__} {error}')
-
-
 api_source.add_resource(Status, '/status')
 api_source.add_resource(Manifest, '/manifest')
 api_source.add_resource(Flow, '/flow/<string:id>')
