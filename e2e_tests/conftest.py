@@ -77,7 +77,7 @@ class Lyrebird:
         self.api_status = f'http://127.0.0.1:{self.port}/api/status'
         self.uri_mock = f'http://127.0.0.1:{self.port}/mock/'
 
-    def _find_free_port():
+    def _find_free_port(self):
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
             s.bind(('', 0))
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
