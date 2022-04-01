@@ -96,20 +96,28 @@ def download(link, input_path):
         for chunck in resp.iter_content():
             f.write(chunck)
 
-
 class CaseInsensitiveDict(dict):
     
     def __init__(self, raw_dict):
-        self.key_map = {}
+        self.__key_map = {}
         for k, v in raw_dict.items():
             self.__setitem__(k, v)
 
     def __get_real_key(self, key):
-        return self.key_map.get(key.lower(), key)
+        return self.__key_map.get(key.lower(), key)
 
     def __set_real_key(self, real_key):
-        if real_key.lower() not in self.key_map:
-            self.key_map[real_key.lower()] = real_key
+        if real_key.lower() not in self.__key_map:
+            self.__key_map[real_key.lower()] = real_key
+
+    def __pop_real_key(self, key):
+        return self.__key_map.pop(key.lower())
+
+    def __del_real_key(self, key):
+        del self.__key_map[key.lower()]
+
+    def __clear_key_map(self):
+        self.__key_map.clear()
 
     def __setitem__(self, key, value):
         real_key = self.__get_real_key(key)
@@ -123,23 +131,24 @@ class CaseInsensitiveDict(dict):
         return super(CaseInsensitiveDict, self).get(self.__get_real_key(key), default)
 
     def __delitem__(self, key):
-        real_key = self.key_map.pop(key.lower())
+        real_key = self.__pop_real_key(key)
         return super(CaseInsensitiveDict, self).__delitem__(real_key)
 
     def __contains__(self, key):
-        return key.lower() in self.key_map
+        return key.lower() in self.__key_map
 
     def pop(self, key):
-        real_key = self.key_map.pop(key.lower())
+        real_key = self.__pop_real_key(key)
         return super(CaseInsensitiveDict, self).pop(real_key)
 
     def popitem(self):
         item = super(CaseInsensitiveDict, self).popitem()
-        del self.key_map[item[0].lower()]
+        if item:
+            self.__del_real_key(item[0])
         return item
 
     def clear(self):
-        self.key_map = {}
+        self.__clear_key_map()
         return super(CaseInsensitiveDict, self).clear()
 
     def update(self, __m=None, **kwargs) -> None:
@@ -150,6 +159,19 @@ class CaseInsensitiveDict(dict):
             for k, v in kwargs.items():
                 self.__setitem__(k, v)
 
+class HookedDict(CaseInsensitiveDict):
+    
+    def __init__(self, raw_dict):
+        super(HookedDict, self).__init__(raw_dict)
+        for k, v in raw_dict.items():
+            if isinstance(v, dict):
+                v = HookedDict(v)
+            self.__setitem__(k, v)
+
+    def __setitem__(self, __k, __v) -> None:
+        if isinstance(__v, dict):
+            __v = HookedDict(__v)
+        return super(HookedDict, self).__setitem__(__k, __v)
 
 class TargetMatch:
 

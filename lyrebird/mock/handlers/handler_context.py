@@ -32,14 +32,18 @@ class HandlerContext:
         self.client_resp_time = None
         self.server_req_time = None
         self.server_resp_time = None
-        self.flow = dict(
-            id=self.id,
-            size=0,
-            duration=0,
-            start_time=time.time(),
-            request={},
-            response={}
-            )
+        self.flow = utils.HookedDict({
+            'id': self.id,
+            'size': 0,
+            'duration': 0,
+            'start_time': time.time(),
+            'request': utils.HookedDict({
+                'headers': utils.HookedDict({})
+            }),
+            'response': utils.HookedDict({
+                'headers': utils.HookedDict({})
+            })
+        })
         self.client_address = None
         self.is_request_edited = False
         self.is_response_edited = False
@@ -65,7 +69,7 @@ class HandlerContext:
                 request_info = request_info_from_header
 
         if raw_headers:
-            headers = utils.CaseInsensitiveDict(raw_headers)
+            headers = raw_headers
         else:
             headers = HeadersHelper.origin2flow(self.request)
 

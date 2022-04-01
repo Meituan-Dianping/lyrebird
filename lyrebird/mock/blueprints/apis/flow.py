@@ -1,3 +1,4 @@
+import traceback
 from flask_restful import Resource
 from lyrebird.mock import context, headers
 from lyrebird import application
@@ -44,7 +45,7 @@ def get_flow_list_by_filter(filter_obj):
                 code=item['response']['code'],
                 mock=item['response']['headers'].get('lyrebird', 'proxy'),
                 modified=item['request']['headers'].get('lyrebird_modified') or item['response']['headers'].get('lyrebird_modified', '')
-            )if item.get('response') else {},
+            )if item.get('response') and len(item.get('response').keys()) > 1 else {},
             action=item.get('action', [])
         )
         # Add key `proxy_response` into info only if item contains proxy_response

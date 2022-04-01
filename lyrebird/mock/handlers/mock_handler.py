@@ -2,7 +2,6 @@ from pathlib import Path
 from lyrebird.mock import context
 from lyrebird.log import get_logger
 from .mock_data_helper import MockDataHelper
-from lyrebird.utils import CaseInsensitiveDict
 
 
 logger = get_logger()
@@ -28,7 +27,7 @@ class MockHandler:
             f'<Mock> Hit Group:{activated_group.get("name")} - Data:{hit_data["name"]} \nURL: {handler_context.flow["request"]["url"]}\nGroupID:{activated_group["id"]} DataID:{hit_data["id"]}')
 
         handler_context.flow['response']['code'] = hit_data['response']['code']
-        handler_context.flow['response']['headers'] = CaseInsensitiveDict({k:v for k,v in hit_data['response']['headers'].items()})
+        handler_context.flow['response']['headers'] = {k:v for k,v in hit_data['response']['headers'].items()}
         handler_context.flow['response']['data'] = hit_data['response'].get('data', '')
 
         handler_context.set_response_edited()
