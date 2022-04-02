@@ -32,14 +32,18 @@ class HandlerContext:
         self.client_resp_time = None
         self.server_req_time = None
         self.server_resp_time = None
-        self.flow = dict(
-            id=self.id,
-            size=0,
-            duration=0,
-            start_time=time.time(),
-            request={},
-            response={}
-            )
+        self.flow = utils.HookedDict({
+            'id': self.id,
+            'size': 0,
+            'duration': 0,
+            'start_time': time.time(),
+            'request': utils.HookedDict({
+                'headers': utils.CaseInsensitiveDict({})
+            }),
+            'response': utils.HookedDict({
+                'headers': utils.CaseInsensitiveDict({})
+            })
+        })
         self.client_address = None
         self.is_request_edited = False
         self.is_response_edited = False

@@ -8,7 +8,7 @@ from ..version import VERSION
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird import log
-
+import traceback
 
 """
 Mock server
@@ -73,6 +73,11 @@ class LyrebirdMockServer(ThreadServer):
             设置默认页面为UI首页
             """
             return redirect(url_for('ui.index')+f'?v={VERSION}')
+
+        @self.app.errorhandler(Exception)
+        def on_app_error(error):
+            _logger.error(f'[mocker server exception]: {error.__class__.__name__} {error}\n{traceback.format_exc()}')
+            return application.make_fail_response(f'{error.__class__.__name__} {error}\n{traceback.format_exc()}')
 
     def run(self):
         server_ip = application.config.get('ip')
