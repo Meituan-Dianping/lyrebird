@@ -24,7 +24,7 @@ itsdangerous==2.0.1
 Jinja2==3.0.3
 kaitaistruct==0.9
 ldap3==2.8.1
-MarkupSafe==2.1.1
+MarkupSafe==2.0.1
 mitmproxy==5.3.0
 msgpack==1.0.3
 packaging==19.0
