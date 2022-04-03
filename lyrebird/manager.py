@@ -8,7 +8,6 @@ import threading
 import traceback
 import webbrowser
 from pathlib import Path
-
 from packaging.version import parse as vparse
 
 from lyrebird import application, log, project_builder, reporter, version
@@ -63,7 +62,8 @@ def main():
     parser.add_argument('-v', dest='verbose', action='count', default=0, help='Show verbose log')
     parser.add_argument('--ip', dest='ip', help='Set device ip')
     parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 9090')
-    parser.add_argument('--extra-mock', dest='extra_mock', type=int, help='Set extra mock server port, default port is 9999')
+    parser.add_argument('--extra-mock', dest='extra_mock', type=int,
+                        help='Set extra mock server port, default port is 9999')
     parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 4272')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
     parser.add_argument('-b', '--no_browser', dest='no_browser',
@@ -89,7 +89,7 @@ def main():
 
     Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
-    custom_conf = {es[0]:es[1] for es in args.extra_string} if args.extra_string else None
+    custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else None
     application._cm = ConfigManager(conf_path=args.config, custom_conf=custom_conf)
 
     # set current ip to config

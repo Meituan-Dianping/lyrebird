@@ -134,3 +134,5 @@ tmp/
 .vscode/
 .pytest_cache/
 output/
+
+pyinstaller_*/
