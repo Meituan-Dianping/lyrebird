@@ -4,13 +4,17 @@ on: [pull_request]
 
 jobs:
   unittest:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
+    runs-on: macos-latest
+    name: Python ${{ matrix.python-version }} tests
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v3
         with:
-          python-version: "3.7"
+          python-version: ${{ matrix.python-version }}
       - name: Install python dependencies
         run: |
           python -m pip install --upgrade pip
