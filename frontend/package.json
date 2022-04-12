@@ -28,11 +28,31 @@
     "eslint": "^5.16.0",
     "eslint-loader": "^2.1.2",
     "eslint-plugin-vue": "^5.2.2",
+    "prettier": "^1.16.3",
     "sass": "~1.32",
     "sass-loader": "^10.2.0",
     "vue-svg-icon": "^1.2.9",
     "vue-svg-loader": "^0.12.0",
     "vue-template-compiler": "^2.6.10"
+  },
+  "prettier": {
+    "arrowParens": "avoid",
+    "bracketSameLine": false,
+    "bracketSpacing": true,
+    "embeddedLanguageFormatting": "auto",
+    "htmlWhitespaceSensitivity": "css",
+    "insertPragma": false,
+    "jsxSingleQuote": false,
+    "printWidth": 120,
+    "proseWrap": "preserve",
+    "quoteProps": "as-needed",
+    "requirePragma": false,
+    "semi": false,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "useTabs": false,
+    "vueIndentScriptAndStyle": false
   },
   "postcss": {
     "plugins": {
