@@ -131,6 +131,12 @@ lyrebird/client/static/
 data/
 tmp/
 
-.vscode/launch.json
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
 .pytest_cache/
 output/
+
+.mysettings/*
+!.mysettings/setting1.json
