@@ -36,7 +36,6 @@ class DataManager:
         self.COPY_NODE_NAME_SUFFIX = ' - copy'
         self.root = self.get_default_root()
         self._snapshot_workspace = None
-        self._event_export_workspace = None
 
         self.add_group_ignore_keys = ['id', 'type', 'children']
         self.update_group_ignore_keys = ['id', 'parent_id', 'type', 'children']
