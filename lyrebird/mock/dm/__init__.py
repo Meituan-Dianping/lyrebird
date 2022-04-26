@@ -13,6 +13,7 @@ from lyrebird import utils, application
 from lyrebird.log import get_logger
 from lyrebird.application import config
 from lyrebird.mock.dm.jsonpath import jsonpath
+from lyrebird.mock.dm.event_converter import get_event_converter
 
 
 PROP_FILE_NAME = '.lyrebird_prop'
@@ -39,16 +40,6 @@ class DataManager:
 
         self.add_group_ignore_keys = ['id', 'type', 'children']
         self.update_group_ignore_keys = ['id', 'parent_id', 'type', 'children']
-        self.data_converter_map = dict(
-            flow_json=dict(
-                suffix='json',
-                converter_func=self._flow_json_converter
-            ),
-            json=dict(
-                suffix='json',
-                converter_func=self._json_converter
-            )
-        )
 
     @property
     def snapshot_workspace(self):
@@ -770,21 +761,6 @@ class DataManager:
     # -----
     # event export
     # -----
-    
-    def _flow_json_converter(self, data):
-        # Covert flow json to bytes
-        target_node = data.get('flow', {})
-        try:
-            return bytes(json.dumps(target_node, indent=4, ensure_ascii=False), encoding='utf-8')
-        except Exception as e:
-            raise ConverDataToStreamFail(e)
-    
-    def _json_converter(self, data):
-        # Covert common json to bytes
-        try:
-            return bytes(json.dumps(data, indent=4, ensure_ascii=False), encoding='utf-8')
-        except Exception as e:
-            raise ConverDataToStreamFail(e)
 
     def _generator_export_stream(self, data_bytes):
         def generator():
@@ -795,11 +771,9 @@ class DataManager:
         return generator
 
     def export_from_event(self, event):
-        converter = event['export'].get('converter', 'json')
-        suffix = self.data_converter_map.get(converter).get('suffix')
-        converter_func = self.data_converter_map.get(converter).get('converter_func')
-        data_bytes = converter_func(event)
-        filename = f'{event["channel"]}_{event["id"]}.{suffix}'
+        converter = get_event_converter(event)
+        filename = converter.filename
+        data_bytes = converter.convert()
         return filename, self._generator_export_stream(data_bytes)
 
 
@@ -865,8 +839,4 @@ class NodeExist(Exception):
 
 
 class LyrebirdSnapshotBroken(Exception):
-    pass
-
-
-class ConverDataToStreamFail(Exception):
     pass
