@@ -29,8 +29,11 @@ export default {
       split: 1
     }
   },
-  created () {
-    this.$bus.$on('eventLitScroll', this.setEventContainerScroll)
+  activated () {
+    this.$bus.$on('eventListScroll', this.setEventContainerScroll)
+  },
+  deactivated () {
+    this.$bus.$off('eventListScroll', this.setEventContainerScroll)
   },
   computed: {
     eventDetail () {
