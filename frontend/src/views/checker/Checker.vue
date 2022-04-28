@@ -25,7 +25,7 @@ export default {
     CheckerList,
     CheckerDetail
   },
-  created() {
+  activated () {
     this.$store.dispatch('loadCheckers')
   }
 }
