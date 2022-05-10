@@ -1,9 +1,8 @@
 import json
-import uuid
 from flask_restful import Resource
 from flask import jsonify, request, Response, stream_with_context
 from lyrebird import application
-from lyrebird.mock import context
+from lyrebird.db.event_converter import export_from_event
 
 # Default event page size
 PAGE_SIZE = 20
@@ -66,20 +65,17 @@ class EventExport(Resource):
     
     def get(self, event_id):
         # TODO: export event by event_id
-        res = application.make_fail_response(msg='Method not support')
-        res.status_code = 405
-        return res
+        pass
 
     def post(self, event_id=None):
         if not request.json.get('export'):
             return application.make_fail_response('Missing required argument: export')
         try:
-            filename, output_gen = context.application.data_manager.export_from_event(request.json)
+            filename, output_gen = export_from_event(request.json)
         except Exception as e:
-            return application.make_fail_response('Convert data to stream error')
+            return application.make_fail_response('Convert data to stream error: {e}')
         
         res = Response(stream_with_context(output_gen()), mimetype="application/octet-stream")
         res.headers['Content-Disposition'] = f'attachment; filename={filename}'
-        res.headers['EventFileId'] = str(uuid.uuid4())
         return res
 

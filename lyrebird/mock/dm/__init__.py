@@ -4,7 +4,6 @@ import time
 import codecs
 import shutil
 import datetime
-from io import BytesIO
 from pathlib import Path
 from jinja2 import Template
 from urllib.parse import urlparse
@@ -13,7 +12,6 @@ from lyrebird import utils, application
 from lyrebird.log import get_logger
 from lyrebird.application import config
 from lyrebird.mock.dm.jsonpath import jsonpath
-from lyrebird.mock.dm.event_converter import get_event_converter
 
 
 PROP_FILE_NAME = '.lyrebird_prop'
@@ -757,24 +755,6 @@ class DataManager:
         snapshot_path = self.snapshot_workspace / temp_dir_name
         snapshot_path.mkdir()
         return snapshot_path
-
-    # -----
-    # event export
-    # -----
-
-    def _generator_export_stream(self, data_bytes):
-        def generator():
-            file_like_io = BytesIO(data_bytes)
-            for item in file_like_io.readlines():
-                yield item
-            file_like_io.close()
-        return generator
-
-    def export_from_event(self, event):
-        converter = get_event_converter(event)
-        filename = converter.filename
-        data_bytes = converter.convert()
-        return filename, self._generator_export_stream(data_bytes)
 
 
 # -----------------
