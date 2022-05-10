@@ -59,7 +59,7 @@ export default {
             const prettyJson = JSON.stringify(JSON.parse(event.content), null, 2)
             commit('setEventDetail', prettyJson)
             commit('setSelectedEventId', event.event_id)
-            bus.$emit('eventLitScroll', eventIndex / events.length)
+            bus.$emit('eventListScroll', eventIndex / events.length)
           }
         }
         commit('setEvents', events)

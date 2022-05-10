@@ -23,13 +23,11 @@ export default {
     DataDetail,
     SnapshotImportSelector,
   },
-  mounted() {
+  activated () {
     this.loadDataMap()
-  },
-  created () {
     this.$io.on('datamanagerUpdate', this.loadDataMap)
   },
-  destroyed() {
+  deactivated() {
     this.$io.removeListener('datamanagerUpdate', this.loadDataMap)
   },
   data () {
