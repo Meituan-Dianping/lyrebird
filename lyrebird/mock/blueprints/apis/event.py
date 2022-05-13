@@ -1,7 +1,8 @@
 import json
 from flask_restful import Resource
-from flask import jsonify, request
+from flask import jsonify, request, Response, stream_with_context
 from lyrebird import application
+from lyrebird.db.event_converter import export_from_event
 
 # Default event page size
 PAGE_SIZE = 20
@@ -58,3 +59,23 @@ class Channel(Resource):
     def post(self):
         filters = request.json.get('filters')
         application._cm.config['event.selected_channel'] = filters
+
+
+class EventExport(Resource):
+    
+    def get(self, event_id):
+        # TODO: export event by event_id
+        pass
+
+    def post(self, event_id=None):
+        if not request.json.get('export'):
+            return application.make_fail_response('Missing required argument: export')
+        try:
+            filename, output_gen = export_from_event(request.json)
+        except Exception as e:
+            return application.make_fail_response('Convert data to stream error: {e}')
+        
+        res = Response(stream_with_context(output_gen()), mimetype="application/octet-stream")
+        res.headers['Content-Disposition'] = f'attachment; filename={filename}'
+        return res
+

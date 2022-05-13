@@ -32,7 +32,9 @@
 
     <v-main class="ma-3">
       <v-toolbar-title class="mb-2 page-title">{{activeMenuItemName}}</v-toolbar-title>
-      <router-view class="router-container background"/>
+      <keep-alive>
+        <router-view class="router-container background"/>
+      </keep-alive>
     </v-main>
 
     <v-footer app color="primary" class="main-footer">
@@ -71,6 +73,11 @@ export default {
     document.removeEventListener('keydown', this._keydownListener)
     this.$io.removeListener('statusBarUpdate', this.loadAllStatusList)
     this.$io.removeListener('msgSuccess', this.successMessage) 
+    this.$bus.$off('msg.success', this.successMessage)
+    this.$bus.$off('msg.loading', this.loadingMessage)
+    this.$bus.$off('msg.info', this.infoMessage)
+    this.$bus.$off('msg.error', this.errorMessage)
+    this.$bus.$off('msg.destroy', this.destroyMessage)
   },
   created () {
     this.$bus.$on('msg.success', this.successMessage)
