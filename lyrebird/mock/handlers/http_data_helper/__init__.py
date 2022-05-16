@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from . import content_encoding, content_type
+from lyrebird.utils import CaseInsensitiveDict
 import json
 
 origin2flow_handlers = OrderedDict({
@@ -27,7 +28,7 @@ class DataHelper:
         # Read raw headers, support the request from extra mock 9999 port
         if 'Proxy-Raw-Headers' in origin_obj.headers:
             _origin_headers = json.loads(origin_obj.headers['Proxy-Raw-Headers'])
-            raw_headers = _origin_headers
+            raw_headers = CaseInsensitiveDict(_origin_headers)
         else:
             raw_headers = origin_obj.headers
 
