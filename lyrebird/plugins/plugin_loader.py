@@ -11,6 +11,8 @@ import setuptools
 from ..log import get_logger
 from .plugin import Plugin
 
+from lyrebird import application
+
 logger = get_logger()
 
 
@@ -73,12 +75,23 @@ def manifest(**options):
     manifest_cache.append((options, caller_info))
 
 
+def is_plugin_enable(manifest_id):
+    plugin_list = application.config.get('extension.plugin.enable')
+    if plugin_list is None:
+        return True
+    return manifest_id in plugin_list
+
+
 def load_all_from_ep():
     plugins = {}
     # Load plugin from installed packages by entry point 'lyrebird_plugin'
     for ep in pkg_resources.iter_entry_points(PLUGIN_ENTRY_POINT):
         try:
             plugin = load_plugin_from_ep(ep)
+            if not is_plugin_enable(plugin.project_name):
+                logger.info(f'Load plugin info: {plugin.project_name} is not enable.')
+                continue
+
             if plugin.project_name in plugins:
                 logger.error('Load plugin failed: More than one manifest in this plugin')
                 continue
