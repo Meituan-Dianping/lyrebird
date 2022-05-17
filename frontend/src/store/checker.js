@@ -4,9 +4,9 @@ import { bus } from '@/eventbus'
 export default {
   state: {
     checkers: [],
-    focusChecker: [],
+    focusChecker: '',
     focusCheckerDetail: null,
-    focusCheckerPanel:'activated'
+    focusCheckerPanel: 'activated'
   },
   mutations: {
     setCheckers (state, checkers) {
