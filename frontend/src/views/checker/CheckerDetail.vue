@@ -1,7 +1,7 @@
 <template>
-  <div v-if="checkerDetail">
+  <div v-if="focusChecker.length > 0">
     <code-editor :language="codeType" v-model="checkerDetail" class="checker-detail"></code-editor>
-    <div class="save-btn" v-if="checkerDetail">
+    <div class="save-btn" v-if="focusChecker">
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -51,6 +51,9 @@ export default {
     this.$bus.$off('keydown', this.onKeyDown)
   },
   computed: {
+    focusChecker () {
+      return this.$store.state.checker.focusChecker
+    },
     checkerDetail: {
       get () {
         return this.$store.state.checker.focusCheckerDetail
@@ -68,7 +71,7 @@ export default {
       if (event.code !== "KeyS" || !event.metaKey) {
         return
       }
-      if (this.checkerDetail) {
+      if (this.focusChecker) {
         this.saveCheckerDetail()
       }
       event.preventDefault()
