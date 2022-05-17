@@ -143,9 +143,8 @@ export default {
           bus.$emit('msg.error', 'Change record mode error: ' + error.data.message)
         })
     },
-    clearInspector ({ commit }, clearTypes) {
-      if (clearTypes.includes('Real-time')) {
-        api.deleteAllFlow()
+    clearInspector ({ commit }) {
+      api.deleteAllFlow()
         .then(response => { 
           commit('clearSelectedId')
           commit('cleaerSelectedFlows')
@@ -153,15 +152,7 @@ export default {
           bus.$emit('msg.error', 'Clear flow error: ' + error.data.message)
           return
         })
-      }
-      if (clearTypes.includes('Advanced')) {
-        api.deleteEvents()
-        .then(response => {}).catch(error => {
-          bus.$emit('msg.error', 'Clear Advanced error: ' + error.data.message)
-          return
-        })
-      }
-      bus.$emit('msg.success', `Clear ${clearTypes.toString()} success!`)
+      bus.$emit('msg.success', 'Clear Inspector success!')
     },
     saveSelectedFlow ({ state }) {
       api.saveSelectedFlow(state.selectedIds)
