@@ -1,11 +1,9 @@
-import re
 import uuid
 import json
 import time
 import codecs
 import shutil
 import datetime
-import traceback
 from pathlib import Path
 from jinja2 import Template
 from urllib.parse import urlparse
@@ -757,6 +755,7 @@ class DataManager:
         snapshot_path = self.snapshot_workspace / temp_dir_name
         snapshot_path.mkdir()
         return snapshot_path
+
 
 # -----------------
 # Exceptions

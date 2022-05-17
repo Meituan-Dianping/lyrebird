@@ -7,7 +7,7 @@ from .config import Conf
 from .menu import Menu
 from .notice import Notice
 from .checker import Checker
-from .event import Event, Channel
+from .event import Event, EventExport, Channel
 from .conflict_check import ConflictCheck, ActivatedDataConflictCheck
 from .mock_editor import Cut, Copy, Paste, Duplicate
 from .qrcode import Qrcode
@@ -73,5 +73,6 @@ api_source.add_resource(
     '/event/<string:channel>/page/<int:page>',
     '/event/<string:channel>/id/<string:event_id>'
 )
+api_source.add_resource(EventExport, '/event/export', '/event/export/<string:event_id>')
 api_source.add_resource(Channel, '/channel', '/channel/<string:mode>')
 api_source.add_resource(StatusBar, '/statusbar', '/statusbar/<string:item_id>')
