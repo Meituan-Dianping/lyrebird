@@ -23,6 +23,7 @@
 import DataDetailHttpData from '@/views/datamanager/DataDetailHttpData.vue'
 import DataDetailFolder from '@/views/datamanager/DataDetailFolder.vue'
 import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
+import { getGroupDetail } from '@/api'
 
 export default {
   components: {
@@ -52,15 +53,15 @@ export default {
       }
     },
     showNode (payload) {
-      this.resetFocusNodeInfo(payload)
-      this.resetGroupDetail(payload)
-    },
-    resetFocusNodeInfo (payload) {
-      this.$store.commit('setFocusNodeInfo', payload)
-    },
-    resetGroupDetail (payload) {
       if (payload.type === 'group') {
-        this.$store.dispatch('loadGroupDetail', payload)
+        getGroupDetail(payload.id)
+          .then(response => {
+            this.$store.commit('setGroupDetail', response.data.data)
+            this.$store.commit('setFocusNodeInfo', response.data.data)
+          })
+          .catch(error => {
+            bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error.data.message)
+          })
       } else if (payload.type === 'data') {
         this.$store.dispatch('loadDataDetail', payload)
       } else { }

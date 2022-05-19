@@ -189,7 +189,7 @@ export default {
   data () {
     return {
       isMouseOver: false,
-      shownDuplicateModleCount: 50,
+      shownDuplicateDialogCount: 50,
       showMenu: false,
       menuPositionX: 0,
       menuPositionY: 0,
@@ -321,7 +321,7 @@ export default {
       this.$store.dispatch('pasteGroupOrData', this.data)
     },
     onTreeNodeDuplicate () {
-      if (this.duplicateNodeChildrenCount >= this.shownDuplicateModleCount) {
+      if (this.duplicateNodeChildrenCount >= this.shownDuplicateDialogCount) {
         this.$store.commit('setIsShownDuplicateDialog', true)
         return
       }
