@@ -10,7 +10,7 @@
           <b>Delete {{deleteItem.length}} {{deleteItem.length===1 ? 'item' : 'items'}}: </b>
         </p>
         <p v-for="(value, index) in deleteItem" class="mb-3">
-          <span class="data-list-dialog-delete-item-title pl-0" style="font-size:12px">{{value.abs_parent_path}}</span>
+          <span class="data-list-dialog-delete-item pl-0" style="font-size:12px">{{value.abs_parent_path}}</span>
         </p>
       </v-card-text>
 
@@ -22,6 +22,7 @@
               <v-expansion-panel-header style="font-size:12px;height:32px;color:rgba(0,0,0,.6)">Advanced</v-expansion-panel-header>
               <v-expansion-panel-content class="data-list-dialog-delete-tree">
                 <v-row no-gutters justify="center">
+
                   <v-col cols="4">
                     <div :class="deleteSelectionType === 'all'? 'img-border' : ''" @click.stop="deleteSelectionType='all'">
                       <v-treeview
@@ -32,7 +33,7 @@
                         selection-type="leaf"
                         selected-color="primary"
                       >
-                        <template v-slot:label="{ item, selected }">
+                        <template v-slot:label="{ item }">
                           <span style="font-size:12px;">
                             <v-icon small color="primary">mdi-checkbox-marked</v-icon>
                             {{item.name}}
@@ -41,6 +42,7 @@
                       </v-treeview>
                     </div>
                   </v-col>
+
                   <v-col cols="4">
                     <div :class="deleteSelectionType === 'leaf'? 'img-border' : ''"  @click="deleteSelectionType='leaf'">
                       <v-treeview
@@ -51,7 +53,7 @@
                         selection-type="independent"
                         selected-color="primary"
                       >
-                        <template v-slot:label="{ item, selected }">
+                        <template v-slot:label="{ item }">
                           <span style="font-size:12px;">
                             <v-icon small color="primary">
                               {{item.id == 'parent'? 'mdi-checkbox-blank-outline':'mdi-checkbox-marked'}}
@@ -60,18 +62,18 @@
                           </span>
                         </template>
                       </v-treeview>
-                      
                     </div>
                   </v-col>
+
                 </v-row>
-                  <v-row justify="center" no-gutters>
-                    <v-col cols="4" style="font-size:14px">
-                      <p class="text-center" style="font-size:14px;color:rgba(0,0,0,.6);margin-top:4px;margin-bottom:4px;">Delete Leaf and Parent</p>
-                    </v-col>
-                    <v-col cols="4">
-                      <p class="text-center" style="font-size:14px;color:rgba(0,0,0,.6);margin-top:4px;margin-bottom:4px;">Delete Leaf only</p>
-                    </v-col>
-                  </v-row>
+                <v-row justify="center" no-gutters>
+                  <v-col cols="4" style="font-size:14px">
+                    <p class="text-center data-list-dialog-delete-advanced-selection my-1">Delete Leaf and Parent</p>
+                  </v-col>
+                  <v-col cols="4">
+                    <p class="text-center data-list-dialog-delete-advanced-selection my-1">Delete Leaf only</p>
+                  </v-col>
+                </v-row>
                 </v-radio-group>
 
               </v-expansion-panel-content>
@@ -159,7 +161,7 @@ export default {
       for (const item of this.deleteItem) {
         deleteItemId.push(item.id)
       }
-      this.$store.dispatch('deleteByQuery', {id : deleteItemId})
+      this.$store.dispatch('deleteByQuery', deleteItemId)
       this.$store.commit('setIsSelectableStatus', false)
       this.isShown = false
     },
@@ -227,19 +229,18 @@ export default {
   padding: 0px 12px;
   min-height: 28px;
 }
+.data-list-dialog-delete-advanced-selection{
+  font-size: 12px;
+  color: #000520;
+}
 .data-list-dialog-delete-advanced .v-expansion-panel-content__wrap {
   padding-bottom: 0px;
 }
 .data-list-dialog-delete-info {
   font-size: 14px;
 }
-.data-list-dialog-delete-item-title {
+.data-list-dialog-delete-item {
   font-size: 12px;
-  word-break: break-all;
-}
-.data-list-dialog-delete-item-path {
-  font-size: 12px;
-  color: #808695;
   word-break: break-all;
 }
 </style>

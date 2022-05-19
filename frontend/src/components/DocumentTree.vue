@@ -40,9 +40,9 @@ export default {
   props: ['treeData', 'searchStr'],
   data() {
     return {
-      refreshFlowListTimer: null,
+      searchRefreshDataListTimer: null,
       realSearchStr: '',
-      searchStrId: '',
+      searchByIdResult: '',
       selectLimit: 200
     }
   },
@@ -69,17 +69,18 @@ export default {
   },
   watch: {
     searchStr (newValue, oldValue) {
-      clearTimeout(this.refreshFlowListTimer)
-      this.refreshFlowListTimer = setTimeout(() => {
+      clearTimeout(this.searchRefreshDataListTimer)
+      this.searchRefreshDataListTimer = setTimeout(() => {
         if (newValue !== oldValue) {
           this.realSearchStr = this.searchStr
-          clearTimeout(this.refreshFlowListTimer)
+          clearTimeout(this.searchRefreshDataListTimer)
         }
       }, 1000)
     },
     selectedLeaf (newValue, oldValue) {
       // Why not computed?
-      // treeview对这个值的控制，晚于computed的set。使得computed的set不能生效。
+      // The treeview's control of this value is later than the computed variable `set()`
+      // Therefore, computed variable `set()` cannot take effect.
       const newValueLength = newValue.length
       const oldValueLength = oldValue.length
 
@@ -89,18 +90,19 @@ export default {
         return
       }
     },
-    searchStrId (newVal) {
+    searchByIdResult (newVal) {
       this.showNode(newVal)
     }
   },
   methods: {
     searchFilter (item, search, textKey) {
-      // 不自定义时，默认忽略大小写；自定义后需要自己实现忽略大小写
+      // By default, it will search case insensitively
+      // Once customized `filter`, case-insensitive search needs to implement by self
       if (item.id === search) {
-        this.searchStrId = item
+        this.searchByIdResult = item
         return true
       }
-      // textKey is name
+      // textKey defaults to name, this value cannot be customized in the component
       if (item[textKey].toLowerCase().indexOf(search.toLowerCase()) > -1) {
         return true
       }
@@ -133,9 +135,6 @@ export default {
 </script>
 
 <style>
-.tree-node-inner-row-activated {
-  background-color: rgba(15, 204, 191, 0.15);
-}
 .document-tree .v-treeview-node__checkbox {
   margin-left: 10px;
 }

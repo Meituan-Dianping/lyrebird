@@ -391,16 +391,15 @@ export default {
         })
     },
     deleteByQuery ({ state, commit }, payload) {
-      bus.$emit('msg.loading', 'Deleting ' + payload.id.length + ' items ...')
+      bus.$emit('msg.loading', 'Deleting ' + payload.length + ' items ...')
       api.deleteByQuery(payload)
         .then(_ => {
-          dispatch('loadDataMap')
           commit('setFocusNodeInfo', {})
-          if (state.pasteTarget && payload.id === state.pasteTarget.id) {
+          if (state.pasteTarget && payload.indexOf(state.pasteTarget.id)) {
             commit('setPasteTarget', null)
           }
           bus.$emit('msg.destroy')
-          bus.$emit('msg.success', 'Delete ' + state.deleteGroup.length + ' items success!')
+          bus.$emit('msg.success', 'Delete ' + payload.length + ' items success!')
         })
         .catch(error => {
           bus.$emit('msg.error', 'Delete error: ' + error.data.message)

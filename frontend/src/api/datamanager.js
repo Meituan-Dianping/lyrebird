@@ -158,7 +158,10 @@ export const getSnapShotDetail = (id) => {
   })
 }
 
-export const deleteByQuery = (query) => {
+export const deleteByQuery = (ids) => {
+  const query = {
+    id: ids
+  }
   return axios({
     url: '/api/group',
     method: 'DELETE',

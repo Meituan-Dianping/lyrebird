@@ -7,7 +7,7 @@
 
       <v-card-text class="overflow-auto py-0 mt-3 mb-2" style="font-size:14px">
         <v-row>
-          <v-col cols="2" >
+          <v-col cols="2">
             <p class="text-right"><b>Parent</b></p>
           </v-col>
           <v-col cols="10">

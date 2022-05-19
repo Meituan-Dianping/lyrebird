@@ -52,7 +52,7 @@
 
           <v-btn
             icon
-            @click.stop="changeDeleteModalStatus"
+            @click.stop="changeDeleteDialogStatus"
             :disabled="selectedLeaf.length===0"
           >
             <v-icon size="12px" color="primary">mdi-trash-can-outline</v-icon>
@@ -204,7 +204,7 @@ export default {
       this.$store.commit('setIsSelectableStatus', !this.isSelectableStatus)
       this.$store.commit('setSelectedLeaf', [])
     },
-    changeDeleteModalStatus () {
+    changeDeleteDialogStatus () {
       this.$store.commit('setDeleteNode', Array.from(this.$store.state.dataManager.selectedNode))
       this.$store.commit('setDeleteDialogSource', 'multiple')
       this.$store.commit('setIsShownDeleteDialog', true)

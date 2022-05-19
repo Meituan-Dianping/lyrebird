@@ -9,28 +9,30 @@
       @click="onTreeNodeClick"
     >
 
-      <v-btn
-        v-show="data.type === 'group'"
-        icon
-        class="mr-1 my-0"
-        @click.stop="onToggleStatusChange"
-      >
-        <v-icon small :color="toggleColor">
-          {{isNodeOpen ? 'mdi-chevron-down' : 'mdi-chevron-right'}}
-        </v-icon>
-      </v-btn>
+      <span>
+        <v-btn
+          v-show="data.type === 'group'"
+          icon
+          class="mr-1 my-0"
+          @click.stop="onToggleStatusChange"
+        >
+          <v-icon small :color="toggleColor">
+            {{isNodeOpen ? 'mdi-chevron-down' : 'mdi-chevron-right'}}
+          </v-icon>
+        </v-btn>
 
-      <v-icon v-show="data.type === 'data'" small color="accent" size="14px" class="mr-1">mdi-file</v-icon>
+        <v-icon v-show="data.type === 'data'" small color="accent" size="14px" class="mr-1">mdi-file</v-icon>
 
-      <div class="status-point" v-show="isGroupActivated"/>
+        <div class="status-point" v-show="isGroupActivated"/>
 
-      <span :class="nameClass">
-        <span v-if="data.parent_id" color="accent" small>{{data.name}}</span>
-        <v-icon v-else small color="accent">mdi-home</v-icon>
-      </span>
-      <span v-if="data.label && isLabelDisplay">
-        <span v-for="(label, index) in data.label" :key=index class="tree-node-inner-button">
-          <span class="tree-node-inner-tag" :style="'background-color:'+(label.color?label.color:'#808695')">{{label.name}}</span>
+        <span :class="nameClass">
+          <span v-if="data.parent_id" color="accent" small>{{data.name}}</span>
+          <v-icon v-else small color="accent">mdi-home</v-icon>
+        </span>
+        <span v-if="data.label && isLabelDisplay">
+          <span v-for="(label, index) in data.label" :key=index class="tree-node-inner-button">
+            <span class="tree-node-inner-tag" :style="'background-color:'+(label.color?label.color:'#808695')">{{label.name}}</span>
+          </span>
         </span>
       </span>
 
@@ -42,7 +44,7 @@
           v-show="data.type==='group'"
           icon
           @click="isGroupActivated ? onTreeNodeDeactivate() : onTreeNodeActivate()"
-          :title="isGroupActivated?'Activate':'Deactivate'"
+          :title="isGroupActivated ? 'Activate' : 'Deactivate'"
         >
           <v-icon size="12px" :color="isGroupActivated ? 'error' : '#19be6b'">
             {{isGroupActivated ? 'mdi-square' : 'mdi-play'}}
@@ -51,7 +53,7 @@
 
         <v-btn
           icon
-          @click.stop="changeDeleteModalStatus"
+          @click.stop="changeDeleteDialogStatus"
         >
           <v-icon size="12px" color="error">mdi-delete</v-icon>
         </v-btn>
@@ -111,7 +113,7 @@
               <v-list-item-title>Duplicate</v-list-item-title>
             </v-list-item>
 
-            <v-divider v-show="data.type==='group'"></v-divider>
+            <v-divider v-show="data.type==='group'"/>
 
             <v-list-item
               key="addGroup"
@@ -131,7 +133,7 @@
               <v-list-item-title>Add data</v-list-item-title>
             </v-list-item>
 
-            <v-divider v-show="data.type==='group'"></v-divider>
+            <v-divider v-show="data.type==='group'"/>
 
             <v-list-item
               key="import"
@@ -184,8 +186,6 @@
 
 export default {
   props: ['data', 'selected'],
-  components: {
-  },
   data () {
     return {
       isMouseOver: false,
@@ -274,20 +274,10 @@ export default {
         return false
       }
     },
-    changeDeleteModalStatus () {
+    changeDeleteDialogStatus () {
       this.$store.commit('setDeleteNode', [this.data])
       this.$store.commit('setDeleteDialogSource', 'single')
       this.$store.commit('setIsShownDeleteDialog', true)
-    },
-    changeMenuStatusNew (e) {
-      e.preventDefault()
-      // 必须要让值有改变，如果不先false，而真的值是false，但store里的是true。这里会触发不了store里的值变化
-      this.$store.commit('setIsShownMenu', false)
-      this.$store.commit('setMenuPositionX', e.clientX)
-      this.$store.commit('setMenuPositionY', e.clientY)
-      this.$nextTick(() => {
-        this.$store.commit('setIsShownMenu', true)
-      })
     },
     changeMenuStatus (e) {
       e.preventDefault()
