@@ -290,7 +290,8 @@ class HandlerContext:
             'flow',
             dict(
                 flow=decode_flow,
-                message=f"URL: {url}\nMethod: {method}\nStatusCode: {code}\nDuration: {duration}\nSize: {size}"
+                message=f"URL: {url}\nMethod: {method}\nStatusCode: {code}\nDuration: {duration}\nSize: {size}",
+                export=dict(converter='flow_json')
             )
         )
 
