@@ -803,7 +803,7 @@ class DataManager:
             stop_point = (index + 1) * self.DELETE_STEP
             id_list = all_id_list[start_point : stop_point]
 
-            context.emit('statusBarProcess', {
+            context.application.socket_io.emit('statusBarProcess', {
                 'message': f'DataManager deleting ({start_point}/{len(all_id_list)})',
                 'state': 'process'
             })
@@ -827,7 +827,7 @@ class DataManager:
             self._adapter._delete_group_by_query({'id': node_delete_group_ids})
             self._adapter._delete_data_by_query({'id': node_delete_data_ids})
 
-        context.emit('statusBarProcess', {
+        context.application.socket_io.emit('statusBarProcess', {
             'message': f'DataManager delete finish! ({len(all_id_list)}/{len(all_id_list)})',
             'state': 'finish'
         })
