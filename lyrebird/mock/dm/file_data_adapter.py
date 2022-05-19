@@ -58,6 +58,9 @@ class FileDataAdapter:
     def _delete_group(self, data):
         self._save_prop()
 
+    def _delete_group_by_query(self, query):
+        self._save_prop()
+
     # data
     def _load_data(self, data_id, path=None):
         if not path:
@@ -82,6 +85,10 @@ class FileDataAdapter:
     def _delete_data(self, _id):
         data_file_path = self.context.root_path / _id
         os.remove(data_file_path)
+
+    def _delete_data_by_query(self, query):
+        for _id in query.get('id', []):
+            self._delete_data(_id)
 
     def _update_data(self, data):
         self._save_data(self.context.root_path/data['id'], data)

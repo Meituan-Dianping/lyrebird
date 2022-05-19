@@ -3,9 +3,11 @@
     <Row class="button-bar">
       <Col span="15" class="button-bar-line">
         <span v-for="(value, index) in nodeParents" :key="value.id">
-          <Icon v-if="value.isRoot" type="ios-home" @click="showNode(value)" style="cursor: pointer;"/>
+          <v-icon v-if="!value.parent_id" small color="accent" @click="showNode(value)">mdi-home</v-icon>
           <a v-else @click="showNode(value)">{{value.name}}</a>
-          {{index === nodeParents.length-1 ? '' : ' > '}}
+          <v-icon small v-show="index !== nodeParents.length-1">
+            mdi-chevron-right
+          </v-icon>
         </span>
       </Col>
       <Col span="8" offset="1" align="right" class="button-bar-line">
@@ -29,29 +31,14 @@ export default {
     JsonPathBar
   },
   computed: {
-    dataDetail () {
-      return this.$store.state.dataManager.dataDetail
+    groupDetail () {
+      return this.$store.state.dataManager.groupDetail
     },
     nodeInfo () {
       return this.$store.state.dataManager.focusNodeInfo
     },
     nodeParents () {
-      if (this.nodeInfo && this.nodeInfo.id) {
-        let parents = []
-        let tree = this.nodeInfo
-        while (tree.id) {
-          parents.push({
-            id: tree.id,
-            name: tree.name,
-            type: tree.type,
-            isRoot: tree.parent_id ? false: true
-          })
-          tree = tree.parent
-        }
-        return parents.reverse()
-      } else {
-        return []
-      }
+      return this.$store.state.dataManager.focusNodeInfo.parent
     }
   },
   methods: {
@@ -69,7 +56,7 @@ export default {
       this.resetGroupDetail(payload)
     },
     resetFocusNodeInfo (payload) {
-      this.$store.commit('setFocusNodeInfoByGroupInfo', payload)
+      this.$store.commit('setFocusNodeInfo', payload)
     },
     resetGroupDetail (payload) {
       if (payload.type === 'group') {
@@ -84,7 +71,7 @@ export default {
 
 <style scoped>
 .button-bar {
-  height: 27px;
+  height: 31px;
   display: flex;
   align-items: center;
   padding: 10px;

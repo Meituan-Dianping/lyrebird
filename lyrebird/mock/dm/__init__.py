@@ -1,11 +1,10 @@
-import re
+import math
 import uuid
 import json
 import time
 import codecs
 import shutil
 import datetime
-import traceback
 from pathlib import Path
 from jinja2 import Template
 from urllib.parse import urlparse
@@ -13,8 +12,8 @@ from collections import OrderedDict
 from lyrebird import utils, application
 from lyrebird.log import get_logger
 from lyrebird.application import config
+from lyrebird.mock import context
 from lyrebird.mock.dm.jsonpath import jsonpath
-
 
 PROP_FILE_NAME = '.lyrebird_prop'
 logger = get_logger()
@@ -40,6 +39,9 @@ class DataManager:
 
         self.add_group_ignore_keys = ['id', 'type', 'children']
         self.update_group_ignore_keys = ['id', 'parent_id', 'type', 'children']
+
+        self.DELETE_STEP = 3 # todo
+        self.is_deleting_lock = False
 
     @property
     def snapshot_workspace(self):
@@ -72,6 +74,11 @@ class DataManager:
 
     def reload(self):
         self._adapter._reload()
+        for node in self.id_map.values():
+            node.update({
+                'parent': self._get_abs_parent_obj(node),
+                'abs_parent_path': self._get_abs_parent_path(node)
+            })
 
     def get(self, _id):
         """
@@ -181,6 +188,17 @@ class DataManager:
             if 'children' in node:
                 for child in node['children']:
                     id_list.extend(self._collect_data_in_node(child))
+        return id_list
+
+    def _collect_group_in_node(self, node):
+        id_list = []
+        if node.get('type', '') == 'data':
+            return []
+        elif node.get('type', '') == 'group':
+            if 'children' in node:
+                for child in node['children']:
+                    id_list.extend(self._collect_data_in_node(child))
+                    return [node['id']]
         return id_list
 
     def deactivate(self):
@@ -757,6 +775,87 @@ class DataManager:
         snapshot_path = self.snapshot_workspace / temp_dir_name
         snapshot_path.mkdir()
         return snapshot_path
+
+    def _get_type_hashmap(self, ids):
+        type_map = {
+            'group': [],
+            'data': []
+        }
+        for id_ in ids:
+            node = self.id_map.get(id_)
+            if not node:
+                continue
+            node_type = node['type']
+            if node_type not in type_map:
+                continue
+            type_map[node_type].append(id_)
+        return type_map
+
+    def _delete_remove_from_parent(self, id_):
+        target_node = self.id_map.get(id_)
+        if not target_node:
+            return
+        parent_id = target_node.get('parent_id')
+        if not parent_id:
+            return
+        parent = self.id_map.get(parent_id)
+        if not parent:
+            return
+        parent['children'].remove(target_node)
+
+    def _split_id(self, id_list):
+        split_id_list = []
+        times = math.ceil(len(id_list) / self.DELETE_STEP)
+        for index in range(times):
+            start_point = index * self.DELETE_STEP
+            stop_point = (index + 1) * self.DELETE_STEP
+            split_id_list.append(id_list[start_point : stop_point])
+        return split_id_list
+
+    # 批量操作
+    def delete_by_query(self, query):
+        all_id_list = query.get('id') or []
+
+        times = math.ceil(len(all_id_list) / self.DELETE_STEP)
+        for index in range(times):
+            start_point = index * self.DELETE_STEP
+            stop_point = (index + 1) * self.DELETE_STEP
+            id_list = all_id_list[start_point : stop_point]
+
+            # 收集type为data的数据，收集不同类型的
+            type_map = self._get_type_hashmap(id_list)
+            node_delete_group_ids = type_map['group'] + type_map['data']
+            node_delete_data_ids = type_map['data']
+
+            for id_ in id_list:
+                # Delete from parent
+                self._delete_remove_from_parent(id_)
+
+                # Remove from activated_group
+                if id_ in self.activated_group:
+                    self.activated_group.pop(id_)
+
+                # Delete from ID mapping
+                self.id_map.pop(id_)
+
+            # Delete
+            self._adapter._delete_group_by_query({'id': node_delete_group_ids})
+            self._adapter._delete_data_by_query({'id': node_delete_data_ids})
+
+            if index < times - 1:
+                context.emit('statusBarProcess', {
+                    'message': f'DataManager deleting ({start_point+1}/{len(all_id_list)})',
+                    'state': 'process'
+                })
+            else:
+                context.emit('statusBarProcess', {
+                    'message': f'DataManager delete finish! ({len(all_id_list)}/{len(all_id_list)})',
+                    'state': 'finish'
+                })
+
+        # 是否跳过刷新内存数据
+        context.emit('datamanagerUpdate')
+
 
 # -----------------
 # Exceptions

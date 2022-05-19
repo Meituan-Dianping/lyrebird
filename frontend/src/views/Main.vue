@@ -284,4 +284,8 @@ export default {
 .v-text-field--outlined fieldset {
   border: 1px #D9DADE solid;
 }
+.v-btn {
+  text-transform: none;
+  letter-spacing: 0;
+}
 </style>
