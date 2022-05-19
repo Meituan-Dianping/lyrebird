@@ -43,7 +43,7 @@ export default {
       refreshFlowListTimer: null,
       realSearchStr: '',
       searchStrId: '',
-      selectLimit: 10 // todo
+      selectLimit: 200
     }
   },
   computed: {

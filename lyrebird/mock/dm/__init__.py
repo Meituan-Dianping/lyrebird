@@ -40,7 +40,7 @@ class DataManager:
         self.add_group_ignore_keys = ['id', 'type', 'children']
         self.update_group_ignore_keys = ['id', 'parent_id', 'type', 'children']
 
-        self.DELETE_STEP = 3 # todo
+        self.DELETE_STEP = 100
         self.is_deleting_lock = False
 
     @property
@@ -802,15 +802,6 @@ class DataManager:
         if not parent:
             return
         parent['children'].remove(target_node)
-
-    def _split_id(self, id_list):
-        split_id_list = []
-        times = math.ceil(len(id_list) / self.DELETE_STEP)
-        for index in range(times):
-            start_point = index * self.DELETE_STEP
-            stop_point = (index + 1) * self.DELETE_STEP
-            split_id_list.append(id_list[start_point : stop_point])
-        return split_id_list
 
     # 批量操作
     def delete_by_query(self, query):

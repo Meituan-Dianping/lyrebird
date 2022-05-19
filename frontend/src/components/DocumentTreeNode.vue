@@ -189,7 +189,7 @@ export default {
   data () {
     return {
       isMouseOver: false,
-      shownDuplicateModleCount: 5,
+      shownDuplicateModleCount: 50,
       showMenu: false,
       menuPositionX: 0,
       menuPositionY: 0,
@@ -253,7 +253,6 @@ export default {
     selected () {
       if (this.selected) {
         if (!this.data.parent_id) {
-          // TODO 增加不能删除的结点的配置，因为业务方向会需要配置
           this.$bus.$emit('msg.error', `Select root is not allowed!`)
           this.$store.commit('setSelectedLeaf', [])
           return
