@@ -76,7 +76,7 @@ class MockGroup(Resource):
             context.application.data_manager.delete_by_query(query)
             # 是否需要前端可以控制是否刷新？
         except Exception as e:
-            logger.error(traceback.print_exc())
+            traceback.print_exc()
             return application.make_fail_response(f'Delete failure: {e}')
         finally:
             context.application.data_manager.is_deleting_lock = False

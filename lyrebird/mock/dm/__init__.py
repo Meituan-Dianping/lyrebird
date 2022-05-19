@@ -190,17 +190,6 @@ class DataManager:
                     id_list.extend(self._collect_data_in_node(child))
         return id_list
 
-    def _collect_group_in_node(self, node):
-        id_list = []
-        if node.get('type', '') == 'data':
-            return []
-        elif node.get('type', '') == 'group':
-            if 'children' in node:
-                for child in node['children']:
-                    id_list.extend(self._collect_data_in_node(child))
-                    return [node['id']]
-        return id_list
-
     def deactivate(self):
         """
         Clear activated data
@@ -803,7 +792,8 @@ class DataManager:
             return
         parent['children'].remove(target_node)
 
-    # 批量操作
+
+    # batch action
     def delete_by_query(self, query):
         all_id_list = query.get('id') or []
 
@@ -813,7 +803,11 @@ class DataManager:
             stop_point = (index + 1) * self.DELETE_STEP
             id_list = all_id_list[start_point : stop_point]
 
-            # 收集type为data的数据，收集不同类型的
+            context.emit('statusBarProcess', {
+                'message': f'DataManager deleting ({start_point}/{len(all_id_list)})',
+                'state': 'process'
+            })
+
             type_map = self._get_type_hashmap(id_list)
             node_delete_group_ids = type_map['group'] + type_map['data']
             node_delete_data_ids = type_map['data']
@@ -833,18 +827,11 @@ class DataManager:
             self._adapter._delete_group_by_query({'id': node_delete_group_ids})
             self._adapter._delete_data_by_query({'id': node_delete_data_ids})
 
-            if index < times - 1:
-                context.emit('statusBarProcess', {
-                    'message': f'DataManager deleting ({start_point+1}/{len(all_id_list)})',
-                    'state': 'process'
-                })
-            else:
-                context.emit('statusBarProcess', {
-                    'message': f'DataManager delete finish! ({len(all_id_list)}/{len(all_id_list)})',
-                    'state': 'finish'
-                })
+        context.emit('statusBarProcess', {
+            'message': f'DataManager delete finish! ({len(all_id_list)}/{len(all_id_list)})',
+            'state': 'finish'
+        })
 
-        # 是否跳过刷新内存数据
         context.emit('datamanagerUpdate')
 
 
