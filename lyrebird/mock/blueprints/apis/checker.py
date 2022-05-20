@@ -35,10 +35,11 @@ class Checker(Resource):
         _checker = application.checkers.get(checker_id)
         if not _checker:
             return application.make_fail_response(f'Checker {checker_id} not found')
-        _checker_data = request.json.get('content')
-        if not _checker_data:
+
+        if 'content' not in request.json:
             return application.make_fail_response(f'Checker {checker_id} data not found')
 
+        _checker_data = request.json.get('content')
         origin_checker_detail = _checker.read()
         try:
             _checker.write(_checker_data)

@@ -1,42 +1,72 @@
 <template>
   <div>
-    <Row class="button-bar">
-      <span>
-        <b style="padding-left:5px">Mock Data</b>
-      </span>
-      <span>
-        <a href="#" title="Reload mock data">
-          <Icon type="md-refresh" style="margin-left: 5px;" size=12 @click.stop="reloadMockData"/>
-        </a>
-      </span>
-      <span class="button-bar-group-right">
-        <Tooltip content="Search" placement="bottom-end" :delay="500">
-          <Icon
-            type="md-search"
-            class="button-bar-btn"
-            @click="changeSearchModalOpenState"
-          />
-        </Tooltip>
-      </span>
-      <span class="button-bar-group-right">
-        <LabelDropdown :initLabels="selectedLabel" :placement="'bottom-end'" @onLabelChange="editLabel">
-          <template #dropdownButton>
-            <span class="button-bar-btn">
-              Labels
-              <Icon type="md-arrow-dropdown" size="14"/>
-            </span>
-          </template>
-        </LabelDropdown>
-      </span>
-      <span class="button-bar-group-right">
-        <a v-if="isLabelDisplay" href="#" title="Hide labels">
-          <Icon @click.stop="changeLabelDisplayState" type="ios-eye-off" class="button-bar-btn"/>
-        </a>
-        <a v-else href="#" title="Display labels">
-          <Icon @click.stop="changeLabelDisplayState" type="ios-eye" class="button-bar-btn"/>
-        </a>
-      </span>
-    </Row>
+    <v-container class="pa-0 data-list-button-bar">
+      <v-row no-gutters align="center" class="mx-1">
+
+        <span class="mx-1">
+          <b>{{title}}</b>
+        </span>
+
+        <v-btn icon @click.stop="reloadMockData" title="Reload mock data">
+          <v-icon size="12px" color="primary">mdi-refresh</v-icon>
+        </v-btn>
+
+        <v-btn v-if="isLabelDisplay" icon @click.stop="changeLabelDisplayState" title="Hide labels">
+          <v-icon size="12px" color="primary">mdi-eye-off-outline</v-icon>
+        </v-btn>
+
+        <v-btn v-else icon @click.stop="changeLabelDisplayState" title="Show labels">
+          <v-icon size="12px" color="primary">mdi-eye-outline</v-icon>
+        </v-btn>
+
+        <span class="mx-1">
+          <LabelDropdown :initLabels="selectedLabel" :placement="'bottom-end'" @onLabelChange="editLabel">
+            <template #dropdownButton>
+              <v-btn text small class="px-0" height="20" color="primary">
+                <span>Labels</span>
+                <v-icon size="12px">mdi-menu-down</v-icon>
+              </v-btn>
+            </template>
+          </LabelDropdown>
+        </span>
+
+        <v-text-field
+          class="data-list-button-bar-search shading"
+          placeholder="Search name/id"
+          prepend-inner-icon="mdi-magnify"
+          filled
+          dense
+          rounded
+          height=12
+          v-model="searchStr"
+          flat
+          hide-details
+        ></v-text-field>
+
+        <span v-if="isSelectableStatus">
+          <v-btn text small class="px-0" height="20" color="primary" @click.stop="changeSelectableStatus">
+            <span>Cancel</span>
+          </v-btn>
+
+          <v-divider vertical class="mx-1 data-list-button-bar-divider content"/>
+
+          <v-btn
+            icon
+            @click.stop="changeDeleteDialogStatus"
+            :disabled="selectedLeaf.length===0"
+          >
+            <v-icon size="12px" color="primary">mdi-trash-can-outline</v-icon>
+          </v-btn>
+        </span>
+
+        <v-btn v-else icon class="ml-1" @click.stop="changeSelectableStatus" title="Select mode">
+          <v-icon size="12px" color="primary">mdi-pencil</v-icon>
+        </v-btn>
+
+      </v-row>
+
+    </v-container>
+    
     <Row>
       <v-overlay
         :absolute="true"
@@ -52,35 +82,34 @@
           indeterminate
         />
       </v-overlay>
-      <DocumentTree :treeData="treeData" class="data-list" />
+      <DocumentTree :treeData="treeData" class="overflow-auto data-list" :searchStr="searchStr"/>
     </Row>
-    <MockDataSelector ref="searchModal" :showRoot=true>
-      <template #searchItem="{ searchResult }">
-        <Row type="flex" align="middle" class="search-row" @click.native="showNodeAndCloseSearchModal(searchResult)">
-          <Col span="24">
-            <p class="search-item">
-              <b v-if="searchResult.parent_id" class="search-item-title">{{searchResult.name}}</b>
-              <Icon v-else type="ios-home" class="search-item-title"/>
-              <span class="search-item-path">{{searchResult.abs_parent_path}}</span>
-            </p>
-          </Col>
-        </Row>
-      </template>
-    </MockDataSelector>
+    <DeleteDialog/>
+    <CreateDialog/>
+    <DuplicateDialog/>
   </div>
 </template>
 
 <script>
 import LabelDropdown from '@/components/LabelDropdown.vue'
 import DocumentTree from '@/components/DocumentTree.vue'
-import MockDataSelector from '@/components/SearchModal.vue'
+import DeleteDialog from '@/components/DocumentTreeDialogDelete.vue'
+import CreateDialog from '@/components/DocumentTreeDialogCreate.vue'
+import DuplicateDialog from '@/components/DocumentTreeDialogDuplicate.vue'
 import { searchGroupByName } from '@/api'
 
 export default {
   components: {
     LabelDropdown,
     DocumentTree,
-    MockDataSelector
+    CreateDialog,
+    DuplicateDialog,
+    DeleteDialog,
+  },
+  data () {
+    return {
+      searchStr: ''
+    }
   },
   computed: {
     treeData () {
@@ -89,11 +118,20 @@ export default {
     spinShow () {
       return this.$store.state.dataManager.isLoading
     },
+    title () {
+      return this.$store.state.dataManager.title
+    },
     selectedLabel () {
       return this.$store.state.dataManager.dataListSelectedLabel
     },
     isLabelDisplay () {
       return this.$store.state.dataManager.isLabelDisplay
+    },
+    isSelectableStatus () {
+      return this.$store.state.dataManager.isSelectableStatus
+    },
+    selectedLeaf () {
+      return this.$store.state.dataManager.selectedLeaf
     }
   },
   watch: {
@@ -106,19 +144,10 @@ export default {
     }
   },
   methods: {
-    changeSearchModalOpenState () {
-      this.$refs.searchModal.toggal()
-    },
     showNode (payload) {
       this.resetGroupListOpenNode(payload)
       this.resetFocusNodeInfo(payload)
       this.resetGroupDetail(payload)
-    },
-    showNodeAndCloseSearchModal (payload) {
-      this.resetGroupListOpenNode(payload)
-      this.resetFocusNodeInfo(payload)
-      this.resetGroupDetail(payload)
-      this.changeSearchModalOpenState()
     },
     resetGroupListOpenNode (payload) {
       for (const openId of this.$store.state.dataManager.groupListOpenNode) {
@@ -129,7 +158,7 @@ export default {
       }
     },
     resetFocusNodeInfo (payload) {
-      this.$store.commit('setFocusNodeInfoByGroupInfo', payload)
+      this.$store.commit('setFocusNodeInfo', payload)
     },
     resetGroupDetail (payload) {
       if (payload.type === 'group') {
@@ -171,6 +200,15 @@ export default {
       const status = !this.isLabelDisplay
       this.$store.commit('setIsLabelDisplay', status)
     },
+    changeSelectableStatus () {
+      this.$store.commit('setIsSelectableStatus', !this.isSelectableStatus)
+      this.$store.commit('setSelectedLeaf', [])
+    },
+    changeDeleteDialogStatus () {
+      this.$store.commit('setDeleteNode', Array.from(this.$store.state.dataManager.selectedNode))
+      this.$store.commit('setDeleteDialogSource', 'multiple')
+      this.$store.commit('setIsShownDeleteDialog', true)
+    },
     reloadMockData () {
       this.$store.dispatch('loadDataMap')
     }
@@ -178,33 +216,48 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .data-list {
-  height: calc(100vh - 44px - 40px - 28px - 12px - 28px);
+  height: calc(100vh - 44px - 40px - 30px - 1px - 12px - 28px);
   /* total:100vh
     header: 44px
     title: 40px
-    button-bar: 28px
+    button-bar: 30px
+    border: 1px
     tree
     margin-bottom: 12px
     footer: 28px
   */
-  overflow-y: auto;
-  margin-right: 0;
 }
-.button-bar {
-  height: 27px;
-  line-height: 27px;
+.data-list-button-bar {
+  line-height: 30px;
   border-bottom: 1px solid #ddd;
 }
-.button-bar-group-right {
-  float: right;
-  margin-right: 10px;
+.data-list-button-bar .v-btn--icon.v-size--default {
+  height: 20px;
+  width: 20px;
 }
-.button-bar-btn {
-  cursor: pointer;
+.data-list-button-bar-divider {
+  height: 15px;
 }
-.button-bar-btn img {
-  width: 18px;
+.data-list-button-bar-search {
+  font-size: 12px;
+  width: 50px;
+  height: 20px !important;
+}
+.data-list-button-bar-search .v-input__prepend-inner {
+  margin-top: -2px !important;
+}
+.data-list-button-bar-search .v-input__slot {
+  padding: 0px 4px !important;
+  min-height: 20px !important;
+  height: 20px !important;
+}
+.data-list-button-bar-search .v-icon.v-icon {
+  font-size: 12px;
+}
+.data-list-button-bar-search .v-text-field input {
+  font-size: 12px;
+  padding: 0px !important;
 }
 </style>

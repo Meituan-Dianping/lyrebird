@@ -24,7 +24,7 @@ const opts = {
         error: '#FF4B4B',
         warning: '#FB8C00',
         info: '#ffc107',
-        success: '#ff5722',
+        success: '#4CAF50',
 
         accent: '#000520',
         content: '#9B9CB7',

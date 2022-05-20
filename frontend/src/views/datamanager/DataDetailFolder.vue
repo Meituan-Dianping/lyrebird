@@ -216,8 +216,18 @@ export default {
   font-size: 14px;
 }
 .data-detail-content {
-  margin:10px 5px 10px 10px;
-  height:calc(100vh - 44px - 40px - 28px - 33px - 28px - 12px);
-  overflow-y:scroll
+  margin: 10px 5px 10px 10px;
+  height: calc(100vh - 44px - 40px - 30px - 1px - 33px - 12px - 28px);
+  /* total:100vh
+    header: 44px
+    title: 40px
+    button-bar: 30px
+    border: 1px
+    tab: 33px
+    tree
+    margin-bottom: 12px
+    footer: 28px
+  */
+  overflow-y: scroll;
 }
 </style>

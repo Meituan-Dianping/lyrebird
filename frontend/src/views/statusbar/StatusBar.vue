@@ -49,6 +49,24 @@
         </div>
       </Poptip>
     </span>
+
+    <span class="main-footer-status-no-pointer" v-show="processState">
+      <b class="main-footer-status-button">
+        <v-progress-circular
+          v-if="isShowProcessing"
+          size="16"
+          color="white"
+          width="2"
+          indeterminate
+        />
+        <v-icon v-else-if="isShowFinish" small color="white">
+          mdi-check-all
+        </v-icon>
+        {{processMessage}}
+      </b>
+    </span>
+
+
   </span>
 </template>
 
@@ -56,11 +74,21 @@
 import { makeRequest } from '@/api'
 
 export default {
+  data () {
+    return {
+      processMessage: '',
+      processState: '',
+      isShowProcessing: false,
+      isShowFinish: false
+    }
+  },
   created () {
     this.$io.on('activatedGroupUpdate', this.loadActivatedGroup)
+    this.$io.on('statusBarProcess', this.updateDatamanagerProcess)
   },
   beforeDestroy () {
     this.$io.removeListener('activatedGroupUpdate', this.loadActivatedGroup)
+    this.$io.removeListener('statusBarProcess', this.updateDatamanagerProcess)
   },
   computed: {
     statusBottomLeftList () {
@@ -118,6 +146,25 @@ export default {
     loadActivatedGroup () {
       this.$store.dispatch('loadActivatedGroup')
     },
+    updateDatamanagerProcess (payload) {
+      this.processMessage = payload.message
+      this.processState = payload.state
+      if (this.processState === 'process') {
+        this.isShowProcessing = true
+        this.isShowFinish = false
+      } else if (this.processState === 'finish') {
+        this.isShowProcessing = false
+        this.isShowFinish = true
+        setTimeout(() => {
+          this.isShowFinish = false
+          this.processMessage = ''
+          this.processState = ''
+        }, 5 * 1000)
+      } else {
+        this.isShowProcessing = false
+        this.isShowFinish = false
+      }
+    }
   }
 }
 </script>
