@@ -9,11 +9,13 @@ from lyrebird import application
 from lyrebird import log
 from lyrebird.utils import JSONFormat
 from lyrebird.base_server import ThreadServer
-from sqlalchemy import event
+from lyrebird.mock import context
+from sqlalchemy import event, or_
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine
+from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine, Table, MetaData
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 
 """
@@ -47,6 +49,29 @@ class LyrebirdDatabaseServer(ThreadServer):
 
         # subscribe all channel
         application.server['event'].subscribe('any', self.event_receiver)
+    
+    def auto_alter_tables(self, engine):
+        metadata = MetaData()
+        tables = {
+            table_name: {
+                column.name: column for column in Table(table_name, metadata, autoload=True, autoload_with=engine).c
+            }
+            for table_name in engine.table_names()
+        }
+        for model_class in Base.__subclasses__():
+            table_name = model_class.__table__.name
+            if table_name in tables:
+                table = tables[table_name]
+                for attr_name in dir(model_class):
+                    try:
+                        attr = getattr(model_class, attr_name)
+                    except:
+                        continue
+                    if isinstance(attr, InstrumentedAttribute) and hasattr(attr, 'type') and hasattr(attr, 'compile'):
+                        attr_name = attr.name 
+                        if attr_name not in table:
+                            column_type = attr.type.compile(dialect=engine.dialect)
+                            engine.execute(f'ALTER TABLE {table_name} ADD COLUMN {attr_name} {column_type}')
 
     def init_engine(self):
         sqlite_path = 'sqlite:///'+str(self.database_uri)+'?check_same_thread=False'
@@ -63,6 +88,7 @@ class LyrebirdDatabaseServer(ThreadServer):
         session_factory = sessionmaker(bind=engine)
         Session = scoped_session(session_factory)
         self._scoped_session = Session
+        self.auto_alter_tables(engine=engine)
 
         logger.info(f'Init DB engine: {self.database_uri}')
 
@@ -79,7 +105,7 @@ class LyrebirdDatabaseServer(ThreadServer):
             application.encoders_decoders.encoder_handler(event['flow'])
 
         content = json.dumps(event, ensure_ascii=False)
-        flow = Event(event_id=event_id, channel=channel, content=content)
+        flow = Event(event_id=event_id, channel=channel, content=content, message=event.get('message'))
         self.storage_queue.put(flow)
 
     def run(self):
@@ -89,6 +115,7 @@ class LyrebirdDatabaseServer(ThreadServer):
                 event = self.storage_queue.get()
                 session.add(event)
                 session.commit()
+                context.emit('db_action', 'add event log')
             except Exception:
                 logger.error(f'Save event failed. {traceback.format_exc()}')
 
@@ -99,11 +126,18 @@ class LyrebirdDatabaseServer(ThreadServer):
     def session(self):
         return self._scoped_session()
 
-    def get_event(self, channel_rules, offset=0, limit=20):
+    def get_event(self, channel_rules, offset=0, limit=20, search_str=''):
+        search_str_list = [item.strip() for item in search_str.strip().split('+')] if search_str else []
         session = self._scoped_session()
         _subquery = session.query(Event.id).order_by(Event.id.desc())
         if len(channel_rules) > 0:
             _subquery = _subquery.filter(Event.channel.in_(channel_rules))
+        if len(search_str_list) > 0:
+            _subquery = _subquery.filter(Event.message != None)
+            or_cond = []
+            for search_str in search_str_list:
+                or_cond.append(Event.message.like(f'%%{search_str}%%'))
+            _subquery = _subquery.filter(or_(*or_cond))
         _subquery = _subquery.offset(offset).limit(limit).subquery()
         result = session.query(Event).filter(Event.id == _subquery.c.id).all()
         self._scoped_session.remove()
@@ -129,11 +163,18 @@ class LyrebirdDatabaseServer(ThreadServer):
         self._scoped_session.remove()
         return result
 
-    def get_page_count(self, channel_rules, page_size=20):
+    def get_page_count(self, channel_rules, page_size=20, search_str=''):
         session = self._scoped_session()
         query = session.query(Event.id)
+        search_str_list = [item.strip() for item in search_str.strip().split('+')] if search_str else []
         if len(channel_rules) > 0:
             query = query.filter(Event.channel.in_(channel_rules))
+        if len(search_str_list) > 0:
+            query = query.filter(Event.message != None)
+            or_cond = []
+            for search_str in search_str_list:
+                or_cond.append(Event.message.like(f'%%{search_str}%%'))
+            query = query.filter(or_(*or_cond))
         result = query.count()
         self._scoped_session.remove()
         return math.ceil(result / page_size)
@@ -146,7 +187,6 @@ class LyrebirdDatabaseServer(ThreadServer):
         self.running = True
 
 
-
 class Event(Base, JSONFormat):
     __tablename__ = 'event'
 
@@ -154,10 +194,10 @@ class Event(Base, JSONFormat):
     channel = Column(String(16), index=True)
     event_id = Column(String(32), index=True)
     content = Column(Text)
+    message = Column(Text, default=None)
     _timestamp = Column('timestamp', DateTime(timezone=True), default=datetime.datetime.utcnow)
 
     @hybrid_property
     def timestamp(self):
         seconds_offset = time.localtime().tm_gmtoff
         return self._timestamp.timestamp() + seconds_offset
-

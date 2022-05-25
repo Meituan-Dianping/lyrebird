@@ -10,7 +10,8 @@ export default {
     selectedEventId: null,
     selectedEvent: null,
     eventDetail: '',
-    page: null
+    page: null,
+    eventSearchStr: ''
   },
   mutations: {
     setChannelNames (state, channelNames) {
@@ -33,6 +34,9 @@ export default {
     },
     setPage (state, page) {
       state.page = page
+    },
+    setEventSearchStr (state, val) {
+      state.eventSearchStr = val
     }
   },
   actions: {
@@ -46,7 +50,12 @@ export default {
     },
     loadEvents ({ state, commit }, options = {}) {
       let eventId = options.eventId ? options.eventId : state.selectedEventId
-      api.getEvent({ channelFilters: state.channelFilters, eventId, page: options.page }).then(response => {
+      api.getEvent({ 
+        channelFilters: state.channelFilters, 
+        eventId, 
+        page: options.page,
+        searchStr: state.eventSearchStr
+       }).then(response => {
         if (response.data.code !== 1000) {
           return
         }
@@ -103,6 +112,15 @@ export default {
           bus.$emit('msg.error', 'Snapshot export failed: ' + error.data.message)
         })
 
+    },
+    clearEvents ({ commit }) {
+      api.deleteEvents()
+      .then(response => {}).catch(error => {
+        bus.$emit('msg.error', 'Clear events error: ' + error.data.message)
+        return
+      })
+      bus.$emit('msg.success', `Clear events success!`)
+      commit('setEvents', [])
     }
   }
 }

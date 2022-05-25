@@ -70,14 +70,17 @@ export default {
     this.$store.dispatch('loadChannelNames')
     this.$bus.$on('contextmenu.show', this.showContextMenu)
     this.$bus.$on('contextmenu.dismiss', this.dismissContextMenu)
+    this.$io.on('db_action', this.reload)
   },
   mounted () {
+    this.reload()
     this.tableRect = this.$refs.eventTable.$el.getBoundingClientRect()
     this.onResize()
     window.addEventListener('resize', this.onResize)
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.onResize)
+    this.$io.removeListener('db_action', this.reload)
   },
   data () {
     return {
@@ -85,7 +88,8 @@ export default {
       tableHeight: 500,
       isContextMenuShown: false,
       contextMenuLeft: 0,
-      contextMenuTop: 0
+      contextMenuTop: 0,
+      refreshEventListTimer: null,
     }
   },
   computed: {
@@ -136,9 +140,26 @@ export default {
     isSnapshot () {
       let selectedEvent = this.$store.state.event.selectedEvent
       return selectedEvent && selectedEvent.channel === 'snapshot'
+    },
+    eventSearchStr () {
+      return this.$store.state.event.eventSearchStr
+    },
+  },
+  watch: {
+    eventSearchStr (newValue, oldValue) {
+      clearTimeout(this.refreshEventListTimer)
+      this.refreshEventListTimer = setTimeout(() => {
+        if (newValue.trim() !== oldValue.trim()) {
+          this.reload()
+          clearTimeout(this.refreshEventListTimer)
+        }
+      }, 500)
     }
   },
   methods: {
+    reload () {
+      this.$store.dispatch('loadEvents')
+    },
     content2Obj (content) {
       return JSON.parse(content)
     },
@@ -213,11 +234,12 @@ export default {
       Header 44px
       Title 40px
       PaginationBar 32px
+      buttonBar: 38px
       5px
       Margin Bottom: 12px
       Footer 28px
       */
-      this.tableHeight = window.innerHeight - 44 - 40 - 32 - 5 - 28 - 12
+      this.tableHeight = window.innerHeight - 44 - 40 - 32 - 38 - 5 - 28 - 12
     }
   }
 }
@@ -225,10 +247,12 @@ export default {
 
 <style less>
 .event-list {
-  height: calc(100vh - 44px - 40px - 28px - 12px);
+  height: calc(100vh - 44px - 40px - 38px - 12px - 28px - 12px);
   /* total:100vh
   header: 44px
   title: 40px
+  buttonBar: 38px
+  margin-top: 12px
   footer: 28px
   margin-bottom:12px
     */
@@ -239,10 +263,12 @@ export default {
   margin-top: 5px;
 }
 .event-table {
-  height: calc(100vh - 44px - 40px - 32px - 5px - 28px - 12px) !important;
+  height: calc(100vh - 44px - 40px - 38px - 12px - 32px - 5px - 28px - 12px) !important;
   /* total:100vh
   header: 44px
   title: 40px
+  buttonBar: 38px
+  margin-top: 12px
   margin-top: 5px
   Page: 32px
   footer: 28px

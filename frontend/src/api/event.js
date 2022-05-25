@@ -21,12 +21,20 @@ const addPage = (url, options) => {
   return url
 }
 
+const addSearchStr = (url, options) => {
+  if (options.searchStr) {
+    url += '/search/' + options.searchStr.trim().split(/\s+/).join('+')
+  }
+  return url
+}
+
 export const getEvent = (options) => {
   let url = '/api/event'
   if (options) {
     url = addChannelFilters(url, options)
     url = addEventId(url, options)
     url = addPage(url, options)
+    url = addSearchStr(url, options)
   }
 
   return axios({
