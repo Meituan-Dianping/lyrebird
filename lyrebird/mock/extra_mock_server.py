@@ -77,11 +77,23 @@ def is_filtered(context: LyrebirdProxyContext):
     return False
 
 
+def make_raw_headers_line(request: web.Request):
+    raw_headers = {}
+    for k, v in request.raw_headers:
+        raw_header_name = k.decode()
+        raw_header_value = k.decode()
+        if raw_header_name.lower() in ['cache-control', 'host', 'transfer-encoding']:
+            continue
+        raw_headers[raw_header_name] = raw_header_value
+    return json.dumps(raw_headers, ensure_ascii=False)
+
+
 async def send_request(context: LyrebirdProxyContext, target_url):
     async with client.ClientSession(auto_decompress=False) as session:
         request: web.Request = context.request
         headers = {k: v for k, v in request.headers.items() if k.lower() not in [
             'cache-control', 'host', 'transfer-encoding']}
+        headers['Proxy-Raw-Headers'] = make_raw_headers_line(request)
         async with session.request(request.method,
                                    target_url,
                                    headers=headers,
