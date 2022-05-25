@@ -108,6 +108,7 @@ class SnapshotImport(Resource):
             return application.make_ok_response(group_id=group_id)
 
 class SnapshotExport(Resource):
+    # TODO: move snapshot export to event export module
     def get(self, group_id):
         file = context.application.data_manager.export_from_remote(group_id)
         return send_file(file)

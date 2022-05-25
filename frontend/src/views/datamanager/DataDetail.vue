@@ -3,9 +3,11 @@
     <Row class="button-bar">
       <Col span="15" class="button-bar-line">
         <span v-for="(value, index) in nodeParents" :key="value.id">
-          <Icon v-if="value.isRoot" type="ios-home" @click="showNode(value)" style="cursor: pointer;"/>
+          <v-icon v-if="!value.parent_id" small color="accent" @click="showNode(value)">mdi-home</v-icon>
           <a v-else @click="showNode(value)">{{value.name}}</a>
-          {{index === nodeParents.length-1 ? '' : ' > '}}
+          <v-icon small v-show="index !== nodeParents.length-1">
+            mdi-chevron-right
+          </v-icon>
         </span>
       </Col>
       <Col span="8" offset="1" align="right" class="button-bar-line">
@@ -21,6 +23,7 @@
 import DataDetailHttpData from '@/views/datamanager/DataDetailHttpData.vue'
 import DataDetailFolder from '@/views/datamanager/DataDetailFolder.vue'
 import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
+import { getGroupDetail } from '@/api'
 
 export default {
   components: {
@@ -29,29 +32,14 @@ export default {
     JsonPathBar
   },
   computed: {
-    dataDetail () {
-      return this.$store.state.dataManager.dataDetail
+    groupDetail () {
+      return this.$store.state.dataManager.groupDetail
     },
     nodeInfo () {
       return this.$store.state.dataManager.focusNodeInfo
     },
     nodeParents () {
-      if (this.nodeInfo && this.nodeInfo.id) {
-        let parents = []
-        let tree = this.nodeInfo
-        while (tree.id) {
-          parents.push({
-            id: tree.id,
-            name: tree.name,
-            type: tree.type,
-            isRoot: tree.parent_id ? false: true
-          })
-          tree = tree.parent
-        }
-        return parents.reverse()
-      } else {
-        return []
-      }
+      return this.$store.state.dataManager.focusNodeInfo.parent
     }
   },
   methods: {
@@ -65,15 +53,15 @@ export default {
       }
     },
     showNode (payload) {
-      this.resetFocusNodeInfo(payload)
-      this.resetGroupDetail(payload)
-    },
-    resetFocusNodeInfo (payload) {
-      this.$store.commit('setFocusNodeInfoByGroupInfo', payload)
-    },
-    resetGroupDetail (payload) {
       if (payload.type === 'group') {
-        this.$store.dispatch('loadGroupDetail', payload)
+        getGroupDetail(payload.id)
+          .then(response => {
+            this.$store.commit('setGroupDetail', response.data.data)
+            this.$store.commit('setFocusNodeInfo', response.data.data)
+          })
+          .catch(error => {
+            bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error.data.message)
+          })
       } else if (payload.type === 'data') {
         this.$store.dispatch('loadDataDetail', payload)
       } else { }
@@ -84,7 +72,7 @@ export default {
 
 <style scoped>
 .button-bar {
-  height: 27px;
+  height: 31px;
   display: flex;
   align-items: center;
   padding: 10px;

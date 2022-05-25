@@ -1,33 +1,50 @@
 import Vue from 'vue'
 import * as api from '../api'
 import { bus } from '@/eventbus'
-import { breadthFirstSearch } from 'tree-helper'
 
 export default {
   state: {
+    title: 'Mock Data',
+    searchStr: '',
     groupList: [],
     jsonPath: null,
     conflictInfo: null,
     isLoadConflictInfo: false,
-    groupListOpenNode: new Set(),
+    groupListOpenNode: [],
     dataDetail: {},
     dataDetailFocuedTab: 'info',
     groupDetail: {},
     focusNodeInfo: {},
     pasteTarget: null,
+    createType: 'group',
+    isShownCreateDialog: false,
+    isShownDuplicateDialog: false,
+    isShownDeleteDialog: false,
     importSnapshotParentNode: {},
     snapshotName: '',
     labels: [],
     isLoading: false,
+    isSelectableStatus: false,
+    selectedLeaf: [],
+    selectedNode: new Set(),
+    deleteDialogSource: 'single',
+    deleteNode: [],
     dataListSelectedLabel: [],
     isLabelDisplay: true,
     isReloadTreeWhenUpdate: false,
     undisplayedKey: ['children', 'type', 'parent_id'],
     undeletableKey: ['id', 'rule', 'name', 'label', 'category'],
     uneditableKey: ['id', 'rule'],
-    stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label']
+    stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label'],
+    displayCopyKey: ['id']
   },
   mutations: {
+    setTitle (state, title) {
+      state.title = title
+    },
+    setSearchStr (state, searchStr) {
+      state.searchStr = searchStr
+    },
     setGroupList (state, groupList) {
       state.groupList = groupList
     },
@@ -43,25 +60,25 @@ export default {
     setIsLoadConflictInfo (state, isLoadConflictInfo) {
       state.isLoadConflictInfo = isLoadConflictInfo
     },
+    setGroupListOpenNode (state, groupListOpenNode) {
+      state.groupListOpenNode = groupListOpenNode
+    },
     addGroupListOpenNode (state, groupId) {
-      state.groupListOpenNode.add(groupId)
-      breadthFirstSearch(state.groupList, node => {
-        if (node.id === groupId) {
-          node.open = true
-          // `return false` is used to break loop, no related to search result
-          return false
-        }
-      })
+      state.groupListOpenNode.push(groupId)
     },
     deleteGroupListOpenNode (state, groupId) {
-      state.groupListOpenNode.delete(groupId)
-      breadthFirstSearch(state.groupList, node => {
-        if (node.id === groupId) {
-          node.open = false
-          // `return false` is used to break loop, no related to search result
-          return false
-        }
-      })
+      let openNodeSet = new Set(state.groupListOpenNode)
+      openNodeSet.delete(groupId)
+      state.groupListOpenNode = Array.from(openNodeSet)
+    },
+    setSelectedNode (state, selectedNode) {
+      state.selectedNode = selectedNode
+    },
+    addSelectedNode (state, node) {
+      state.selectedNode.add(node)
+    },
+    deleteSelectedNode (state, node) {
+      state.selectedNode.delete(node)
     },
     setDataDetail (state, dataDetail) {
       state.dataDetail = dataDetail
@@ -81,17 +98,17 @@ export default {
     setFocusNodeInfo (state, focusNodeInfo) {
       state.focusNodeInfo = focusNodeInfo
     },
-    setFocusNodeInfoByGroupInfo (state, groupInfo) {
-      breadthFirstSearch(state.groupList, node => {
-        if (node.id === groupInfo.id) {
-          state.focusNodeInfo = node
-          // `return false` is used to break loop, no related to search result
-          return false
-        }
-      })
-    },
     setPasteTarget (state, pasteTarget) {
       state.pasteTarget = pasteTarget
+    },
+    setCreateType (state, createType) {
+      state.createType = createType
+    },
+    setIsShownCreateDialog (state, isShownCreateDialog) {
+      state.isShownCreateDialog = isShownCreateDialog
+    },
+    setIsShownDuplicateDialog (state, isShownDuplicateDialog) {
+      state.isShownDuplicateDialog = isShownDuplicateDialog
     },
     setImportSnapshotParentNode (state, importSnapshotParentNode) {
       state.importSnapshotParentNode = importSnapshotParentNode
@@ -104,6 +121,21 @@ export default {
     },
     setIsLoading (state, isLoading) {
       state.isLoading = isLoading
+    },
+    setIsSelectableStatus (state, isSelectableStatus) {
+      state.isSelectableStatus = isSelectableStatus
+    },
+    setSelectedLeaf (state, selectedLeaf) {
+      state.selectedLeaf = selectedLeaf
+    },
+    setIsShownDeleteDialog (state, isShownDeleteDialog) {
+      state.isShownDeleteDialog = isShownDeleteDialog
+    },
+    setDeleteDialogSource (state, deleteDialogSource) {
+      state.deleteDialogSource = deleteDialogSource
+    },
+    setDeleteNode (state, deleteNode) {
+      state.deleteNode = deleteNode
     },
     setDataListSelectedLabel (state, dataListSelectedLabel) {
       state.dataListSelectedLabel = dataListSelectedLabel
@@ -146,16 +178,7 @@ export default {
           commit('setIsLoading', true)
           api.getGroupMap({labels: state.dataListSelectedLabel})
             .then(response => {
-              breadthFirstSearch([response.data.data], node => {
-                if (!node.parent_id) {
-                  commit('addGroupListOpenNode', node.id)
-                }
-                if (state.groupListOpenNode.has(node.id)) {
-                  node.open = true
-                } else {
-                  node.open = false
-                }
-              })
+              commit('addGroupListOpenNode', response.data.data.id)
               commit('setGroupList', [response.data.data])
               commit('setIsLoading', false)
             })
@@ -370,5 +393,22 @@ export default {
           bus.$emit('msg.error', 'Load snapshot information error: ' + err.data.message)
         })
     },
+    deleteByQuery ({ state, commit }, payload) {
+      bus.$emit('msg.loading', 'Deleting ' + payload.length + ' items ...')
+      api.deleteByQuery(payload)
+        .then(_ => {
+          commit('setFocusNodeInfo', {})
+          commit('setDeleteNode', [])
+          commit('setSelectedNode', new Set())
+          if (state.pasteTarget && payload.indexOf(state.pasteTarget.id)) {
+            commit('setPasteTarget', null)
+          }
+          bus.$emit('msg.destroy')
+          bus.$emit('msg.success', 'Delete ' + payload.length + ' items success!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Delete error: ' + error.data.message)
+        })
+    }
   }
 }

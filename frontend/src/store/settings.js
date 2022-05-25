@@ -9,6 +9,7 @@ var configCommitMap = [
   {'name': 'mock.data.detail.uneditableKey', 'commit': 'concatUneditableKey'},
   {'name': 'inspector.filters', 'commit': 'setFlowFilters'},
   {'name': 'inspector.default_filter', 'commit': 'setSelectedFlowFilter'},
+  {'name': 'mock.data.list.title', 'commit': 'setTitle'},
 ]
 
 export default {

@@ -22,7 +22,7 @@
 
       <v-tooltip bottom open-delay=500>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="showClearModal=true" v-bind="attrs" v-on="on">
+          <v-btn icon @click="clearAllFlow" v-bind="attrs" v-on="on">
             <v-icon size="18px" color="accent">mdi-eraser</v-icon>
           </v-btn>
         </template>
@@ -126,16 +126,6 @@
       </div>
     </div>
 
-    <Modal
-      v-model="showClearModal"
-      title="Clear Inspector Flow"
-      @on-ok="clearAllFlow"
-      @on-cancel="showClearModal=false"
-      width=300px
-    >
-      <p>Clear flow list?</p>
-    </Modal>
-
     <MockDataSelector ref="searchModal" :showRoot="false">
       <template #selected>
         <div v-if="activatedGroups">
@@ -178,9 +168,7 @@ export default {
   },
   data () {
     return {
-      showClearModal: false,
-      diffMode: false,
-      clearTypes: ['Real-time']
+      diffMode: false
     }
   },
   mounted () {
@@ -254,7 +242,7 @@ export default {
       this.$store.dispatch('loadFlowList')
     },
     clearAllFlow () {
-      this.$store.dispatch('clearInspector', this.clearTypes)
+      this.$store.dispatch('clearInspector')
     },
     resetActivatedData () {
       this.$store.dispatch('deactivateGroup')

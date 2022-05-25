@@ -2,6 +2,7 @@ import pytest
 import codecs
 import json
 import tarfile
+import lyrebird
 from pathlib import Path
 from copy import deepcopy
 from typing import NamedTuple
@@ -295,6 +296,12 @@ snapshot = {
 
 MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
 
+class FakeSocketio:
+
+    def emit(self, event, *args, **kwargs): {
+        print(f'Send event {event} args={args} kw={kwargs}')
+    }
+
 
 @pytest.fixture
 def root(tmpdir):
@@ -326,6 +333,7 @@ def data_manager(root, tmpdir):
         'mock.port': 9090
     }
     application._cm = MockConfigManager(config=_conf)
+    lyrebird.mock.context.application.socket_io = FakeSocketio()
     _dm = dm.DataManager()
     _dm.snapshot_workspace = tmpdir
     _dm.set_adapter(data_adapter)
@@ -759,6 +767,15 @@ def test_delete(data_manager):
     data_file = data_manager.root_path / 'dataC-UUID'
     assert not data_file.exists()
 
+def test_delete_by_query(data_manager):
+    query = {
+        'id': ['groupB-UUID', 'dataC-UUID']
+    }
+    data_manager.delete_by_query(query)
+    assert 'groupB-UUID' not in data_manager.id_map
+    assert 'dataC-UUID' not in data_manager.id_map
+    data_file = data_manager.root_path / 'dataC-UUID'
+    assert not data_file.exists()
 
 def test_cut_and_paste(data_manager):
     data_manager.cut('groupA-UUID')

@@ -1,6 +1,7 @@
 from flask_restful import Resource
 from lyrebird.mock import context
 from flask import request
+import traceback
 from lyrebird import application, log
 
 logger = log.get_logger()
@@ -58,8 +59,29 @@ class MockGroup(Resource):
         context.application.data_manager.update_group(group_id, data)
         return context.make_ok_response()
 
-    def delete(self, group_id):
-        context.application.data_manager.delete(group_id)
+    def delete(self, group_id=None):
+        if group_id is not None:
+            context.application.data_manager.delete(group_id)
+            return context.make_ok_response()
+
+        query = request.json.get('query')
+        if query is None:
+            return application.make_fail_response(f'Delete query is None!')
+
+        if context.application.data_manager.is_deleting_lock:
+            return application.make_fail_response(f'Is deleting, no new delete')
+
+        context.application.data_manager.is_deleting_lock = True
+        try:
+            context.application.data_manager.delete_by_query(query)
+            # 是否需要前端可以控制是否刷新？
+        except Exception as e:
+            logger.error(f'Delete error: {traceback.format_exc()}')
+            return application.make_fail_response(f'Delete failure: {str(e)}')
+        finally:
+            context.application.data_manager.is_deleting_lock = False
+
+        context.application.data_manager.reactive()
         return context.make_ok_response()
 
 

@@ -1,209 +1,226 @@
 <template>
-  <Row
-    :class="rowClass"
-    @mouseover.native="isMouseOver=true"
-    @mouseout.native="isMouseOver=false"
-    @click.native="onTreeNodeClick"
-  >
-    <span>
-      <Icon
-        v-show="data.type === 'group'"
-        :class="toggleClass"
-        size="14"
-        @click="onToggleStatusChange"
-      />
-      <Icon v-show="data.type === 'data'" type="md-document" class="tree-node-inner-button" />
-      <div class="status-point" v-show="isGroupActivated"/>
+  <v-container class="pa-0 data-list-tree-node">
+    
+    <v-row
+      no-gutters
+      align="center"
+      @mouseover="isMouseOver=true"
+      @mouseout="isMouseOver=false"
+      @click="onTreeNodeClick"
+    >
 
-      <span class="tree-node-inner-text">
-        <span v-if="data.parent_id">{{data.name}}</span>
-        <Icon v-else type="ios-home" />
-      </span>
-      <span v-if="data.label && isLabelDisplay">
-        <span v-for="(label, index) in data.label" :key=index class="tree-node-inner-button">
-          <span class="tree-node-inner-tag" :style="'background-color:'+(label.color?label.color:'#808695')">{{label.name}}</span>
+      <span>
+        <v-btn
+          v-show="data.type === 'group'"
+          icon
+          class="mr-1 my-0"
+          @click.stop="onToggleStatusChange"
+        >
+          <v-icon small :color="toggleColor">
+            {{isNodeOpen ? 'mdi-chevron-down' : 'mdi-chevron-right'}}
+          </v-icon>
+        </v-btn>
+
+        <v-icon v-show="data.type === 'data'" small color="accent" size="14px" class="mr-1">mdi-file</v-icon>
+
+        <div class="status-point" v-show="isGroupActivated"/>
+
+        <span :class="nameClass">
+          <span v-if="data.parent_id" color="accent" small>{{data.name}}</span>
+          <v-icon v-else small color="accent">mdi-home</v-icon>
+        </span>
+        <span v-if="data.label && isLabelDisplay">
+          <span v-for="(label, index) in data.label" :key=index class="tree-node-inner-button">
+            <span class="tree-node-inner-tag" :style="'background-color:'+(label.color?label.color:'#808695')">{{label.name}}</span>
+          </span>
         </span>
       </span>
-    </span>
 
-    <span class="tree-node-inner-button-bar-right" v-show="isMouseOver">
-      <Icon
-        v-show="data.type==='group'"
-        :type="isGroupActivated ? 'md-square' : 'ios-play'"
-        :color="isGroupActivated ? '#ed4014' : '#19be6b'"
-        size="14"
-        class="tree-node-inner-button"
-        @click.stop="isGroupActivated ? onTreeNodeDeactivate() : onTreeNodeActivate()"
-      />
-      <Icon
-        type="md-trash"
-        class="tree-node-inner-button"
-        color="#ed4014"
-        @click.stop="shownDeleteModal = true"
-      />
-      <span @click.stop>
-        <Dropdown placement="bottom-end" @on-click="onDropdownMenuClick">
-          <a href="javascript:void(0)">
-            <Icon type="ios-more" class="tree-node-inner-button"></Icon>
-          </a>
-          <DropdownMenu slot="list" class="dropdown-menu">
-            <DropdownItem align="left" name="activate" v-show="data.type==='group'">Activate</DropdownItem>
-            <DropdownItem
-              align="left"
-              name="deactivate"
-              v-show="data.type==='group'"
-              :disabled="!isGroupActivated"
-              class="dropdown-menu-item-divided"
-            >Deactivate</DropdownItem>
-            <DropdownItem align="left" name="delete">Delete</DropdownItem>
-            <DropdownItem align="left" name="cut">Cut</DropdownItem>
-            <DropdownItem align="left" name="copy">Copy</DropdownItem>
-            <DropdownItem
-              align="left"
-              name="paste"
+      <v-spacer/>
+
+      <span v-show="isMouseOver && !isSelectableStatus">
+
+        <v-btn
+          v-show="data.type==='group'"
+          icon
+          @click="isGroupActivated ? onTreeNodeDeactivate() : onTreeNodeActivate()"
+          :title="isGroupActivated ? 'Activate' : 'Deactivate'"
+        >
+          <v-icon size="12px" :color="isGroupActivated ? 'error' : '#19be6b'">
+            {{isGroupActivated ? 'mdi-square' : 'mdi-play'}}
+          </v-icon>
+        </v-btn>
+
+        <v-btn
+          icon
+          @click.stop="changeDeleteDialogStatus"
+        >
+          <v-icon size="12px" color="error">mdi-delete</v-icon>
+        </v-btn>
+
+        <v-menu
+          v-model="showMenu"
+          offset-y
+          bottom
+          left
+          allow-overflow
+          offset-overflow
+          absolute
+          :position-x="menuPositionX"
+          :position-y="menuPositionY"
+        >
+          <!-- slot, got origin click event -->
+          <template v-slot:activator="{ on:{click}, attrs }">
+            <v-btn
+              icon
+              @click="changeMenuStatus"
+              v-bind="attrs"
+              class="mr-1"
+            >
+              <v-icon
+                size="12px" 
+                color="primary"
+              >mdi-dots-horizontal</v-icon>
+            </v-btn>
+          </template>
+
+          <v-list dense>
+
+            <v-list-item key="cut" link @click="onTreeNodeCut">
+              <v-list-item-title>Cut</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item key="copy" link @click="onTreeNodeCopy">
+              <v-list-item-title>Copy</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item
+              key="paste"
+              link
               v-show="data.type==='group'"
               :disabled="!pasteButtonEnable"
-            >Paste</DropdownItem>
-            <DropdownItem
-              align="left"
-              name="duplicate"
+              @click="onTreeNodePaste"
+            >
+              <v-list-item-title>Paste</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item
+              key="duplicate"
+              link
               :disabled="!duplicateButtonEnable"
-              class="dropdown-menu-item-divided"
-            >Duplicate</DropdownItem>
-            <DropdownItem align="left" name="addGroup" v-show="data.type==='group'">Add group</DropdownItem>
-            <DropdownItem
-              align="left"
-              name="addData"
+              @click="onTreeNodeDuplicate"
+            >
+              <v-list-item-title>Duplicate</v-list-item-title>
+            </v-list-item>
+
+            <v-divider v-show="data.type==='group'"/>
+
+            <v-list-item
+              key="addGroup"
+              link
               v-show="data.type==='group'"
-              class="dropdown-menu-item-divided"
-            >Add data</DropdownItem>
-            <DropdownItem align="left" name="import" v-show="data.type==='group'" style="padding:0px">
-              <Upload
-                :on-success="handlerUploadSuccess"
-                :on-error="handlerUploadError"
-                action="/api/snapshot/import"
-                :format="['lb']"
-                accept=".lb"
-                :data="{parent_id: data.id}"
-                :show-upload-list="false"
-                style="width: 100%;"
-              >
-                <div style="padding: 7px 16px; width:100%;">
-                  Import
-                </div>
-              </Upload>
-            </DropdownItem>
-            <DropdownItem align="left" name="export" v-show="data.type==='group'" style="padding:0px">
-              <a :href="'/api/snapshot/export/' + data.id"
-                :download="data.name + '.lb'"
-                class="dropdown-menu-item-link"
-              >Export</a>
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+              @click="onTreeNodeAddGroup"
+            >
+              <v-list-item-title>Add group</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item
+              key="addData"
+              link
+              v-show="data.type==='group'"
+              @click="onTreeNodeAddData"
+            >
+              <v-list-item-title>Add data</v-list-item-title>
+            </v-list-item>
+
+            <v-divider v-show="data.type==='group'"/>
+
+            <v-list-item
+              key="import"
+              link
+              v-show="data.type==='group'"
+              style="padding:0px"
+            >
+              <v-list-item-title>
+                <Upload
+                  :on-success="handlerUploadSuccess"
+                  :on-error="handlerUploadError"
+                  action="/api/snapshot/import"
+                  :format="['lb']"
+                  accept=".lb"
+                  :data="{parent_id: data.id}"
+                  :show-upload-list="false"
+                  style="width: 100%;"
+                >
+                  <div style="padding: 7px 16px; width:100%;">
+                    Import
+                  </div>
+                </Upload>
+              </v-list-item-title>
+            </v-list-item>
+
+            <v-list-item
+              key="export"
+              link
+              v-show="data.type==='group'"
+              style="padding:0px;"
+            >
+              <v-list-item-title>
+                <a :href="'/api/snapshot/export/' + data.id"
+                  :download="data.name + '.lb'"
+                  class="dropdown-menu-item-link"
+                  style="color:#000520"
+                >Export</a>
+              </v-list-item-title>
+            </v-list-item>
+
+          </v-list>
+        </v-menu>
       </span>
-    </span>
-    <Modal
-      v-model="shownCreateModal"
-      title="Create"
-      ok-text="OK"
-      cancel-text="Cancel"
-      @on-ok="onCreate"
-      @on-cancel="createName = null"
-    >
-      <Row>
-        <Col span="3" align="right">
-          <span>Parent:</span>
-        </Col>
-        <Col span="18" offset="1">
-          <span>{{data.name}}</span>
-        </Col>
-      </Row>
-      <Row style="padding-top:10px">
-        <Col span="3" align="right">
-          <span>Name:</span>
-        </Col>
-        <Col span="18" offset="1">
-          <Input v-model="createName" size="small" />
-        </Col>
-      </Row>
-    </Modal>
-    <Modal v-model="shownDeleteModal">
-      <p slot="header" style="color:#f60;text-align:center">
-        <Icon type="ios-information-circle"></Icon>
-        <span>Delete confirmation</span>
-      </p>
-      <div style="text-align:center">
-        <span style="font-size:14px">
-          Are you sure you want to delete {{data.type}}
-          <b>{{data.name}}</b>
-        </span>
-      </div>
-      <div slot="footer">
-        <Button type="error" size="large" long @click="onTreeNodeDelete">Delete</Button>
-      </div>
-    </Modal>
-    <Modal v-model="shownDuplicateModal">
-      <p slot="header" style="color:#f90;text-align:center">
-        <Icon type="ios-information-circle"/>
-        <span>Duplicate confirmation</span>
-      </p>
-      <div style="text-align:center">
-        <p style="font-size:14px">
-          You are duplicating {{data.type}} <b>{{data.name}}</b>
-        </p>
-        <p style="font-size:14px">
-          <b>{{duplicateNodeChildrenCount}}</b> item will be duplicated, are you sure you want to duplicate them?
-        </p>
-      </div>
-      <div slot="footer">
-        <Button type="warning" size="large" long @click="onTreeNodeDelete">Duplicate</Button>
-      </div>
-    </Modal>
-  </Row>
+
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+
 export default {
-  props: ['data', 'treestore'],
+  props: ['data', 'selected'],
   data () {
     return {
       isMouseOver: false,
-      shownDeleteModal: false,
-      shownCreateModal: false,
-      shownDuplicateModal: false,
-      shownDuplicateModleCount: 30,
-      createName: null,
-      createType: null,
-      minLoadAnimationCount: 20
+      shownDuplicateDialogCount: 50,
+      showMenu: false,
+      menuPositionX: 0,
+      menuPositionY: 0,
     }
   },
   computed: {
-    rowClass () {
+    nameClass () {
       if (this.isGroupActivated) {
-        return ['tree-node-inner-row', 'tree-node-inner-row-activated']
-      } else if (this.$store.state.dataManager.focusNodeInfo && this.data.id === this.$store.state.dataManager.focusNodeInfo.id) {
-        return ['tree-node-inner-row', 'tree-node-inner-row-select']
-      } else if (this.isMouseOver) {
-        return ['tree-node-inner-row', 'tree-node-inner-row-foucs']
-      } else {
-        return ['tree-node-inner-row']
+        return ['tree-node-inner-text', 'tree-node-inner-text-activate']
       }
+      if (this.isNodeFocused) {
+        return ['tree-node-inner-text', 'tree-node-inner-text-selected']
+      }
+      return ['tree-node-inner-text']
     },
-    toggleClass () {
-      let toggleClassObj = []
-      if (this.data.open) {
-        toggleClassObj.push('ivu-icon ivu-icon-md-arrow-dropdown')
-      } else {
-        toggleClassObj.push('ivu-icon ivu-icon-md-arrow-dropright')
+    toggleColor () {
+      if (this.isGroupActivated) {
+        return 'success'
       }
-      if (this.data.children.length) {
-        toggleClassObj.push('tree-node-inner-button')
-      } else {
-        toggleClassObj.push('tree-node-inner-button-empty')
+      if (this.isNodeFocused) {
+        return 'primary'
       }
-      return toggleClassObj
+      if (this.data.children && this.data.children.length) {
+        return 'accent'
+      }
+      return 'content'
     },
+    isSelectableStatus () {
+      return this.$store.state.dataManager.isSelectableStatus
+    },
+    
     pasteButtonEnable () {
       const pasteTarget = this.$store.state.dataManager.pasteTarget
       if (pasteTarget === null) {
@@ -216,17 +233,34 @@ export default {
     duplicateButtonEnable () {
       return this.data.parent_id
     },
-    showActivateButton () {
-      return this.isMouseOver && (this.data.type === 'group')
-    },
     isGroupActivated () {
       return this.$store.state.inspector.activatedGroup.hasOwnProperty(this.data.id)
+    },
+    isNodeFocused () {
+      return this.$store.state.dataManager.focusNodeInfo && this.data.id === this.$store.state.dataManager.focusNodeInfo.id
     },
     duplicateNodeChildrenCount () {
       return this.countNodeChildren(this.data)
     },
+    isNodeOpen () {
+      return this.$store.state.dataManager.groupListOpenNode.indexOf(this.data.id) > -1
+    },
     isLabelDisplay () {
       return this.$store.state.dataManager.isLabelDisplay
+    }
+  },
+  watch: {
+    selected () {
+      if (this.selected) {
+        if (!this.data.parent_id) {
+          this.$bus.$emit('msg.error', `Select root is not allowed!`)
+          this.$store.commit('setSelectedLeaf', [])
+          return
+        }
+        this.$store.commit('addSelectedNode', this.data)
+      } else {
+        this.$store.commit('deleteSelectedNode', this.data)
+      }
     }
   },
   methods: {
@@ -240,59 +274,24 @@ export default {
         return false
       }
     },
-    onDropdownMenuClick (payload) {
-      if (payload === 'activate') {
-        this.onTreeNodeActivate()
-      } else if (payload == 'deactivate') {
-        if (!this.isGroupActivated) {
-          return
-        }
-        this.onTreeNodeDeactivate()
-      } else if (payload === 'delete') {
-        this.shownDeleteModal = true
-      } else if (payload === 'cut') {
-        this.onTreeNodeCut()
-      } else if (payload === 'copy') {
-        this.onTreeNodeCopy()
-      } else if (payload === 'paste') {
-        if (!this.pasteButtonEnable) {
-          return
-        }
-        this.onTreeNodePaste()
-      } else if (payload === 'duplicate') {
-        if (!this.duplicateButtonEnable) {
-          return
-        }
-        if (this.duplicateNodeChildrenCount >= this.shownDuplicateModleCount) {
-          this.shownDuplicateModal = true
-          return
-        }
-        this.onTreeNodeDuplicate()
-      } else if (payload === 'addGroup') {
-        this.createType = 'group'
-        this.shownCreateModal = true
-      } else if (payload === 'addData') {
-        this.createType = 'data'
-        this.shownCreateModal = true
-      } else { }
+    changeDeleteDialogStatus () {
+      this.$store.commit('setDeleteNode', [this.data])
+      this.$store.commit('setDeleteDialogSource', 'single')
+      this.$store.commit('setIsShownDeleteDialog', true)
+    },
+    changeMenuStatus (e) {
+      e.preventDefault()
+      this.showMenu = false
+      this.menuPositionX = e.clientX
+      this.menuPositionY = e.clientY
+      this.showMenu = true
     },
     onToggleStatusChange () {
-      const enableIsLoading = (Boolean(this.data.children) &&
-        this.data.children.length > this.minLoadAnimationCount)
-      if (enableIsLoading) {
-        this.$store.commit('setIsLoading', true)
+      if (this.isNodeOpen) {
+        this.$store.commit('deleteGroupListOpenNode', this.data.id)
+      } else {
+        this.$store.commit('addGroupListOpenNode', this.data.id)
       }
-      setTimeout( () => {
-        this.treestore.toggleOpen(this.data)
-        this.$nextTick(function(){
-          this.$store.commit('setIsLoading', false)
-        })
-        if (this.data.open === true) {
-          this.$store.commit('addGroupListOpenNode', this.data.id)
-        } else {
-          this.$store.commit('deleteGroupListOpenNode', this.data.id)
-        }
-      }, 1)
     },
     onTreeNodeClick () {
       this.$store.commit('setFocusNodeInfo', this.data)
@@ -301,14 +300,6 @@ export default {
       } else if (this.data.type === 'data') {
         this.$store.dispatch('loadDataDetail', this.data)
       } else { }
-    },
-    onTreeNodeDelete () {
-      if (this.data.type === 'group') {
-        this.$store.dispatch('deleteGroup', this.data)
-      } else if (this.data.type === 'data') {
-        this.$store.dispatch('deleteData', this.data)
-      } else { }
-      this.shownDeleteModal = false
     },
     onTreeNodeCut () {
       this.$store.dispatch('cutGroupOrData', this.data)
@@ -320,21 +311,19 @@ export default {
       this.$store.dispatch('pasteGroupOrData', this.data)
     },
     onTreeNodeDuplicate () {
+      if (this.duplicateNodeChildrenCount >= this.shownDuplicateDialogCount) {
+        this.$store.commit('setIsShownDuplicateDialog', true)
+        return
+      }
       this.$store.dispatch('duplicateGroupOrData', this.data)
     },
-    onCreate () {
-      this.$store.commit('addGroupListOpenNode', this.data.id)
-      if (this.createType === 'group') {
-        this.$store.dispatch('createGroup', {
-          groupName: this.createName,
-          parentId: this.data.id
-        })
-      } else if (this.createType === 'data') {
-        this.$store.dispatch('createData', {
-          dataName: this.createName,
-          parentId: this.data.id
-        })
-      } else { }
+    onTreeNodeAddGroup () {
+      this.$store.commit('setCreateType', 'group')
+      this.$store.commit('setIsShownCreateDialog', true)
+    },
+    onTreeNodeAddData () {
+      this.$store.commit('setCreateType', 'data')
+      this.$store.commit('setIsShownCreateDialog', true)
     },
     onTreeNodeActivate () {
       this.$store.dispatch('activateGroup', this.data)
@@ -368,8 +357,9 @@ export default {
 </script>
 
 <style>
-.tree-node-inner-row {
-  padding: 4px 0px 4px 0px;
+.data-list-tree-node .v-btn--icon.v-size--default {
+  height: 20px;
+  width: 20px;
 }
 .tree-node-inner-button-bar-right {
   float: right;
@@ -391,41 +381,32 @@ export default {
   text-overflow: ellipsis;
   display: table-cell;
 }
-.tree-node-inner-button-empty {
-  padding-left: 5px;
-  cursor: pointer;
-  color: #c5c8ce;
-}
 .tree-node-inner-text {
-  padding-left: 3px;
   font-size: 14px;
   cursor: pointer;
   word-break: break-all;
 }
-.tree-node-inner-row-select {
-  background-color: #ebf7ff;
+.tree-node-inner-text-selected {
+  font-size: 16px;
+  font-weight: 800;
+  color: #5F5CCA;
 }
-.tree-node-inner-row-foucs {
-  background-color: #f8f8f9;
-}
-.tree-node-inner-row-activated {
-  background-color: rgba(15, 204, 191, 0.15);
-}
-.ivu-dropdown > .ivu-select-dropdown {
-  margin: 0px 0px;
-}
-.dropdown-menu {
-  min-width: 100px;
-}
-.dropdown-menu-item-divided {
-  margin-bottom: 3px;
-  border-bottom: 1px solid #e8eaec;
+.tree-node-inner-text-activate {
+  font-size: 16px;
+  font-weight: 900;
+  color: #4CAF50;
 }
 .dropdown-menu-item-link {
   position: relative;
   color: #515a6e;
   display: block;
   padding: 7px 16px;
+}
+.tree-node-inner-row-select {
+  background-color: #ebf7ff;
+}
+.tree-node-inner-row-activated {
+  background-color: rgba(15, 204, 191, 0.15);
 }
 .ivu-upload > .ivu-upload-select {
   width: 100%;
@@ -435,7 +416,7 @@ export default {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  margin: 0px 3px;
+  margin: 0px 5px 0px 1px;
   background-color: #19be6b;
   border: 1px solid #2d8cf0;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -454,7 +435,7 @@ export default {
   }
   100% {
     opacity: 1;
-    box-shadow: 0 0px 30px #19be6b, 0 1px 20px #19be6b inset;
+    box-shadow: 0 0px 10px #19be6b, 0 1px 10px #19be6b inset;
   }
 }
 </style>

@@ -47,6 +47,18 @@
       <span v-else-if="inputValueType === 'input'">
         <Input v-model="inputValue" type="textarea" :autosize="{ minRows: 1 }" size="small"/>
       </span>
+      <span v-else-if="inputValueType === 'textWithCopy'">
+        {{inputValue}}
+        <v-btn icon x-small title='Copy'>
+          <v-icon
+            x-small
+            color="context"
+            v-clipboard:copy="inputValue"
+            v-clipboard:success="onUrlCopy"
+            v-clipboard:error="onUrlCopyError"
+          >{{copyIcon}}</v-icon>
+        </v-btn>
+      </span>
       <span v-else>
         {{inputValue}}
       </span>
@@ -69,7 +81,8 @@ export default {
     return {
       imgData: '',
       isDisplayPoptip: false,
-      isMouseOver: false
+      isMouseOver: false,
+      copyIcon: 'mdi-content-copy'
     }
   },
   computed: {
@@ -110,6 +123,8 @@ export default {
         return 'label'
       } else if (this.infoKey === 'category') {
         return 'category'
+      } else if (this.$store.state.dataManager.displayCopyKey.indexOf(this.infoKey) !== -1) {
+        return 'textWithCopy'
       } else if (this.editable) {
         return 'input'
       } else {
@@ -169,6 +184,16 @@ export default {
       } else {
         return 382
       }
+    },
+    onUrlCopy () {
+      const originCopyIcon = this.copyIcon
+      this.copyIcon = 'mdi-check'
+      setTimeout(() => {
+        this.copyIcon = originCopyIcon
+      }, 2 * 1000)
+    },
+    onUrlCopyError (e) {
+      this.$bus.$emit('msg.error', 'Copy url error:' + e)
     }
   }
 }
