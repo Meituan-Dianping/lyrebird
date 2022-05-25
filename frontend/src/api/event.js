@@ -22,7 +22,7 @@ const addPage = (url, options) => {
 }
 
 const addSearchStr = (url, options) => {
-  if (options.searchStr) {
+  if (options.searchStr && options.searchStr.trim()) {
     url += '/search/' + options.searchStr.trim().split(/\s+/).join('+')
   }
   return url

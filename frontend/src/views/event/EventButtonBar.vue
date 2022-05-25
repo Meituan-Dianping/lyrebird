@@ -25,7 +25,6 @@
           class="inspector-pro-search-text"
           label="Separate multiple keywords by spaces"
           clearable
-          @click:clear="clearSearch"
         />
       </div>
     </div>
@@ -94,9 +93,6 @@ export default {
     clearAllEvents () {
       this.showClearModal = false
       this.$store.dispatch('clearEvents')
-    },
-    clearSearch () {
-      this.eventSearchStr = ''
     }
   }
 }

@@ -147,6 +147,9 @@ export default {
   },
   watch: {
     eventSearchStr (newValue, oldValue) {
+      if (newValue === null) {
+        newValue = ''
+      }
       clearTimeout(this.refreshEventListTimer)
       this.refreshEventListTimer = setTimeout(() => {
         if (newValue.trim() !== oldValue.trim()) {
