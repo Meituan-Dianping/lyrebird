@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, request
 from . import context
 from .blueprints.apis import api
 from .blueprints.ui import ui
@@ -76,7 +76,8 @@ class LyrebirdMockServer(ThreadServer):
 
         @self.app.errorhandler(Exception)
         def on_app_error(error):
-            _logger.error(f'[mocker server exception]: {error.__class__.__name__} {error}\n{traceback.format_exc()}')
+            _logger.error(
+                f'[mocker server exception]:\nOn request {request.url}\n{error.__class__.__name__} {error}\n{traceback.format_exc()}')
             return application.make_fail_response(f'{error.__class__.__name__} {error}\n{traceback.format_exc()}')
 
     def run(self):
