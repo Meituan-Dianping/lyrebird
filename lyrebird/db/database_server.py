@@ -60,25 +60,26 @@ class LyrebirdDatabaseServer(ThreadServer):
         }
         for model_class in Base.__subclasses__():
             table_name = model_class.__table__.name
-            if table_name in tables:
-                table = tables[table_name]
-                for attr_name in dir(model_class):
-                    try:
-                        attr = getattr(model_class, attr_name)
-                    except:
-                        logger.warning(f'[Local DB]Cannot get attr:{attr_name} from {model_class}')
-                        continue
-                    if not isinstance(attr, InstrumentedAttribute):
-                        continue
-                    if not hasattr(attr, 'type'):
-                        continue
-                    if not hasattr(attr, 'compile'):
-                        continue
-                    attr_name = attr.name 
-                    if attr_name in table:
-                        continue
-                    column_type = attr.type.compile(dialect=engine.dialect)
-                    engine.execute(f'ALTER TABLE {table_name} ADD COLUMN {attr_name} {column_type}')
+            if table_name not in tables:
+                continue
+            table = tables[table_name]
+            for attr_name in dir(model_class):
+                try:
+                    attr = getattr(model_class, attr_name)
+                except:
+                    logger.warning(f'[Local DB]Cannot get attr:{attr_name} from {model_class}')
+                    continue
+                if not isinstance(attr, InstrumentedAttribute):
+                    continue
+                if not hasattr(attr, 'type'):
+                    continue
+                if not hasattr(attr, 'compile'):
+                    continue
+                attr_name = attr.name 
+                if attr_name in table:
+                    continue
+                column_type = attr.type.compile(dialect=engine.dialect)
+                engine.execute(f'ALTER TABLE {table_name} ADD COLUMN {attr_name} {column_type}')
 
     def init_engine(self):
         sqlite_path = 'sqlite:///'+str(self.database_uri)+'?check_same_thread=False'
