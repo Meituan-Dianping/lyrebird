@@ -99,17 +99,8 @@ export default {
 </script>
 
 <style>
-.v-input--switch {
-  display: inline-block;
-}
 .inspector-pro-button-bar {
   height: 26px;
-}
-.v-btn {
-  text-transform: none !important;
-}
-.inspector-pro-button-bar .v-chip__close .v-icon .v-icon--right{
-  font-size: 16px !important;
 }
 .inline {
   display: inline-flex;
@@ -121,10 +112,6 @@ export default {
   flex-wrap: nowrap;
   align-items: center;
   margin-bottom: 7px;
-}
-.button-bar-divider {
-  margin-left: 8px;
-  margin-right: 8px;
 }
 .button-bar-diff-mode .v-input--switch__track {
   height: 19px !important;
