@@ -115,12 +115,12 @@ export default {
     },
     clearEvents ({ commit }) {
       api.deleteEvents()
-      .then(response => {}).catch(error => {
+      .then(response => {
+        bus.$emit('msg.success', `Clear events success!`)
+        commit('setEvents', [])
+      }).catch(error => {
         bus.$emit('msg.error', 'Clear events error: ' + error.data.message)
-        return
       })
-      bus.$emit('msg.success', `Clear events success!`)
-      commit('setEvents', [])
     }
   }
 }

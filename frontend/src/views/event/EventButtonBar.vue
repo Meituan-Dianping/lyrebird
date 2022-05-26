@@ -4,7 +4,7 @@
 
       <v-tooltip bottom open-delay=500>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="showClearModal=true" v-bind="attrs" v-on="on">
+          <v-btn icon @click="isShowClearDialog=true" v-bind="attrs" v-on="on">
             <v-icon size="18px" color="accent">mdi-eraser</v-icon>
           </v-btn>
         </template>
@@ -29,7 +29,7 @@
       </div>
     </div>
     <v-dialog
-      v-model="showClearModal"
+      v-model="isShowClearDialog"
       width="500"
     >
 
@@ -49,16 +49,16 @@
           <v-btn
             color="grey darken-1"
             text
-            @click="showClearModal = false"
+            @click="isShowClearDialog = false"
           >
             Cancel
           </v-btn>
           <v-btn
-            color="primary"
+            color="error"
             text
             @click="clearAllEvents"
           >
-            OK
+            Delete
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -76,7 +76,7 @@ export default {
   },
   data () {
     return {
-      showClearModal: false
+      isShowClearDialog: false
     }
   },
   computed: {
@@ -91,7 +91,7 @@ export default {
   },
   methods: {
     clearAllEvents () {
-      this.showClearModal = false
+      this.isShowClearDialog = false
       this.$store.dispatch('clearEvents')
     }
   }

@@ -102,12 +102,15 @@ export default {
   margin: 0px 0px 7px 0px !important;
 }
 .inspector-event-split {
-  height: calc(100vh - 44px - 40px - 38px - 12px - 28px - 12px);
+  height: calc(100vh - 44px - 40px - 12px - 26px - 8px - 8px - 28px - 12px);
   /* total:100vh
   header: 44px
   title: 40px
-  EventButtonBar: 38px
-  margin-top: 12px
+  padding: 12px
+  PaginationBar 32px
+  buttonBar: 26px
+  margin-bottom: 7px + line 1px = 8px
+  table margin-top: 8px
   split
   margin-bottom: 12px
   footer: 28px
@@ -117,12 +120,15 @@ export default {
   margin-right: 0px;
 }
 .inspector-event-right {
-  height: calc(100vh - 44px - 40px - 38px - 12px - 28px - 12px);
+  height: calc(100vh - 44px - 40px - 12px - 26px - 8px - 8px - 28px - 12px);
   /* total:100vh
   header: 44px
   title: 40px
-  EventButtonBar: 38px
-  margin-top: 12px
+  padding: 12px
+  PaginationBar 32px
+  buttonBar: 26px
+  margin-bottom: 7px + line 1px = 8px
+  table margin-top: 8px
   split
   margin-bottom: 12px
   footer: 28px

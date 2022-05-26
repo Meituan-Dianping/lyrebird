@@ -236,13 +236,16 @@ export default {
       /* reset table height
       Header 44px
       Title 40px
+      padding: 12px
       PaginationBar 32px
-      buttonBar: 38px
+      buttonBar: 26px
+      margin-bottom: 7px + line 1px = 8px
+      table margin-top: 8px
       5px
       Margin Bottom: 12px
       Footer 28px
       */
-      this.tableHeight = window.innerHeight - 44 - 40 - 32 - 38 - 5 - 28 - 12
+      this.tableHeight = window.innerHeight - 44 - 40 - 12 - 32 - 26 - 8 - 8 - 5 - 28 - 12
     }
   }
 }
@@ -250,12 +253,14 @@ export default {
 
 <style less>
 .event-list {
-  height: calc(100vh - 44px - 40px - 38px - 12px - 28px - 12px);
+  height: calc(100vh - 44px - 40px - 26px - 8px - 8px - 12px - 28px - 12px);
   /* total:100vh
   header: 44px
   title: 40px
-  buttonBar: 38px
-  margin-top: 12px
+  padding: 12px
+  buttonBar: 26px
+  margin-bottom: 7px + line 1px = 8px
+  table margin-top: 8px
   footer: 28px
   margin-bottom:12px
     */
@@ -266,12 +271,14 @@ export default {
   margin-top: 5px;
 }
 .event-table {
-  height: calc(100vh - 44px - 40px - 38px - 12px - 32px - 5px - 28px - 12px) !important;
+  height: calc(100vh - 44px - 40px - 12px - 26px - 8px - 8px - 32px - 5px - 28px - 12px) !important;
   /* total:100vh
   header: 44px
   title: 40px
-  buttonBar: 38px
-  margin-top: 12px
+  padding: 12px
+  buttonBar: 26px
+  margin-bottom: 7px + line 1px = 8px
+  table margin-top: 8px
   margin-top: 5px
   Page: 32px
   footer: 28px

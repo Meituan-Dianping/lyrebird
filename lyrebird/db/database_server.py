@@ -66,12 +66,19 @@ class LyrebirdDatabaseServer(ThreadServer):
                     try:
                         attr = getattr(model_class, attr_name)
                     except:
+                        logger.warning(f'[Local DB]Cannot get attr:{attr_name} from {model_class}')
                         continue
-                    if isinstance(attr, InstrumentedAttribute) and hasattr(attr, 'type') and hasattr(attr, 'compile'):
-                        attr_name = attr.name 
-                        if attr_name not in table:
-                            column_type = attr.type.compile(dialect=engine.dialect)
-                            engine.execute(f'ALTER TABLE {table_name} ADD COLUMN {attr_name} {column_type}')
+                    if not isinstance(attr, InstrumentedAttribute):
+                        continue
+                    if not hasattr(attr, 'type'):
+                        continue
+                    if not hasattr(attr, 'compile'):
+                        continue
+                    attr_name = attr.name 
+                    if attr_name in table:
+                        continue
+                    column_type = attr.type.compile(dialect=engine.dialect)
+                    engine.execute(f'ALTER TABLE {table_name} ADD COLUMN {attr_name} {column_type}')
 
     def init_engine(self):
         sqlite_path = 'sqlite:///'+str(self.database_uri)+'?check_same_thread=False'
@@ -105,7 +112,11 @@ class LyrebirdDatabaseServer(ThreadServer):
             application.encoders_decoders.encoder_handler(event['flow'])
 
         content = json.dumps(event, ensure_ascii=False)
-        flow = Event(event_id=event_id, channel=channel, content=content, message=event.get('message'))
+        if isinstance(event, dict):
+            message = event.get('message')
+        else:
+            message = None
+        flow = Event(event_id=event_id, channel=channel, content=content, message=message)
         self.storage_queue.put(flow)
 
     def run(self):
