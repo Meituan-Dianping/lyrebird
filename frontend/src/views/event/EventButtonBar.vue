@@ -145,11 +145,6 @@ export default {
 {
   transform: translate(11px) !important;
 }
-/* .inspector-pro-button {
-  padding: 3px 8px 3px;
-  font-size: 14px;
-  cursor: pointer;
-} */
 .inspector-pro-search .v-input__prepend-inner {
   margin-top: 2px !important;
 }
