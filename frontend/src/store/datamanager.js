@@ -71,6 +71,9 @@ export default {
       openNodeSet.delete(groupId)
       state.groupListOpenNode = Array.from(openNodeSet)
     },
+    setSelectedNode (state, selectedNode) {
+      state.selectedNode = selectedNode
+    },
     addSelectedNode (state, node) {
       state.selectedNode.add(node)
     },
@@ -395,6 +398,8 @@ export default {
       api.deleteByQuery(payload)
         .then(_ => {
           commit('setFocusNodeInfo', {})
+          commit('setDeleteNode', [])
+          commit('setSelectedNode', new Set())
           if (state.pasteTarget && payload.indexOf(state.pasteTarget.id)) {
             commit('setPasteTarget', null)
           }
