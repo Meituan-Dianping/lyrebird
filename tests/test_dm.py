@@ -361,7 +361,7 @@ def test_activate(data_manager):
     assert 'dataD-UUID' in data_manager.activated_data
 
 
-def test_activate_with_super_id(data_manager): # 123
+def test_activate_with_super_id(data_manager):
     data_manager.activate('groupA-UUID')
 
     groupA_children_length = len(data_manager.id_map['groupA-UUID']['children'])
@@ -760,12 +760,55 @@ def test_add_data_no_request(data_manager):
     assert new_data_file.exists()
 
 
+def test_update_group_change_value(data_manager):
+    new_group_name = 'groupA-new-name'
+    update_group_id = 'groupA-UUID'
+
+    update_data = deepcopy(data_manager.id_map[update_group_id])
+    update_data['name'] = new_group_name
+    data_manager.update_group(update_group_id, update_data)
+
+    assert data_manager.id_map[update_group_id]['name'] == new_group_name
+
+
+def test_update_group_key_add_and_delete(data_manager):
+    new_group_key = 'groupA-new-info'
+    new_group_value = 'groupA-new-value'
+    update_group_id = 'groupA-UUID'
+
+
+    update_data = deepcopy(data_manager.id_map[update_group_id])
+    update_data[new_group_key] = new_group_value
+    data_manager.update_group(update_group_id, update_data)
+
+    assert new_group_key in data_manager.id_map[update_group_id]
+    assert data_manager.id_map[update_group_id][new_group_key] == new_group_value
+
+    update_data.pop(new_group_key)
+    data_manager.update_group(update_group_id, update_data)
+
+    assert new_group_key not in data_manager.id_map[update_group_id]
+
+
+def test_update_data(data_manager):
+    new_data_name = 'groupA-new-name'
+    update_data_id = 'dataA-UUID'
+
+    update_data = deepcopy(dataA)
+    update_data['name'] = new_data_name
+    data_manager.update_data(update_data_id, update_data)
+
+    assert data_manager.id_map[update_data_id]['name'] == new_data_name
+    assert data_manager.get(update_data_id)['name'] == new_data_name
+
+
 def test_delete(data_manager):
     data_manager.delete('groupB-UUID')
     assert 'groupB-UUID' not in data_manager.id_map
     assert 'dataC-UUID' not in data_manager.id_map
     data_file = data_manager.root_path / 'dataC-UUID'
     assert not data_file.exists()
+
 
 def test_delete_by_query(data_manager):
     query = {
@@ -830,6 +873,17 @@ def test_prop_writer():
     json.loads(prop_str)
 
 
+def test_prop_writer_with_dict_ignore_key(data_manager):
+    prop_str_correct = '{"id":"root","name":"root","type":"group","parent_id":null,"children":[\n  {"id":"groupA-UUID","name":"groupA","type":"group","parent_id":"root","super_id":"groupB-UUID","children":[\n    {"id":"dataA-UUID","name":"dataA","type":"data","parent_id":"groupA-UUID"},\n    {"id":"dataB-UUID","name":"dataB","type":"data","parent_id":"groupA-UUID"}]},\n  {"id":"groupB-UUID","name":"groupB","type":"group","parent_id":"root","super_id":"groupC-UUID","children":[\n    {"id":"dataC-UUID","name":"dataC","type":"data","parent_id":"groupB-UUID"}]},\n  {"id":"groupC-UUID","name":"groupC","type":"group","parent_id":"root","super_id":"groupD-UUID","children":[]},\n  {"id":"groupD-UUID","name":"groupD","type":"group","parent_id":"root","super_id":"groupE-UUID","children":[\n    {"id":"dataD-UUID","name":"dataD","type":"data","parent_id":"groupD-UUID"}]},\n  {"id":"groupE-UUID","name":"groupE","type":"group","parent_id":"root","children":[\n    {"id":"dataC-UUID","name":"dataC","type":"data","parent_id":"groupE-UUID"},\n    {"id":"dataD-UUID","name":"dataD","type":"data","parent_id":"groupE-UUID"}]},\n  {"id":"groupF-UUID","name":"groupF","type":"group","parent_id":"root","children":[\n    {"id":"groupG-UUID","name":"groupG","type":"group","parent_id":"groupF-UUID","children":[\n      {"id":"groupH-UUID","label":[{"name":"label_a","color":"red","description":"description label_a"},{"name":"label_b","color":"green","description":"description label_b"}],"name":"groupH","type":"group","parent_id":"groupG-UUID","children":[]}]},\n    {"id":"groupI-UUID","label":[{"name":"label_a","color":"red","description":"description label_a"}],"name":"groupI","type":"group","parent_id":"groupF-UUID","children":[\n      {"id":"dataD-UUID","name":"dataD","type":"data","parent_id":"groupI-UUID"}]}]},\n  {"id":"groupJ-UUID","name":"groupJ","type":"group","parent_id":"root","children":[\n    {"id":"dataF-UUID","name":"dataF","type":"data","parent_id":"groupJ-UUID"},\n    {"id":"dataG-UUID","name":"dataG","type":"data","parent_id":"groupJ-UUID"},\n    {"id":"dataH-UUID","name":"dataH","type":"data","parent_id":"groupJ-UUID"},\n    {"id":"dataI-UUID","name":"dataI","type":"data","parent_id":"groupJ-UUID"}]}]}'
+
+    prop_writer = dm.file_data_adapter.PropWriter()
+    prop_writer.dict_ignore_key.update(data_manager.unsave_keys)
+    prop_str = prop_writer.parse(data_manager.root)
+    assert prop_str == prop_str_correct
+    new_prop = json.loads(prop_str)
+    assert prop == new_prop
+
+
 def test_make_data_map_by_group(data_manager):
     group_set = set(['groupH-UUID', 'groupI-UUID'])
 
@@ -882,8 +936,10 @@ def test_make_data_map_by_group(data_manager):
             }
         ]
     }
-    node_str = json.dumps(node)
-    prop_str = json.dumps(prop)
+    prop_writer = dm.file_data_adapter.PropWriter()
+    prop_writer.dict_ignore_key.update(data_manager.unsave_keys)
+    node_str = prop_writer.parse(node)
+    prop_str = prop_writer.parse(prop)
     assert len(node_str) == len(prop_str)
 
 def test_export_from_local(data_manager, tmpdir):
@@ -892,6 +948,10 @@ def test_export_from_local(data_manager, tmpdir):
             node.pop('id')
         if 'parent_id' in node:
             node.pop('parent_id')
+        if 'parent' in node:
+            node.pop('parent')
+        if 'abs_parent_path' in node:
+            node.pop('abs_parent_path')
         if 'response' in node and not node['response']:
             node.pop('response')
         for child in node.get('children', []):
@@ -935,6 +995,10 @@ def test_export_from_remote(data_manager, tmpdir):
             node.pop('id')
         if 'parent_id' in node:
             node.pop('parent_id')
+        if 'parent' in node:
+            node.pop('parent')
+        if 'abs_parent_path' in node:
+            node.pop('abs_parent_path')
         if 'response' in node and not node['response']:
             node.pop('response')
         for child in node.get('children', []):

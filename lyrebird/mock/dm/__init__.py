@@ -37,8 +37,10 @@ class DataManager:
         self.root = self.get_default_root()
         self._snapshot_workspace = None
 
-        self.add_group_ignore_keys = ['id', 'type', 'children']
-        self.update_group_ignore_keys = ['id', 'parent_id', 'type', 'children']
+        self.add_group_ignore_keys = set(['id', 'type', 'children'])
+        self.update_group_ignore_keys = set(['id', 'parent_id', 'type', 'children'])
+
+        self.unsave_keys = set()
 
         self.DELETE_STEP = 100
         self.is_deleting_lock = False
@@ -74,11 +76,15 @@ class DataManager:
 
     def reload(self):
         self._adapter._reload()
+        self.add_parent_into_node()
+
+    def add_parent_into_node(self):
         for node in self.id_map.values():
             node.update({
                 'parent': self._get_abs_parent_obj(node),
                 'abs_parent_path': self._get_abs_parent_path(node)
             })
+        self.unsave_keys.update(['parent', 'abs_parent_path'])
 
     def get(self, _id):
         """
@@ -356,7 +362,8 @@ class DataManager:
         return json.dumps(data, ensure_ascii=False)
 
     def add_group(self, data):
-        new_group = {k: data[k] for k in data if k not in self.add_group_ignore_keys}
+        ignore_key = self.add_group_ignore_keys | self.unsave_keys
+        new_group = {k: data[k] for k in data if k not in ignore_key}
 
         parent_id = data.get('parent_id')
         if parent_id == None:
@@ -656,9 +663,15 @@ class DataManager:
         if not node:
             raise IDNotFound(_id)
 
+        # Remove unsave_key add by DataManager itself
+        for key in self.unsave_keys:
+            data.pop(key) if key in data else None
+
+        # Add new key into node
         update_data = {k: data[k] for k in data if k not in self.update_group_ignore_keys}
         node.update(update_data)
 
+        # Remove deleted key in node
         delete_keys = [k for k in node if k not in data and k not in self.update_group_ignore_keys]
         for key in delete_keys:
             node.pop(key)

@@ -26,7 +26,7 @@ class FileDataAdapter:
         if not _root_path.is_dir():
             raise RootPathIsNotDir(root_path)
         self.context.root_path = _root_path
-        self._reload()
+        self.context.reload()
 
     def _reload(self):
         self.context.id_map = {}
@@ -96,7 +96,10 @@ class FileDataAdapter:
     def _save_prop(self):
         # TODO: Handle frequent writes
         self.context._sort_children_by_name()
-        prop_str = PropWriter().parse(self.context.root)
+        prop_writer = PropWriter()
+        prop_writer.dict_ignore_key.update(self.context.unsave_keys)
+
+        prop_str = prop_writer.parse(self.context.root)
         prop_file = self.context.root_path / PROP_FILE_NAME
         with codecs.open(prop_file, 'w') as f:
             f.write(prop_str)
@@ -191,6 +194,7 @@ class PropWriter:
             'bool': self.bool_parser,
             'NoneType': self.none_parser
         }
+        self.dict_ignore_key = set()
 
     def parse(self, prop):
         prop_type = type(prop)
@@ -203,6 +207,8 @@ class PropWriter:
         dict_str = '{'
         children = None
         for k, v in val.items():
+            if k in self.dict_ignore_key:
+                continue
             if k == 'children':
                 children = v
                 continue
