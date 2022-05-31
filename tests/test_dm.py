@@ -1051,6 +1051,10 @@ def test_import_from_file(data_manager, tmpdir):
             node.pop('id')
         if 'parent_id' in node:
             node.pop('parent_id')
+        if 'parent' in node:
+            node.pop('parent')
+        if 'abs_parent_path' in node:
+            node.pop('abs_parent_path')
         if 'response' in node and not node['response']:
             node.pop('response')
         for child in node.get('children', []):
