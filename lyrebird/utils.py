@@ -6,7 +6,6 @@ import socket
 import tarfile
 import requests
 import datetime
-import traceback
 import netifaces
 from pathlib import Path
 from contextlib import closing

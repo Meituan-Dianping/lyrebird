@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import * as api from '@/api'
 import { bus } from '@/eventbus'
 
