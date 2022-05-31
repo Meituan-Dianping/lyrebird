@@ -1,11 +1,14 @@
+import asyncio
 import re
 import traceback
 from urllib.request import Request
 from aiohttp import web, client
 from urllib import parse as urlparse
 
+import sys
 import json
 import multiprocessing
+from typing import Set
 
 from requests import request
 
@@ -21,6 +24,10 @@ class UnknownLyrebirdProxyProtocol(Exception):
     pass
 
 
+class GracefulExit(SystemExit):
+    code = 1
+
+
 class LyrebirdProxyContext:
     def __init__(self):
         self.request: web.Request = None
@@ -33,6 +40,9 @@ class LyrebirdProxyContext:
               lb_proxy_host_header_name='MKOriginHost',
               lb_proxy_port_header_name='MKOriginPort'):
 
+        # Lyrebird proxy protocol #1
+        # e.g. 
+        # http://{lyrebird_host}/{origin_full_url}
         if request.path.startswith('/http://') or request.path.startswith('/https://'):
             origin_full_url = request.path_qs[1:]
             url = urlparse.urlparse(origin_full_url)
@@ -43,7 +53,14 @@ class LyrebirdProxyContext:
             ctx.request = request
             return ctx
 
-        elif request.headers.get(lb_proxy_host_header_name) and request.headers.get(lb_proxy_scheme_header_name):
+        # Lyrebird proxy protocol #2
+        # e.g. 
+        # http://{lyrebird_host}/{origing_path_and_query}
+        # headers:
+        # MKScheme: {origin_scheme}
+        # MKOriginHost: {origin_host}
+        # MKOriginPort: {origin_port}
+        if request.headers.get(lb_proxy_host_header_name) and request.headers.get(lb_proxy_scheme_header_name):
             target_scheme = request.headers.get(lb_proxy_scheme_header_name)
             target_host = request.headers.get(lb_proxy_host_header_name)
             target_port = request.headers.get(lb_proxy_port_header_name)
@@ -59,8 +76,8 @@ class LyrebirdProxyContext:
             ctx.netloc = netloc
             ctx.request = request
             return ctx
-        else:
-            raise UnknownLyrebirdProxyProtocol
+        
+        raise UnknownLyrebirdProxyProtocol
 
 
 def is_filtered(context: LyrebirdProxyContext):
@@ -81,7 +98,7 @@ def make_raw_headers_line(request: web.Request):
     raw_headers = {}
     for k, v in request.raw_headers:
         raw_header_name = k.decode()
-        raw_header_value = k.decode()
+        raw_header_value = v.decode()
         if raw_header_name.lower() in ['cache-control', 'host', 'transfer-encoding']:
             continue
         raw_headers[raw_header_name] = raw_header_value
@@ -94,12 +111,16 @@ async def send_request(context: LyrebirdProxyContext, target_url):
         headers = {k: v for k, v in request.headers.items() if k.lower() not in [
             'cache-control', 'host', 'transfer-encoding']}
         headers['Proxy-Raw-Headers'] = make_raw_headers_line(request)
+        request_body = None
+        if request.body_exists:
+            request_body = request.content
         async with session.request(request.method,
                                    target_url,
                                    headers=headers,
-                                   data=request.content,
+                                   data=request_body,
                                    verify_ssl=False,
-                                   allow_redirects=False) as _resp:
+                                   allow_redirects=False,
+                                   raise_for_status=False) as _resp:
             proxy_resp_status = _resp.status
             proxy_resp_headers = _resp.headers
             proxy_resp_data = await _resp.read()
@@ -123,6 +144,7 @@ async def send_request(context: LyrebirdProxyContext, target_url):
 
 
 async def proxy(context: LyrebirdProxyContext):
+    logger.info(f'proxy {context.full_url}')
     return await send_request(context, context.full_url)
 
 
@@ -130,6 +152,7 @@ async def forward(context: LyrebirdProxyContext):
     global lb_config
     port = lb_config.get('mock.port')
     url = f'http://127.0.0.1:{port}/mock/{context.full_url}'
+    logger.info(f'forward {url}')
     return await send_request(context, url)
 
 
@@ -154,7 +177,7 @@ async def req_handler(request: web.Request):
         return web.Response(status=500, text=f'{e.__class__.__name__}')
 
 
-def serve(config):
+async def _run_app(config):
     global lb_config
     lb_config = config
 
@@ -164,7 +187,72 @@ def serve(config):
     app = web.Application()
     app.router.add_route('*', r'/{path:(.*)}', req_handler)
 
-    web.run_app(app=app, host='0.0.0.0', port=port)
+    try:
+        app_runner = web.AppRunner(app, auto_decompress=False)
+        await app_runner.setup()
+
+        web_site = web.TCPSite(app_runner, '0.0.0.0', port)
+        await web_site.start()
+
+        if print:  # pragma: no branch
+            names = sorted(str(s.name) for s in app_runner.sites)
+            print(
+                "======== Running on {} ========\n"
+                "(Press CTRL+C to quit)".format(", ".join(names))
+            )
+
+        # sleep forever by 1 hour intervals,
+        # on Windows before Python 3.8 wake up every 1 second to handle
+        # Ctrl+C smoothly
+        if sys.platform == "win32" and sys.version_info < (3, 8):
+            delay = 1
+        else:
+            delay = 3600
+
+        while True:
+            await asyncio.sleep(delay)
+    finally:
+        await app_runner.cleanup()
+
+
+def _cancel_tasks(
+    to_cancel: Set["asyncio.Task[Any]"], loop: asyncio.AbstractEventLoop
+) -> None:
+    if not to_cancel:
+        return
+
+    for task in to_cancel:
+        task.cancel()
+
+    loop.run_until_complete(asyncio.gather(*to_cancel, return_exceptions=True))
+
+    for task in to_cancel:
+        if task.cancelled():
+            continue
+        if task.exception() is not None:
+            loop.call_exception_handler(
+                {
+                    "message": "unhandled exception during asyncio.run() shutdown",
+                    "exception": task.exception(),
+                    "task": task,
+                }
+            )
+
+
+def serve(config):
+    loop = asyncio.new_event_loop()
+    main_task = loop.create_task(_run_app(config))
+
+    try:
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(main_task)
+    except (GracefulExit, KeyboardInterrupt):  # pragma: no cover
+        pass
+    finally:
+        _cancel_tasks({main_task}, loop)
+        _cancel_tasks(asyncio.all_tasks(loop), loop)
+        loop.run_until_complete(loop.shutdown_asyncgens())
+        loop.close()
 
 
 class ExtraMockServer():
