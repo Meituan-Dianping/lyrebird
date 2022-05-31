@@ -1,16 +1,13 @@
 import asyncio
 import re
 import traceback
-from urllib.request import Request
 from aiohttp import web, client
 from urllib import parse as urlparse
 
 import sys
 import json
 import multiprocessing
-from typing import Set
-
-from requests import request
+from typing import List, Set, Optional
 
 from lyrebird import application
 from lyrebird.log import get_logger
@@ -36,9 +33,10 @@ class LyrebirdProxyContext:
 
     @classmethod
     def parse(cls, request: web.Request,
-              lb_proxy_scheme_header_name='MKScheme',
-              lb_proxy_host_header_name='MKOriginHost',
-              lb_proxy_port_header_name='MKOriginPort'):
+              lb_proxy_scheme_header_name='LBOriginScheme',
+              lb_proxy_host_header_name='LBOriginHost',
+              lb_proxy_port_header_name='LBOriginPort',
+              lb_proxy_query_keys: Optional[List] = None):
 
         # Lyrebird proxy protocol #1
         # Origin target info in path
@@ -83,9 +81,21 @@ class LyrebirdProxyContext:
         # Origin target info in query
         # default key is "proxy" or "mp_webview_domain_info"
         # e.g.
-        # http://{lyrebird_host}/{origing_path}?{proxy= or mp_webview_domain_info=}
-        # TODO support custom query key
-        if request.query.get('proxy') or request.query.get('mp_webview_domain_info'):
+        # http://{lyrebird_host}/{origing_path}?{proxy= or custom_query_key=}
+
+        # set default key=proxy
+        if lb_proxy_query_keys is None:
+            lb_proxy_query_keys = ['proxy']
+        elif 'proxy' not in lb_proxy_query_keys:
+            lb_proxy_query_keys.append('proxy')
+
+        def contain_custom_query_key(request: web.Request, lb_proxy_query_keys):
+            for query_key in lb_proxy_query_keys:
+                if request.query.get(query_key):
+                    return True
+            return False
+
+        if contain_custom_query_key(request, lb_proxy_query_keys):
             origin_full_url = request.path_qs[1:]
             url = urlparse.urlparse(origin_full_url)
 
@@ -141,6 +151,7 @@ async def send_request(context: LyrebirdProxyContext, target_url):
                                    raise_for_status=False) as _resp:
             proxy_resp_status = _resp.status
             proxy_resp_headers = _resp.headers
+            # TODO support stream response
             proxy_resp_data = await _resp.read()
 
     response_headers = {}
@@ -180,10 +191,12 @@ async def req_handler(request: web.Request):
         header_name_scheme = lb_config.get('mock.proxy_headers', {}).get('scheme')
         header_name_host = lb_config.get('mock.proxy_headers', {}).get('host')
         header_name_port = lb_config.get('mock.proxy_headers', {}).get('port')
+        query_keys = lb_config.get('mock.proxy_query_keys')
         proxy_ctx = LyrebirdProxyContext.parse(request,
                                                lb_proxy_scheme_header_name=header_name_scheme,
                                                lb_proxy_host_header_name=header_name_host,
-                                               lb_proxy_port_header_name=header_name_port)
+                                               lb_proxy_port_header_name=header_name_port,
+                                               lb_proxy_query_keys=query_keys)
         if is_filtered(proxy_ctx):
             # forward to lyrebird
             return await forward(proxy_ctx)
@@ -212,7 +225,7 @@ async def _run_app(config):
         web_site = web.TCPSite(app_runner, '0.0.0.0', port)
         await web_site.start()
 
-        if print:  # pragma: no branch
+        if print:
             names = sorted(str(s.name) for s in app_runner.sites)
             print(
                 "======== Running on {} ========\n"
@@ -264,7 +277,7 @@ def serve(config):
     try:
         asyncio.set_event_loop(loop)
         loop.run_until_complete(main_task)
-    except (GracefulExit, KeyboardInterrupt):  # pragma: no cover
+    except (GracefulExit, KeyboardInterrupt):
         pass
     finally:
         _cancel_tasks({main_task}, loop)
