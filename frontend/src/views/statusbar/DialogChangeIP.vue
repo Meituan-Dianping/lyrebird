@@ -12,17 +12,17 @@
               v-for="(ipInfo, index) in ipList"
               :key="index"
               
-              :value="ipInfo.addr"
+              :value="ipInfo.address"
               mandatory
             >
               <template v-slot:label>
-                <span>{{ipInfo.addr}}</span>
+                <span>{{ipInfo.address}}</span>
                 <v-chip
                   small
                   class="ml-2"
-                  v-show="ipInfo.desc"
+                  v-show="ipInfo.interface"
                 >
-                  {{ipInfo.desc}}
+                  {{ipInfo.interface}}
                 </v-chip>
               </template>
             </v-radio>
@@ -49,7 +49,6 @@
 export default {
   data () {
     return {
-      isShowDialogChangeIp: false,
       selectedIp: ''
     }
   },

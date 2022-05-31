@@ -77,16 +77,19 @@ def get_ip():
 def get_interface_ipv4():
     ipv4_list = []
     interface_list = netifaces.interfaces()
-    for interface in interface_list:
-        if interface == 'lo0':
+    for interface_name in interface_list:
+        if interface_name == 'lo0':
             continue
-        addrs = netifaces.ifaddresses(interface)
-        addr_inet_list = addrs.get(netifaces.AF_INET)
-        if not addr_inet_list:
+        interface_dict = netifaces.ifaddresses(interface_name)
+        interface = interface_dict.get(netifaces.AF_INET)
+        if not interface:
             continue
-        for addr_inet in addr_inet_list:
-            addr_inet['interface'] = interface
-        ipv4_list.extend(addr_inet_list)
+        for alias in interface:
+            ipv4_list.append({
+                'address': alias['addr'],
+                'netmask': alias['netmask'],
+                'interface': interface_name
+            })
     return ipv4_list
 
 
