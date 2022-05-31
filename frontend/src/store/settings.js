@@ -21,9 +21,6 @@ export default {
   mutations: {
     setConfig (state, config) {
       state.config = config
-    },
-    setConfigByKey (state, updateConfig) {
-      Vue.set(state.config, updateConfig.key, updateConfig.value)
     }
   },
   actions: {
