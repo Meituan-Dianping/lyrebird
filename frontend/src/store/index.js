@@ -33,7 +33,9 @@ export default new Vuex.Store({
     status: null,
     manifest: null,
     activeMenuItem: null,
-    activeMenuItemIndex:null
+    activeMenuItemIndex: null,
+    ipList: [],
+    isShownDialogChangeIp: false
   },
   mutations: {
     setMenu (state, menu) {
@@ -50,6 +52,12 @@ export default new Vuex.Store({
     },
     setActiveMenuItemIndex (state, activeMenuItemIndex) {
       state.activeMenuItemIndex = activeMenuItemIndex
+    },
+    setIpList (state, ipList) {
+      state.ipList = ipList
+    },
+    setIsShownDialogChangeIp (state, isShownDialogChangeIp) {
+      state.isShownDialogChangeIp = isShownDialogChangeIp
     }
   },
   actions: {

@@ -5,3 +5,11 @@ export const getConfig = () => {
     url: '/api/conf'
   })
 }
+
+export const updateConfigByKey = (data) => {
+  return axios({
+    url: '/api/conf',
+    data,
+    method: 'PATCH'
+  })
+}

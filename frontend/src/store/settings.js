@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import * as api from '@/api'
 import { bus } from '@/eventbus'
 
@@ -10,6 +11,7 @@ var configCommitMap = [
   {'name': 'inspector.filters', 'commit': 'setFlowFilters'},
   {'name': 'inspector.default_filter', 'commit': 'setSelectedFlowFilter'},
   {'name': 'mock.data.list.title', 'commit': 'setTitle'},
+  {'name': 'env.ip', 'commit': 'setIpList'}
 ]
 
 export default {
@@ -19,6 +21,9 @@ export default {
   mutations: {
     setConfig (state, config) {
       state.config = config
+    },
+    setConfigByKey (state, updateConfig) {
+      Vue.set(state.config, updateConfig.key, updateConfig.value)
     }
   },
   actions: {
@@ -33,7 +38,18 @@ export default {
           }
         })
         .catch(error => {
-          bus.$emit('msg.error', 'load config failed ' + error.data.message)
+          bus.$emit('msg.error', 'Load config failed ' + error.data.message)
+        })
+    },
+    updateConfigByKey({ dispatch }, data) {
+      api.updateConfigByKey(data)
+        .then(_ => {
+          dispatch('loadConfig')
+          dispatch('loadStatus')
+          bus.$emit('msg.success', `Update config success!`)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', `Update config failed ${error.data.message}`)
         })
     }
   }

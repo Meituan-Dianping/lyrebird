@@ -15,11 +15,22 @@
           <b>Lyrebird {{status.version}}</b>
         </div>
         <div slot="content">
+          <Row>
+            <i-col span="9">
+              <b style="float: right">IP</b>
+            </i-col>
+            <i-col span="14" offset="1">
+              {{status.ip}}
+              <v-btn icon x-small @click.stop="showDialogChangeIp" title="Update info">
+                <v-icon size="12px" color="primary">mdi-pencil</v-icon>
+              </v-btn>
+            </i-col>
+          </Row>
           <Row v-for="key in showedStatus" :key="key">
-            <i-col span="11">
+            <i-col span="9">
               <b style="float: right">{{key.toUpperCase()}}</b>
             </i-col>
-            <i-col span="12" offset="1">{{status[key]}}</i-col>
+            <i-col span="14" offset="1">{{status[key]}}</i-col>
           </Row>
           <Divider style="margin:10px 0;"/>
           <div style="text-align:center">
@@ -39,25 +50,35 @@
         </a>
       </span>
       <span class="main-footer-status-placeholder"></span>
+
+      <DialogChangeIP/>
+
   </span>
 </template>
 
 <script>
+import DialogChangeIP from '@/views/statusbar/DialogChangeIP.vue'
 
 export default {
+  components: {
+    DialogChangeIP
+  },
   data () {
     return {
-        showedStatus: ["ip", "mock.port", "proxy.port"]
+      showedStatus: ['mock.port', 'proxy.port']
     }
   },
   mounted () {
     this.$store.dispatch('loadStatus')
   },
-  methods: {
-  },
   computed: {
     status () {
       return this.$store.state.status
+    }
+  },
+  methods: {
+    showDialogChangeIp () {
+      this.$store.commit('setIsShownDialogChangeIp', true)
     }
   }
 }
