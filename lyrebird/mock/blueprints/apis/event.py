@@ -10,15 +10,15 @@ PAGE_SIZE = 20
 
 class Event(Resource):
 
-    def get(self, channel=None, page=0, event_id=None):
+    def get(self, channel=None, page=0, event_id=None, search_str=''):
         db = application.server['db']
         channel_rules = []
         if channel:
             channel_rules = channel.split('+')
         if event_id:
             page = db.get_page_index_by_event_id(event_id, channel_rules, limit=PAGE_SIZE)
-        events = db.get_event(channel_rules, offset=page*PAGE_SIZE, limit=PAGE_SIZE)
-        page_count = db.get_page_count(channel_rules, page_size=PAGE_SIZE)
+        events = db.get_event(channel_rules, offset=page*PAGE_SIZE, limit=PAGE_SIZE, search_str=search_str)
+        page_count = db.get_page_count(channel_rules, page_size=PAGE_SIZE, search_str=search_str)
         result = []
         for event in events:
             event_str = event.json()
@@ -42,6 +42,7 @@ class Event(Resource):
         db_server = application.server['db']
         db_server.reset()
         return application.make_ok_response()
+
 
 class Channel(Resource):
 
