@@ -70,14 +70,17 @@ export default {
     this.$store.dispatch('loadChannelNames')
     this.$bus.$on('contextmenu.show', this.showContextMenu)
     this.$bus.$on('contextmenu.dismiss', this.dismissContextMenu)
+    this.$io.on('db_action', this.reload)
   },
   mounted () {
+    this.reload()
     this.tableRect = this.$refs.eventTable.$el.getBoundingClientRect()
     this.onResize()
     window.addEventListener('resize', this.onResize)
   },
   beforeDestroy () {
     window.removeEventListener('resize', this.onResize)
+    this.$io.removeListener('db_action', this.reload)
   },
   data () {
     return {
@@ -85,7 +88,8 @@ export default {
       tableHeight: 500,
       isContextMenuShown: false,
       contextMenuLeft: 0,
-      contextMenuTop: 0
+      contextMenuTop: 0,
+      refreshEventListTimer: null,
     }
   },
   computed: {
@@ -136,9 +140,29 @@ export default {
     isSnapshot () {
       let selectedEvent = this.$store.state.event.selectedEvent
       return selectedEvent && selectedEvent.channel === 'snapshot'
+    },
+    eventSearchStr () {
+      return this.$store.state.event.eventSearchStr
+    },
+  },
+  watch: {
+    eventSearchStr (newValue, oldValue) {
+      if (newValue === null) {
+        newValue = ''
+      }
+      clearTimeout(this.refreshEventListTimer)
+      this.refreshEventListTimer = setTimeout(() => {
+        if (newValue.trim() !== oldValue.trim()) {
+          this.reload()
+          clearTimeout(this.refreshEventListTimer)
+        }
+      }, 500)
     }
   },
   methods: {
+    reload () {
+      this.$store.dispatch('loadEvents')
+    },
     content2Obj (content) {
       return JSON.parse(content)
     },
@@ -212,12 +236,16 @@ export default {
       /* reset table height
       Header 44px
       Title 40px
+      padding: 12px
       PaginationBar 32px
+      buttonBar: 26px
+      margin-bottom: 7px + line 1px = 8px
+      table margin-top: 8px
       5px
       Margin Bottom: 12px
       Footer 28px
       */
-      this.tableHeight = window.innerHeight - 44 - 40 - 32 - 5 - 28 - 12
+      this.tableHeight = window.innerHeight - 44 - 40 - 12 - 32 - 26 - 8 - 8 - 5 - 28 - 12
     }
   }
 }
@@ -225,10 +253,14 @@ export default {
 
 <style less>
 .event-list {
-  height: calc(100vh - 44px - 40px - 28px - 12px);
+  height: calc(100vh - 44px - 40px - 26px - 8px - 8px - 12px - 28px - 12px);
   /* total:100vh
   header: 44px
   title: 40px
+  padding: 12px
+  buttonBar: 26px
+  margin-bottom: 7px + line 1px = 8px
+  table margin-top: 8px
   footer: 28px
   margin-bottom:12px
     */
@@ -239,10 +271,14 @@ export default {
   margin-top: 5px;
 }
 .event-table {
-  height: calc(100vh - 44px - 40px - 32px - 5px - 28px - 12px) !important;
+  height: calc(100vh - 44px - 40px - 12px - 26px - 8px - 8px - 32px - 5px - 28px - 12px) !important;
   /* total:100vh
   header: 44px
   title: 40px
+  padding: 12px
+  buttonBar: 26px
+  margin-bottom: 7px + line 1px = 8px
+  table margin-top: 8px
   margin-top: 5px
   Page: 32px
   footer: 28px

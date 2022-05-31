@@ -1,14 +1,21 @@
 <template>
-  <div class="inspector-event-split">
-    <Split v-model="split" min="0px" max="0px">
-      <div slot="left">
-        <EventList class="inspector-event-left"></EventList>
-      </div>
-      <div slot="right">
-        <EventDetail v-if="eventDetail" class="inspector-event-right"></EventDetail>
-        <div v-else class="event-detail-empty">No selected event</div>
-      </div>
-    </Split>
+  <div style="padding:12px">
+    <v-row class="inspector-event-container-button-bar">
+      <EventButtonBar/>
+    </v-row>
+
+    <v-divider class="border"/>
+    <div class="inspector-event-split mt-2">
+      <Split v-model="split" min="0px" max="0px">
+        <div slot="left">
+          <EventList class="inspector-event-left"></EventList>
+        </div>
+        <div slot="right">
+          <EventDetail v-if="eventDetail" class="inspector-event-right"></EventDetail>
+          <div v-else class="event-detail-empty">No selected event</div>
+        </div>
+      </Split>
+    </div>
   </div>
 </template>
 
@@ -16,12 +23,14 @@
 import EventList from '@/views/event/EventList.vue'
 import EventDetail from '@/views/event/EventDetail.vue'
 import CodeEditor from '@/components/CodeEditor.vue'
+import EventButtonBar from '@/views/event/EventButtonBar.vue'
 
 export default {
   components: {
     EventList,
     EventDetail,
-    CodeEditor
+    CodeEditor,
+    EventButtonBar
   },
   data () {
     return {
@@ -86,11 +95,22 @@ export default {
 </script>
 
 <style scoped>
+.inspector-event-container-button-bar {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  margin: 0px 0px 7px 0px !important;
+}
 .inspector-event-split {
-  height: calc(100vh - 44px - 40px - 28px - 12px);
+  height: calc(100vh - 44px - 40px - 12px - 26px - 8px - 8px - 28px - 12px);
   /* total:100vh
   header: 44px
   title: 40px
+  padding: 12px
+  PaginationBar 32px
+  buttonBar: 26px
+  margin-bottom: 7px + line 1px = 8px
+  table margin-top: 8px
   split
   margin-bottom: 12px
   footer: 28px
@@ -100,10 +120,15 @@ export default {
   margin-right: 0px;
 }
 .inspector-event-right {
-  height: calc(100vh - 44px - 40px - 28px - 12px);
+  height: calc(100vh - 44px - 40px - 12px - 26px - 8px - 8px - 28px - 12px);
   /* total:100vh
   header: 44px
   title: 40px
+  padding: 12px
+  PaginationBar 32px
+  buttonBar: 26px
+  margin-bottom: 7px + line 1px = 8px
+  table margin-top: 8px
   split
   margin-bottom: 12px
   footer: 28px
