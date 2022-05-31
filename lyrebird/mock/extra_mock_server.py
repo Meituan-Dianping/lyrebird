@@ -41,7 +41,8 @@ class LyrebirdProxyContext:
               lb_proxy_port_header_name='MKOriginPort'):
 
         # Lyrebird proxy protocol #1
-        # e.g. 
+        # Origin target info in path
+        # e.g.
         # http://{lyrebird_host}/{origin_full_url}
         if request.path.startswith('/http://') or request.path.startswith('/https://'):
             origin_full_url = request.path_qs[1:]
@@ -54,7 +55,8 @@ class LyrebirdProxyContext:
             return ctx
 
         # Lyrebird proxy protocol #2
-        # e.g. 
+        # Origin target info in headers
+        # e.g.
         # http://{lyrebird_host}/{origing_path_and_query}
         # headers:
         # MKScheme: {origin_scheme}
@@ -76,7 +78,23 @@ class LyrebirdProxyContext:
             ctx.netloc = netloc
             ctx.request = request
             return ctx
-        
+
+        # Lyrebird proxy protocol #3
+        # Origin target info in query
+        # default key is "proxy" or "mp_webview_domain_info"
+        # e.g.
+        # http://{lyrebird_host}/{origing_path}?{proxy= or mp_webview_domain_info=}
+        # TODO support custom query key
+        if request.query.get('proxy') or request.query.get('mp_webview_domain_info'):
+            origin_full_url = request.path_qs[1:]
+            url = urlparse.urlparse(origin_full_url)
+
+            ctx = cls()
+            ctx.full_url = origin_full_url
+            ctx.netloc = url.netloc
+            ctx.request = request
+            return ctx
+
         raise UnknownLyrebirdProxyProtocol
 
 
