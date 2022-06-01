@@ -69,7 +69,7 @@ def get_ip():
     :return: IP Addr string
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('bing.com', 80))
+    s.connect(('8.8.8.8', 80))
     return s.getsockname()[0]
 
 
