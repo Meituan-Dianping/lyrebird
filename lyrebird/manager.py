@@ -102,7 +102,8 @@ def main():
             logger.error(f'Failed to get local IP address, error occurs on {e}')
 
     # get all ipv4
-    application._cm.config['env.ip'] = utils.get_interface_ipv4()
+    if not application._cm.config.get('env.ip'):
+        application._cm.config['env.ip'] = utils.get_interface_ipv4()
 
     # init file logger after config init
     application._cm.config['verbose'] = args.verbose
