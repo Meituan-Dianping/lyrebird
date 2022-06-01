@@ -140,6 +140,8 @@ export default {
 }
 .inspector-pro-search .v-input__slot {
   padding-right: 4px !important;
+  min-height: 26px !important;
+  height: 26px !important;
 }
 .inspector-pro-search .v-icon {
   font-size: 14px !important;
