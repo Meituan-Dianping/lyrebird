@@ -36,7 +36,7 @@ def test_override_config_with_forbidden_modify_field():
     cm = config.ConfigManager()
     cm.config = conf
 
-    update_conf = {'ip': 'aaa', 'key1': 'value1'}
+    update_conf = {'version': '1.0.0', 'key1': 'value1'}
 
     with pytest.raises(config.ConfigException) as e:
         cm.override_config_field(update_conf)

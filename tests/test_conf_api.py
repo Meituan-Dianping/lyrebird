@@ -90,7 +90,7 @@ def test_patch_conf_api_with_custom_fields(client):
 
 def test_patch_conf_api_with_forbidden_modify_field(client):
     before_conf = application.config.raw()
-    resp = client.patch('/api/conf', json={'ip': '111111'})
+    resp = client.patch('/api/conf', json={'version': '1.0.0'})
     after_conf = application.config.raw()
     assert 200 <= resp.status_code <= 400
     assert before_conf == after_conf

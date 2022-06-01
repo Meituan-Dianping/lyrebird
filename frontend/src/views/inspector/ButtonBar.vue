@@ -344,7 +344,7 @@ export default {
 .flow-filter .v-text-field--outlined, .v-text-field--solo {
   border-radius: 4px 0px 0px 4px !important;
 }
-.v-input__slot {
+.inspector-button-bar .v-input__slot {
   min-height: 26px !important;
   height: 26px !important;
 }
