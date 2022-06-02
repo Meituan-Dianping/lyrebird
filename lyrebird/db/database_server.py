@@ -115,8 +115,6 @@ class LyrebirdDatabaseServer(ThreadServer):
         content = json.dumps(event, ensure_ascii=False)
         if isinstance(event, dict):
             message = event.get('message')
-            if message and not isinstance(message, str):
-                message = json.dumps(message, ensure_ascii=False)
         else:
             message = None
         flow = Event(event_id=event_id, channel=channel, content=content, message=message)

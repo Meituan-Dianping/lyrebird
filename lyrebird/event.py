@@ -20,6 +20,10 @@ from lyrebird.log import get_logger
 logger = get_logger()
 
 
+class InvalidMessage(Exception):
+    pass
+
+
 class Event:
     """
     Event bus inner class
@@ -92,6 +96,17 @@ class EventServer(ThreadServer):
         super().stop()
         self.publish('system', {'name': 'event.stop'})
 
+    def _check_message_format(self, message):
+        """
+        Check if the message content is valid.
+        Such as: 'message' value must be a string.
+        Other check rules can be added.
+        """
+        # Check value type of key 'message'
+        message_value = message.get('message')
+        if message_value and (not isinstance(message_value, str)):
+            raise InvalidMessage('Value of key "message" must be a string.')
+
     def publish(self, channel, message, state=False, *args, **kwargs):
         """
         publish message
@@ -113,6 +128,8 @@ class EventServer(ThreadServer):
             # Plugins send a array list as message, then set this message to raw property
             _msg = {'raw': message}
             message = _msg
+        
+        self._check_message_format(message)
 
         message['channel'] = channel
         message['id'] = event_id
