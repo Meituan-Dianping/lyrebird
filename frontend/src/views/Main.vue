@@ -72,7 +72,8 @@ export default {
   beforeDestroy () {
     document.removeEventListener('keydown', this._keydownListener)
     this.$io.removeListener('statusBarUpdate', this.loadAllStatusList)
-    this.$io.removeListener('msgSuccess', this.successMessage) 
+    this.$io.removeListener('msgSuccess', this.successMessage)
+    this.$io.removeListener('msgInfo', this.infoMessage)
     this.$bus.$off('msg.success', this.successMessage)
     this.$bus.$off('msg.loading', this.loadingMessage)
     this.$bus.$off('msg.info', this.infoMessage)
@@ -87,6 +88,7 @@ export default {
     this.$bus.$on('msg.destroy', this.destroyMessage)
     this.$io.on('statusBarUpdate', this.loadAllStatusList)
     this.$io.on('msgSuccess', this.successMessage)
+    this.$io.on('msgInfo', this.infoMessage)
   },
   watch: {
     activeMenuItemIndex (newValue, oldValue) {

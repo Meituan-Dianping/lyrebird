@@ -72,6 +72,12 @@ def _page_out():
 
     if last_page and last_page_in_time:
         duration = datetime.datetime.now() - last_page_in_time
+        application.server['event'].publish('page.out', {
+            'page': last_page,
+            'duration': duration.total_seconds()
+        })
+
+        # TODO remove below
         application.reporter.report({
             'action': 'page.out',
             'page': last_page,
@@ -85,6 +91,11 @@ def page_in(name):
     global last_page
     global last_page_in_time
 
+    application.server['event'].publish('page.in', {
+        'page': name
+    })
+
+    # TODO remove below
     application.reporter.report({
         'action': 'page.in',
         'page': name
@@ -97,6 +108,9 @@ def page_in(name):
 def start():
     global lyrebird_start_time
     lyrebird_start_time = datetime.datetime.now()
+    application.server['event'].publish('start', {})
+
+    # TODO remove below
     application.reporter.report({
         'action': 'start'
     })
@@ -104,6 +118,11 @@ def start():
 
 def stop():
     _page_out()
+    application.server['event'].publish('stop', {
+        'duration': (datetime.datetime.now() - lyrebird_start_time).total_seconds()
+    })
+
+    # TODO remove below
     application.reporter.report({
         'action': 'stop',
         'duration': (datetime.datetime.now() - lyrebird_start_time).total_seconds()

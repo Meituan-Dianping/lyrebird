@@ -10,6 +10,7 @@ var configCommitMap = [
   {'name': 'inspector.filters', 'commit': 'setFlowFilters'},
   {'name': 'inspector.default_filter', 'commit': 'setSelectedFlowFilter'},
   {'name': 'mock.data.list.title', 'commit': 'setTitle'},
+  {'name': 'env.ip', 'commit': 'setIpList'}
 ]
 
 export default {
@@ -33,7 +34,18 @@ export default {
           }
         })
         .catch(error => {
-          bus.$emit('msg.error', 'load config failed ' + error.data.message)
+          bus.$emit('msg.error', 'Load config failed ' + error.data.message)
+        })
+    },
+    updateConfigByKey({ dispatch }, data) {
+      api.updateConfigByKey(data)
+        .then(_ => {
+          dispatch('loadConfig')
+          dispatch('loadStatus')
+          bus.$emit('msg.success', `Update config success!`)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', `Update config failed ${error.data.message}`)
         })
     }
   }

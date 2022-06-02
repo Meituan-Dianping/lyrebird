@@ -26,7 +26,7 @@ class ConfigManager():
     ROOT = Path('~/.lyrebird').expanduser()
     DEFAULT_FILENAME = 'conf.json'
     BASE_CONFIG = ROOT / DEFAULT_FILENAME
-    FORBIDDEN_MODIFY_FIELDS_IN_CONFIG = set(['version', 'proxy.port', 'mock.port', 'ip'])
+    FORBIDDEN_MODIFY_FIELDS_IN_CONFIG = set(['version', 'proxy.port', 'mock.port'])
 
     def __init__(self, conf_path=None, custom_conf=None):
         self.config = config_template

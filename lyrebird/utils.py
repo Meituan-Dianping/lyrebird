@@ -6,6 +6,7 @@ import socket
 import tarfile
 import requests
 import datetime
+import netifaces
 from pathlib import Path
 from contextlib import closing
 from lyrebird.log import get_logger
@@ -61,6 +62,36 @@ def find_free_port():
         return s.getsockname()[1]
 
 
+def get_ip():
+    """
+    Get local ip from socket connection
+
+    :return: IP Addr string
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(('8.8.8.8', 80))
+    return s.getsockname()[0]
+
+
+def get_interface_ipv4():
+    ipv4_list = []
+    interface_list = netifaces.interfaces()
+    for interface_name in interface_list:
+        if interface_name == 'lo0':
+            continue
+        interface_dict = netifaces.ifaddresses(interface_name)
+        interface = interface_dict.get(netifaces.AF_INET)
+        if not interface:
+            continue
+        for alias in interface:
+            ipv4_list.append({
+                'address': alias['addr'],
+                'netmask': alias['netmask'],
+                'interface': interface_name
+            })
+    return ipv4_list
+
+
 def compress_tar(input_path, output_path, suffix=None):
     current_path = Path.cwd()
     input_path = Path(input_path).expanduser().absolute().resolve()
@@ -95,6 +126,7 @@ def download(link, input_path):
     with open(input_path, 'wb') as f:
         for chunck in resp.iter_content():
             f.write(chunck)
+
 
 class CaseInsensitiveDict(dict):
     '''

@@ -97,9 +97,13 @@ def main():
         application._cm.config['ip'] = args.ip
     else:
         try:
-            application._cm.config['ip'] = _get_ip()
+            application._cm.config['ip'] = utils.get_ip()
         except socket.gaierror as e:
             logger.error(f'Failed to get local IP address, error occurs on {e}')
+
+    # get all ipv4
+    if not application._cm.config.get('env.ip'):
+        application._cm.config['env.ip'] = utils.get_interface_ipv4()
 
     # init file logger after config init
     application._cm.config['verbose'] = args.verbose
@@ -212,17 +216,6 @@ def gen(args):
         print('Not set project name')
         return
     project_builder.make_plugin_project(project_name, parent_path+'/'+project_name)
-
-
-def _get_ip():
-    """
-    Get local ip from socket connection
-
-    :return: IP Addr string
-    """
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('bing.com', 80))
-    return s.getsockname()[0]
 
 
 def print_lyrebird_info():
