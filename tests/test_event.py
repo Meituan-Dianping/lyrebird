@@ -130,9 +130,7 @@ def test_state_getter(event_server, task_server):
 
 def test_customer_event_issue(event_server):
     custom_event = CustomEventReceiver()
-    issue_message = {
-        'message': 'test'
-    }
+    issue_message = 'test'
     custom_event.issue('issue_string', issue_message)
 
     def msg_receiver(msg):
