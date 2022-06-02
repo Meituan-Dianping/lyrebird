@@ -103,8 +103,8 @@ class EventServer(ThreadServer):
         Other check rules can be added.
         """
         # Check value type of key 'message'
-        message_value = message.get('message')
-        if message_value and (not isinstance(message_value, str)):
+        message_value = message.get('message', 'No message')
+        if not isinstance(message_value, str):
             raise InvalidMessage('Value of key "message" must be a string.')
 
     def publish(self, channel, message, state=False, *args, **kwargs):
