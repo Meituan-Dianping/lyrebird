@@ -361,6 +361,15 @@ def test_activate(data_manager):
     assert 'dataD-UUID' in data_manager.activated_data
 
 
+def test_activate_with_request_data_rule(data_manager):
+    data_manager.activate('groupJ-UUID')
+    assert data_manager.is_activated_data_rules_contains_request_data == True
+    data_manager.deactivate()
+    assert data_manager.is_activated_data_rules_contains_request_data == False
+    data_manager.activate('groupA-UUID')
+    assert data_manager.is_activated_data_rules_contains_request_data == False
+
+
 def test_activate_with_super_id(data_manager):
     data_manager.activate('groupA-UUID')
 
