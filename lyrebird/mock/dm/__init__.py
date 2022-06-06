@@ -227,7 +227,6 @@ class DataManager:
         Find matched mock data from activated data
         """
         if self.is_rules_contain_request_data:
-            # If rules contain 'request.data.xxxx', mapi request need a decoder.
             decode_flow = {}
             application.encoders_decoders.decoder_handler(flow, output=decode_flow)
         else:
