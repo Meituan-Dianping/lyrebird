@@ -27,6 +27,7 @@ class DataManager:
         self.id_map = {}
         self.activated_data = OrderedDict()
         self.activated_group = {}
+        self.is_rules_contain_request_data = False
         self.LEVEL_SUPER_ACTIVATED = 3
         self.clipboard = None
         self.save_to_group_id = None
@@ -168,6 +169,19 @@ class DataManager:
         data_map = {d['id']: d for d in data_list}
         self.activated_data.update({i: data_map[i] for i in ordered_data_id if data_map.get(i)})
         self.activated_group[_id] = _node
+        self._check_rules_contain_request_data()
+    
+    def _check_rules_contain_request_data(self):
+        self.is_rules_contain_request_data = False
+        for _data_id in self.activated_data:
+            _data = self.activated_data[_data_id]
+            rules = _data.get('rule')
+            if not rules:
+                continue
+            for rule_key in rules.keys():
+                if rule_key.startswith('request.data'):
+                    self.is_rules_contain_request_data = True
+                    return 
 
     def _collect_activate_node(self, node, level_lefted=1):
         id_list = [node['id']]
@@ -202,6 +216,7 @@ class DataManager:
         """
         self.activated_data = OrderedDict()
         self.activated_group = {}
+        self._check_rules_contain_request_data()
 
     def reactive(self):
         for _group_id in self.activated_group:
@@ -211,10 +226,16 @@ class DataManager:
         """
         Find matched mock data from activated data
         """
+        if self.is_rules_contain_request_data:
+            # If rules contain 'request.data.xxxx', mapi request need a decoder.
+            decode_flow = {}
+            application.encoders_decoders.decoder_handler(flow, output=decode_flow)
+        else:
+            decode_flow = flow
         _matched_data = []
         for _data_id in self.activated_data:
             _data = self.activated_data[_data_id]
-            if self._is_match_rule(flow, _data.get('rule')):
+            if self._is_match_rule(decode_flow, _data.get('rule')):
                 _matched_data.append(_data)
                 break
 
