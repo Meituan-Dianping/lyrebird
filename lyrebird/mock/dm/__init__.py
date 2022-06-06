@@ -27,7 +27,7 @@ class DataManager:
         self.id_map = {}
         self.activated_data = OrderedDict()
         self.activated_group = {}
-        self.activated_group_rules_contains_request_data = False
+        self.is_activated_data_rules_contains_request_data = False
         self.LEVEL_SUPER_ACTIVATED = 3
         self.clipboard = None
         self.save_to_group_id = None
@@ -169,10 +169,10 @@ class DataManager:
         data_map = {d['id']: d for d in data_list}
         self.activated_data.update({i: data_map[i] for i in ordered_data_id if data_map.get(i)})
         self.activated_group[_id] = _node
-        self._check_activated_group_rules_contains_request_data()
+        self._check_activated_data_rules_contains_request_data()
     
-    def _check_activated_group_rules_contains_request_data(self):
-        self.activated_group_rules_contains_request_data = False
+    def _check_activated_data_rules_contains_request_data(self):
+        self.is_activated_data_rules_contains_request_data = False
         for _data_id in self.activated_data:
             _data = self.activated_data[_data_id]
             rules = _data.get('rule')
@@ -180,7 +180,7 @@ class DataManager:
                 continue
             for rule_key in rules.keys():
                 if rule_key.startswith('request.data'):
-                    self.activated_group_rules_contains_request_data = True
+                    self.is_activated_data_rules_contains_request_data = True
                     return 
 
     def _collect_activate_node(self, node, level_lefted=1):
@@ -216,7 +216,7 @@ class DataManager:
         """
         self.activated_data = OrderedDict()
         self.activated_group = {}
-        self._check_activated_group_rules_contains_request_data()
+        self._check_activated_data_rules_contains_request_data()
 
     def reactive(self):
         for _group_id in self.activated_group:
@@ -226,7 +226,7 @@ class DataManager:
         """
         Find matched mock data from activated data
         """
-        if self.activated_group_rules_contains_request_data:
+        if self.is_activated_data_rules_contains_request_data:
             decode_flow = {}
             application.encoders_decoders.decoder_handler(flow, output=decode_flow)
         else:
