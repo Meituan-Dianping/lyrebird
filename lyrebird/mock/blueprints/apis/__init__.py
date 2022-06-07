@@ -65,17 +65,20 @@ api_source.add_resource(SnapshotImport, '/snapshot/import')
 api_source.add_resource(SnapshotExport, '/snapshot/export/event', '/snapshot/export/<string:group_id>')
 api_source.add_resource(Snapshot, '/snapshot/<string:snapshot_id>')
 api_source.add_resource(
+    # TODO: to be optimized, change path parameters to query parameters
     Event,
     '/event',
     '/event/page/<int:page>',
     '/event/page/<int:page>/search/<string:search_str>',
     '/event/id/<string:event_id>',
+    '/event/id/<string:event_id>/search/<string:search_str>',
     '/event/search/<string:search_str>',
     '/event/<string:channel>',
     '/event/<string:channel>/search/<string:search_str>',
     '/event/<string:channel>/page/<int:page>',
     '/event/<string:channel>/page/<int:page>/search/<string:search_str>',
-    '/event/<string:channel>/id/<string:event_id>'
+    '/event/<string:channel>/id/<string:event_id>',
+    '/event/<string:channel>/id/<string:event_id>/search/<string:search_str>'
 )
 api_source.add_resource(EventExport, '/event/export', '/event/export/<string:event_id>')
 api_source.add_resource(Channel, '/channel', '/channel/<string:mode>')
