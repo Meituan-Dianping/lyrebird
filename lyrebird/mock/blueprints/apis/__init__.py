@@ -70,12 +70,14 @@ api_source.add_resource(
     '/event/page/<int:page>',
     '/event/page/<int:page>/search/<string:search_str>',
     '/event/id/<string:event_id>',
+    '/event/id/<string:event_id>/search/<string:search_str>',
     '/event/search/<string:search_str>',
     '/event/<string:channel>',
     '/event/<string:channel>/search/<string:search_str>',
     '/event/<string:channel>/page/<int:page>',
     '/event/<string:channel>/page/<int:page>/search/<string:search_str>',
-    '/event/<string:channel>/id/<string:event_id>'
+    '/event/<string:channel>/id/<string:event_id>',
+    '/event/<string:channel>/id/<string:event_id>/search/<string:search_str>'
 )
 api_source.add_resource(EventExport, '/event/export', '/event/export/<string:event_id>')
 api_source.add_resource(Channel, '/channel', '/channel/<string:mode>')
