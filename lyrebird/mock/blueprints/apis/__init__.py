@@ -65,6 +65,7 @@ api_source.add_resource(SnapshotImport, '/snapshot/import')
 api_source.add_resource(SnapshotExport, '/snapshot/export/event', '/snapshot/export/<string:group_id>')
 api_source.add_resource(Snapshot, '/snapshot/<string:snapshot_id>')
 api_source.add_resource(
+    # TODO: to be optimized, change path parameters to query parameters
     Event,
     '/event',
     '/event/page/<int:page>',
