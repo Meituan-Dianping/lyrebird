@@ -9,12 +9,9 @@ chardet==3.0.4
 click==7.1.2
 colorama==0.4.1
 cryptography==3.2.1
-dnspython==1.16.0
-eventlet==0.30.1
 Flask==1.1.1
 Flask-RESTful==0.3.7
 Flask-SocketIO==4.2.1
-greenlet==1.1.2
 h11==0.13.0
 h2==4.1.0
 hpack==4.0.0
@@ -30,7 +27,7 @@ msgpack==1.0.3
 netifaces==0.11.0
 packaging==19.0
 passlib==1.7.4
-Pillow==8.0.1
+Pillow==9.1.1
 portpicker==1.3.1
 protobuf==3.13.0
 publicsuffix2==2.20191221
@@ -42,7 +39,7 @@ pyperclip==1.8.2
 python-engineio==3.14.2
 python-socketio==4.6.1
 pytz==2022.1
-qrcode==6.1
+qrcode==7.3.1
 requests==2.21.0
 ruamel.yaml==0.16.13
 ruamel.yaml.clib==0.2.6
@@ -57,3 +54,12 @@ urwid==2.1.2
 Werkzeug==2.0.3
 wsproto==0.15.0
 zstandard==0.14.1
+aiohttp==3.8.1
+async-timeout==4.0.2
+attrs==21.4.0
+multidict==6.0.2
+yarl==1.7.2
+frozenlist==1.3.0
+charset-normalizer==2.0.12
+aiosignal==1.2.0
+idna==2.8
