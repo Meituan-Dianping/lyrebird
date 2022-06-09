@@ -1,5 +1,5 @@
 <template>
-  <Row type="flex" align="middle" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" style="margin-bottom:10px;word-break:break-all;">
+  <Row type="flex" align="top" @mouseover.native="isMouseOver=true" @mouseout.native="isMouseOver=false" style="margin-bottom:10px;word-break:break-all;">
     <Col span="4" align="right" style="padding:0px 10px 0px 0px">
       <Tooltip :content="deletable ? 'Delete': 'Undeletable key'" :delay="500" placement="bottom-start">
         <Icon 
@@ -44,6 +44,19 @@
           <Option v-for="item in infoValue.allItem" :value="item.value" :key="item.value">{{ item.value }}</Option>
         </Select>
       </span>
+      <span v-else-if="inputValueType === 'longList'">
+        <div class="row no-gutters mb-1" v-for="listItem in longListValue">
+          <div class="col-5">
+            <span>{{listItem.id}}</span>
+          </div>
+          <div class="col-7 text-truncate">
+            <span>{{listItem.name}}</span>
+          </div>
+        </div>
+        <v-btn v-show="infoValue.length > longListShowLessCount" plain class="px-0" height="20" color="primary" @click="changeTextLongListShowAll">
+          <span>{{isLongListShowAll ? 'Show Less': 'Show More'}}</span>
+        </v-btn>
+      </span>
       <span v-else-if="inputValueType === 'input'">
         <Input v-model="inputValue" type="textarea" :autosize="{ minRows: 1 }" size="small"/>
       </span>
@@ -82,6 +95,8 @@ export default {
       imgData: '',
       isDisplayPoptip: false,
       isMouseOver: false,
+      isLongListShowAll: false,
+      longListShowLessCount: 5,
       copyIcon: 'mdi-content-copy'
     }
   },
@@ -104,6 +119,12 @@ export default {
     infoValue () {
       return this.$store.state.dataManager.groupDetail[this.infoKey]
     },
+    longListValue () {
+      if (this.isLongListShowAll) {
+        return this.infoValue
+      }
+      return this.infoValue.slice(0, this.longListShowLessCount)
+    },
     buttonClass () {
       if (this.deletable) {
         return ['enable-button']
@@ -123,6 +144,8 @@ export default {
         return 'label'
       } else if (this.infoKey === 'category') {
         return 'category'
+      } else if (this.infoKey === 'super_by') {
+        return 'longList'
       } else if (this.$store.state.dataManager.displayCopyKey.indexOf(this.infoKey) !== -1) {
         return 'textWithCopy'
       } else if (this.editable) {
@@ -184,6 +207,9 @@ export default {
       } else {
         return 382
       }
+    },
+    changeTextLongListShowAll () {
+      this.isLongListShowAll = !this.isLongListShowAll
     },
     onUrlCopy () {
       const originCopyIcon = this.copyIcon

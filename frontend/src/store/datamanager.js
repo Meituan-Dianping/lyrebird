@@ -32,10 +32,10 @@ export default {
     dataListSelectedLabel: [],
     isLabelDisplay: true,
     isReloadTreeWhenUpdate: false,
-    undisplayedKey: ['children', 'type', 'parent_id'],
-    undeletableKey: ['id', 'rule', 'name', 'label', 'category'],
-    uneditableKey: ['id', 'rule'],
-    stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label'],
+    undisplayedKey: ['children', 'type', 'parent_id', 'abs_parent_path', 'parent'],
+    undeletableKey: ['id', 'rule', 'name', 'label', 'category', 'super_by'],
+    uneditableKey: ['id', 'rule', 'super_by'],
+    stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label', 'super_by'],
     displayCopyKey: ['id']
   },
   mutations: {

@@ -78,6 +78,7 @@ class DataManager:
     def reload(self):
         self._adapter._reload()
         self.add_parent_into_node()
+        self.add_super_by()
 
     def add_parent_into_node(self):
         for node in self.id_map.values():
@@ -86,6 +87,21 @@ class DataManager:
                 'abs_parent_path': self._get_abs_parent_path(node)
             })
         self.unsave_keys.update(['parent', 'abs_parent_path'])
+
+    def add_super_by(self):
+        for node in self.id_map.values():
+            if not node.get('super_id'):
+                continue
+            super_parent_node = self.id_map.get(node['super_id'])
+            if not super_parent_node:
+                continue
+            if not super_parent_node.get('super_by'):
+                super_parent_node['super_by'] = []
+            super_parent_node['super_by'].append({
+                'id': node['id'],
+                'name': node['name']
+            })
+        self.unsave_keys.add('super_by')
 
     def get(self, _id):
         """
