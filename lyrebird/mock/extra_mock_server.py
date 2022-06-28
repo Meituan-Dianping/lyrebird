@@ -29,7 +29,8 @@ class LyrebirdProxyContext:
     def __init__(self):
         self.request: web.Request = None
         self.netloc = None
-        self.full_url = None
+        self.origin_url = None
+        self.forward_url = None
 
     @classmethod
     def parse(cls, request: web.Request,
@@ -37,6 +38,8 @@ class LyrebirdProxyContext:
               lb_proxy_host_header_name='LBOriginHost',
               lb_proxy_port_header_name='LBOriginPort',
               lb_proxy_query_keys: Optional[List] = None):
+
+        global lb_config
 
         # Lyrebird proxy protocol #1
         # Origin target info in path
@@ -47,7 +50,12 @@ class LyrebirdProxyContext:
             url = urlparse.urlparse(origin_full_url)
 
             ctx = cls()
-            ctx.full_url = origin_full_url
+            # origin url for proxy
+            ctx.origin_url = origin_full_url
+            # forward url to lyrebird main port 'default 9090'
+            port = lb_config.get('mock.port')
+            ctx.forward_url = f'http://127.0.0.1:{port}/mock/{origin_full_url}'
+
             ctx.netloc = url.netloc
             ctx.request = request
             return ctx
@@ -72,7 +80,11 @@ class LyrebirdProxyContext:
                 netloc = target_host
 
             ctx = cls()
-            ctx.full_url = origin_full_url
+            # origin url for proxy
+            ctx.origin_url = origin_full_url
+            # forward url to lyrebird main port 'default 9090'
+            port = lb_config.get('mock.port')
+            ctx.forward_url = f'http://127.0.0.1:{port}/mock/{origin_full_url}'
             ctx.netloc = netloc
             ctx.request = request
             return ctx
@@ -81,7 +93,7 @@ class LyrebirdProxyContext:
         # Origin target info in query
         # default key is "proxy" or "mp_webview_domain_info"
         # e.g.
-        # http://{lyrebird_host}/{origing_path}?{proxy= or custom_query_key=}
+        # http://{lyrebird_host}/{origing_path}?{proxy=encoded-url or custom_query_key=encoded-url}
 
         # set default key=proxy
         if lb_proxy_query_keys is None:
@@ -92,15 +104,20 @@ class LyrebirdProxyContext:
         def contain_custom_query_key(request: web.Request, lb_proxy_query_keys):
             for query_key in lb_proxy_query_keys:
                 if request.query.get(query_key):
-                    return True
-            return False
+                    return True, query_key
+            return False, query_key
 
-        if contain_custom_query_key(request, lb_proxy_query_keys):
-            origin_full_url = request.path_qs[1:]
-            url = urlparse.urlparse(origin_full_url)
+        has_custom_key, query_key = contain_custom_query_key(request, lb_proxy_query_keys)
+        if has_custom_key:
+            origin_url = request.query.get(query_key)
+            origin_url = urlparse.unquote(origin_url)
+            url = urlparse.urlparse(origin_url)
 
             ctx = cls()
-            ctx.full_url = origin_full_url
+            ctx.origin_url = origin_url
+            # forward url to lyrebird main port 'default 9090'
+            port = lb_config.get('mock.port')
+            ctx.forward_url = f'http://127.0.0.1:{port}/mock/?{query_key}={urlparse.quote(origin_url)}'
             ctx.netloc = url.netloc
             ctx.request = request
             return ctx
@@ -117,7 +134,7 @@ def is_filtered(context: LyrebirdProxyContext):
     global lb_config
     filters = lb_config.get('proxy.filters')
     for _filter in filters:
-        if re.search(_filter, context.full_url):
+        if re.search(_filter, context.origin_url):
             return True
     return False
 
@@ -173,16 +190,13 @@ async def send_request(context: LyrebirdProxyContext, target_url):
 
 
 async def proxy(context: LyrebirdProxyContext):
-    logger.info(f'proxy {context.full_url}')
-    return await send_request(context, context.full_url)
+    logger.info(f'proxy {context.origin_url}')
+    return await send_request(context, context.origin_url)
 
 
 async def forward(context: LyrebirdProxyContext):
-    global lb_config
-    port = lb_config.get('mock.port')
-    url = f'http://127.0.0.1:{port}/mock/{context.full_url}'
-    logger.info(f'forward {url}')
-    return await send_request(context, url)
+    logger.info(f'forward {context.forward_url}')
+    return await send_request(context, context.forward_url)
 
 
 async def req_handler(request: web.Request):
