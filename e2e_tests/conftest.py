@@ -91,6 +91,7 @@ class Lyrebird:
             cmdline = cmdline + f' --script {checker_path}'
         self.lyrebird_process = subprocess.Popen(cmdline, shell=True, start_new_session=True)
         _wait(requests.get, args=[self.api_status])
+        _wait(requests.get, args=[self.uri_extra_mock])
 
         # Wait for checker to load
         if checker_path:
