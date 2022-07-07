@@ -76,9 +76,16 @@ class LyrebirdMockServer(ThreadServer):
 
         @self.app.errorhandler(Exception)
         def on_app_error(error):
-            _logger.error(
-                f'[mocker server exception]:\nOn request {request.url}\n{error.__class__.__name__} {error}\n{traceback.format_exc()}')
-            return application.make_fail_response(f'{error.__class__.__name__} {error}\n{traceback.format_exc()}')
+            trace = traceback.format_exc()
+            try:
+                _logger.error(f'[mock server exception]: {trace}')
+                _logger.error(f'[mock server exception]: {request.url}')
+                _logger.error(f'[mock server exception]: {error}')
+            except:
+                # error handler must not raise any exceptions!
+                pass
+
+            return application.make_fail_response(f'Mock server error:\n {trace}')
 
     def run(self):
         server_ip = application.config.get('ip')
