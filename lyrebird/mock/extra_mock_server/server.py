@@ -1,128 +1,19 @@
+
 import asyncio
 import re
 import traceback
 from aiohttp import web, client
-from urllib import parse as urlparse
 
 import sys
 import json
-import multiprocessing
 from typing import List, Set, Optional
 
-from lyrebird import application
+from lyrebird.mock.extra_mock_server.lyrebird_proxy_protocol import LyrebirdProxyContext
 from lyrebird.log import get_logger
 
 logger = get_logger()
 
 lb_config = {}
-
-
-class UnknownLyrebirdProxyProtocol(Exception):
-    pass
-
-
-class GracefulExit(SystemExit):
-    code = 1
-
-
-class LyrebirdProxyContext:
-    def __init__(self):
-        self.request: web.Request = None
-        self.netloc = None
-        self.origin_url = None
-        self.forward_url = None
-
-    @classmethod
-    def parse(cls, request: web.Request,
-              lb_proxy_scheme_header_name='LBOriginScheme',
-              lb_proxy_host_header_name='LBOriginHost',
-              lb_proxy_port_header_name='LBOriginPort',
-              lb_proxy_query_keys: Optional[List] = None):
-
-        global lb_config
-
-        # Lyrebird proxy protocol #1
-        # Origin target info in path
-        # e.g.
-        # http://{lyrebird_host}/{origin_full_url}
-        if request.path.startswith('/http://') or request.path.startswith('/https://'):
-            origin_full_url = request.path_qs[1:]
-            url = urlparse.urlparse(origin_full_url)
-
-            ctx = cls()
-            # origin url for proxy
-            ctx.origin_url = origin_full_url
-            # forward url to lyrebird main port 'default 9090'
-            port = lb_config.get('mock.port')
-            ctx.forward_url = f'http://127.0.0.1:{port}/mock/{origin_full_url}'
-
-            ctx.netloc = url.netloc
-            ctx.request = request
-            return ctx
-
-        # Lyrebird proxy protocol #2
-        # Origin target info in headers
-        # e.g.
-        # http://{lyrebird_host}/{origing_path_and_query}
-        # headers:
-        # MKScheme: {origin_scheme}
-        # MKOriginHost: {origin_host}
-        # MKOriginPort: {origin_port}
-        if request.headers.get(lb_proxy_host_header_name) and request.headers.get(lb_proxy_scheme_header_name):
-            target_scheme = request.headers.get(lb_proxy_scheme_header_name)
-            target_host = request.headers.get(lb_proxy_host_header_name)
-            target_port = request.headers.get(lb_proxy_port_header_name)
-            if target_port:
-                origin_full_url = f'{target_scheme}://{target_host}:{target_port}{request.rel_url}'
-                netloc = f'{target_host}:{target_port}'
-            else:
-                origin_full_url = f'{target_scheme}://{target_host}{request.rel_url}'
-                netloc = target_host
-
-            ctx = cls()
-            # origin url for proxy
-            ctx.origin_url = origin_full_url
-            # forward url to lyrebird main port 'default 9090'
-            port = lb_config.get('mock.port')
-            ctx.forward_url = f'http://127.0.0.1:{port}/mock/{origin_full_url}'
-            ctx.netloc = netloc
-            ctx.request = request
-            return ctx
-
-        # Lyrebird proxy protocol #3
-        # Origin target info in query
-        # default key is "proxy" or "mp_webview_domain_info"
-        # e.g.
-        # http://{lyrebird_host}/{origing_path}?{proxy=encoded-url or custom_query_key=encoded-url}
-
-        # set default key=proxy
-        if lb_proxy_query_keys is None:
-            lb_proxy_query_keys = ['proxy']
-        elif 'proxy' not in lb_proxy_query_keys:
-            lb_proxy_query_keys.append('proxy')
-
-        def contain_custom_query_key(request: web.Request, lb_proxy_query_keys):
-            for query_key in lb_proxy_query_keys:
-                if request.query.get(query_key):
-                    return True, query_key
-            return False, query_key
-
-        has_custom_key, query_key = contain_custom_query_key(request, lb_proxy_query_keys)
-        if has_custom_key:
-            origin_url = request.query.get(query_key)
-            origin_url = urlparse.unquote(origin_url)
-            url = urlparse.urlparse(origin_url)
-
-            ctx = cls()
-            ctx.origin_url = origin_url
-            # forward url to lyrebird main port 'default 9090'
-            port = lb_config.get('mock.port')
-            ctx.forward_url = f'http://127.0.0.1:{port}/mock/?{query_key}={urlparse.quote(origin_url)}'
-            ctx.netloc = url.netloc
-            ctx.request = request
-            return ctx
-
-        raise UnknownLyrebirdProxyProtocol
 
 
 def is_filtered(context: LyrebirdProxyContext):
@@ -202,15 +93,7 @@ async def forward(context: LyrebirdProxyContext):
 async def req_handler(request: web.Request):
     try:
         global lb_config
-        header_name_scheme = lb_config.get('mock.proxy_headers', {}).get('scheme')
-        header_name_host = lb_config.get('mock.proxy_headers', {}).get('host')
-        header_name_port = lb_config.get('mock.proxy_headers', {}).get('port')
-        query_keys = lb_config.get('mock.proxy_query_keys')
-        proxy_ctx = LyrebirdProxyContext.parse(request,
-                                               lb_proxy_scheme_header_name=header_name_scheme,
-                                               lb_proxy_host_header_name=header_name_host,
-                                               lb_proxy_port_header_name=header_name_port,
-                                               lb_proxy_query_keys=query_keys)
+        proxy_ctx = LyrebirdProxyContext.parse(request, lb_config)
         if is_filtered(proxy_ctx):
             # forward to lyrebird
             return await forward(proxy_ctx)
@@ -291,29 +174,10 @@ def serve(config):
     try:
         asyncio.set_event_loop(loop)
         loop.run_until_complete(main_task)
-    except (GracefulExit, KeyboardInterrupt):
+    except KeyboardInterrupt:
         pass
     finally:
         _cancel_tasks({main_task}, loop)
         _cancel_tasks(asyncio.all_tasks(loop), loop)
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
-
-
-class ExtraMockServer():
-    def __init__(self) -> None:
-        self._server_process = None
-
-    def start(self):
-        self._server_process = multiprocessing.Process(
-            group=None,
-            daemon=True,
-            target=serve,
-            kwargs={'config': application.config.raw()})
-        self._server_process.start()
-
-    def stop(self):
-        if self._server_process:
-            self._server_process.terminate()
-            logger.warning(f'MockServer shutdown')
-            self._server_process = None
