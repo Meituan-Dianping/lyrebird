@@ -120,6 +120,7 @@ class LyrebirdProxyContext:
         if not proxy_host:
             return
 
+        # remove lyrebrid proxy protocol keys from query string
         origin_query_str = ''
         for query_key, query_value in request.query.items():
             if query_key in ['proxyscheme', 'proxyhost', 'proxypath']:
@@ -127,7 +128,8 @@ class LyrebirdProxyContext:
             origin_query_str += f'&{query_key}={query_value}'
         if len(origin_query_str) >= 1:
             origin_query_str = '?'+origin_query_str[1:]
-        origin_url = f'{proxy_scheme}://{proxy_host}{proxy_path}{origin_query_str}'
+
+        origin_url = f'{proxy_scheme}://{urlparse.unquote(proxy_host)}{urlparse.unquote(proxy_path)}{origin_query_str}'
 
         self.origin_url = origin_url
         url = urlparse.urlparse(origin_url)
