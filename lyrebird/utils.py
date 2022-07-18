@@ -86,7 +86,9 @@ def get_interface_ipv4():
         for alias in interface:
             ipv4_list.append({
                 'address': alias['addr'],
-                'netmask': alias['netmask'],
+                # windows keyerror 'netmask'
+                # https://github.com/Meituan-Dianping/lyrebird/issues/665
+                'netmask': alias.get('netmask', ''),
                 'interface': interface_name
             })
     return ipv4_list
@@ -136,7 +138,7 @@ class CaseInsensitiveDict(dict):
     Example: 
     <key: 'abc'> & <key: 'ABC'> will be treated as the same key, only one exists in this dict.
     '''
-    
+
     def __init__(self, raw_dict):
         self.__key_map = {}
         for k, v in raw_dict.items():
@@ -198,12 +200,13 @@ class CaseInsensitiveDict(dict):
             for k, v in kwargs.items():
                 self.__setitem__(k, v)
 
+
 class HookedDict(dict):
     '''
     Hook build-in dict to protect CaseInsensitiveDict data type.
     Only <headers> value is CaseInsensitiveDict at present.
     '''
-    
+
     def __init__(self, raw_dict):
         for k, v in raw_dict.items():
             if type(v) == dict:
@@ -220,6 +223,7 @@ class HookedDict(dict):
             else:
                 __v = HookedDict(__v)
         return super(HookedDict, self).__setitem__(__k, __v)
+
 
 class TargetMatch:
 
