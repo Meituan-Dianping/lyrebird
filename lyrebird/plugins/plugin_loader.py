@@ -12,6 +12,7 @@ from ..log import get_logger
 from .plugin import Plugin
 
 from lyrebird import application
+import sys
 
 logger = get_logger()
 
@@ -135,6 +136,8 @@ def load_from_path(plugin_path):
         manifest_file = Path(plugin_path)/pkg/'manifest.py'
         if not manifest_file.exists():
             continue
+        sys.modules.pop(pkg)
+        sys.modules.pop(pkg+'.manifest')
         imp.load_package(pkg, Path(plugin_path)/pkg)
         __import__(pkg+'.manifest')
 
