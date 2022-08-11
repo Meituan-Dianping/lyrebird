@@ -332,7 +332,7 @@ class DataManager:
 
         if data.get('type') == 'json':
             self._make_data_json(raw_data, data)
-        elif  data.get('type') == 'data':
+        elif data.get('type') == 'data':
             self._make_data_http_data(raw_data, data)
         else:
             self._make_data_http_data(raw_data, data)
@@ -379,8 +379,10 @@ class DataManager:
         if not isinstance(raw_data, dict):
             raise DataObjectSouldBeADict
 
-        data_type = raw_data.get('type')
-        if data_type not in self.supported_data_type:
+        if not raw_data.get('type'):
+            raw_data['type'] = 'data'
+
+        if raw_data['type'] not in self.supported_data_type:
             raise UnsupportedType
 
         parent_node = None

@@ -182,8 +182,8 @@ export default {
           commit('setIsLoading', true)
           api.getGroupMap({labels: state.dataListSelectedLabel})
             .then(response => {
-              commit('setGroupList', [response.data.data])
               commit('addGroupListOpenNode', response.data.data.id)
+              commit('setGroupList', [response.data.data])
               commit('concatTreeUndeletableId', response.data.data.id)
               commit('setIsLoading', false)
             })

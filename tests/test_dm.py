@@ -629,7 +629,8 @@ def test_add_group_by_path(data_manager):
             break
     assert found_new_group
 
-def test_add_data_request_with_name_rule(data_manager):
+
+def test_add_data_no_type(data_manager):
     custom_name = 'CUSTOM_NAME'
     custom_rule = {
         'CUSTOM_KEY': 'CUSTOM_VALUE'
@@ -663,8 +664,44 @@ def test_add_data_request_with_name_rule(data_manager):
     assert new_data_file.exists()
 
 
+def test_add_data_request_with_name_rule(data_manager):
+    custom_name = 'CUSTOM_NAME'
+    custom_rule = {
+        'CUSTOM_KEY': 'CUSTOM_VALUE'
+    }
+    data = {
+        'name': custom_name,
+        'type': 'data',
+        'rule': custom_rule,
+        'request': {
+            'url': 'http://hostname.com/pathA/pathB?param=1'
+        },
+        'response': {}
+    }
+
+    new_data_id = data_manager.add_data('groupC-UUID', data)
+    _new_data_node = data_manager.id_map.get(new_data_id)
+    assert custom_name == _new_data_node['name']
+    _new_data = data_manager.get(new_data_id)
+    assert custom_name == _new_data['name']
+
+    assert custom_rule == _new_data['rule']
+
+    assert data['request'] == _new_data['request']
+    group_c = data_manager.id_map.get('groupC-UUID')
+    found_new_data = False
+    for child in group_c['children']:
+        if child['id'] == new_data_id:
+            found_new_data = True
+            break
+    assert found_new_data
+    new_data_file = data_manager.root_path / new_data_id
+    assert new_data_file.exists()
+
+
 def test_add_data_request_url_params(data_manager):
     data = {
+        'type': 'data',
         'request': {
             'url': f'http://hostname.com/pathA/pathB?param=1'
         },
@@ -695,6 +732,7 @@ def test_add_data_request_url_params(data_manager):
 
 def test_add_data_request_url_no_params(data_manager):
     data = {
+        'type': 'data',
         'request': {
             'url': f'http://hostname.com/pathA/pathB'
         },
@@ -714,6 +752,7 @@ def test_add_data_request_url_no_params(data_manager):
 
 def test_add_data_request_url_no_path(data_manager):
     data = {
+        'type': 'data',
         'request': {
             'url': f'http://hostname.com'
         },
@@ -734,6 +773,7 @@ def test_add_data_request_url_no_path(data_manager):
 def test_add_data_request_url_illegal(data_manager):
     url_illegal = 'EXAMPLE'
     data = {
+        'type': 'data',
         'request': {
             'url': url_illegal
         },
@@ -751,7 +791,30 @@ def test_add_data_request_url_illegal(data_manager):
 
 def test_add_data_no_request(data_manager):
     data = {
-        'name': 'add_data_name'
+        'name': 'add_data_name',
+        'type': 'data'
+    }
+    new_data_id = data_manager.add_data('groupC-UUID', data)
+    _new_data_node = data_manager.id_map.get(new_data_id)
+    assert data['name'] == _new_data_node['name']
+    _new_data = data_manager.get(new_data_id)
+    assert data['name'] == _new_data['name']
+    group_c = data_manager.id_map.get('groupC-UUID')
+    found_new_data = False
+    for child in group_c['children']:
+        if child['id'] == new_data_id:
+            found_new_data = True
+            break
+    assert found_new_data
+    new_data_file = data_manager.root_path / new_data_id
+    assert new_data_file.exists()
+
+
+def test_add_json(data_manager):
+    data = {
+        'name': 'add_json_name',
+        'type': 'json',
+        'json': {"a" : 1}
     }
     new_data_id = data_manager.add_data('groupC-UUID', data)
     _new_data_node = data_manager.id_map.get(new_data_id)
