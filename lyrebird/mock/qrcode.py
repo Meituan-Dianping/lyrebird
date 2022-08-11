@@ -1,20 +1,10 @@
 import io
 import qrcode
 import binascii
-from jinja2 import Template
-from lyrebird.application import config
-
-def _format_parameters(link):
-    params = {
-        'ip': config.get('ip'),
-        'port': config.get('mock.port')
-    }
-    link_template = Template(link)
-    formated_link = link_template.render(params)
-    return formated_link
+from lyrebird import utils
 
 def get_qrcode_img(link):
-    formated_link = _format_parameters(link)
+    formated_link = utils.format(link)
 
     img = qrcode.make(formated_link, border=1)
     img_buffer = io.BytesIO()

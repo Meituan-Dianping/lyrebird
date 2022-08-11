@@ -17,6 +17,7 @@ class Status(Resource):
             **{'ip': conf.get('ip', 'unknown ip'),
                'mock.port': conf['mock.port'],
                'proxy.port': conf['proxy.port'],
+               'extra.mock.port': conf['extra.mock.port'],
                'version': version.VERSION
                })
 

@@ -5,7 +5,7 @@
         content="content"
         placement="top-end"
         class="main-footer-status"
-        width="250"
+        width="280"
       >
         <span class="main-footer-status-button">
           <Icon type="ios-arrow-up" style="padding-right:3px;"/>
@@ -16,10 +16,10 @@
         </div>
         <div slot="content">
           <Row>
-            <i-col span="9">
+            <i-col span="12">
               <b style="float: right">IP</b>
             </i-col>
-            <i-col span="14" offset="1">
+            <i-col span="11" offset="1">
               {{status.ip}}
               <v-btn icon x-small @click.stop="showDialogChangeIp" title="Update info">
                 <v-icon size="12px" color="primary">mdi-pencil</v-icon>
@@ -27,10 +27,10 @@
             </i-col>
           </Row>
           <Row v-for="key in showedStatus" :key="key">
-            <i-col span="9">
+            <i-col span="12">
               <b style="float: right">{{key.toUpperCase()}}</b>
             </i-col>
-            <i-col span="14" offset="1">{{status[key]}}</i-col>
+            <i-col span="11" offset="1">{{status[key]}}</i-col>
           </Row>
           <Divider style="margin:10px 0;"/>
           <div style="text-align:center">
@@ -65,7 +65,7 @@ export default {
   },
   data () {
     return {
-      showedStatus: ['mock.port', 'proxy.port']
+      showedStatus: ['mock.port', 'proxy.port', 'extra.mock.port']
     }
   },
   mounted () {

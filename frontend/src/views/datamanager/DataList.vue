@@ -54,6 +54,7 @@
             icon
             @click.stop="changeDeleteDialogStatus"
             :disabled="selectedLeaf.length===0"
+            title="Delete"
           >
             <v-icon size="12px" color="primary">mdi-trash-can-outline</v-icon>
           </v-btn>

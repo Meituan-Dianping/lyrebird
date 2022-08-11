@@ -3,6 +3,7 @@ import { bus } from '@/eventbus'
 
 var configCommitMap = [
   {'name': 'mock.data.showLabel', 'commit': 'setIsLabelDisplay'},
+  {'name': 'mock.data.tree.undeletableId', 'commit': 'concatTreeUndeletableId'},
   {'name': 'mock.data.detail.stickyTopKey', 'commit': 'concatStickyTopKey'},
   {'name': 'mock.data.detail.undeletableKey', 'commit': 'concatUndeletableKey'},
   {'name': 'mock.data.detail.undisplayedKey', 'commit': 'concatUndisplayedKey'},

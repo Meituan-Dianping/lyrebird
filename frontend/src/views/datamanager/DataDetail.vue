@@ -21,12 +21,14 @@
 
 <script>
 import DataDetailHttpData from '@/views/datamanager/DataDetailHttpData.vue'
+import DataDetailPlainJSON from '@/views/datamanager/DataDetailPlainJSON.vue'
 import DataDetailFolder from '@/views/datamanager/DataDetailFolder.vue'
 import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
 import { getGroupDetail } from '@/api'
 
 export default {
   components: {
+    DataDetailPlainJSON,
     DataDetailHttpData,
     DataDetailFolder,
     JsonPathBar
@@ -46,6 +48,8 @@ export default {
     getComponentByType (payload) {
       if (payload.type === 'data') {
         return 'DataDetailHttpData'
+      } else if (payload.type === 'json') {
+        return 'DataDetailPlainJSON'
       } else if (payload.type === 'group') {
         return 'DataDetailFolder'
       } else {
@@ -63,6 +67,8 @@ export default {
             bus.$emit('msg.error', 'Load group ' + payload.name + ' error: ' + error.data.message)
           })
       } else if (payload.type === 'data') {
+        this.$store.dispatch('loadDataDetail', payload)
+      } else if (payload.type === 'json') {
         this.$store.dispatch('loadDataDetail', payload)
       } else { }
     }

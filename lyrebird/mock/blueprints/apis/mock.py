@@ -14,7 +14,7 @@ class MockGroup(Resource):
 
     def get(self, group_id=None, label=None):
         if group_id:
-            _group = context.application.data_manager.id_map.get(group_id)
+            _group = context.application.data_manager.get(group_id)
             if not _group:
                 return context.make_fail_response('Not found group')
 
@@ -56,8 +56,8 @@ class MockGroup(Resource):
     def put(self):
         group_id = request.json.get('id')
         data = request.json.get('data')
-        context.application.data_manager.update_group(group_id, data)
-        return context.make_ok_response()
+        message = context.application.data_manager.update_group(group_id, data)
+        return context.make_ok_response(**message)
 
     def delete(self, group_id=None):
         if group_id is not None:

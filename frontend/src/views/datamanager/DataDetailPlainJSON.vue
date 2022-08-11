@@ -2,10 +2,7 @@
   <div class="small-tab">
     <tabs v-model="currentTab" :animated="false" size="small">
       <tab-pane label="Information" name="info" />
-      <tab-pane label="Request" name="req" />
-      <tab-pane label="RequestData" name="reqData" />
-      <tab-pane label="Response" name="resp" />
-      <tab-pane label="ResponseData" name="respData" />
+      <tab-pane label="JSON" name="json" />
     </tabs>
     <div>
       <CodeEditor
@@ -55,10 +52,7 @@ export default {
     return {
       editorCache: {
         info: null,
-        req: null,
-        reqData: null,
-        resp: null,
-        respData: null
+        json: null
       }
     }
   },
@@ -83,11 +77,7 @@ export default {
       }
     },
     currentTabContentType () {
-      if (this.currentTab === 'info' || this.currentTab === 'req' || this.currentTab === 'resp') {
-        return 'json'
-      } else {
-        return 'json'
-      }
+      return 'json'
     },
     dataDetail () {
       return this.$store.state.dataManager.dataDetail
@@ -114,19 +104,8 @@ export default {
     save () {
       const newData = {}
       Object.assign(newData, JSON.parse(this.editorCache.info))
-      // Add request
-      const newReq = {}
-      Object.assign(newReq, JSON.parse(this.editorCache.req))
-      newReq['data'] = this.editorCache.reqData
-      newData['request'] = newReq
-      // Add response
-      const newResp = {}
-      Object.assign(newResp, JSON.parse(this.editorCache.resp))
-      newResp['data'] = this.editorCache.respData
-      newData['response'] = newResp
-
+      newData['json'] = this.editorCache.json
       this.$store.commit('setIsReloadTreeWhenUpdate', this.dataDetail.name !== newData.name)
-
       this.$store.dispatch('saveDataDetail', newData)
     },
     onJsonPathChange (payload) {
@@ -146,20 +125,9 @@ export default {
       }
       this.editorCache.info = JSON.stringify({
         id: val.id,
-        name: val.name,
-        rule: val.rule
+        name: val.name
       })
-      this.editorCache.req = JSON.stringify({
-        url: val.request.url,
-        headers: val.request.headers,
-        method: val.request.method
-      })
-      this.editorCache.reqData = typeof (val.request.data) == 'object' ? JSON.stringify(val.request.data) : val.request.data
-      this.editorCache.resp = JSON.stringify({
-        code: val.response.code,
-        headers: val.response.headers
-      })
-      this.editorCache.respData = typeof (val.response.data) == 'object' ? JSON.stringify(val.response.data) : val.response.data
+      this.editorCache.json = typeof (val.json) == 'object' ? JSON.stringify(val.json) : val.json
     }
   }
 }

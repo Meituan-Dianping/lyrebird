@@ -49,6 +49,9 @@ class FileDataAdapter:
             for child in node['children']:
                 self._init_id_map(child)
 
+    def _get_group(self, id_):
+        return self.context.id_map.get(id_)
+
     def _add_group(self, data, **kwargs):
         self._save_prop()
 
@@ -160,6 +163,9 @@ class FileDataAdapter:
 
     def _get_activate_group(self, search_id):
         return self.context.id_map.get(search_id)
+
+    def _after_activate(self):
+        pass
 
     # duplicate
     def duplicate(self, _id):

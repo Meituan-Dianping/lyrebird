@@ -36,7 +36,8 @@ export default {
     undeletableKey: ['id', 'rule', 'name', 'label', 'category', 'super_by'],
     uneditableKey: ['id', 'rule', 'super_by'],
     stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label', 'super_by'],
-    displayCopyKey: ['id']
+    displayCopyKey: ['id'],
+    treeUndeletableId: []
   },
   mutations: {
     setTitle (state, title) {
@@ -169,6 +170,9 @@ export default {
     },
     concatStickyTopKey (state, stickyTopKey) {
       state.stickyTopKey = state.stickyTopKey.concat(stickyTopKey)
+    },
+    concatTreeUndeletableId (state, treeUndeletableId) {
+      state.treeUndeletableId = state.treeUndeletableId.concat(treeUndeletableId)
     }
   },
   actions: {
@@ -178,8 +182,9 @@ export default {
           commit('setIsLoading', true)
           api.getGroupMap({labels: state.dataListSelectedLabel})
             .then(response => {
-              commit('addGroupListOpenNode', response.data.data.id)
               commit('setGroupList', [response.data.data])
+              commit('addGroupListOpenNode', response.data.data.id)
+              commit('concatTreeUndeletableId', response.data.data.id)
               commit('setIsLoading', false)
             })
             .catch(error => {
@@ -237,12 +242,21 @@ export default {
       }
     },
     saveGroupDetail ({ state, commit, dispatch }, payload) {
+      bus.$emit('msg.loading', 'Updating group ' + payload.name + ' ...')
       api.updateGroup(payload.id, payload)
         .then(response => {
-          dispatch('loadDataMap')
-          dispatch('loadDataLabel')
+          if (state.isReloadTreeWhenUpdate) {
+            dispatch('loadDataMap')
+            dispatch('loadDataLabel')
+            commit('setIsReloadTreeWhenUpdate', false)
+          }
           dispatch('loadGroupDetail', payload)
-          bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
+          bus.$emit('msg.destroy')
+          if (response.data.message) {
+            bus.$emit('msg.info', response.data.message)
+          } else {
+            bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
+          }
         })
         .catch(error => {
           bus.$emit('msg.error', 'Group ' + payload.name + ' update error: ' + error.data.message)
@@ -265,9 +279,10 @@ export default {
           bus.$emit('msg.error', 'Delete group ' + payload.name + ' error: ' + error.data.message)
         })
     },
-    createData ({ dispatch }, { dataName, parentId }) {
+    createData ({ dispatch }, { type, dataName, parentId }) {
       if (dataName) {
         api.createData(parentId, {
+          type,
           name: dataName
         })
           .then(response => {
