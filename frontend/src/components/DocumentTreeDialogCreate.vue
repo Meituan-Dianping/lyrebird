@@ -90,7 +90,7 @@ export default {
   },
   methods: {
     onCreate () {
-      if (this.createType.value === 'group') {
+      if (this.createType === 'group') {
         this.$store.commit('addGroupListOpenNode', this.nodeInfo.id)
         this.$store.dispatch('createGroup', {
           groupName: this.createName,
@@ -98,7 +98,7 @@ export default {
         })
       } else {
         this.$store.dispatch('createData', {
-          type: this.createType.value,
+          type: this.createType,
           dataName: this.createName,
           parentId: this.nodeInfo.id
         })
