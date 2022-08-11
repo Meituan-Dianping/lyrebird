@@ -274,14 +274,6 @@ class DataManager:
 
     def _format_respose_data(self, flow):
         # TODO render mock data before response, support more functions
-        params = {
-            'config': config,
-            'ip': config.get('ip'),
-            'port': config.get('mock.port'),
-            'today': datetime.date.today(),
-            'now':  datetime.datetime.now()
-        }
-
         origin_response_data = flow['response']['data']
         try:
             flow['response']['data'] = utils.format(flow['response']['data'])

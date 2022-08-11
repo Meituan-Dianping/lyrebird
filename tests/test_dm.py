@@ -9,6 +9,7 @@ from typing import NamedTuple
 from urllib.parse import urlparse
 from lyrebird.mock import dm
 from lyrebird.mock.dm.file_data_adapter import data_adapter
+from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 from lyrebird import application
 
 dataA = {
@@ -334,6 +335,7 @@ def data_manager(root, tmpdir):
     }
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
+    application.encoders_decoders = EncoderDecoder()
     _dm = dm.DataManager()
     _dm.snapshot_workspace = tmpdir
     _dm.set_adapter(data_adapter)
