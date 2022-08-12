@@ -1,9 +1,6 @@
 from lyrebird.config import ConfigManager
-from lyrebird import application, reporter
-from lyrebird.event import EventServer
-from lyrebird.task import BackgroundTaskServer
+from lyrebird import application
 from lyrebird.mock.mock_server import LyrebirdMockServer
-from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 
 import pytest
 import copy
@@ -27,10 +24,6 @@ conf = {
 def client():
     application._cm = ConfigManager()
     application._cm.config = copy.deepcopy(conf)
-    application.server['event'] = EventServer()
-    application.reporter = reporter.Reporter()
-    application.server['task'] = BackgroundTaskServer()
-    application.encoders_decoders = EncoderDecoder()
     server = LyrebirdMockServer()
     client = server.app.test_client()
     yield client

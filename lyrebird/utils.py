@@ -7,9 +7,12 @@ import tarfile
 import requests
 import datetime
 import netifaces
+import traceback
 from pathlib import Path
+from jinja2 import Template
 from contextlib import closing
 from lyrebird.log import get_logger
+from lyrebird.application import config
 
 logger = get_logger()
 
@@ -128,6 +131,26 @@ def download(link, input_path):
     with open(input_path, 'wb') as f:
         for chunck in resp.iter_content():
             f.write(chunck)
+
+
+def render(data):
+    if not isinstance(data, str):
+        logger.warning(f'Format error! Expected str, found {type(data)}') 
+        return
+
+    params = {
+        'config': config,
+        'ip': config.get('ip'),
+        'port': config.get('mock.port'),
+        'today': datetime.date.today(),
+        'now':  datetime.datetime.now()
+    }
+
+    try:
+        template_data = Template(data)
+        return template_data.render(params)
+    except Exception:
+        logger.error(f'Format error!\n {traceback.format_exc()}')
 
 
 class CaseInsensitiveDict(dict):

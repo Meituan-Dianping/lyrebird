@@ -10,18 +10,13 @@
     >
 
       <span>
-        <v-btn
-          v-show="data.type === 'group'"
-          icon
-          class="mr-1 my-0"
-          @click.stop="onToggleStatusChange"
-        >
+        <v-btn v-if="data.type === 'group'" icon class="mr-1 my-0" @click.stop="onToggleStatusChange">
           <v-icon small :color="toggleColor">
             {{isNodeOpen ? 'mdi-chevron-down' : 'mdi-chevron-right'}}
           </v-icon>
         </v-btn>
-
-        <v-icon v-show="data.type === 'data'" small color="accent" size="14px" class="mr-1">mdi-file</v-icon>
+        <v-icon v-else-if="data.type === 'json'" small color="accent" size="14px" class="mr-1">mdi-alpha-j-box-outline</v-icon>
+        <v-icon v-else small color="accent" size="14px" class="mr-1">mdi-file</v-icon>
 
         <div class="status-point" v-show="isGroupActivated"/>
 
@@ -44,7 +39,7 @@
           v-show="data.type==='group'"
           icon
           @click="isGroupActivated ? onTreeNodeDeactivate() : onTreeNodeActivate()"
-          :title="isGroupActivated ? 'Activate' : 'Deactivate'"
+          :title="isGroupActivated ? 'Deactivate' : 'Activate'"
         >
           <v-icon size="12px" :color="isGroupActivated ? 'error' : '#19be6b'">
             {{isGroupActivated ? 'mdi-square' : 'mdi-play'}}
@@ -52,6 +47,7 @@
         </v-btn>
 
         <v-btn
+          v-show="isNodeDeletable"
           icon
           @click.stop="changeDeleteDialogStatus"
         >
@@ -121,16 +117,7 @@
               v-show="data.type==='group'"
               @click="onTreeNodeAddGroup"
             >
-              <v-list-item-title>Add group</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item
-              key="addData"
-              link
-              v-show="data.type==='group'"
-              @click="onTreeNodeAddData"
-            >
-              <v-list-item-title>Add data</v-list-item-title>
+              <v-list-item-title>Add</v-list-item-title>
             </v-list-item>
 
             <v-divider v-show="data.type==='group'"/>
@@ -242,6 +229,9 @@ export default {
     duplicateNodeChildrenCount () {
       return this.countNodeChildren(this.data)
     },
+    isNodeDeletable () {
+      return this.$store.state.dataManager.treeUndeletableId.indexOf(this.data.id) === -1
+    },
     isNodeOpen () {
       return this.$store.state.dataManager.groupListOpenNode.indexOf(this.data.id) > -1
     },
@@ -299,6 +289,8 @@ export default {
         this.$store.dispatch('loadGroupDetail', this.data)
       } else if (this.data.type === 'data') {
         this.$store.dispatch('loadDataDetail', this.data)
+      } else if (this.data.type === 'json') {
+        this.$store.dispatch('loadDataDetail', this.data)
       } else { }
     },
     onTreeNodeCut () {
@@ -318,11 +310,6 @@ export default {
       this.$store.dispatch('duplicateGroupOrData', this.data)
     },
     onTreeNodeAddGroup () {
-      this.$store.commit('setCreateType', 'group')
-      this.$store.commit('setIsShownCreateDialog', true)
-    },
-    onTreeNodeAddData () {
-      this.$store.commit('setCreateType', 'data')
       this.$store.commit('setIsShownCreateDialog', true)
     },
     onTreeNodeActivate () {

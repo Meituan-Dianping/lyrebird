@@ -72,7 +72,7 @@ docker pull overbridge/lyrebird
 
 - macOS/Windows
 
-* Python >= 3.6
+* Python >= 3.7
 
 ```bash
 # macOS系统中推荐使用Homebrew(https://brew.sh/#install)安装Python3

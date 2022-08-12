@@ -6,7 +6,6 @@ import codecs
 import shutil
 import datetime
 from pathlib import Path
-from jinja2 import Template
 from urllib.parse import urlparse
 from collections import OrderedDict
 from lyrebird import utils, application
@@ -40,6 +39,7 @@ class DataManager:
 
         self.add_group_ignore_keys = set(['id', 'type', 'children'])
         self.update_group_ignore_keys = set(['id', 'parent_id', 'type', 'children'])
+        self.supported_data_type = ['data', 'json']
 
         self.unsave_keys = set()
 
@@ -113,9 +113,13 @@ class DataManager:
         if not node:
             raise IDNotFound(_id)
         if node.get('type') == 'group' or node.get('type') == None:
-            return node
+            return self._adapter._get_group(_id)
         elif node.get('type') == 'data':
             return self._adapter._load_data(_id)
+        elif node.get('type') == 'json':
+            return self._adapter._load_data(_id)
+        else:
+            raise UnsupportedType
 
     # -----
     # Mock operations
@@ -185,8 +189,11 @@ class DataManager:
         data_map = {d['id']: d for d in data_list}
         self.activated_data.update({i: data_map[i] for i in ordered_data_id if data_map.get(i)})
         self.activated_group[_id] = _node
+
+        # After activate
         self._check_activated_data_rules_contains_request_data()
-    
+        self._adapter._after_activate()
+
     def _check_activated_data_rules_contains_request_data(self):
         self.is_activated_data_rules_contains_request_data = False
         for _data_id in self.activated_data:
@@ -218,7 +225,7 @@ class DataManager:
 
     def _collect_data_in_node(self, node):
         id_list = []
-        if node.get('type', '') == 'data':
+        if node.get('type') in self.supported_data_type:
             return [node['id']]
         elif node.get('type', '') == 'group':
             if 'children' in node:
@@ -267,20 +274,12 @@ class DataManager:
 
     def _format_respose_data(self, flow):
         # TODO render mock data before response, support more functions
-        params = {
-            'config': config,
-            'ip': config.get('ip'),
-            'port': config.get('mock.port'),
-            'today': datetime.date.today(),
-            'now':  datetime.datetime.now()
-        }
-
+        origin_response_data = flow['response']['data']
         try:
-            flow_response_data = Template(flow['response']['data'])
-            flow['response']['data'] = flow_response_data.render(params)
+            flow['response']['data'] = utils.render(flow['response']['data'])
         except Exception:
-            url = flow['request']['url']
-            logger.warning(f'Format response data error! {url}') 
+            flow['response']['data'] = origin_response_data
+            logger.warning(f'Format response data error! {flow["request"]["url"]}') 
 
     def _is_match_rule(self, flow, rules):
         if not rules:
@@ -322,6 +321,17 @@ class DataManager:
         data = dict(raw_data)
         _data_id = kwargs.get('data_id') or str(uuid.uuid4())
         data['id'] = _data_id
+
+        if data.get('type') == 'json':
+            self._make_data_json(raw_data, data)
+        elif data.get('type') == 'data':
+            self._make_data_http_data(raw_data, data)
+        else:
+            self._make_data_http_data(raw_data, data)
+
+        return data
+
+    def _make_data_http_data(self, raw_data, data):
         if 'request' in data:
             # TODO remove it with inspector frontend
             data['request'] = dict(raw_data['request'])
@@ -351,11 +361,21 @@ class DataManager:
         data['name'] = _data_name
         data['rule'] = _data_rule
 
-        return data
+    def _make_data_json(self, raw_data, data):
+        if 'json' not in data:
+            data['json'] = {}
+
+        data['name'] = data['name'] if data.get('name') else 'Unnamed JSON'
 
     def add_data(self, parent_id, raw_data, **kwargs):
         if not isinstance(raw_data, dict):
-            raise DataObjectSouldBeADict
+            raise DataObjectShouldBeADict
+
+        if not raw_data.get('type'):
+            raw_data['type'] = 'data'
+
+        if raw_data['type'] not in self.supported_data_type:
+            raise UnsupportedType
 
         parent_node = None
         if parent_id == 'tmp_group':
@@ -364,8 +384,8 @@ class DataManager:
             parent_node = self.id_map.get(parent_id)
             if not parent_node:
                 raise IDNotFound(parent_id)
-            if parent_node['type'] == 'data':
-                raise DataObjectCannotContainAnyOtherObject
+            if parent_node['type'] != 'group':
+                raise OnlyGroupCanContainAnyOtherObject
 
         data = self._make_data(raw_data)
         data['parent_id'] = parent_id
@@ -380,7 +400,7 @@ class DataManager:
             data_node = {}
             data_node['id'] = _data_id
             data_node['name'] = _data_name
-            data_node['type'] = 'data'
+            data_node['type'] = data.get('type')
             data_node['parent_id'] = parent_id
 
             # New data added in the head of child list
@@ -410,7 +430,7 @@ class DataManager:
         if not parent_node:
             raise IDNotFound(parent_id)
         if parent_node.get('type') == 'data':
-            raise DataObjectCannotContainAnyOtherObject
+            raise OnlyGroupCanContainAnyOtherObject
 
         # Add group
         group_id = str(uuid.uuid4())
@@ -556,6 +576,8 @@ class DataManager:
             for child in node['children']:
                 self._copy_node(new_node, child, **kwargs)
         elif new_node['type'] == 'data':
+            self._copy_data(new_node, node, **kwargs)
+        elif new_node['type'] == 'json':
             self._copy_data(new_node, node, **kwargs)
         return new_node['id']
 
@@ -703,22 +725,35 @@ class DataManager:
         for key in self.unsave_keys:
             data.pop(key) if key in data else None
 
-        # Add new key into node
+        # Uneditable key
+        for key in self.update_group_ignore_keys:
+            data[key] = node.get(key)
+
+        # labels are ordered, sorted by label name
+        if 'label' not in data:
+            data['label'] = []
+        elif 'label' in data and isinstance(data['label'], list):
+            data['label'].sort(key=lambda x:x.get('name', '').lower())
+
+        if save:
+            message = self._adapter._update_group(data)
+
+        # Update node
+        # 1. Add new key into node
         update_data = {k: data[k] for k in data if k not in self.update_group_ignore_keys}
         node.update(update_data)
 
-        # Remove deleted key in node
+        # 2. Remove deleted key in node
         delete_keys = [k for k in node if k not in data and k not in self.update_group_ignore_keys]
         for key in delete_keys:
             node.pop(key)
 
-        # labels are ordered, sorted by label name
-        if 'label' not in node:
-            node['label'] = []
-        elif 'label' in node and isinstance(node['label'], list):
-            node['label'].sort(key=lambda x:x.get('name', '').lower())
-        if save:
-            self._adapter._update_group(node)
+        # 3. Update existed value
+        for key, value in data.items():
+            if key in node:
+                node[key] = value
+
+        return message
 
     def update_data(self, _id, data):
         node = self.id_map.get(_id)
@@ -817,7 +852,8 @@ class DataManager:
     def _get_type_hashmap(self, ids):
         type_map = {
             'group': [],
-            'data': []
+            'data': [],
+            'json': []
         }
         for id_ in ids:
             node = self.id_map.get(id_)
@@ -858,8 +894,8 @@ class DataManager:
             })
 
             type_map = self._get_type_hashmap(id_list)
-            node_delete_group_ids = type_map['group'] + type_map['data']
-            node_delete_data_ids = type_map['data']
+            node_delete_group_ids = type_map['group'] + type_map['data'] + type_map['json']
+            node_delete_data_ids = type_map['data'] + type_map['json']
 
             for id_ in id_list:
                 # Delete from parent
@@ -913,7 +949,11 @@ class DataNotFound(Exception):
     pass
 
 
-class DataObjectCannotContainAnyOtherObject(Exception):
+class OnlyGroupCanContainAnyOtherObject(Exception):
+    pass
+
+
+class UnsupportedType(Exception):
     pass
 
 
@@ -921,7 +961,7 @@ class SuperIdCannotBeNodeItself(Exception):
     pass
 
 
-class DataObjectSouldBeADict(Exception):
+class DataObjectShouldBeADict(Exception):
     pass
 
 
