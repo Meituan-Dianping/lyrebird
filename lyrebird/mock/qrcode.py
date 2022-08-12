@@ -4,7 +4,7 @@ import binascii
 from lyrebird import utils
 
 def get_qrcode_img(link):
-    formated_link = utils.format(link)
+    formated_link = utils.render(link)
 
     img = qrcode.make(formated_link, border=1)
     img_buffer = io.BytesIO()

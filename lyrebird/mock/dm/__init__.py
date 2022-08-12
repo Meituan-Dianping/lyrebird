@@ -276,7 +276,7 @@ class DataManager:
         # TODO render mock data before response, support more functions
         origin_response_data = flow['response']['data']
         try:
-            flow['response']['data'] = utils.format(flow['response']['data'])
+            flow['response']['data'] = utils.render(flow['response']['data'])
         except Exception:
             flow['response']['data'] = origin_response_data
             logger.warning(f'Format response data error! {flow["request"]["url"]}') 
@@ -369,7 +369,7 @@ class DataManager:
 
     def add_data(self, parent_id, raw_data, **kwargs):
         if not isinstance(raw_data, dict):
-            raise DataObjectSouldBeADict
+            raise DataObjectShouldBeADict
 
         if not raw_data.get('type'):
             raw_data['type'] = 'data'
@@ -961,7 +961,7 @@ class SuperIdCannotBeNodeItself(Exception):
     pass
 
 
-class DataObjectSouldBeADict(Exception):
+class DataObjectShouldBeADict(Exception):
     pass
 
 

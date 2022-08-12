@@ -133,7 +133,7 @@ def download(link, input_path):
             f.write(chunck)
 
 
-def format(data):
+def render(data):
     if not isinstance(data, str):
         logger.warning(f'Format error! Expected str, found {type(data)}') 
         return
@@ -150,7 +150,7 @@ def format(data):
         template_data = Template(data)
         return template_data.render(params)
     except Exception:
-        logger.warning(f'Format error!\n {traceback.format_exc()}')
+        logger.error(f'Format error!\n {traceback.format_exc()}')
 
 
 class CaseInsensitiveDict(dict):

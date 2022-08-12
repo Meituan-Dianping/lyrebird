@@ -63,7 +63,7 @@ export default {
       createTypeItems: [
         { value: 'group', text: 'Group' },
         { value: 'data', text: 'Data (HTTP)' },
-        { value: 'json', text: 'Other text' }
+        { value: 'json', text: 'Data (JSON)' }
       ]
     }
   },
