@@ -1,13 +1,13 @@
+import json
 import pytest
 import codecs
-import json
 import lyrebird
 from typing import NamedTuple
-from lyrebird.mock.dm.file_data_adapter import data_adapter
-from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 from lyrebird import application
 from lyrebird.mock import context
 from lyrebird.mock.mock_server import LyrebirdMockServer
+from lyrebird.mock.dm.file_data_adapter import data_adapter
+from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 
 
 dataA = {
@@ -44,6 +44,7 @@ prop = {
 
 
 MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
+
 
 class FakeSocketio:
 
