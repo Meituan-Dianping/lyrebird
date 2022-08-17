@@ -57,7 +57,9 @@ class MockGroup(Resource):
         group_id = request.json.get('id')
         data = request.json.get('data')
         message = context.application.data_manager.update_group(group_id, data)
-        return context.make_ok_response(**message)
+        if message:
+            return context.make_ok_response(**message)
+        return context.make_ok_response()
 
     def delete(self, group_id=None):
         if group_id is not None:
@@ -74,7 +76,6 @@ class MockGroup(Resource):
         context.application.data_manager.is_deleting_lock = True
         try:
             context.application.data_manager.delete_by_query(query)
-            # 是否需要前端可以控制是否刷新？
         except Exception as e:
             logger.error(f'Delete error: {traceback.format_exc()}')
             return application.make_fail_response(f'Delete failure: {str(e)}')
