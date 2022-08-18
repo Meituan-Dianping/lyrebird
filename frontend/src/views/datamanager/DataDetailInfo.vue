@@ -186,7 +186,7 @@ export default {
         if (infoValue === null) {
           return infoValue
         } else if (this.inputValueType === 'stringObject') {
-          return this.infoValue.value
+          return infoValue.value
         } else if (typeof infoValue === 'object') {
           return JSON.stringify(infoValue)
         } else {
