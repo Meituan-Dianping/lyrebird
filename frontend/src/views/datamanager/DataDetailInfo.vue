@@ -185,6 +185,8 @@ export default {
         let infoValue = this.$store.state.dataManager.groupDetail[this.infoKey]
         if (infoValue === null) {
           return infoValue
+        } else if (this.inputValueType === 'stringObject') {
+          return this.infoValue.value
         } else if (typeof infoValue === 'object') {
           return JSON.stringify(infoValue)
         } else {
