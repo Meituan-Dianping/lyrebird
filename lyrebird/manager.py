@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import sys
 import platform
 import signal
 import socket
@@ -25,7 +26,6 @@ from lyrebird.plugins import PluginManager
 from lyrebird.proxy.proxy_server import LyrebirdProxyServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird import utils
-
 
 logger = log.get_logger()
 
@@ -63,7 +63,8 @@ def main():
     parser.add_argument('-v', dest='verbose', action='count', default=0, help='Show verbose log')
     parser.add_argument('--ip', dest='ip', help='Set device ip')
     parser.add_argument('--mock', dest='mock', type=int, help='Set mock server port, default port is 9090')
-    parser.add_argument('--extra-mock', dest='extra_mock', type=int, help='Set extra mock server port, default port is 9999')
+    parser.add_argument('--extra-mock', dest='extra_mock', type=int,
+                        help='Set extra mock server port, default port is 9999')
     parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 4272')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
     parser.add_argument('-b', '--no_browser', dest='no_browser',
@@ -89,8 +90,25 @@ def main():
 
     Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
-    custom_conf = {es[0]:es[1] for es in args.extra_string} if args.extra_string else None
+    custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else None
     application._cm = ConfigManager(conf_path=args.config, custom_conf=custom_conf)
+
+    # init logger for main process
+    application._cm.config['verbose'] = args.verbose
+    application._cm.config['log'] = args.log
+    log.init()
+
+    # Add exception hook
+    def process_excepthook(exc_type, exc_value, tb):
+        logger.error(traceback.format_tb(tb))
+    sys.excepthook = process_excepthook
+
+    def thread_excepthook(args):
+        logger.error(f'Thread except {args}')
+        logger.error("".join(traceback.format_tb(args[2])))
+    # add threading excepthook after python3.8
+    if hasattr(threading, 'excepthook'):
+        threading.excepthook = thread_excepthook
 
     # set current ip to config
     if args.ip:
@@ -104,10 +122,6 @@ def main():
     # get all ipv4
     if not application._cm.config.get('env.ip'):
         application._cm.config['env.ip'] = utils.get_interface_ipv4()
-
-    # init file logger after config init
-    application._cm.config['verbose'] = args.verbose
-    log.init(args.log)
 
     if args.mock:
         application._cm.config['mock.port'] = args.mock

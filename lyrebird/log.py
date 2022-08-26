@@ -4,15 +4,9 @@ from collections import namedtuple
 from lyrebird import application
 from pathlib import Path
 
-_stream_logger_inited = False
+DEFAULT_LOG_PATH = '~/.lyrebird/lyrebird.log'
 
-
-def get_logger() -> logging.Logger:
-    global _stream_logger_inited
-    if not _stream_logger_inited:
-        _init_stream_logger()
-        _stream_logger_inited = True
-    return logging.getLogger('lyrebird')
+LOGGER_INITED = False
 
 
 Color = namedtuple('Color', ['fore', 'style', 'back'])
@@ -35,67 +29,74 @@ def colorit(message, levelname):
         return message
 
 
+def info_color(message):
+    return f'{Fore.WHITE}{Style.DIM}{Back.RESET}{message}{Style.RESET_ALL}'
+
+
 class ColorFormater(logging.Formatter):
 
     def format(self, record: logging.LogRecord):
-        module = f'{colorit(record.module, record.levelname)}'
-        msg = f'{colorit(record.msg, record.levelname)}'
-        levelname = f'{colorit(record.levelname, record.levelname)}'
-        return f'{levelname} [{module}] {msg}'
+        s = self.formatTime(record)
+        fmt_log = info_color(f'{s} {record.pathname}:{record.lineno}\n') + \
+            colorit(f'{record.levelname} {record.msg}', record.levelname)
+        return fmt_log
 
 
-def _init_stream_logger():
-    logger: logging.Logger = logging.getLogger('lyrebird')
-
-    color_formater = ColorFormater(fmt='%(levelname)s [%(module)s] %(message)s')
+def make_stream_handler():
+    color_formater = ColorFormater()
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(color_formater)
-    logger.addHandler(stream_handler)
+    return stream_handler
 
 
-def _init_file_logger(custom_log_path=None):
+def make_file_handler(_log_path=None):
+    # Set default value
+    if not _log_path:
+        _log_path = DEFAULT_LOG_PATH
+
+    # Add pid and thread name in log file
     file_formater = logging.Formatter(
-        fmt='%(asctime)s %(levelname)s [%(module)s] - %(threadName)s [PID] %(process)s - %(message)s'
+        fmt='%(asctime)s [%(levelname)s] [PID]%(process)s::%(threadName)s (%(pathname)s)  %(message)s'
     )
-    if custom_log_path:
-        log_file = Path(custom_log_path).expanduser().absolute().resolve()
-    else:
-        log_file = application.root_dir()/'lyrebird.log'
+    log_file = Path(_log_path).expanduser().absolute().resolve()
 
     file_handler = logging.handlers.TimedRotatingFileHandler(log_file, backupCount=1, encoding='utf-8', when='midnight')
     file_handler.setFormatter(file_formater)
-
-    logger: logging.Logger = logging.getLogger('lyrebird')
-    logger.addHandler(file_handler)
+    return file_handler
 
 
-def _setup_3rd_loggers():
-    logger_level = logging.ERROR
-    socketio = logging.getLogger('socketio')
-    socketio.setLevel(logger_level)
+def init():
+    global LOGGER_INITED
+    if LOGGER_INITED:
+        return
 
-    engineio = logging.getLogger('engineio')
-    engineio.setLevel(logger_level)
-
-    mock = logging.getLogger('mock')
-    mock.setLevel(logger_level)
-    mock.addHandler(logging.StreamHandler())
-
-    werkzeug = logging.getLogger('werkzeug')
-    werkzeug.setLevel(logger_level)
-
-
-def init(custom_log_path=None):
     logging.addLevelName(60, 'NOTICE')
 
-    _init_file_logger(custom_log_path=custom_log_path)
-    _setup_3rd_loggers()
+    stream_handler = make_stream_handler()
 
-    logger: logging.Logger = logging.getLogger('lyrebird')
+    log_path = application.config.get('log')
+    file_handler = make_file_handler(log_path)
+
     verbose = application.config.get('verbose', 0)
     if verbose == 0:
-        logger.setLevel(logging.ERROR)
+        logger_level = logging.ERROR
     elif verbose == 1:
-        logger.setLevel(logging.INFO)
+        logger_level = logging.INFO
     elif verbose >= 2:
-        logger.setLevel(logging.DEBUG)
+        logger_level = logging.DEBUG
+
+    lyrebird_logger = logging.getLogger('lyrebird')
+    lyrebird_logger.addHandler(stream_handler)
+    lyrebird_logger.addHandler(file_handler)
+    lyrebird_logger.setLevel(logger_level)
+
+    for _logger_name in ['socketio', 'engineio', 'mock', 'werkzeug', 'flask']:
+        _logger = logging.getLogger(_logger_name)
+        _logger.addHandler(file_handler)
+        _logger.setLevel(logger_level)
+
+    LOGGER_INITED = True
+
+
+def get_logger() -> logging.Logger:
+    return logging.getLogger('lyrebird')

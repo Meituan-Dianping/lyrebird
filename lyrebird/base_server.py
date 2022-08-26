@@ -10,12 +10,13 @@ class ThreadServer:
     def __init__(self):
         self.server_thread = None
         self.running = False
+        self.name = None
 
     def start(self, *args, **kwargs):
         if self.running:
             return
         self.running = True
-        self.server_thread = Thread(target=self.run, args=args, kwargs=kwargs)
+        self.server_thread = Thread(target=self.run, name=self.name, args=args, kwargs=kwargs)
         self.server_thread.start()
 
     def stop(self):

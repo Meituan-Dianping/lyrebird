@@ -1,7 +1,7 @@
 from lyrebird.base_server import StaticServer
 from . import plugin_loader
 from lyrebird import application
-from flask import Blueprint, send_file
+from flask import Blueprint, send_file, request
 from lyrebird.log import get_logger
 from types import FunctionType
 import traceback
@@ -45,6 +45,13 @@ class PluginManager(StaticServer):
             _view = plugin.manifest.view
             _index_file_path = f"{plugin.location}/{view_static_folder_name}/{view_entry_file}"
             _bp.add_url_rule('/', view_func=IndexPageViewFunc(p_name, _index_file_path))
+
+            @_bp.after_request
+            def print_plugin_api(response):
+                lyrebird_info = response.headers.get('lyrebird', default='')
+                logger.info(
+                    f'[On plugin API]{response.status_code} {lyrebird_info} {request.method} {request.url[:100]}')
+                return response
 
             # Add API to blureprint
             for api in plugin.manifest.api:
