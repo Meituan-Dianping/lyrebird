@@ -29,13 +29,14 @@ _logger = log.get_logger()
 class LyrebirdMockServer(ThreadServer):
     """
     模拟接口服务
-    使用flask在默认的9090端口启动，模拟线上接口，同时支持通过api动态修改接口数据。
+    使用flask在默认的9090端口启动,模拟线上接口,同时支持通过api动态修改接口数据。
 
     """
 
     def __init__(self):
         super().__init__()
 
+        self.name = 'MockServer'
         self.conf = application.config
         # TODO rm conf rom mock context
         context.application.conf = application.config
