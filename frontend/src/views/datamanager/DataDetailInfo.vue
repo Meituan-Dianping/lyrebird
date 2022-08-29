@@ -271,7 +271,8 @@ export default {
     showQrcode () {
       let info = {}
       info[this.infoKey] = this.infoValue
-      this.$store.dispatch('activateGroup', {node: this.$store.state.dataManager.focusNodeInfo, info})
+      this.$store.commit('setActivateExtraInfo', { info })
+      this.$store.dispatch('activateGroup', node)
 
       render(this.inputValue)
         .then(response => {

@@ -11,6 +11,7 @@ export default {
     focusedFlowDetail: null,
     originFlowList: [],
     recordMode: '',
+    activateExtraInfo: {},
     flowFilters: [],
     selectedFlowFilter: {}
   },
@@ -54,6 +55,9 @@ export default {
     setRecordMode (state, recordMode) {
       state.recordMode = recordMode
     },
+    setActivateExtraInfo (state, activateExtraInfo) {
+      state.activateExtraInfo = activateExtraInfo
+    },
     setFlowFilters (state, flowFilters) {
       state.flowFilters = flowFilters
     },
@@ -81,17 +85,15 @@ export default {
         })
     },
     activateGroup ({ dispatch }, payload) {
-      const node = payload.node
-      const info = payload.info
-      bus.$emit('msg.loading', `Activating group ${node.name} ...`)
-      api.activateGroup(node.id, info)
+      bus.$emit('msg.loading', `Activating group ${payload.name} ...`)
+      api.activateGroup(payload.id, state.activateExtraInfo)
         .then(response => {
           dispatch('loadActivatedGroup')
           bus.$emit('msg.destroy')
-          bus.$emit('msg.success', 'Group ' + node.name + ' activated!')
+          bus.$emit('msg.success', 'Group ' + payload.name + ' activated!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Activate group ' + node.name + ' error: ' + error.data.message)
+          bus.$emit('msg.error', 'Activate group ' + payload.name + ' error: ' + error.data.message)
         })
     },
     deactivateGroup ({ dispatch }) {
