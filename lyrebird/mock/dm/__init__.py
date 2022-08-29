@@ -163,7 +163,7 @@ class DataManager:
 
         return self.display_data_map
 
-    def activate(self, search_id):
+    def activate(self, search_id, **kwargs):
         """
         Activite data by id
         """
@@ -192,7 +192,7 @@ class DataManager:
 
         # After activate
         self._check_activated_data_rules_contains_request_data()
-        self._adapter._after_activate()
+        self._adapter._after_activate(**kwargs)
 
     def _check_activated_data_rules_contains_request_data(self):
         self.is_activated_data_rules_contains_request_data = False

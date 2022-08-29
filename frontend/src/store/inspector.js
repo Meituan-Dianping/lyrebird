@@ -81,15 +81,17 @@ export default {
         })
     },
     activateGroup ({ dispatch }, payload) {
-      bus.$emit('msg.loading', `Activating group ${payload.name} ...`)
-      api.activateGroup(payload.id)
+      const node = payload.node
+      const info = payload.info
+      bus.$emit('msg.loading', `Activating group ${node.name} ...`)
+      api.activateGroup(node.id, info)
         .then(response => {
           dispatch('loadActivatedGroup')
           bus.$emit('msg.destroy')
-          bus.$emit('msg.success', 'Group ' + payload.name + ' activated!')
+          bus.$emit('msg.success', 'Group ' + node.name + ' activated!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Activate group ' + payload.name + ' error: ' + error.data.message)
+          bus.$emit('msg.error', 'Activate group ' + node.name + ' error: ' + error.data.message)
         })
     },
     deactivateGroup ({ dispatch }) {

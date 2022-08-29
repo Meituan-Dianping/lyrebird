@@ -164,7 +164,7 @@ class FileDataAdapter:
     def _get_activate_group(self, search_id):
         return self.context.id_map.get(search_id)
 
-    def _after_activate(self):
+    def _after_activate(self, **kwargs):
         pass
 
     # duplicate

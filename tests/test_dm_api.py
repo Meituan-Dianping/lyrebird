@@ -175,3 +175,28 @@ def test_data_delete(client):
     data_id = 'dataA-UUID'
     resp = client.delete(f'/api/data/{data_id}')
     assert resp.json['code'] == 1000
+
+
+def test_data_activate(client):
+    data_id = 'dataA-UUID'
+    action = 'activate'
+    resp = client.put(f'/api/mock/{data_id}/{action}')
+    assert resp.json['code'] == 1000
+
+
+def test_data_activate_with_info(client):
+    data_id = 'dataA-UUID'
+    action = 'activate'
+    resp = client.put(f'/api/mock/{data_id}/{action}', json={
+        'info': {
+            'a': 1
+        }
+    })
+    assert resp.json['code'] == 1000
+
+
+def test_data_deactivate(client):
+    data_id = 'dataA-UUID'
+    action = 'deactivate'
+    resp = client.put(f'/api/mock/{data_id}/{action}')
+    assert resp.json['code'] == 1000

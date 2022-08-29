@@ -2,7 +2,7 @@
   <Modal v-model="shown" :title="title?title:defaultTitle"  width="60%" :styles="{top: '80px'}" :footer-hide=true>
     <slot name="modalHeader"></slot>
     <slot name="selected"></slot>
-    <Input search enter-button size="small" v-model="searchStr" @on-search="searchGroup"></Input>
+    <Input search enter-button size="small" v-model="searchStr" @on-search="searchGroup" placeholder="Search name/id"></Input>
     <div class="searchlist">
       <div v-for="item in searchResults" :key="item.id">
       <slot name="searchItem" :searchResult="item"></slot>

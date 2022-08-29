@@ -69,7 +69,7 @@ def main():
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
     parser.add_argument('-b', '--no_browser', dest='no_browser',
                         action='store_true', help='Start without open a browser')
-    parser.add_argument('-c', '--config', dest='config',
+    parser.add_argument('-c', '--config', action='append', dest='config',
                         help='Start with a config file. Default is "~/.lyrebird/conf.json"')
     parser.add_argument('--log', dest='log', help='Set output log file path')
     parser.add_argument('--script', action='append', help='Set a checker script path')
@@ -90,8 +90,8 @@ def main():
 
     Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
-    custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else None
-    application._cm = ConfigManager(conf_path=args.config, custom_conf=custom_conf)
+    custom_conf = {es[0]:es[1] for es in args.extra_string} if args.extra_string else None
+    application._cm = ConfigManager(conf_path_list=args.config, custom_conf=custom_conf)
 
     # init logger for main process
     application._cm.config['verbose'] = args.verbose
