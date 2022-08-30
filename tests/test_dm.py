@@ -594,11 +594,6 @@ def test_activate_groups_with_extra_info(data_manager):
             'url': 'http://somehost/api/search'
         }
     }
-    flow_B = {
-        'request': {
-            'url': 'http://somehost/api/detail'
-        }
-    }
     data_manager.activate('groupA-UUID', info={'a': 1})
     flow_A_mock_data = data_manager.get_matched_data(flow_A)
     assert len(flow_A_mock_data) == 1
