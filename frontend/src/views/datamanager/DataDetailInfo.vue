@@ -156,7 +156,7 @@
 
 <script>
 import svgIcon from 'vue-svg-icon/Icon.vue'
-import { getQrcodeImg, render } from '@/api'
+import { render } from '@/api'
 import LabelDropdown from '@/components/LabelDropdown.vue'
 import VueQr from 'vue-qr'
 

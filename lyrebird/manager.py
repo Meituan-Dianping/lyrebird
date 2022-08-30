@@ -90,7 +90,7 @@ def main():
 
     Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
-    custom_conf = {es[0]:es[1] for es in args.extra_string} if args.extra_string else None
+    custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else None
     application._cm = ConfigManager(conf_path_list=args.config, custom_conf=custom_conf)
 
     # init logger for main process
