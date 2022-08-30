@@ -1,6 +1,6 @@
 <template>
   <div class="shading">
-    <AppBar/>
+    <AppBar />
 
     <!-- The navigation drawer display from y-axis 0px by default -->
     <!-- keep the navigation drawer from being blocked by the app bar by margin-top, which is mt-11 -->
@@ -12,28 +12,34 @@
       app
       absolute
       permanent
-      width=200
+      width="200"
       floating
       expand-on-hover
       height="calc(100vh - 44px - 28px)"
       class="background mt-11 side-navgation"
     >
-      <v-list nav dense> 
+      <v-list nav dense>
         <v-list-item-group v-model="activeMenuItemIndex" active-class="v-item--active">
-          <v-list-item v-for="(menuItem, index) in menu" :key="index" link @click.native="menuItemOnClick(menuItem, index)">
+          <v-list-item
+            v-for="(menuItem, index) in menu"
+            :key="index"
+            link
+            @click.native="menuItemOnClick(menuItem, index)"
+          >
             <v-list-item-icon>
-              <v-icon>{{menuItem.icon}}</v-icon> 
+              <v-icon>{{ menuItem.icon }}</v-icon>
             </v-list-item-icon>
-            <v-list-item-title style="font-weight:700;">{{menuItemTitle(menuItem)}}</v-list-item-title>
+            <v-list-item-title style="font-weight:700;">{{ menuItemTitle(menuItem) }}</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
 
     <v-main class="ma-3">
-      <v-toolbar-title class="mb-2 page-title">{{activeMenuItemName}}</v-toolbar-title>
-      <keep-alive>
-        <router-view class="router-container background"/>
+      <v-toolbar-title class="mb-2 page-title">{{ activeMenuItemName }}</v-toolbar-title>
+      <keep-alive exclude="datamanager">
+        <!-- Cache children component exclude datamanager . Because v-treeview component has memory leak if it in the keep-alive tag -->
+        <router-view class="router-container background" />
       </keep-alive>
     </v-main>
 
@@ -57,19 +63,19 @@ export default {
     svgIcon,
     AppBar,
     StatusBar,
-    StatusInfo
+    StatusInfo,
   },
-  mounted () {
+  mounted() {
     this.$store.dispatch('loadMenu')
     this.$store.dispatch('loadManifest')
     this.$store.dispatch('loadConfig')
     this.$store.dispatch('loadAllStatusList')
-    this._keydownListener = (e) => {
+    this._keydownListener = e => {
       this.$bus.$emit('keydown', e)
     }
     document.addEventListener('keydown', this._keydownListener)
   },
-  beforeDestroy () {
+  beforeDestroy() {
     document.removeEventListener('keydown', this._keydownListener)
     this.$io.removeListener('statusBarUpdate', this.loadAllStatusList)
     this.$io.removeListener('msgSuccess', this.successMessage)
@@ -80,7 +86,7 @@ export default {
     this.$bus.$off('msg.error', this.errorMessage)
     this.$bus.$off('msg.destroy', this.destroyMessage)
   },
-  created () {
+  created() {
     this.$bus.$on('msg.success', this.successMessage)
     this.$bus.$on('msg.loading', this.loadingMessage)
     this.$bus.$on('msg.info', this.infoMessage)
@@ -91,49 +97,49 @@ export default {
     this.$io.on('msgInfo', this.infoMessage)
   },
   watch: {
-    activeMenuItemIndex (newValue, oldValue) {
+    activeMenuItemIndex(newValue, oldValue) {
       if (newValue !== oldValue) {
         this.refreshPage(newValue)
       }
-    }
+    },
   },
   computed: {
-    menu () {
+    menu() {
       return this.$store.state.menu
     },
-    manifest () {
+    manifest() {
       return this.$store.state.manifest
     },
     activeMenuItemIndex: {
-      get () {
+      get() {
         return this.$store.state.activeMenuItemIndex
       },
-      set (val) {
+      set(val) {
         // 1,val is undefined when index is not changed
-        // 2,In order to solve the problem of losing the selected state, first assign ActiveMenuItemIndex to -1, 
+        // 2,In order to solve the problem of losing the selected state, first assign ActiveMenuItemIndex to -1,
         //  and the real value will be set by method menuItemOnClick
         this.$store.commit('setActiveMenuItemIndex', -1)
-      }
+      },
     },
     activeMenuItemName() {
       if (this.$store.state.activeMenuItem == null) {
-        return ""
+        return ''
       } else {
         return this.$store.state.activeMenuItem.title
       }
-    }
+    },
   },
   methods: {
-    menuItemTitle (menuItem) {
-        return menuItem.title
+    menuItemTitle(menuItem) {
+      return menuItem.title
     },
-    menuItemOnClick (menuItem, index) {
+    menuItemOnClick(menuItem, index) {
       // 更新activeMenuItem
       // 点击后，activeMenuItem更新，触发watch，操作页面更新
       this.$store.commit('setActiveMenuItemIndex', index)
       this.$store.dispatch('updateActiveMenuItem', menuItem)
     },
-    refreshPage (menuItemIndex) {
+    refreshPage(menuItemIndex) {
       // 更新 router
       let menuItem = this.$store.state.menu[menuItemIndex]
       if (!menuItem) {
@@ -148,41 +154,41 @@ export default {
         window.open(menuItem.path, '_self')
       }
     },
-    loadAllStatusList () {
+    loadAllStatusList() {
       this.$store.dispatch('loadAllStatusList')
     },
-    successMessage (msg) {
+    successMessage(msg) {
       this.$Message.success({
         content: msg,
         duration: 3,
-        closable: true
+        closable: true,
       })
     },
-    loadingMessage (msg) {
+    loadingMessage(msg) {
       this.$Message.loading({
         content: msg,
         duration: 3,
-        closable: true
+        closable: true,
       })
     },
-    infoMessage (msg) {
+    infoMessage(msg) {
       this.$Message.info({
         content: msg,
         duration: 0,
-        closable: true
+        closable: true,
       })
     },
-    errorMessage (msg) {
+    errorMessage(msg) {
       this.$Message.error({
         content: msg,
         duration: 0,
-        closable: true
+        closable: true,
       })
     },
-    destroyMessage () {
+    destroyMessage() {
       this.$Message.destroy()
     },
-  }
+  },
 }
 </script>
 
@@ -194,9 +200,9 @@ export default {
   color: #000520;
   line-height: 20px;
 }
-.router-container{
+.router-container {
   height: calc(100vh - 44px - 40px - 28px - 12px);
-    /* total:100vh
+  /* total:100vh
     header: 44px
     title: 40px
     extension-container
@@ -208,12 +214,12 @@ export default {
   z-index: 2;
 }
 .v-item--active {
-  background-color: #5A57C4 10%;
-  color: #5A57C4 !important;
+  background-color: #5a57c4 10%;
+  color: #5a57c4 !important;
 }
 .v-item--active:not(.v-list-item--active):not(.v-list-item--disabled) {
-  color: #9B9CB7 !important;
-} 
+  color: #9b9cb7 !important;
+}
 .main-footer {
   height: 28px;
   line-height: 28px;
@@ -221,10 +227,10 @@ export default {
 }
 .v-list-active {
   background-color: #eeeef9;
-  color: #5F5CCA !important;
+  color: #5f5cca !important;
 }
 .v-list-item:not(.v-list-item--active):not(.v-list-item--disabled) {
-  color: #9B9CB7 !important;
+  color: #9b9cb7 !important;
 }
 </style>
 
@@ -279,10 +285,10 @@ export default {
   display: inline-block;
 }
 .main-footer-status:hover {
-  background-color: #6A67D4;
+  background-color: #6a67d4;
 }
 .main-footer-status:active {
-  background-color: #7B79D0;
+  background-color: #7b79d0;
 }
 .main-footer-status-button {
   color: #f8f8f9;
@@ -291,7 +297,7 @@ export default {
   margin-left: 5px;
 }
 .v-text-field--outlined fieldset {
-  border: 1px #D9DADE solid;
+  border: 1px #d9dade solid;
 }
 .v-btn {
   text-transform: none;
