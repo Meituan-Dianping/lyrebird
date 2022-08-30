@@ -735,8 +735,7 @@ class DataManager:
         elif 'label' in data and isinstance(data['label'], list):
             data['label'].sort(key=lambda x:x.get('name', '').lower())
 
-        if save:
-            message = self._adapter._update_group(data)
+        message = self._adapter._update_group(data) if save else None
 
         # Update node
         # 1. Add new key into node
