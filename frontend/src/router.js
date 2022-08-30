@@ -7,6 +7,18 @@ import Checker from './views/checker/Checker.vue'
 import EventInspector from '@/views/event/EventInspector.vue'
 import PluginView from './views/PluginView.vue'
 
+//vue router error handler
+const originalPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(error => {
+    if (error.name !== 'NavigationDuplicated') {
+      console.log('Router error: ', error)
+    } else {
+      console.log('Router error: NavigationDuplicated ', location)
+    }
+  })
+}
+
 Vue.use(Router)
 
 export default new Router({
@@ -14,6 +26,7 @@ export default new Router({
   scrollBehavior: () => {
     history.pushState(null, null, document.URL)
   },
+  mode: 'hash',
   routes: [
     {
       path: '/',
@@ -22,9 +35,9 @@ export default new Router({
         {
           path: '',
           name: 'inspector',
-          component: Inspector
-        }
-      ]
+          component: Inspector,
+        },
+      ],
     },
     {
       path: '/datamanager',
@@ -33,14 +46,14 @@ export default new Router({
         {
           path: '',
           name: 'datamanager',
-          component: DataManager
+          component: DataManager,
         },
         {
           path: 'import',
           name: 'datamanagerImport',
           component: DataManager,
         },
-      ]
+      ],
     },
     {
       path: '/checker',
@@ -49,9 +62,9 @@ export default new Router({
         {
           path: '',
           name: 'checker',
-          component: Checker
-        }
-      ]
+          component: Checker,
+        },
+      ],
     },
     {
       path: '/inspector-pro',
@@ -60,9 +73,9 @@ export default new Router({
         {
           path: '',
           name: 'inspector-pro',
-          component: EventInspector
-        }
-      ]
+          component: EventInspector,
+        },
+      ],
     },
     {
       path: '/plugin',
@@ -72,9 +85,9 @@ export default new Router({
         {
           path: ':name',
           name: 'plugin-view',
-          component: PluginView
-        }
-      ]
+          component: PluginView,
+        },
+      ],
     },
     {
       path: '/plugins',
@@ -84,9 +97,9 @@ export default new Router({
         {
           path: ':name',
           name: 'plugin-container',
-          component: PluginView
-        }
-      ]
-    }
-  ]
+          component: PluginView,
+        },
+      ],
+    },
+  ],
 })
