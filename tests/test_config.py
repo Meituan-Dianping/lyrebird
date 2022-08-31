@@ -32,7 +32,7 @@ def test_create(tmpdir):
     assert cm.config['myconf'] == 'myval'
 
 
-def test_create_two(tmpdir):
+def test_create_multiple_config(tmpdir):
     custom_config_1 = {'key_same': 'val_same_01', 'key_diff': 'val_diff'}
     conf_path_1 = Path(tmpdir) / 'conf_01.json'
     with codecs.open(conf_path_1, 'w', 'utf-8') as f:
