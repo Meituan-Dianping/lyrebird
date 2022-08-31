@@ -1,15 +1,11 @@
 <template>
   <v-app>
-    <keep-alive>
-      <router-view/>
-    </keep-alive>
+    <router-view />
   </v-app>
 </template>
 
 <script>
-  export default {
-    
-  }
+export default {}
 </script>
 
 <style>
