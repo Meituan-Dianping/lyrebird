@@ -28,15 +28,16 @@ class ConfigManager():
     BASE_CONFIG = ROOT / DEFAULT_FILENAME
     FORBIDDEN_MODIFY_FIELDS_IN_CONFIG = set(['version', 'proxy.port', 'mock.port'])
 
-    def __init__(self, conf_path=None, custom_conf=None):
+    def __init__(self, conf_path_list=None, custom_conf=None):
         self.config = config_template
         self.config_root = self.ROOT
         self.conf_file = self.BASE_CONFIG
 
         self.update_base_config()
         self.read_config()
-        if conf_path:
-            self.update_conf_source(conf_path)
+        if conf_path_list:
+            for conf_path in conf_path_list:
+                self.update_conf_source(conf_path)
         if custom_conf:
             self.config.update(custom_conf)
 

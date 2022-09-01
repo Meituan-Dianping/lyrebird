@@ -1,6 +1,7 @@
 from flask_restful import Resource
 from lyrebird.mock import context
 from flask import request
+from lyrebird import utils
 from lyrebird import version
 from lyrebird import application
 
@@ -53,3 +54,11 @@ class DiffMode(Resource):
 
     def get(self):
         return application.make_ok_response(diffmode=context.application.is_diff_mode)
+
+
+class Render(Resource):
+
+    def put(self):
+        origin_data = request.json.get('data')
+        data = utils.render(origin_data)
+        return context.make_ok_response(data=data)

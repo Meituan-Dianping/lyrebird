@@ -91,3 +91,11 @@ export const getManifest = () => {
     url: '/api/manifest'
   })
 }
+
+export const render = (data) => {
+  return axios({
+    url: '/api/render',
+    method: 'PUT',
+    data: { data }
+  })
+}

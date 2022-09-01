@@ -25,11 +25,27 @@ def test_create(tmpdir):
     conf_path = Path(tmpdir) / 'conf.json'
     with codecs.open(conf_path, 'w', 'utf-8') as f:
         f.write(json.dumps(custom_config, indent=4, ensure_ascii=False))
-    cm = config.ConfigManager(conf_path=conf_path)
+    cm = config.ConfigManager(conf_path_list=[conf_path])
     assert str(cm.conf_file) == str(tmpdir) + '/conf.json'
     assert cm.conf_file.exists()
     assert cm.config
     assert cm.config['myconf'] == 'myval'
+
+
+def test_create_multiple_config(tmpdir):
+    custom_config_1 = {'key_same': 'val_same_01', 'key_diff': 'val_diff'}
+    conf_path_1 = Path(tmpdir) / 'conf_01.json'
+    with codecs.open(conf_path_1, 'w', 'utf-8') as f:
+        f.write(json.dumps(custom_config_1, indent=4, ensure_ascii=False))
+
+    custom_config_2 = {'key_same': 'val_same_02'}
+    conf_path_2 = Path(tmpdir) / 'conf_02.json'
+    with codecs.open(conf_path_2, 'w', 'utf-8') as f:
+        f.write(json.dumps(custom_config_2, indent=4, ensure_ascii=False))
+
+    cm = config.ConfigManager(conf_path_list=[conf_path_1, conf_path_2])
+    assert cm.config['key_same'] == 'val_same_02'
+    assert cm.config['key_diff'] == 'val_diff'
 
 
 def test_override_config_with_forbidden_modify_field():

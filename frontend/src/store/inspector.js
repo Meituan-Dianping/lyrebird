@@ -82,7 +82,7 @@ export default {
     },
     activateGroup ({ dispatch }, payload) {
       bus.$emit('msg.loading', `Activating group ${payload.name} ...`)
-      api.activateGroup(payload.id)
+      api.activateGroup(payload.id, payload.info)
         .then(response => {
           dispatch('loadActivatedGroup')
           bus.$emit('msg.destroy')

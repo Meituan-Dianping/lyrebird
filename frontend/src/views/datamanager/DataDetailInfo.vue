@@ -91,20 +91,18 @@
               </div>
             </v-menu>
 
-            <Poptip
-              v-show="isDisplayPoptipIcon"
-              placement="bottom"
-              :width="getQrcodeImgWidth()"
-              word-wrap
-              @on-popper-show="loadQrcodeImg"
-              v-model="isDisplayPoptip"
-              transfer
-            >
-              <svg-icon class="ivu-icon" name="qrcode" scale="2.8" style="margin-left:3px;cursor: pointer;"/>
-              <div slot="content">
-                <img :src="imgData" style="width:100%">
-              </div>
-            </Poptip>
+            <span v-show="isDisplayPoptipIcon">
+              <v-menu offset-y offset-overflow class="pt-2" :value="isDisplayPoptip">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn plain icon v-bind="attrs" v-on="on" @click="showQrcode">
+                    <v-icon color="content">mdi-qrcode</v-icon>
+                  </v-btn>
+                </template>
+                <div class="data-detail-info-string-qrcode pa-2">
+                  <vue-qr :text="qrcodeText" :margin=4 :size="getQrcodeImgWidth()" />
+                </div>
+              </v-menu>
+            </span>
 
           </v-row>
         </span>
@@ -125,20 +123,17 @@
               {{inputValue}}
             </span>
 
-            <span v-show="isDisplayPoptipIcon">
-              <Poptip
-                placement="bottom"
-                :width="getQrcodeImgWidth()"
-                word-wrap
-                @on-popper-show="loadQrcodeImg"
-                v-model="isDisplayPoptip"
-                transfer
-              >
-                <svg-icon class="ivu-icon" name="qrcode" scale="2.8" style="margin-left:3px;cursor: pointer;"/>
-                <div slot="content">
-                  <img :src="imgData" style="width:100%">
+            <span v-show="isDisplayPoptipIcon" class="pl-2">
+              <v-menu offset-y offset-overflow class="pt-2" :value="isDisplayPoptip">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn plain icon v-bind="attrs" v-on="on" @click="showQrcode">
+                    <v-icon color="content">mdi-qrcode</v-icon>
+                  </v-btn>
+                </template>
+                <div class="data-detail-info-string-qrcode pa-2">
+                  <vue-qr :text="qrcodeText" :margin=4 :size="getQrcodeImgWidth()" />
                 </div>
-              </Poptip>
+              </v-menu>
             </span>
 
             <v-btn v-show="isDisplayCopyIcon" icon x-small title='Copy'>
@@ -161,17 +156,20 @@
 
 <script>
 import svgIcon from 'vue-svg-icon/Icon.vue'
-import { getQrcodeImg } from '@/api'
+import { render } from '@/api'
 import LabelDropdown from '@/components/LabelDropdown.vue'
+import VueQr from 'vue-qr'
 
 export default {
   props: ['infoKey', 'editable', 'deletable'],
   components: {
     svgIcon,
-    LabelDropdown
+    LabelDropdown,
+    VueQr
   },
   data() {
     return {
+      qrcodeText: '',
       imgData: '',
       isDisplayPoptip: false,
       isLongListShowAll: false,
@@ -219,7 +217,7 @@ export default {
       if (this.$store.state.snapshot.groupDetailDisplayKey === this.infoKey ) {
         this.isDisplayPoptip = true
         this.$store.commit('clearGroupDetailDisplayKey')
-        this.loadQrcodeImg ()
+        this.showQrcode ()
       }
       return true
     },
@@ -270,20 +268,26 @@ export default {
       this.$store.commit('setGroupDetailItem', { key: this.infoKey, value: labels })
       this.$store.dispatch('loadDataLabel')
     },
-    loadQrcodeImg () {
-      this.$store.dispatch('activateGroup', this.$store.state.dataManager.focusNodeInfo)
-      this.imgData = ''
-      getQrcodeImg(this.inputValue)
+    showQrcode () {
+      let node = {}
+      Object.assign(node, this.$store.state.dataManager.focusNodeInfo)
+      node.info = {}
+      node.info[this.infoKey] = this.infoValue
+      this.$store.dispatch('activateGroup', node)
+
+      render(this.inputValue)
         .then(response => {
-          this.imgData = response.data.img
+          this.qrcodeText = response.data.data
         })
         .catch(error => {
-          this.$bus.$emit('msg.error', 'Make QRCode error: ' + error.data.message)
+          this.$bus.$emit('msg.error', 'Render text error: ' + error.data.message)
         })
     },
     getQrcodeImgWidth () {
       if (!this.inputValue) {
         return 0
+      } else if (this.inputValue.length < 100) {
+        return 150
       } else if (this.inputValue.length < 1024) {
         return 250
       } else {
@@ -332,6 +336,9 @@ export default {
   background-color: #fff;
   min-width: 200px;
   max-width: 600px;
+}
+.data-detail-info-string-qrcode {
+  background-color: #fff;
 }
 .data-detail-info .v-btn--icon.v-size--default {
   height: 18px;

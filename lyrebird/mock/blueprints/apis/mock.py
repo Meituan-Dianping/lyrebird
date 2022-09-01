@@ -128,7 +128,10 @@ class ActivatedMockGroup(Resource):
     def put(self, group_id=None, action=None):
         if action == 'activate':
             # Only one group could be activated
-            context.application.data_manager.activate(group_id)
+            if request.json and request.json.get('info'):
+                context.application.data_manager.activate(group_id, info=request.json.get('info'))
+            else:
+                context.application.data_manager.activate(group_id)
         elif action == 'deactivate':
             context.application.data_manager.deactivate()
         else:

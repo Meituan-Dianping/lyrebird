@@ -588,6 +588,17 @@ def test_activate_groups(data_manager):
     assert len(flow_B_mock_data) == 1
 
 
+def test_activate_groups_with_extra_info(data_manager):
+    flow_A = {
+        'request': {
+            'url': 'http://somehost/api/search'
+        }
+    }
+    data_manager.activate('groupA-UUID', info={'a': 1})
+    flow_A_mock_data = data_manager.get_matched_data(flow_A)
+    assert len(flow_A_mock_data) == 1
+
+
 def test_conflict_checker(data_manager):
     data_manager.activate('groupB-UUID')
     conflict_rules = data_manager.activated_data_check_conflict()
