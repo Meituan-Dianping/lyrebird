@@ -269,12 +269,11 @@ export default {
       this.$store.dispatch('loadDataLabel')
     },
     showQrcode () {
-      let info = {}
-      info[this.infoKey] = this.infoValue
-      this.$store.dispatch('activateGroupWithInfo', {
-        node: this.$store.state.dataManager.focusNodeInfo,
-        info
-      })
+      let node = {}
+      Object.assign(node, this.$store.state.dataManager.focusNodeInfo)
+      node.info = {}
+      node.info[this.infoKey] = this.infoValue
+      this.$store.dispatch('activateGroup', node)
 
       render(this.inputValue)
         .then(response => {
