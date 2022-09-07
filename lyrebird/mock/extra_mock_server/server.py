@@ -3,6 +3,7 @@ import asyncio
 import re
 import traceback
 from aiohttp import web, client
+from yarl import URL
 
 import sys
 import json
@@ -50,13 +51,15 @@ async def send_request(context: LyrebirdProxyContext, target_url):
         request_body = None
         if request.body_exists:
             request_body = request.content
-        async with session.request(request.method,
-                                   target_url,
-                                   headers=headers,
-                                   data=request_body,
-                                   verify_ssl=False,
-                                   allow_redirects=False,
-                                   raise_for_status=False) as _resp:
+        async with session.request(
+            request.method,
+            URL(target_url, encoded=True),
+            headers=headers,
+            data=request_body,
+            verify_ssl=False,
+            allow_redirects=False,
+            raise_for_status=False
+        ) as _resp:
             proxy_resp_status = _resp.status
             proxy_resp_headers = _resp.headers
             # TODO support stream response
