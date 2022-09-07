@@ -51,7 +51,8 @@ async def send_request(context: LyrebirdProxyContext, target_url):
         request_body = None
         if request.body_exists:
             request_body = request.content
-        async with session.request(request.method,
+        async with session.request(
+            request.method,
             URL(target_url, encoded=True),
             headers=headers,
             data=request_body,
