@@ -24,6 +24,7 @@ conf = {
 
 MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
 
+
 @pytest.fixture
 def client():
     # application.config = conf
@@ -39,7 +40,7 @@ def client():
 
 def test_mock_api(client):
     resp = client.get('/mock/http://www.bing.com')
-    assert 200<= resp.status_code <= 400
+    assert 200 <= resp.status_code <= 400
 
 
 def test_status_api(client):

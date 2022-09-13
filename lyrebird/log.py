@@ -1,7 +1,7 @@
 import logging
+from logging.handlers import TimedRotatingFileHandler
 from colorama import Fore, Style, Back
 from collections import namedtuple
-from lyrebird import application
 from pathlib import Path
 
 DEFAULT_LOG_PATH = '~/.lyrebird/lyrebird.log'
@@ -60,24 +60,27 @@ def make_file_handler(_log_path=None):
     )
     log_file = Path(_log_path).expanduser().absolute().resolve()
 
-    file_handler = logging.handlers.TimedRotatingFileHandler(log_file, backupCount=1, encoding='utf-8', when='midnight')
+    file_handler = TimedRotatingFileHandler(log_file, backupCount=1, encoding='utf-8', when='midnight')
     file_handler.setFormatter(file_formater)
     return file_handler
 
 
-def init():
+def init(config):
     global LOGGER_INITED
     if LOGGER_INITED:
         return
+
+    if not config:
+        config = {}
 
     logging.addLevelName(60, 'NOTICE')
 
     stream_handler = make_stream_handler()
 
-    log_path = application.config.get('log')
+    log_path = config.get('log')
     file_handler = make_file_handler(log_path)
 
-    verbose = application.config.get('verbose', 0)
+    verbose = config.get('verbose', 0)
     if verbose == 0:
         logger_level = logging.ERROR
     elif verbose == 1:

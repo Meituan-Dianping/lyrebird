@@ -1,7 +1,3 @@
-> 🔔 **We are hiring. 欢迎加入：**[工具链建设](https://zhaopin.meituan.com/job-detail?jobId=676386152) | [所有职位](https://zhaopin.meituan.com/job-list?jobFamily=203&jobFamilyGroup=29&keywords=%E5%88%B0%E5%BA%97%E5%B9%B3%E5%8F%B0%E6%8A%80%E6%9C%AF&pageNo=1)
-
----
-
 <p align="center"><a herf="https://meituan-dianping.github.io/lyrebird/"><img src="./image/lyrebird.png" width="220"></a></p>
 <h1 align="center">Lyrebird</h1>
 
@@ -105,6 +101,8 @@ lyrebird
 
 - 将移动设备的代理地址设为当前电脑地址，默认端口为 4272（IP 地址可查看 Lyrebird 启动时输出的日志）
 
+  _(注意 ⚠️：4272 端口上使用的 mitmproxy 服务为外置依赖，需要用户自行安装 mitmproxy。如果没有安装 lyrebird 会尝试自动安装该应用)_
+
 - 被测设备上用浏览器打开 http://mitm.it, 选择对应操作系统安装证书
 
 > Lyrebird 接入有两种方式:
@@ -142,6 +140,7 @@ b. 直连
 ---
 
 ## 插件
+
 > 文档在建中
 
 ---

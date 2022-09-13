@@ -8,12 +8,16 @@ VERSION = runpy.run_path(
     os.path.join(here, "lyrebird", "version.py")
 )["VERSION"]
 
+
+def read_requirements(name):
+    with open(os.path.join(here, name), encoding='utf-8') as f:
+        require_str = f.read()
+        return require_str.split()
+
+
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-with open(os.path.join(here, 'install_requires.txt'), encoding='utf-8') as f:
-    install_requires_str = f.read()
-    install_requires = install_requires_str.split()
 
 setup(
     name='lyrebird',
@@ -30,6 +34,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: MIT License",
         "Operating System :: MacOS",
         "Operating System :: Microsoft :: Windows",
@@ -39,13 +44,8 @@ setup(
             'lyrebird = lyrebird.manager:main'
         ]
     },
-    install_requires=install_requires,
+    install_requires=read_requirements('requirements.txt.lock'),
     extras_require={
-        'dev': [
-            "autopep8",
-            "pylint",
-            "pytest",
-            "pytest-cov"
-        ]
+        'dev': read_requirements('requirements.dev.txt')
     }
 )

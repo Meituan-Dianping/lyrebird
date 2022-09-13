@@ -80,6 +80,7 @@ export default {
     this.$io.removeListener('statusBarUpdate', this.loadAllStatusList)
     this.$io.removeListener('msgSuccess', this.successMessage)
     this.$io.removeListener('msgInfo', this.infoMessage)
+    this.$io.removeListener('msgError', this.errorMessage)
     this.$bus.$off('msg.success', this.successMessage)
     this.$bus.$off('msg.loading', this.loadingMessage)
     this.$bus.$off('msg.info', this.infoMessage)
@@ -95,6 +96,7 @@ export default {
     this.$io.on('statusBarUpdate', this.loadAllStatusList)
     this.$io.on('msgSuccess', this.successMessage)
     this.$io.on('msgInfo', this.infoMessage)
+    this.$io.on('msgError', this.errorMessage)
   },
   watch: {
     activeMenuItemIndex(newValue, oldValue) {

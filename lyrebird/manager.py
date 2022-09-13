@@ -23,8 +23,9 @@ from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.notice_center import NoticeCenter
 from lyrebird.plugins import PluginManager
-from lyrebird.proxy.proxy_server import LyrebirdProxyServer
+from lyrebird.mitm.proxy_server import LyrebirdProxyServer
 from lyrebird.task import BackgroundTaskServer
+from lyrebird.base_server import MultiProcessServerMessageDispatcher
 from lyrebird import utils
 
 logger = log.get_logger()
@@ -67,7 +68,7 @@ def main():
                         help='Set extra mock server port, default port is 9999')
     parser.add_argument('--proxy', dest='proxy', type=int, help='Set proxy server port, default port is 4272')
     parser.add_argument('--data', dest='data', help='Set data dir, default is "./data/"')
-    parser.add_argument('-b', '--no_browser', dest='no_browser',
+    parser.add_argument('-b', '--no-browser', dest='no_browser',
                         action='store_true', help='Start without open a browser')
     parser.add_argument('-c', '--config', action='append', dest='config',
                         help='Start with a config file. Default is "~/.lyrebird/conf.json"')
@@ -76,6 +77,7 @@ def main():
     parser.add_argument('--plugin', action='append', help='Set a plugin project path')
     parser.add_argument('--database', dest='database', help='Set a database path. Default is "~/.lyrebird/lyrebird.db"')
     parser.add_argument('--es', dest='extra_string', action='append', nargs=2, help='Set a custom config')
+    parser.add_argument('--no-mitm', dest='no_mitm', action='store_true', help='Start without mitmproxy on 4272')
 
     subparser = parser.add_subparsers(dest='sub_command')
 
@@ -96,7 +98,7 @@ def main():
     # init logger for main process
     application._cm.config['verbose'] = args.verbose
     application._cm.config['log'] = args.log
-    log.init()
+    log.init(application._cm.config)
 
     # Add exception hook
     def process_excepthook(exc_type, exc_value, tb):
@@ -168,9 +170,11 @@ def run(args: argparse.Namespace):
 
     # Main server
     application.server['event'] = EventServer()
-
+    # mutilprocess message dispatcher
+    application.server['dispather'] = MultiProcessServerMessageDispatcher()
     application.server['task'] = BackgroundTaskServer()
-    application.server['proxy'] = LyrebirdProxyServer()
+    if not args.no_mitm:
+        application.server['proxy'] = LyrebirdProxyServer()
     application.server['mock'] = LyrebirdMockServer()
     application.server['extra.mock'] = ExtraMockServer()
     application.server['db'] = LyrebirdDatabaseServer(path=args.database)

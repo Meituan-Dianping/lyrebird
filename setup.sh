@@ -11,15 +11,10 @@ python3 -m venv --clear venv
 source ./venv/bin/activate
 
 # upgrage pip
-pip install --upgrade pip
+pip install pip -U
 
-# install from requirements.txt
-pip install -r requirements.txt
-
-# create data dir for debug
-if [ ! -e "./data/" ]; then
-mkdir ./data
-fi
+# install from freeze requirements
+pip install -r requirements.txt.lock -U
 
 echo "***************************"
 echo "   dev setup finish   "

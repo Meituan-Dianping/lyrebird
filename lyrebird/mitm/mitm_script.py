@@ -3,17 +3,12 @@ Script for mitmdump
 
 Redirect request from proxy server to mock server
 """
-
-from urllib.parse import urlparse
-from mitmproxy import http
-from lyrebird import log
-import os
-import json
-import logging
 import re
+import json
+import os
+from mitmproxy import http
+from urllib.parse import urlparse
 
-_logger = log.get_logger()
-_logger.setLevel(logging.INFO)
 
 PROXY_PORT = int(os.environ.get('PROXY_PORT'))
 PROXY_FILTERS = json.loads(os.environ.get('PROXY_FILTERS'))
@@ -37,16 +32,14 @@ def to_mock_server(flow: http.HTTPFlow):
     # 获取的address是IPv6（内嵌IPv4地址表示法），需要获取IPv4地址，需要做以下处理
     if address.startswith('::ffff:'):
         address = address.split('::ffff:')[1]
-    
+
     flow.request.headers['Lyrebird-Client-Address'] = address
     flow.request.headers['Mitmproxy-Proxy'] = address
-    flow.request.headers['Proxy-Raw-Headers'] = json.dumps({name: flow.request.headers[name] for name in flow.request.headers}, ensure_ascii=False)
-
-    _logger.info('Redirect-> %s' % flow.request.url[:100])
+    flow.request.headers['Proxy-Raw-Headers'] = json.dumps({name: flow.request.headers[name]
+                                                           for name in flow.request.headers}, ensure_ascii=False)
 
 
 def request(flow: http.HTTPFlow):
-    _logger.info(flow.request.url[:100])
     if 'mitm.it' in flow.request.url:
         # Support mitm.it
         return

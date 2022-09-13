@@ -1,0 +1,4 @@
+autopep8==1.7.0
+pip
+pytest
+pytest-cov

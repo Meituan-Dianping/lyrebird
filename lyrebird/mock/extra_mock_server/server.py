@@ -10,10 +10,9 @@ import json
 from typing import List, Set, Optional
 
 from lyrebird.mock.extra_mock_server.lyrebird_proxy_protocol import LyrebirdProxyContext
-from lyrebird.log import get_logger
+from lyrebird import log
 
-logger = get_logger()
-
+logger = None
 lb_config = {}
 
 
@@ -109,6 +108,10 @@ async def req_handler(request: web.Request):
 
 
 async def _run_app(config):
+    global logger
+    log.init(config)
+    logger = log.get_logger()
+
     global lb_config
     lb_config = config
 
@@ -125,12 +128,8 @@ async def _run_app(config):
         web_site = web.TCPSite(app_runner, '0.0.0.0', port)
         await web_site.start()
 
-        if print:
-            names = sorted(str(s.name) for s in app_runner.sites)
-            print(
-                "======== Running on {} ========\n"
-                "(Press CTRL+C to quit)".format(", ".join(names))
-            )
+        names = sorted(str(s.name) for s in app_runner.sites)
+        logger.log(60, f'Extra mock server start on {port}')
 
         # sleep forever by 1 hour intervals,
         # on Windows before Python 3.8 wake up every 1 second to handle
