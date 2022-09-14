@@ -1,6 +1,4 @@
 from pathlib import Path
-from colorama import Fore
-from lyrebird import application
 from lyrebird import log
 import subprocess
 import os
@@ -168,7 +166,7 @@ class LyrebirdProxyServer(ProcessServer):
         if not mitmdump_path:
             # Start HTTP proxy server failed
             # mitmdump not found
-            errmsg = self.show_mitmdump_help(config, logger)
+            self.show_mitmdump_help(config, logger)
             return
         self.start_mitmdump(queue, config, mitmdump_path, logger)
 

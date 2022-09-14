@@ -128,7 +128,8 @@ async def _run_app(config):
         web_site = web.TCPSite(app_runner, '0.0.0.0', port)
         await web_site.start()
 
-        names = sorted(str(s.name) for s in app_runner.sites)
+        # app sites list, not display in log.
+        # names = sorted(str(s.name) for s in app_runner.sites)
         logger.log(60, f'Extra mock server start on {port}')
 
         # sleep forever by 1 hour intervals,

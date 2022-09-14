@@ -1,6 +1,11 @@
 name: publish gh-pages
+
 permissions:
   contents: write
+  pull-requests: write
+  issues: write
+  repository-projects: write
+
 on:
   pull_request:
   push:
