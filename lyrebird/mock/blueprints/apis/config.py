@@ -12,6 +12,7 @@ class Conf(Resource):
     """
     Lyrebird 及 插件 配置文件获取和修改
     """
+
     def get(self):
         return jsonify(application.config.raw())
 
@@ -24,14 +25,12 @@ class Conf(Resource):
             return context.make_fail_response(str(e))
 
     def patch(self):
+        if not request.is_json:
+            return application.make_fail_response('Request body should be a JSONObject!')
 
-        update_conf = request.get_json()
+        update_conf = request.json
         if update_conf is None or not isinstance(update_conf, dict):
-            return application.make_fail_response('Request body must be a JSONObject!')
-
-        if not update_conf:
-            logger.warning('This request cannot modify config, request body is empty.')
-            return application.make_ok_response()
+            return application.make_fail_response('Request body should be a JSONObject!')
 
         try:
             application._cm.override_config_field(update_conf)

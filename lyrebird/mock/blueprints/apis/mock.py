@@ -42,7 +42,6 @@ class MockGroup(Resource):
         data_map = context.application.data_manager.make_data_map_by_group(groups_set)
         return application.make_ok_response(data=data_map)
 
-
     def post(self):
         data = request.json.get('data')
         if not data:
@@ -128,7 +127,7 @@ class ActivatedMockGroup(Resource):
     def put(self, group_id=None, action=None):
         if action == 'activate':
             # Only one group could be activated
-            if request.json and request.json.get('info'):
+            if request.is_json and request.json.get('info'):
                 context.application.data_manager.activate(group_id, info=request.json.get('info'))
             else:
                 context.application.data_manager.activate(group_id)
