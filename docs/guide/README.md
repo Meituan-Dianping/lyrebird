@@ -4,7 +4,7 @@
 
 - macOS / Linux / Windows
 
-- Python3.7 及以上 或 Docker
+- Python3.7 及以上 或 Docker 环境
 
 ## 安装
 
@@ -30,6 +30,12 @@ pip3 install lyrebird-api-coverage
 ```shell
 lyrebird
 ```
+
+> 注意 ⚠️：Lyrebird 使用的 HTTP 代理服务由 mitmproxy 提供
+>
+> 请在启动前安装好 mitmproxy (_[安装请前往 mitmproxy 官方网站](https://mitmproxy.org/)_)
+>
+> 或由 Lybired 自动下载 mitmproxy
 
 ## 连接移动设备
 
