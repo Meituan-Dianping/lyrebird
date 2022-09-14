@@ -17,5 +17,5 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.GH_PAGES }}
           TARGET_REPO: Meituan-Dianping/lyrebird
           TARGET_BRANCH: gh-pages
-          BUILD_SCRIPT: cd docs && npm install && npm run build
+          BUILD_SCRIPT: cd docs && npm install && npm run build && cd -
           BUILD_DIR: docs/.vuepress/dist
