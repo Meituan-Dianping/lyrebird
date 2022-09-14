@@ -1,21 +1,30 @@
 name: publish gh-pages
+permissions:
+  contents: write
 on:
   pull_request:
   push:
     branches:
       - main
 jobs:
-  build-and-deploy-to-gh-pages:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout 🛎️
         uses: actions/checkout@v3
 
-      - name: vuepress-deploy
-        uses: jenkey2011/vuepress-deploy@master
-        env:
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          TARGET_REPO: Meituan-Dianping/lyrebird
-          TARGET_BRANCH: gh-pages
-          BUILD_SCRIPT: echo ${{ secrets.ACCESS_TOKEN }} && cd docs && npm install && npm run build && cd -
-          BUILD_DIR: docs/.vuepress/dist
+      - name: Install and Build 🔧 # This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
+        run: |
+          cd docs
+          npm install
+          npm run build
+          cd -
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: docs/.vuepress/dist
+          branch: gh-pages
+          clean: true
+          force: true
+          token: ${{ secrets.ACCESS_TOKEN }}
