@@ -27,4 +27,4 @@ jobs:
           branch: gh-pages
           clean: true
           force: true
-          token: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
