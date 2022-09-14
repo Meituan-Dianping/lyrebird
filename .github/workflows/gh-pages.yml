@@ -21,10 +21,10 @@ jobs:
           cd -
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: JamesIves/github-pages-deploy-action@v3
         with:
           folder: docs/.vuepress/dist
           branch: gh-pages
           clean: true
           force: true
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
