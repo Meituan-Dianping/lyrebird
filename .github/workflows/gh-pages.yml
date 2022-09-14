@@ -21,7 +21,7 @@ jobs:
           cd -
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v3
+        uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
           folder: docs/.vuepress/dist
           branch: gh-pages
