@@ -5,7 +5,7 @@ on:
     branches:
       - main
 jobs:
-  build-and-deploy:
+  build-and-deploy-to-gh-pages:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
