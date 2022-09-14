@@ -49,7 +49,7 @@ class MockServer:
 
     def start(self):
         self.mock_server_process = subprocess.Popen(
-            f'python3 ./assets/serve.py -port {self.port}', shell=True, start_new_session=True)
+            f'python3 ./e2e_tests/assets/serve.py -port {self.port}', shell=True, start_new_session=True)
         _wait(requests.get, args=[self.api_status])
 
     def stop(self):
@@ -86,7 +86,7 @@ class Lyrebird:
             return s.getsockname()[1]
 
     def start(self, checker_path=None):
-        cmdline = f'lyrebird -b -v --mock {self.port} --proxy {self.proxy_port} --extra-mock {self.extra_mock_port}'
+        cmdline = f'python -m lyrebird -b -v --no-mitm --mock {self.port} --extra-mock {self.extra_mock_port}'
         if checker_path:
             cmdline = cmdline + f' --script {checker_path}'
         self.lyrebird_process = subprocess.Popen(cmdline, shell=True, start_new_session=True)
@@ -99,7 +99,10 @@ class Lyrebird:
 
     def stop(self):
         if self.lyrebird_process:
-            os.killpg(self.lyrebird_process.pid, signal.SIGTERM)
+            try:
+                os.killpg(self.lyrebird_process.pid, signal.SIGTERM)
+            except PermissionError:
+                os.kill(self.lyrebird_process.pid, signal.SIGTERM)
             _wait_exception(requests.get, args=[self.api_status])
             self.lyrebird_process = None
 

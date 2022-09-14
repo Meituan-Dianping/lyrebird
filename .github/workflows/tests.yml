@@ -22,8 +22,7 @@ jobs:
           pip install -r requirements.dev.txt -U
       - name: Unit Test
         run: |
-          cd tests
-          python -m pytest --cov=lyrebird
+          python -m pytest tests --cov=lyrebird
 
   e2etest:
     runs-on: macos-latest
@@ -40,5 +39,4 @@ jobs:
           pip install -r requirements.dev.txt -U
       - name: Run e2e test
         run: |
-          cd e2e_tests
-          python -m pytest --cov=lyrebird
+          python -m pytest e2e_tests --cov=lyrebird
