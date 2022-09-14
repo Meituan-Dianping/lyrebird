@@ -26,7 +26,4 @@ jobs:
           folder: docs/.vuepress/dist
           branch: gh-pages
           clean: true
-          force: true
-          git-config-name: zhaoye
-          git-config-email: zy81218@gmail.com
           token: ${{ secrets.ACCESS_TOKEN }}
