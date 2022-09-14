@@ -44,7 +44,7 @@ def test_patch_conf_api_with_not_json(client):
                         })
     assert 200 <= resp.status_code <= 400
     assert resp.json['code'] == 3000
-    assert resp.json['message'] == 'Request body must be a JSONObject!'
+    assert resp.json['message'] == 'Request body should be a JSONObject!'
 
     resp = client.patch('/api/conf',
                         json=[{
@@ -53,12 +53,12 @@ def test_patch_conf_api_with_not_json(client):
                         }])
     assert 200 <= resp.status_code <= 400
     assert resp.json['code'] == 3000
-    assert resp.json['message'] == 'Request body must be a JSONObject!'
+    assert resp.json['message'] == 'Request body should be a JSONObject!'
 
     resp = client.patch('/api/conf', json='custom.key1')
     assert 200 <= resp.status_code <= 400
     assert resp.json['code'] == 3000
-    assert resp.json['message'] == 'Request body must be a JSONObject!'
+    assert resp.json['message'] == 'Request body should be a JSONObject!'
 
 
 def test_patch_conf_api_with_custom_fields(client):
