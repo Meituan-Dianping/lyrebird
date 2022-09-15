@@ -1,8 +1,8 @@
 # 命令行
 
-> 在通过pip安装Lyrebird之后，可以直接使用lyrebird命令行启动。
+> 在通过 pip 安装 Lyrebird 之后，可以直接使用 lyrebird 命令行启动。
 
-## -h --help 
+## -h --help
 
 查看帮助
 
@@ -24,6 +24,7 @@ optional arguments:
   --proxy PROXY         Set proxy server port, default port is 9090
   --data DATA           Set data dir, default is "./data/"
   -b, --no_browser      Start without open a browser
+  --no-mitm             Start without mitmproxy on 4272
   -c CONFIG, --config CONFIG
                         Start with a config file. Default is
                         "~/.lyrebird/conf.json"
@@ -32,7 +33,7 @@ optional arguments:
   --plugin PLUGIN       Set a plugin project path
 ```
 
-## -V --version 
+## -V --version
 
 查看版本
 
@@ -41,7 +42,7 @@ optional arguments:
 Lyrebird 1.6.0
 ```
 
-## -v -vvv 
+## -v -vv
 
 显示详细日志
 
@@ -54,16 +55,16 @@ Lyrebird 1.6.0
 > lyrebird -vv
 ```
 
-## --mock 
+## --mock
 
-指定mock服务端口
+指定 mock 服务端口
 
 ```bash
 # 指定mock服务端口,lyrebird将在9000端口开启mock服务端口。(默认端口是9090)
 > lyrebird --mock 9000
 ```
 
-## --proxy 
+## --proxy
 
 指定代理服务端端口
 
@@ -83,20 +84,24 @@ Lyrebird 1.6.0
 
 启动时不打开浏览器
 
+## --no-mitm
+
+启动时不开启 mitmproxy [port:4272]
+
 ## -c --config
 
-使用指定配置文件启动lyrebird
+使用指定配置文件启动 lyrebird
 
 ## --log
 
 指定输出日志文件的位置
 
-## --script 
+## --script
 
 从指定路径加载[自定义脚本](./checker.html)
 用于调试自定义脚本
 
-## --plugin 
+## --plugin
 
 从源码启动自定义插件工程，用于插件开发和调试。
 
@@ -104,7 +109,7 @@ Lyrebird 1.6.0
 
 从模板生成一个自定义插件项目
 
-安装好Lyrebird后，可通过Lyrebird命令行工具生成插件
+安装好 Lyrebird 后，可通过 Lyrebird 命令行工具生成插件
 
 ```
 # 在指定路径创建插件工程
