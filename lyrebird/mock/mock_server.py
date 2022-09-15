@@ -8,6 +8,7 @@ from ..version import VERSION
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird import log
+import sys
 import traceback
 
 """
@@ -89,8 +90,12 @@ class LyrebirdMockServer(ThreadServer):
     def run(self):
         server_ip = application.config.get('ip')
         _logger.log(60, f'Core start on http://{server_ip}:{self.port}')
-        self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=self.debug,
-                           use_reloader=False, allow_unsafe_werkzeug=True)
+        if not sys.stdin or not sys.stdin.isatty():
+            # For e2e testing start lyrebird in subprocess
+            self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=self.debug,
+                               use_reloader=False, allow_unsafe_werkzeug=True)
+        else:
+            self.socket_io.run(self.app, host='0.0.0.0', port=self.port, debug=self.debug, use_reloader=False)
 
     def stop(self):
         """

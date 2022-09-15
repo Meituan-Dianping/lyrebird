@@ -86,6 +86,7 @@ class Lyrebird:
             return s.getsockname()[1]
 
     def start(self, checker_path=None):
+
         cmdline = f'python -m lyrebird -b -v --no-mitm --mock {self.port} --extra-mock {self.extra_mock_port}'
         if checker_path:
             cmdline = cmdline + f' --script {checker_path}'
