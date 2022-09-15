@@ -1,7 +1,6 @@
 name: publish gh-pages
 
 on:
-  pull_request:
   push:
     branches:
       - main
