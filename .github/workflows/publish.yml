@@ -37,7 +37,7 @@ jobs:
         run: |
           python setup.py sdist
           twine upload dist/*
-  push_to_doctor_registry:
+  push-to-docker-registry:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it

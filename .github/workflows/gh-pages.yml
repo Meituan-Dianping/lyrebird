@@ -2,9 +2,6 @@ name: publish gh-pages
 
 permissions:
   contents: write
-  pull-requests: write
-  issues: write
-  repository-projects: write
 
 on:
   pull_request:
@@ -18,7 +15,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
 
-      - name: Install and Build 🔧 # This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
+      - name: Install and Build 🔧
         run: |
           cd docs
           npm install
