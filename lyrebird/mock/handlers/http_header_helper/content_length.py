@@ -11,8 +11,8 @@ class ContentLengthHandler:
         return str(len(_resp_data))
 
     @staticmethod
-    def flow2origin(flow_obj):
-        _resp_data = DataHelper.flow2origin(flow_obj)
+    def flow2origin(flow_obj, chain=None):
+        _resp_data = DataHelper.flow2origin(flow_obj, chain=chain)
         if not _resp_data:
             return '0'
         return str(len(_resp_data))

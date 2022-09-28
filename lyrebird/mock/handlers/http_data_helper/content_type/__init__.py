@@ -18,13 +18,17 @@ def _get_matched_action(content_type):
             return func
     return DefaultHandler
 
-def origin2flow(content_type, request_data):
+def origin2flow(content_type, request_data, chain=None):
     func = _get_matched_action(content_type)
     try:
         _data = func.origin2flow(request_data)
     except Exception as e:
-        _data = DefaultHandler.origin2flow(request_data)
+        func = DefaultHandler
+        _data = func.origin2flow(request_data)
         logger.warning(f'Convert Content-Type: {content_type} data origin2flow failed! {e}')
+    finally:
+        chain.append(func)
+
     return _data
 
 def flow2origin(content_type, flow_data):
