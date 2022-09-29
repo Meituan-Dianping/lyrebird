@@ -147,7 +147,7 @@ def render(data):
     }
 
     try:
-        template_data = Template(data)
+        template_data = Template(data, keep_trailing_newline=True)
         return template_data.render(params)
     except Exception:
         logger.error(f'Format error!\n {traceback.format_exc()}')
