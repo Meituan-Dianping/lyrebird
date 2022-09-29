@@ -48,7 +48,7 @@ class DataHelper:
             return
 
         if chain:
-            for func in chain:
+            for func in chain[::-1]:
                 _data = func.flow2origin(_data)
         else:
             for headers_key, func in flow2origin_handlers.items():
