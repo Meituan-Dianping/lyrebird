@@ -462,7 +462,6 @@ export default {
 .flow-list-item-url {
   display: inline-block;
   word-break: keep-all;
-  max-width: 840px;
   width: calc(100% - 50px);
   white-space: nowrap;
   overflow: hidden;
