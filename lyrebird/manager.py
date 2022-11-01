@@ -24,6 +24,7 @@ from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.notice_center import NoticeCenter
 from lyrebird.plugins import PluginManager
 from lyrebird.mitm.proxy_server import LyrebirdProxyServer
+from lyrebird.mitm import init_mitm
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.base_server import MultiProcessServerMessageDispatcher
 from lyrebird import utils

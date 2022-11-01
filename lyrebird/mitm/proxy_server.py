@@ -3,14 +3,10 @@ from lyrebird import log
 import subprocess
 import os
 import json
-import sys
-import shutil
-import tarfile
 import requests
-import click
-import tempfile
 import time
 from lyrebird.base_server import ProcessServer
+from lyrebird.mitm.mitm_installer import init_mitm
 
 """
 HTTP proxy server
@@ -20,71 +16,10 @@ Default port 4272
 
 class LyrebirdProxyServer(ProcessServer):
 
-    def get_mitmdump_filename(self):
-        platform = sys.platform
-        if platform in ['linux', 'darwin']:
-            return 'mitmdump'
-        elif platform.startswith('win'):
-            return 'mitmdump.exe'
-        else:
-            raise UnsupportedPlatform(f'platform name: {platform}')
-
-    def find_mitmdump_in_path(self):
-        mitmdump_path = shutil.which('mitmdump')
-        if not mitmdump_path:
-            return None
-
-        mitmdump = Path(mitmdump_path)
-        if mitmdump.exists() and mitmdump.is_file():
-            return mitmdump
-        else:
-            return None
-
-    def find_mitmdump_in_lyrebird_home(self):
-        mitmdump = Path('~/.lyrebird/bin').expanduser().absolute()/self.get_mitmdump_filename()
-        if mitmdump.exists() and mitmdump.is_file():
-            return mitmdump
-        else:
-            return None
-
-    def download_mitmproxy(self):
-        '''
-        Download mitmdump 8.1.1 from mitmproxy.org
-        New file will be write in to ~/.lyrebird/bin
-        Support Window Linux and OSX
-        '''
-        platform = sys.platform
-        if platform == 'linux':
-            download_url = 'https://snapshots.mitmproxy.org/8.1.1/mitmproxy-8.1.1-linux.tar.gz'
-        elif platform == 'darwin':
-            download_url = 'https://snapshots.mitmproxy.org/8.1.1/mitmproxy-8.1.1-osx.tar.gz'
-        elif platform.startswith('win'):
-            download_url = 'https://snapshots.mitmproxy.org/8.1.1/mitmproxy-8.1.1-windows.zip'
-        else:
-            raise UnsupportedPlatform(f'unsupport platform: {platform}')
-
-        resp = requests.get(download_url, stream=True)
-        content_length = int(resp.headers.get('content-length'))
-        click.secho(f'\nmitmdupm not found\nStart downloading mitmproxy: {download_url}')
-        with click.progressbar(length=content_length) as bar, tempfile.NamedTemporaryFile('w+b') as tempf:
-            for chunk in resp.iter_content(4*2048):
-                tempf.write(chunk)
-                bar.update(len(chunk))
-            tempf.flush()
-            tempf.seek(0)
-
-            tarf = tarfile.open(fileobj=tempf.file)
-            mitmdump_filename = self.get_mitmdump_filename()
-            tarf.extract(mitmdump_filename, str(Path('~/.lyrebird/bin/').expanduser().absolute()))
-            mitmdump_filepath = f'~/.lyrebird/bin/{mitmdump_filename}'
-            click.secho(f'\n🍺 Download completed: write to {mitmdump_filepath}')
-            return mitmdump_filepath
-
-    def show_mitmdump_help(self, config, logger):
-        proxy_port = config['proxy.port']
-        errmsg = f'Download mitmproxy fail.\nCan\'t start HTTP proxy server on {proxy_port}\nPlease install mitmproxy(https://mitmproxy.org/) and restart lyrebird\n'
-        logger.error(errmsg)
-        return errmsg
+    def __init__(self):
+        super().__init__()
+        self.mitm_path = init_mitm()
+        self.kwargs['mitm_path'] = self.mitm_path
 
     def show_mitmdump_start_timeout_help(self, mitmdump_filepath, logger):
         logger.error(f'Start mitmdump failed.\nPlease check your mitmdump file {mitmdump_filepath}')
@@ -110,7 +45,7 @@ class LyrebirdProxyServer(ProcessServer):
             except Exception:
                 continue
 
-    def start_mitmdump(self, queue, config, mitmdump_path, logger):
+    def start_mitmdump(self, config, logger, mitmdump_path):
         proxy_port = config.get('proxy.port', 4272)
         mock_port = config.get('mock.port', 9090)
         '''
@@ -155,20 +90,9 @@ class LyrebirdProxyServer(ProcessServer):
         # Init logger
         log.init(config)
         logger = log.get_logger()
-        # Find mitmproxy in sys path
-        mitmdump_path = self.find_mitmdump_in_path()
-        if not mitmdump_path:
-            # Find mitmproxy in ~/.lyrebird/bin
-            mitmdump_path = self.find_mitmdump_in_lyrebird_home()
-        if not mitmdump_path:
-            # Download mitmproxy and save in ~/.lyrebird/bin
-            mitmdump_path = self.download_mitmproxy()
-        if not mitmdump_path:
-            # Start HTTP proxy server failed
-            # mitmdump not found
-            self.show_mitmdump_help(config, logger)
-            return
-        self.start_mitmdump(queue, config, mitmdump_path, logger)
+        # TODO
+        mitm_path = kwargs.get('mitm_path')
+        self.start_mitmdump(config, logger, mitm_path)
 
 
 class UnsupportedPlatform(Exception):

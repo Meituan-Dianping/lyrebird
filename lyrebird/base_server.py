@@ -15,6 +15,8 @@ class ProcessServer:
         self.running = False
         self.name = None
         self.event_thread = None
+        self.args = []
+        self.kwargs = {}
 
     def run(self, queue, config, *args, **kwargs):
         '''
@@ -41,15 +43,15 @@ class ProcessServer:
         '''
         pass
 
-    def start(self, *args, **kwargs):
+    def start(self):
         if self.running:
             return
 
         global service_msg_queue
         config = application.config.raw()
         self.server_process = Process(group=None, target=self.run,
-                                      args=[service_msg_queue, config, *args],
-                                      kwargs=kwargs,
+                                      args=[service_msg_queue, config, self.args],
+                                      kwargs=self.kwargs,
                                       daemon=True)
         self.server_process.start()
         self.running = True

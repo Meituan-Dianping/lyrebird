@@ -5,7 +5,7 @@ WORKDIR /usr/src/frontend
 RUN if [[ -n "$USE_MIRROR" ]] ; then npm --registry https://registry.npmmirror.com install ; else npm install ; fi \
   && npm run build
 
-FROM python:3.8-alpine as pybuilder
+FROM python:3.10-alpine as pybuilder
 ARG USE_MIRROR 
 ENV PYTHONUNBUFFERED 1
 COPY . /usr/src
