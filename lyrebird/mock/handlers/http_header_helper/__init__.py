@@ -29,13 +29,13 @@ class HeadersHelper:
             return _headers
 
     @staticmethod
-    def flow2origin(flow_obj, output=None):
+    def flow2origin(flow_obj, output=None, chain=None):
         _headers = flow_obj.get('headers')
         if not _headers:
             return
 
         for headers_key, func in flow2origin_handlers.items():
-            _headers[headers_key] = func.flow2origin(flow_obj)
+            _headers[headers_key] = func.flow2origin(flow_obj, chain=chain)
 
         if output:
             output.headers = _headers
