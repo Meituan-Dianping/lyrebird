@@ -1,13 +1,7 @@
-from lyrebird.mitm.proxy_server import LyrebirdProxyServer
 from click import secho
 
 
-def install_mitm():
-    LyrebirdProxyServer().download_mitmproxy()
-
-
 installer = {
-    'mitm': install_mitm
 }
 
 
