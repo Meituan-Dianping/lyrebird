@@ -27,7 +27,7 @@ from lyrebird.mitm.proxy_server import LyrebirdProxyServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.base_server import MultiProcessServerMessageDispatcher
 from lyrebird import utils
-from lyrebird import installer
+
 
 logger = log.get_logger()
 
@@ -150,9 +150,6 @@ def main():
     if args.sub_command == 'gen':
         logger.debug('EXEC: Plugin project generator')
         gen(args)
-    elif args.sub_command == 'install':
-        logger.debug('EXEC: Installer')
-        installer.install(args.extension_name)
     else:
         logger.debug('EXEC: LYREBIRD START')
         run(args)
@@ -182,12 +179,12 @@ def run(args: argparse.Namespace):
     application.server['task'] = BackgroundTaskServer()
 
     # Start mitmproxy server
-    conf_no_mitm = application._cm.config.get('no_mitm', None)
+    conf_no_mitm = application._cm.config.get('proxy.no_mitm', True)
     args_no_mitm = args.no_mitm
-    if conf_no_mitm is None:
-        should_start_mitm = not args_no_mitm
-    else:
+    if not args_no_mitm:
         should_start_mitm = not conf_no_mitm
+    else:
+        should_start_mitm = not args_no_mitm
     if should_start_mitm:
         application.server['proxy'] = LyrebirdProxyServer()
 
