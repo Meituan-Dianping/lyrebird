@@ -179,12 +179,14 @@ def run(args: argparse.Namespace):
     application.server['task'] = BackgroundTaskServer()
 
     # Start mitmproxy server
-    conf_no_mitm = application._cm.config.get('proxy.no_mitm', True)
+    # if set --no-mitm in commandline , skip start proxy server
+    # if set proxy.no_mitm in config file, skip start proxy server
+    conf_no_mitm = application._cm.config.get('proxy.no_mitm', False)
     args_no_mitm = args.no_mitm
-    if not args_no_mitm:
-        should_start_mitm = not conf_no_mitm
-    else:
+    if args_no_mitm:
         should_start_mitm = not args_no_mitm
+    else:
+        should_start_mitm = not conf_no_mitm
     if should_start_mitm:
         application.server['proxy'] = LyrebirdProxyServer()
 
