@@ -90,7 +90,6 @@ class LyrebirdProxyServer(ProcessServer):
         # Init logger
         log.init(config)
         logger = log.get_logger()
-        # TODO
         mitm_path = kwargs.get('mitm_path')
         self.start_mitmdump(config, logger, mitm_path)
 
