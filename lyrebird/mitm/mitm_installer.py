@@ -74,7 +74,7 @@ def download_mitmproxy():
 
     resp = requests.get(download_url, stream=True)
     content_length = int(resp.headers.get('content-length'))
-    click.secho(f'\nmitmdupm not found\nStart downloading mitmproxy: {download_url}')
+    click.secho(f'\nmitmdump not found\nStart downloading mitmproxy: {download_url}')
     with click.progressbar(length=content_length) as bar, tempfile.NamedTemporaryFile('w+b') as tempf:
         for chunk in resp.iter_content(4*2048):
             tempf.write(chunk)

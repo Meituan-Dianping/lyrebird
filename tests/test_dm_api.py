@@ -155,18 +155,18 @@ def test_data_post(client):
         'id': 'dataB-UUID',
         'name': 'dataB',
         'parent_id': 'root',
-        'data': 
+        'data':
             {
-            'id': 'dataB-UUID',
-            'name': 'dataB',
-            'rule': {
-                'request.data.sort': None,
-                'request.url': '(?=.*search)'
-            },
-            'request': {
-                'url': 'http://unittest.com/api/detail'
+                'id': 'dataB-UUID',
+                'name': 'dataB',
+                'rule': {
+                    'request.data.sort': None,
+                    'request.url': '(?=.*search)'
+                },
+                'request': {
+                    'url': 'http://unittest.com/api/detail'
+                }
             }
-        }
     })
     assert resp.json['code'] == 1000
 
@@ -192,6 +192,13 @@ def test_data_activate_with_info(client):
             'a': 1
         }
     })
+    assert resp.json['code'] == 1000
+
+
+def test_data_activate_without_body(client):
+    data_id = 'dataA-UUID'
+    action = 'activate'
+    resp = client.put(f'/api/mock/{data_id}/{action}', headers={'Content-Type': 'application/json'})
     assert resp.json['code'] == 1000
 
 

@@ -127,8 +127,14 @@ class ActivatedMockGroup(Resource):
     def put(self, group_id=None, action=None):
         if action == 'activate':
             # Only one group could be activated
-            if request.is_json and request.json.get('info'):
-                context.application.data_manager.activate(group_id, info=request.json.get('info'))
+            if request.is_json:
+                try:
+                    info = request.json.get('info')
+                    context.application.data_manager.activate(group_id, info=info)
+                except Exception:
+                    # If a request have json content-type but dose not have body.
+                    # Handle flask exception when parse json failed.
+                    context.application.data_manager.activate(group_id)
             else:
                 context.application.data_manager.activate(group_id)
         elif action == 'deactivate':
