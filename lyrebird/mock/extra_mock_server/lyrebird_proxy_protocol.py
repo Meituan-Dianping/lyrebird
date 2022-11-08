@@ -1,6 +1,7 @@
 from aiohttp import web, client
 from typing import List, Set, Optional
 from urllib import parse as urlparse
+import re
 
 
 class UnknownLyrebirdProxyProtocol(Exception):
@@ -122,7 +123,11 @@ class LyrebirdProxyContext:
 
         # remove lyrebrid proxy protocol keys from query string
         origin_query_str = ''
-        for query_key, query_value in request.query.items():
+        raw_query_items = {}
+        if request.raw_path.startswith('/?'):
+            raw_query_array = re.split('\\&|\\=', request.raw_path[2:])
+            raw_query_items = dict(zip(raw_query_array[::2], raw_query_array[1::2]))
+        for query_key, query_value in raw_query_items.items():
             if query_key in ['proxyscheme', 'proxyhost', 'proxypath']:
                 continue
             origin_query_str += f'&{query_key}={query_value}'
