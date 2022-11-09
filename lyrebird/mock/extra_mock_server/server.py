@@ -23,7 +23,7 @@ def is_filtered(context: LyrebirdProxyContext):
     allow list like
     '''
     global lb_config
-    filters = lb_config.get('proxy.filters')
+    filters = lb_config.get('proxy.filters', [])
     for _filter in filters:
         if re.search(_filter, context.origin_url):
             return True
@@ -107,19 +107,25 @@ async def req_handler(request: web.Request):
         return web.Response(status=500, text=f'{e.__class__.__name__}')
 
 
-async def _run_app(config):
+def init_app(config):
+    global lb_config
+    lb_config = config
+
     global logger
     log.init(config)
     logger = log.get_logger()
 
-    global lb_config
-    lb_config = config
+    app = web.Application()
+    app.router.add_route('*', r'/{path:(.*)}', req_handler)
+
+    return app
+
+
+async def _run_app(config):
+    app = init_app(config)
 
     port = config.get('extra.mock.port')
     port = port if port else 9999
-
-    app = web.Application()
-    app.router.add_route('*', r'/{path:(.*)}', req_handler)
 
     try:
         app_runner = web.AppRunner(app, auto_decompress=False)

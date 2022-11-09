@@ -121,18 +121,19 @@ class LyrebirdProxyContext:
         if not proxy_host:
             return
 
-        # remove lyrebrid proxy protocol keys from query string
         origin_query_str = ''
-        raw_query_items = {}
-        if request.raw_path.startswith('/?'):
-            raw_query_array = re.split('\\&|\\=', request.raw_path[2:])
-            raw_query_items = dict(zip(raw_query_array[::2], raw_query_array[1::2]))
-        for query_key, query_value in raw_query_items.items():
-            if query_key in ['proxyscheme', 'proxyhost', 'proxypath']:
-                continue
-            origin_query_str += f'&{query_key}={query_value}'
-        if len(origin_query_str) >= 1:
-            origin_query_str = '?'+origin_query_str[1:]
+        qs_index = request.path_qs.find('?')
+        if qs_index >= 0:
+            # query string to 2D array
+            # like a=1&b=2 ==> [(a, 1), (b, 2)]
+            raw_query_string = request.path_qs[qs_index+1:]
+            raw_query_array = re.split('\\&|\\=', raw_query_string)
+            raw_query_items = list(zip(raw_query_array[::2], raw_query_array[1::2]))
+            # remove lyrebrid proxy protocol keys from query string
+            raw_query_items = list(filter(lambda x: x[0] not in ['proxyscheme',
+                                   'proxyhost', 'proxypath'], raw_query_items))
+            # 2D array to query string
+            origin_query_str = '?'+'&'.join([f'{item[0]}={item[1]}' for item in raw_query_items])
 
         origin_url = f'{proxy_scheme}://{urlparse.unquote(proxy_host)}{urlparse.unquote(proxy_path)}{origin_query_str}'
 
