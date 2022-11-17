@@ -71,17 +71,18 @@ def _page_out():
     global last_page_in_time
 
     if last_page and last_page_in_time:
-        duration = datetime.datetime.now() - last_page_in_time
-        application.server['event'].publish('page.out', {
-            'page': last_page,
-            'duration': duration.total_seconds()
+        duration = (datetime.datetime.now() - last_page_in_time).total_seconds()
+        application.server['event'].publish('system', {
+            'system': {
+                'action': 'page.out', 'page': last_page, 'duration': duration
+            }
         })
 
         # TODO remove below
         application.reporter.report({
             'action': 'page.out',
             'page': last_page,
-            'duration': duration.total_seconds()
+            'duration': duration
         })
 
 
@@ -91,8 +92,8 @@ def page_in(name):
     global last_page
     global last_page_in_time
 
-    application.server['event'].publish('page.in', {
-        'page': name
+    application.server['event'].publish('system', {
+        'system': {'action': 'page.in', 'page': name}
     })
 
     # TODO remove below
@@ -108,7 +109,9 @@ def page_in(name):
 def start():
     global lyrebird_start_time
     lyrebird_start_time = datetime.datetime.now()
-    application.server['event'].publish('start', {})
+    application.server['event'].publish('system', {
+        'system': {'action': 'start'}
+    })
 
     # TODO remove below
     application.reporter.report({
@@ -118,12 +121,16 @@ def start():
 
 def stop():
     _page_out()
-    application.server['event'].publish('stop', {
-        'duration': (datetime.datetime.now() - lyrebird_start_time).total_seconds()
+    duration = (datetime.datetime.now() - lyrebird_start_time).total_seconds()
+    application.server['event'].publish('system', {
+        'system': {
+            'action': 'stop',
+            'duration': duration
+        }
     })
 
     # TODO remove below
     application.reporter.report({
         'action': 'stop',
-        'duration': (datetime.datetime.now() - lyrebird_start_time).total_seconds()
+        'duration': duration
     })
