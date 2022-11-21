@@ -1,6 +1,7 @@
 from .form import FormHandler
 from .json import JsonHandler
 from .text import TextHandler
+from .javascript import JavascriptHandler
 from .default import DefaultHandler
 from lyrebird.log import get_logger
 
@@ -8,6 +9,7 @@ logger = get_logger()
 
 content_type_handlers = {
     'application/x-www-form-urlencoded': FormHandler,
+    'application/javascript': JavascriptHandler,
     'application/json': JsonHandler,
     'text/': TextHandler
 }
