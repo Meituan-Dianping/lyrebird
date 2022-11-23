@@ -4,7 +4,6 @@ import json
 import time
 import codecs
 import shutil
-import datetime
 from pathlib import Path
 from urllib.parse import urlparse
 from collections import OrderedDict
@@ -12,7 +11,7 @@ from lyrebird import utils, application
 from lyrebird.log import get_logger
 from lyrebird.application import config
 from lyrebird.mock import context
-from lyrebird.mock.dm.jsonpath import jsonpath
+from lyrebird.mock.dm.match import MatchRules
 
 PROP_FILE_NAME = '.lyrebird_prop'
 logger = get_logger()
@@ -282,27 +281,7 @@ class DataManager:
             logger.warning(f'Format response data error! {flow["request"]["url"]}') 
 
     def _is_match_rule(self, flow, rules):
-        if not rules:
-            return False
-        for rule_key, pattern in rules.items():
-            targets = self._get_rule_targets(rule_key, flow)
-            if targets == []:
-                return False
-            if not self._is_target_pattern_matched(pattern, targets):
-                return False
-        return True
-
-    def _get_rule_targets(self, rule_key, flow):
-        search_res = jsonpath.search(flow, rule_key)
-        if not search_res:
-            return []
-        return [s.node for s in search_res]
-
-    def _is_target_pattern_matched(self, pattern, targets):
-        for target in targets:
-            if not utils.TargetMatch.is_match(target, pattern):
-                return False
-        return True
+        return MatchRules.match(flow, rules)
 
     # -----
     # Data tree operations
