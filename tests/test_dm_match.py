@@ -312,23 +312,23 @@ def test_match_v2_must_not_exists():
     assert res == False
 
 
-def test_match_v2_must_match_string():
-    rule = {
-        'must': {
-            'match': {
-                'request.url': '/api/search'
-            }
-        }
-    }
+# def test_match_v2_must_match_string():
+#     rule = {
+#         'must': {
+#             'match': {
+#                 'request.url': '/api/search'
+#             }
+#         }
+#     }
 
-    flow = {
-        'request': {
-            'url': 'http://somehost/api/search'
-        }
-    }
+#     flow = {
+#         'request': {
+#             'url': 'http://somehost/api/search'
+#         }
+#     }
 
-    res = MatchRules.match(flow, rule)
-    assert res == True
+#     res = MatchRules.match(flow, rule)
+#     assert res == True
 
 
 def test_match_v2_must_match_string():
@@ -414,8 +414,12 @@ def test_match_v2_must_match_number():
 
 def test_match_v2_must_match_bool():
     rule = {
-        'request.data.sort': True,
-        'request.url': '(?=.*search)'
+        'must': {
+            'match': {
+                'request.data.sort': True,
+                'request.url': '(?=.*search)'
+            }
+        }
     }
 
     flow = {
@@ -451,11 +455,14 @@ def test_match_v2_must_match_bool():
     res = MatchRules.match(flow, rule)
     assert res == False
 
-
-def test_mock_rule_null_with_jsonpath():
+def test_match_v2_must_match_none():
     rule = {
-        'request.data.sort': None,
-        'request.url': '(?=.*search)'
+        'must': {
+            'match': {
+                'request.data.sort': None,
+                'request.url': '(?=.*search)'
+            }
+        }
     }
 
     flow = {
