@@ -86,12 +86,8 @@ def root_dir():
         return _cm.ROOT
 
 
-# ------------------
-
-
+# --------- Lyrebird status ---------
 '''
-Lyrebird status
----
 [INITING] --> /run lyrebird main method/  --> [READY]
               /start services          / 
               /extra mock server ready /
@@ -153,5 +149,3 @@ def status_ready():
     server['event'].publish('system', {
         'system': {'action': 'init_module', 'status': 'READY', 'module': 'main'}
     })
-
-# ------------------
