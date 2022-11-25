@@ -104,19 +104,6 @@ class MultiProcessServerMessageDispatcher(ThreadServer):
         publish = application.server['event'].publish
 
         while True:
-            '''
-            {
-                'type': 'event',
-                "channel": "system",
-                "content": {
-                    'system': {
-                        'action': 'init_module',
-                        'status': 'READY',
-                        'module': 'mitm_proxy'
-                    }
-                }
-            }
-            '''
             msg = service_msg_queue.get()
             type = msg.get('type')
             if type == 'event':
