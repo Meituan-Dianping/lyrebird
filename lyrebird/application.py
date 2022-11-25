@@ -132,8 +132,6 @@ def status_listener(event):
     module_status = system.get('status')
     if module_status == 'READY':
         status_checkpoints[module] = True
-    else:
-        print('a')
 
     is_all_status_checkpoints_ok = reduce(lambda x, y: x and y, status_checkpoints.values())
     if is_all_status_checkpoints_ok:

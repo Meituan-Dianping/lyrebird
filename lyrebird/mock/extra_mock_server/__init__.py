@@ -6,10 +6,6 @@ logger = get_logger()
 
 
 class ExtraMockServer(ProcessServer):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self._server_process = None
 
     def run(self, queue, config, *args, **kwargs):
         publish_init_status(queue, 'READY')
