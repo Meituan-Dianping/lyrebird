@@ -85,9 +85,6 @@ def main():
     gen_parser = subparser.add_parser('gen')
     gen_parser.add_argument('path', help='Create plugin project')
 
-    install_parser = subparser.add_parser('install')
-    install_parser.add_argument('extension_name')
-
     args = parser.parse_args()
 
     if args.version:
@@ -188,6 +185,7 @@ def run(args: argparse.Namespace):
     else:
         should_start_mitm = not conf_no_mitm
     if should_start_mitm:
+        application.status_checkpoints['mitm_proxy'] = False
         application.server['proxy'] = LyrebirdProxyServer()
 
     application.server['mock'] = LyrebirdMockServer()
@@ -195,6 +193,9 @@ def run(args: argparse.Namespace):
     application.server['db'] = LyrebirdDatabaseServer(path=args.database)
     application.server['plugin'] = PluginManager()
     application.server['checker'] = LyrebirdCheckerServer()
+
+    # handle progress message
+    application.process_status_listener()
 
     application.start_server()
 
@@ -225,8 +226,8 @@ def run(args: argparse.Namespace):
     if not args.no_browser:
         webbrowser.open(f'http://localhost:{application.config["mock.port"]}')
 
-    # Lyrebird status contains: 'READY' and 'INITING'
-    application.status = 'READY'
+    # main process is ready, publish system event
+    application.status_ready()
 
     # stop event handler
     def signal_handler(signum, frame):
