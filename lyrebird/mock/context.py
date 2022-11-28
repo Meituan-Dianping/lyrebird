@@ -121,7 +121,7 @@ SocketIO emit interval
 Because of iview table has render preformance problem
 We need to limit render time
 """
-EMIT_INTERVAL = 0.4
+EMIT_INTERVAL = 0.25
 last_emit_time = {}
 
 
