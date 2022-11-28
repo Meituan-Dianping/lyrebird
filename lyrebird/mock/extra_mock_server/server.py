@@ -175,8 +175,21 @@ def _cancel_tasks(
                 }
             )
 
+def publish_init_status(queue, status):
+    queue.put({
+        'type': 'event',
+        "channel": "system",
+        "content": {
+            'system': {
+                'action': 'init_module',
+                'status': status,
+                'module': 'extra_mock'
+            }
+        }
+    })
 
-def serve(config):
+
+def serve(queue, config, *args, **kwargs):
     loop = asyncio.new_event_loop()
     main_task = loop.create_task(_run_app(config))
 
@@ -184,7 +197,7 @@ def serve(config):
         asyncio.set_event_loop(loop)
         loop.run_until_complete(main_task)
     except KeyboardInterrupt:
-        pass
+        publish_init_status(queue, 'ERROR')
     finally:
         _cancel_tasks({main_task}, loop)
         _cancel_tasks(asyncio.all_tasks(loop), loop)

@@ -89,36 +89,40 @@
       </template>
 
       <template v-slot:item.request="{ item }">
-        <span class="flow-list-item-url">
-          <span>{{ item.request.scheme }}</span>
-          <span v-if="item.request.scheme">://</span>
+        <v-row class="my-0 ml-0 mr-1">
+          <span class="flow-list-item-url">
+            <span>{{ item.request.scheme }}</span>
+            <span v-if="item.request.scheme">://</span>
 
-          <span class="flow-list-item-url-host">{{ item.request.host}}</span>
-          <span class="flow-list-item-url-path">{{ item.request.path}}</span>
+            <span class="flow-list-item-url-host">{{ item.request.host}}</span>
+            <span class="flow-list-item-url-path">{{ item.request.path}}</span>
 
-          <span class="flow-list-item-url-params" v-if="item.request.params">?</span>
-          <span class="flow-list-item-url-params">{{ item.request.params }}</span>
-        </span>
+            <span class="flow-list-item-url-params" v-if="item.request.params">?</span>
+            <span class="flow-list-item-url-params">{{ item.request.params }}</span>
+          </span>
 
-        <span class="flow-list-item-copy-btn" @click.stop>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <span v-bind="attrs" v-on="on">
-                <v-btn icon x-small plain>
-                  <v-icon
-                    x-small
-                    color="accent"
-                    v-clipboard:copy="item.request.url"
-                    v-clipboard:success="onUrlCopy"
-                    v-clipboard:error="onUrlCopyError"
-                  >mdi-content-copy</v-icon>
-                </v-btn>
-              </span>
-            </template>
-            Copy
-          </v-tooltip>
+          <v-spacer/>
 
-        </span>
+          <span class="flow-list-item-copy-btn" @click.stop>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <span v-bind="attrs" v-on="on">
+                  <v-btn icon x-small plain>
+                    <v-icon
+                      x-small
+                      color="accent"
+                      v-clipboard:copy="item.request.url"
+                      v-clipboard:success="onUrlCopy"
+                      v-clipboard:error="onUrlCopyError"
+                    >mdi-content-copy</v-icon>
+                  </v-btn>
+                </span>
+              </template>
+              Copy
+            </v-tooltip>
+
+          </span>
+        </v-row>
       </template>
 
       <template v-slot:item.start_time="{ item }">
@@ -389,6 +393,9 @@ export default {
 .flow-table table>tbody>tr>td>span {
   color: #666 !important;
 }
+.flow-table table>tbody>tr>td>div {
+  color: #666 !important;
+}
 .flow-table {
   width: 100%;
 }
@@ -462,6 +469,7 @@ export default {
 .flow-list-item-url {
   display: inline-block;
   word-break: keep-all;
+  max-width: 900px;
   width: calc(100% - 50px);
   white-space: nowrap;
   overflow: hidden;

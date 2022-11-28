@@ -45,7 +45,7 @@ class LyrebirdProxyServer(ProcessServer):
             except Exception:
                 continue
 
-    def start_mitmdump(self, config, logger, mitmdump_path):
+    def start_mitmdump(self, queue, config, logger, mitmdump_path):
         proxy_port = config.get('proxy.port', 4272)
         mock_port = config.get('mock.port', 9090)
         '''
@@ -82,16 +82,31 @@ class LyrebirdProxyServer(ProcessServer):
         subprocess.Popen(f'{str(mitmdump_path)} {" ".join(mitm_arguments)}', shell=True, env=mitmenv)
         is_mitm_start = self.wait_for_mitm_start(config, logger)
         if is_mitm_start:
+            self.publish_init_status(queue, 'READY')
             logger.log(60, f'HTTP proxy server start on {proxy_port}')
         else:
+            self.publish_init_status(queue, 'ERROR')
             self.show_mitmdump_start_timeout_help(mitmdump_path, logger)
+
+    def publish_init_status(self, queue, status):
+        queue.put({
+            'type': 'event',
+            "channel": "system",
+            "content": {
+                'system': {
+                    'action': 'init_module',
+                    'status': status,
+                    'module': 'mitm_proxy'
+                }
+            }
+        })
 
     def run(self, queue, config, *args, **kwargs):
         # Init logger
         log.init(config)
         logger = log.get_logger()
         mitm_path = kwargs.get('mitm_path')
-        self.start_mitmdump(config, logger, mitm_path)
+        self.start_mitmdump(queue, config, logger, mitm_path)
 
 
 class UnsupportedPlatform(Exception):
