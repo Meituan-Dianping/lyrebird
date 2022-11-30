@@ -132,6 +132,28 @@ def download(link, input_path):
         for chunck in resp.iter_content():
             f.write(chunck)
 
+def render_data_with_tojson(data):
+    pattern = config.get('config.value.tojsonKey')
+    convert_data = ''
+    left_index = 0
+    while left_index < len(data):
+        if data[left_index]=='"' and data[left_index+1]=='{' and data[left_index+2]=='{':
+            right_index = left_index+2
+            while right_index < len(data):
+                if data[right_index-2]=='}' and data[right_index-1]=='}' and data[right_index]=='"' and re.search(pattern[0], data[left_index: right_index]):
+                   data_without_space = data[left_index: (right_index+1)].replace(' ', '')
+                   # Remove double quotation marks
+                   data_without_mark = data_without_space.replace('"', '')
+                   data_with_tojson = data_without_mark[:-2]
+                   data_with_tojson += ' | tojson'
+                   data_with_tojson += data_without_mark[-2:]
+                   convert_data += data_with_tojson
+                   left_index = right_index+1
+                   break
+                right_index += 1
+        convert_data += data[left_index]
+        left_index += 1
+    return convert_data
 
 def render(data):
     if not isinstance(data, str):
@@ -158,7 +180,7 @@ class CaseInsensitiveDict(dict):
     A dict data-structure that ignore key's case.
     Any read or write related operations will igonre key's case.
 
-    Example: 
+    Example:
     <key: 'abc'> & <key: 'ABC'> will be treated as the same key, only one exists in this dict.
     '''
 
