@@ -1,3 +1,5 @@
+import webbrowser
+
 from flask import jsonify
 from functools import reduce
 
@@ -50,6 +52,17 @@ labels = None
 encoders_decoders = None
 
 
+def start_server_without_mock():
+    for name in server:
+        if name == 'mock':
+            continue
+        server[name].start()
+
+
+def start_mock_server():
+    server['mock'].start()
+
+
 def start_server():
     for name in server:
         server[name].start()
@@ -85,6 +98,8 @@ def root_dir():
     if _cm:
         return _cm.ROOT
 
+
+NO_BROSWER = False
 
 # --------- Lyrebird status ---------
 '''
@@ -135,9 +150,15 @@ def status_listener(event):
 
     is_all_status_checkpoints_ok = reduce(lambda x, y: x and y, status_checkpoints.values())
     if is_all_status_checkpoints_ok:
+        # Set global status
         global status
         status = 'READY'
 
+        server['event'].publish('system', {'action': 'init_module', 'status': 'READY', 'module': 'all'})
+
+        # auto open web browser
+        if not NO_BROSWER:
+            webbrowser.open(f'http://localhost:{config["mock.port"]}')
 
 def process_status_listener():
     server['event'].subscribe('system', status_listener)
