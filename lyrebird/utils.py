@@ -133,27 +133,19 @@ def download(link, input_path):
             f.write(chunck)
 
 def render_data_with_tojson(data):
-    pattern = config.get('config.value.tojsonKey')
-    convert_data = ''
-    left_index = 0
-    while left_index < len(data):
-        if data[left_index]=='"' and data[left_index+1]=='{' and data[left_index+2]=='{':
-            right_index = left_index+2
-            while right_index < len(data):
-                if data[right_index-2]=='}' and data[right_index-1]=='}' and data[right_index]=='"' and re.search(pattern[0], data[left_index: right_index]):
-                   data_without_space = data[left_index: (right_index+1)].replace(' ', '')
-                   # Remove double quotation marks
-                   data_without_mark = data_without_space.replace('"', '')
-                   data_with_tojson = data_without_mark[:-2]
-                   data_with_tojson += ' | tojson'
-                   data_with_tojson += data_without_mark[-2:]
-                   convert_data += data_with_tojson
-                   left_index = right_index+1
-                   break
-                right_index += 1
-        convert_data += data[left_index]
-        left_index += 1
-    return convert_data
+    config_value_tojsonKey = config.get('config.value.tojsonKey')
+    pattern = '(?P<str>"{{.*?' + config_value_tojsonKey[0] + '.*?}}")'
+
+    def add_tojson(matched):
+        match_str = matched.group("str")
+        # Remove double quotation marks
+        matched_without_mark = re.sub('"', '', match_str)
+        matched_without_space = re.sub('\s', '', matched_without_mark)
+        matched_with_tojson = matched_without_space[:-2] + ' | tojson' + matched_without_space[-2:]
+        return matched_with_tojson
+
+    data_with_tojson = re.sub(pattern, add_tojson, data)
+    return data_with_tojson
 
 def render(data):
     if not isinstance(data, str):
