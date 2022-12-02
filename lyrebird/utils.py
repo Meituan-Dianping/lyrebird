@@ -134,7 +134,7 @@ def download(link, input_path):
 
 def render_data_with_tojson(data):
     config_value_tojsonKey = config.get('config.value.tojsonKey')
-    pattern = '(?P<str>"{{.*?' + config_value_tojsonKey[0] + '.*?}}")'
+    data_with_tojson = data
 
     def add_tojson(matched):
         match_str = matched.group("str")
@@ -144,7 +144,9 @@ def render_data_with_tojson(data):
         matched_with_tojson = matched_without_space[:-2] + ' | tojson' + matched_without_space[-2:]
         return matched_with_tojson
 
-    data_with_tojson = re.sub(pattern, add_tojson, data)
+    for tojsonKey_pattern in config_value_tojsonKey:
+        pattern = '(?P<str>"[^:]*' + tojsonKey_pattern + '[^,]*")'
+        data_with_tojson = re.sub(pattern, add_tojson, data_with_tojson)
     return data_with_tojson
 
 def render(data):
