@@ -135,23 +135,16 @@ def download(link, input_path):
 def render_data_with_tojson(data):
     config_value_tojsonKey = config.get('config.value.tojsonKey')
     data_with_tojson = data
-
-    def add_tojson(matched):
-        match_str = matched.group("str")
-        # Remove double quotation marks
-        matched_without_mark = re.sub('"', '', match_str)
-        matched_without_space = re.sub('\s', '', matched_without_mark)
-        matched_with_tojson = matched_without_space[:-2] + ' | tojson' + matched_without_space[-2:]
-        return matched_with_tojson
-
     for tojsonKey_pattern in config_value_tojsonKey:
-        pattern = '(?P<str>"[^:]*' + tojsonKey_pattern + '[^,]*")'
-        data_with_tojson = re.sub(pattern, add_tojson, data_with_tojson)
-    return data_with_tojson
+        pattern = '[^:]*' + tojsonKey_pattern + '[^,]*'
+        # The format of the group is required
+        pattern_group = '(' + pattern + ')'
+        data_with_tojson = re.sub('(")'+pattern_group+'(}}")', r'\2|tojson}}', data_with_tojson)
+    return re.sub('\s', '', data_with_tojson)
 
 def render(data):
     if not isinstance(data, str):
-        logger.warning(f'Format error! Expected str, found {type(data)}') 
+        logger.warning(f'Format error! Expected str, found {type(data)}')
         return
 
     params = {
