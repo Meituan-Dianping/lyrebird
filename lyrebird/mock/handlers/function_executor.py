@@ -26,13 +26,14 @@ class FunctionExecutor:
                 logger.error(traceback.format_exc())
 
     @staticmethod
-    def get_matched_handler(func_list, flow):
+    def get_matched_sorted_handler(func_list, flow):
         matched_func = []
         for func in func_list:
             rules = func['rules']
             if not rules or FunctionExecutor._is_req_match_rule(rules, flow):
                 matched_func.append(func)
-        return matched_func
+        matched_sorted_func = sorted(matched_func, key = lambda e:e.__getitem__('rank'))
+        return matched_sorted_func
 
     @staticmethod
     def _is_req_match_rule(rules, flow):
