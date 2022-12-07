@@ -105,6 +105,20 @@ dataI = {
     }
 }
 
+dataJ = {
+    'id': 'dataJ-UUID',
+    'name': 'dataJ',
+    'rule': {
+        'request.url': '/api/search'
+    },
+    'request': {
+        'url': 'http://unittest.com/api/search'
+    },
+    'response': {
+        'data': '"keyA":"valueA","keyB":"{{config.get(\'model.8df051be-4381-41b6-9252-120d9b558bf6\')}}","keyC":"valueC"'
+    }
+}
+
 label_a = {'name':'label_a','color':'red','description':'description label_a'}
 label_b = {'name':'label_b','color':'green','description':'description label_b'}
 
@@ -263,6 +277,20 @@ prop = {
                     'parent_id': 'groupJ-UUID'
                 },
             ]
+        },
+        {
+            'id': 'groupK-UUID',
+            'name': 'groupK',
+            'type': 'group',
+            'parent_id': 'root',
+            'children': [
+                {
+                    'id': 'dataJ-UUID',
+                    'name': 'dataJ',
+                    'type': 'data',
+                    'parent_id': 'groupK-UUID'
+                },
+            ]
         }
     ]
 }
@@ -322,6 +350,8 @@ def root(tmpdir):
         json.dump(dataH, f)
     with codecs.open(tmpdir / 'dataI-UUID', 'w') as f:
         json.dump(dataI, f)
+    with codecs.open(tmpdir / 'dataJ-UUID', 'w') as f:
+        json.dump(dataJ, f)
     with codecs.open(tmpdir / '.lyrebird_prop', 'w') as f:
         json.dump(prop, f)
     return tmpdir
@@ -331,7 +361,9 @@ def root(tmpdir):
 def data_manager(root, tmpdir):
     _conf = {
         'ip': '127.0.0.1',
-        'mock.port': 9090
+        'mock.port': 9090,
+        'config.value.tojsonKey': ['model.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
+        'model.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"}
     }
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
@@ -387,6 +419,17 @@ def test_activate_with_super_id(data_manager):
     assert 'dataC-UUID' in data_manager.activated_data
     assert 'dataD-UUID' in data_manager.activated_data
 
+def test_activate_with_tojson(data_manager):
+    flow = {
+        'request': {
+            'url': 'http://somehost/api/search'
+        }
+    }
+    data_manager.activate('groupK-UUID')
+    mock_data_list = data_manager.get_matched_data(flow)
+    response_data = mock_data_list[0]['response']['data']
+    tojson_str = '{"key": "value"}'
+    assert tojson_str in response_data
 
 def test_mock_rule(data_manager):
     flow = {

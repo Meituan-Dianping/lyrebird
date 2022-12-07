@@ -133,14 +133,21 @@ def download(link, input_path):
             f.write(chunck)
 
 def render_data_with_tojson(data):
-    config_value_tojsonKey = config.get('config.value.tojsonKey')
+    config_value_tojson_key = config.get('config.value.tojsonKey')
     data_with_tojson = data
-    for tojsonKey_pattern in config_value_tojsonKey:
-        pattern = '[^:]*' + tojsonKey_pattern + '[^,]*'
+    for tojson_key in config_value_tojson_key:
+
+        # EXAMPLE
+        # response_data = `"key1":"value1","key2":"{{config.get('model.id')}}","key3":"value3"`
+        # target_match_data = `"{{config.get('model.id')}}"`
+        # divide target_match_data into three parts `"{{` and `config.get('model.id')` and `}}"`
+        # In the second part, `model.id` is a matching rule from Lyrebird configuration
+
+        pattern = '[^:]*' + tojson_key + '[^,]*'
         # The format of the group is required
         pattern_group = '(' + pattern + ')'
-        data_with_tojson = re.sub('(")'+pattern_group+'(}}")', r'\2|tojson}}', data_with_tojson)
-    return re.sub('\s', '', data_with_tojson)
+        data_with_tojson = re.sub('("{{)'+pattern_group+'(}}")', r'{{\2| tojson}}', data_with_tojson)
+    return data_with_tojson
 
 def render(data):
     if not isinstance(data, str):
