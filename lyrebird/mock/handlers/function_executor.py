@@ -32,7 +32,7 @@ class FunctionExecutor:
             rules = func['rules']
             if not rules or FunctionExecutor._is_req_match_rule(rules, flow):
                 matched_func.append(func)
-        matched_sorted_func = sorted(matched_func, key = lambda e:e.__getitem__('rank'))
+        matched_sorted_func = sorted(matched_func, key = lambda f:f['rank'])
         return matched_sorted_func
 
     @staticmethod
