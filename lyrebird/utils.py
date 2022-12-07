@@ -140,8 +140,9 @@ def render_data_with_tojson(data):
         # EXAMPLE
         # response_data = `"key1":"value1","key2":"{{config.get('model.id')}}","key3":"value3"`
         # target_match_data = `"{{config.get('model.id')}}"`
-        # divide target_match_data into three parts `"{{` and `config.get('model.id')` and `}}"`
+        # Divide target_match_data into three parts `"{{` and `config.get('model.id')` and `}}"`
         # In the second part, `model.id` is a matching rule from Lyrebird configuration
+        # The Final return response_data is `"key1":"value1","key2":{{config.get('model.id')}},"key3":"value3"`
 
         pattern = '[^:]*' + tojson_key + '[^,]*'
         # The format of the group is required

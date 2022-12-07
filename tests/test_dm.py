@@ -115,7 +115,7 @@ dataJ = {
         'url': 'http://unittest.com/api/search'
     },
     'response': {
-        'data': '"keyA":"valueA","keyB":"{{config.get(\'model.8df051be-4381-41b6-9252-120d9b558bf6\')}}","keyC":"valueC"'
+        'data': '"keyA":"valueA","keyB":"{{config.get(\'custom.8df051be-4381-41b6-9252-120d9b558bf6\')}}","keyC":"valueC"'
     }
 }
 
@@ -362,8 +362,8 @@ def data_manager(root, tmpdir):
     _conf = {
         'ip': '127.0.0.1',
         'mock.port': 9090,
-        'config.value.tojsonKey': ['model.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
-        'model.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"}
+        'config.value.tojsonKey': ['custom.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
+        'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"}
     }
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
