@@ -89,7 +89,10 @@ async def proxy(context: LyrebirdProxyContext):
 
 async def forward(context: LyrebirdProxyContext):
     logger.info(f'forward {context.forward_url}')
-    return await send_request(context, context.forward_url)
+    try:
+        return await send_request(context, context.forward_url)
+    except Exception:
+        logger.debug(f'Forward request error, it may caused by mock server not ready. URL: {context.forward_url}')
 
 
 async def req_handler(request: web.Request):

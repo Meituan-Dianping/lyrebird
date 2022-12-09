@@ -7,7 +7,6 @@ import signal
 import socket
 import threading
 import traceback
-import webbrowser
 from pathlib import Path
 
 from packaging.version import parse as vparse
@@ -188,16 +187,19 @@ def run(args: argparse.Namespace):
         application.status_checkpoints['mitm_proxy'] = False
         application.server['proxy'] = LyrebirdProxyServer()
 
-    application.server['mock'] = LyrebirdMockServer()
     application.server['extra.mock'] = ExtraMockServer()
     application.server['db'] = LyrebirdDatabaseServer(path=args.database)
     application.server['plugin'] = PluginManager()
     application.server['checker'] = LyrebirdCheckerServer()
 
+    # Mock mush init after other servers
+    application.server['mock'] = LyrebirdMockServer()
+
     # handle progress message
     application.process_status_listener()
 
-    application.start_server()
+    # Start server without mock server, mock server must start after all blueprint is done
+    application.start_server_without_mock()
 
     # int statistics reporter
     application.reporter = reporter.Reporter()
@@ -222,9 +224,12 @@ def run(args: argparse.Namespace):
     if args.script:
         application.server['checker'].load_scripts(args.script)
 
+    # Start server without mock server, mock server must start after all blueprint is done
+    application.start_mock_server()
+
     # auto open web browser
     if not args.no_browser:
-        webbrowser.open(f'http://localhost:{application.config["mock.port"]}')
+        application.NO_BROSWER = args.no_browser
 
     # main process is ready, publish system event
     application.status_ready()
