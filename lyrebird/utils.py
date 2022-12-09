@@ -132,10 +132,27 @@ def download(link, input_path):
         for chunck in resp.iter_content():
             f.write(chunck)
 
+def render_data_with_tojson(data):
+    config_value_tojson_key = config.get('config.value.tojsonKey')
+    data_with_tojson = data
+    for tojson_key in config_value_tojson_key:
+
+        # EXAMPLE
+        # response_data = `"key1":"value1","key2":"{{config.get('model.id')}}","key3":"value3"`
+        # target_match_data = `"{{config.get('model.id')}}"`
+        # Divide target_match_data into three parts `"{{` and `config.get('model.id')` and `}}"`
+        # In the second part, `model.id` is a matching rule from Lyrebird configuration
+        # The final return response_data is `"key1":"value1","key2":{{config.get('model.id') | tojson}},"key3":"value3"`
+
+        pattern = '[^:]*' + tojson_key + '[^,]*'
+        # The format of the group is required
+        pattern_group = '(' + pattern + ')'
+        data_with_tojson = re.sub('("{{)'+pattern_group+'(}}")', r'{{\2 | tojson}}', data_with_tojson)
+    return data_with_tojson
 
 def render(data):
     if not isinstance(data, str):
-        logger.warning(f'Format error! Expected str, found {type(data)}') 
+        logger.warning(f'Format error! Expected str, found {type(data)}')
         return
 
     params = {
@@ -158,7 +175,7 @@ class CaseInsensitiveDict(dict):
     A dict data-structure that ignore key's case.
     Any read or write related operations will igonre key's case.
 
-    Example: 
+    Example:
     <key: 'abc'> & <key: 'ABC'> will be treated as the same key, only one exists in this dict.
     '''
 

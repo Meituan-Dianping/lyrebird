@@ -274,11 +274,18 @@ class DataManager:
     def _format_respose_data(self, flow):
         # TODO render mock data before response, support more functions
         origin_response_data = flow['response']['data']
+
+        try:
+            flow['response']['data'] = utils.render_data_with_tojson(flow['response']['data'])
+        except Exception:
+            flow['response']['data'] = origin_response_data
+            logger.warning(f'Format response string to json error! {flow["request"]["url"]}')
+
         try:
             flow['response']['data'] = utils.render(flow['response']['data'])
         except Exception:
             flow['response']['data'] = origin_response_data
-            logger.warning(f'Format response data error! {flow["request"]["url"]}') 
+            logger.warning(f'Format response data error! {flow["request"]["url"]}')
 
     def _is_match_rule(self, flow, rules):
         return MatchRules.match(flow, rules)
