@@ -1,47 +1,76 @@
-from jsonschema import validate
 from lyrebird import utils
 from lyrebird.mock.dm.jsonpath import jsonpath
 
 
 class MatchRules:
-    MATCH_SCHEMA = {
-        "type": "object",
-        "patternProperties": {
-            ".": {
-                "anyOf": [
-                    {"type": "string"},
-                    {"type": "number"},
-                    {"type": "boolean"},
-                    {"type": "null"},
-                ]
-            }
+    def validate_match(rules):
+        '''
+        { 'request.url': 'pathA/pathB' }
+
+        Empty is allowed
+        '''
+        if not isinstance(rules, dict):
+            return False
+        for value in rules.values():
+            if not (isinstance(value, (str, int, float, bool)) or value is None):
+                return False
+        return True
+
+    BOOL_KEY = set(['must', 'must_not'])
+
+    def validate_exists(rules):
+        '''
+        [ "request.url", "request.data.name" ]
+
+        Empty is allowed
+        '''
+        if not isinstance(rules, list):
+            return False
+        for value in rules:
+            if not isinstance(value, str):
+                return False
+        return True
+
+    def validate_query(rules):
+        '''
+        {
+            "match": { ... },
+            "exists": [ ... ]
         }
-    }
 
-    EXISTS_SCHEMA = {
-        "type": "array",
-        "items": {
-            "type": "string"
+        Empty is allowed
+        '''
+        if not isinstance(rules, dict):
+            return False
+        if set(rules.keys()) - set(MatchRules.QUERY_FUNC_MAP.keys()):
+            return False
+
+        for query_key, query_rule in rules.items():
+            if query_key == 'match':
+                if not MatchRules.validate_match(query_rule):
+                    return False
+            elif query_key == 'exists':
+                if not MatchRules.validate_exists(query_rule):
+                    return False
+        return True
+
+    def validate_bool(rules):
+        '''
+        {
+            "must": { ... },
+            "must_not": { ... }
         }
-    }
+        '''
+        if not isinstance(rules, dict):
+            return False
+        if set(rules.keys()) - set(MatchRules.BOOL_FUNC_MAP.keys()):
+            return False
 
-    BOOL_SCHEMA = {
-        "type": "object",
-        "properties": {
-            "match": MATCH_SCHEMA,
-            "exists": EXISTS_SCHEMA
-        },
-        "additionalProperties": False
-    }
+        for search in rules.values():
+            if not MatchRules.validate_query(search):
+                return False
 
-    RULES_V2_SCHEMA = {
-        "type": "object",
-        "properties": {
-            "must": BOOL_SCHEMA,
-            "must_not": BOOL_SCHEMA,
-        },
-        "additionalProperties": False
-    }
+        return True
 
     @staticmethod
     def match(flow, rules):
@@ -76,29 +105,21 @@ class MatchRules:
         if not isinstance(rules, dict):
             return False
 
+        if MatchRules.is_rule_v1(rules):
+            return MatchRules._is_match_rule_v1(flow, rules)
+
         if MatchRules.is_rule_v2(rules):
             return MatchRules._is_match_rule_v2(flow, rules)
-
-        elif MatchRules.is_rule_v1(rules):
-            return MatchRules._is_match_rule_v1(flow, rules)
 
         return False
 
     @staticmethod
     def is_rule_v1(rules):
-        try:
-            validate(instance=rules, schema=MatchRules.MATCH_SCHEMA)
-            return True
-        except Exception:
-            return False
+        return MatchRules.validate_match(rules)
 
     @staticmethod
     def is_rule_v2(rules):
-        try:
-            validate(instance=rules, schema=MatchRules.RULES_V2_SCHEMA)
-            return True
-        except Exception:
-            return False
+        return MatchRules.validate_bool(rules)
 
     @staticmethod
     def _is_match_rule_v1(flow, rules):

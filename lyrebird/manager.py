@@ -228,8 +228,7 @@ def run(args: argparse.Namespace):
     application.start_mock_server()
 
     # auto open web browser
-    if not args.no_browser:
-        application.NO_BROSWER = args.no_browser
+    application.NO_BROSWER = args.no_browser
 
     # main process is ready, publish system event
     application.status_ready()
