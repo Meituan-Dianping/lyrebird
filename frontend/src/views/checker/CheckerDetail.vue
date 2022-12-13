@@ -44,10 +44,10 @@ export default {
       codeType: 'python'
     }
   },
-  mounted () {
-  this.$bus.$on('keydown', this.onKeyDown)
+  activated () {
+    this.$bus.$on('keydown', this.onKeyDown)
   },
-  beforeDestroy () {
+  deactivated () {
     this.$bus.$off('keydown', this.onKeyDown)
   },
   computed: {
