@@ -115,6 +115,12 @@ export default {
   beforeDestroy () {
     this.$bus.$off('keydown', this.onKeyDown)
   },
+  activated () {
+    this.$bus.$on('keydown', this.onKeyDown)
+  },
+  deactivated () {
+    this.$bus.$off('keydown', this.onKeyDown)
+  },
   computed: {
     nodeInfo () {
       return this.$store.state.dataManager.focusNodeInfo
@@ -217,15 +223,16 @@ export default {
 }
 .data-detail-content {
   margin: 10px 5px 10px 10px;
-  height: calc(100vh - 44px - 40px - 30px - 1px - 33px - 12px - 28px);
+  height: calc(100vh - 44px - 40px - 30px - 1px - 33px - 10px - 10px - 10px - 28px);
   /* total:100vh
     header: 44px
     title: 40px
     button-bar: 30px
     border: 1px
     tab: 33px
-    tree
-    margin-bottom: 12px
+    margin-bottom: 10px
+    detail
+    margin-bottom: 10px
     footer: 28px
   */
   overflow-y: scroll;
