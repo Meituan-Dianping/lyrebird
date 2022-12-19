@@ -87,7 +87,7 @@ class PluginManager(StaticServer):
                     'name': handler[0],
                     'func': handler[1],
                     'rules': handler[2] if len(handler) > 2 else None,
-                    'rank': handler[3] if len(handler) > 3 else 0
+                    'rank': handler[3] if len(handler) > 3 and type(handler[3]) in [int, float] else 0
                 })
 
             # Subscribe handler on response
@@ -96,7 +96,7 @@ class PluginManager(StaticServer):
                     'name': handler[0],
                     'func': handler[1],
                     'rules': handler[2] if len(handler) > 2 else None,
-                    'rank': handler[3] if len(handler) > 3 else 0
+                    'rank': handler[3] if len(handler) > 3 and type(handler[3]) in [int, float] else 0
                 })
 
             # Subscribe handler on proxy request
@@ -105,7 +105,7 @@ class PluginManager(StaticServer):
                     'name': handler[0],
                     'func': handler[1],
                     'rules': handler[2] if len(handler) > 2 else None,
-                    'rank': handler[3] if len(handler) > 3 else 0
+                    'rank': handler[3] if len(handler) > 3 and type(handler[3]) in [int, float] else 0
                 })
 
             # Subscribe handler on proxy response
@@ -114,7 +114,7 @@ class PluginManager(StaticServer):
                     'name': handler[0],
                     'func': handler[1],
                     'rules': handler[2] if len(handler) > 2 else None,
-                    'rank': handler[3] if len(handler) > 3 else 0
+                    'rank': handler[3] if len(handler) > 3 and type(handler[3]) in [int, float] else 0
                 })
 
             for status_item in plugin.manifest.status:

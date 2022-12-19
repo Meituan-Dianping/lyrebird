@@ -13,7 +13,7 @@ class OnResponseUpstreamHandler:
                 'name': origin_func.__name__,
                 'func': origin_func,
                 'rules': rules,
-                'rank': rank
+                'rank': rank if rank in [int, float] else 0
             })
             return origin_func
         return func
