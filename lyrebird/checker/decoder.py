@@ -13,7 +13,7 @@ class CustomDecoder:
                 'name': origin_func.__name__,
                 'func': origin_func,
                 'rules': rules,
-                'rank': rank if isinstance(rank, int) or isinstance(rank, float) else 0
+                'rank': rank if isinstance(rank, (int, float)) else 0
             })
             return origin_func
         return func
