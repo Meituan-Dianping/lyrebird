@@ -163,10 +163,14 @@ def test_func(flow):
     assert application.on_response[0]['rules'] == None
     assert application.on_request_upstream[0]['rules'] == None
     assert application.on_response_upstream[0]['rules'] == None
+    assert application.encoder[0]['rules'] == None
+    assert application.decoder[0]['rules'] == None
     assert application.on_request[0]['rank'] == 0
     assert application.on_response[0]['rank'] == 0
     assert application.on_request_upstream[0]['rank'] == 0
     assert application.on_response_upstream[0]['rank'] == 0
+    assert application.encoder[0]['rank'] == 0
+    assert application.decoder[0]['rank'] == 0
     application.checkers[CHECKER_C_FILENAME].deactivate()
 
 
