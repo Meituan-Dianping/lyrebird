@@ -295,12 +295,6 @@ class DataManager:
         origin_response_data = flow['response']['data']
 
         try:
-            flow['response']['data'] = utils.render_escape_character(flow['response']['data'])
-        except Exception:
-            flow['response']['data'] = origin_response_data
-            logger.warning(f'Format response escape character error! {flow["request"]["url"]}\n {traceback.format_exc()}')
-
-        try:
             flow['response']['data'] = utils.render_data_with_tojson(flow['response']['data'])
         except Exception:
             flow['response']['data'] = origin_response_data

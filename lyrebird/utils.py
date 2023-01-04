@@ -133,16 +133,6 @@ def download(link, input_path):
             f.write(chunck)
 
 
-def render_escape_character(data):
-    if not isinstance(data, str):
-        logger.warning(f'Format error! Expected str, found {type(data)}')
-        return
-
-    escape_character = ['{{', '}}']
-    for c in escape_character:
-        data.replace(c, f"{{ '{c}' }}")
-
-
 def render_data_with_tojson(data):
     config_value_tojson_key = config.get('config.value.tojsonKey')
     data_with_tojson = data
@@ -174,6 +164,18 @@ def render(data):
         'today': datetime.date.today(),
         'now':  datetime.datetime.now()
     }
+
+    # escape unknown canshu
+    findall_obj = re.findall('{{.*}}', data)
+    for target in findall_obj:
+        key = target.strip('{{').strip('}}')
+        for format_key in params.keys():
+            if key.startswith(format_key):
+                break
+        else:
+            key = target.strip('{{').strip('}}')
+            replace_str = "{{ '{{' }}" + key + "{{ '}}' }}"
+            data = data.replace(target, replace_str, 1)
 
     try:
         template_data = Template(data, keep_trailing_newline=True)
