@@ -4,6 +4,7 @@ import json
 import time
 import codecs
 import shutil
+import traceback
 from pathlib import Path
 from urllib.parse import urlparse
 from collections import OrderedDict
@@ -294,16 +295,22 @@ class DataManager:
         origin_response_data = flow['response']['data']
 
         try:
+            flow['response']['data'] = utils.render_escape_character(flow['response']['data'])
+        except Exception:
+            flow['response']['data'] = origin_response_data
+            logger.warning(f'Format response escape character error! {flow["request"]["url"]}\n {traceback.format_exc()}')
+
+        try:
             flow['response']['data'] = utils.render_data_with_tojson(flow['response']['data'])
         except Exception:
             flow['response']['data'] = origin_response_data
-            logger.warning(f'Format response string to json error! {flow["request"]["url"]}')
+            logger.warning(f'Format response string to json error! {flow["request"]["url"]}\n {traceback.format_exc()}')
 
         try:
             flow['response']['data'] = utils.render(flow['response']['data'])
         except Exception:
             flow['response']['data'] = origin_response_data
-            logger.warning(f'Format response data error! {flow["request"]["url"]}')
+            logger.warning(f'Format response data error! {flow["request"]["url"]}\n {traceback.format_exc()}')
 
     def _is_match_rule(self, flow, rules):
         return MatchRules.match(flow, rules)

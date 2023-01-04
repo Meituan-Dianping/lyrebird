@@ -132,6 +132,17 @@ def download(link, input_path):
         for chunck in resp.iter_content():
             f.write(chunck)
 
+
+def render_escape_character(data):
+    if not isinstance(data, str):
+        logger.warning(f'Format error! Expected str, found {type(data)}')
+        return
+
+    escape_character = ['{{', '}}']
+    for c in escape_character:
+        data.replace(c, f"{{ '{c}' }}")
+
+
 def render_data_with_tojson(data):
     config_value_tojson_key = config.get('config.value.tojsonKey')
     data_with_tojson = data
@@ -149,6 +160,7 @@ def render_data_with_tojson(data):
         pattern_group = '(' + pattern + ')'
         data_with_tojson = re.sub('("{{)'+pattern_group+'(}}")', r'{{\2 | tojson}}', data_with_tojson)
     return data_with_tojson
+
 
 def render(data):
     if not isinstance(data, str):
@@ -168,6 +180,7 @@ def render(data):
         return template_data.render(params)
     except Exception:
         logger.error(f'Format error!\n {traceback.format_exc()}')
+        return data
 
 
 class CaseInsensitiveDict(dict):
