@@ -36,6 +36,7 @@ def get_flow_list_by_filter(filter_obj):
                 url=item['request'].get('url'),
                 scheme=item['request'].get('scheme'),
                 host=item['request'].get('host'),
+                port=item['request'].get('port'),
                 path=item['request'].get('path'),
                 params=unquote(urlencode(item['request']['query'])),
                 method=item['request'].get('method')

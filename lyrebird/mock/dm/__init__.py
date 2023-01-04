@@ -80,12 +80,30 @@ class DataManager:
         self.add_super_by()
 
     def add_parent_into_node(self):
-        for node in self.id_map.values():
-            node.update({
-                'parent': self._get_abs_parent_obj(node),
-                'abs_parent_path': self._get_abs_parent_path(node)
-            })
+        self.add_parent(self.root)
         self.unsave_keys.update(['parent', 'abs_parent_path'])
+
+    def add_parent(self, node, parent_node=None):
+        parent_node_parent = parent_node['parent'] if parent_node and parent_node.get('parent') else []
+        parent_obj = parent_node_parent + [{
+            'id': node['id'],
+            'name': node['name'],
+            'type': node['type'],
+            'parent_id': node['parent_id']
+        }]
+
+        abs_parent_path = f"{parent_node['abs_parent_path']}{node['name']}/" if parent_node else '/'
+
+        node.update({
+            'parent': parent_obj,
+            'abs_parent_path': abs_parent_path
+        })
+
+        if not node.get('children'):
+            return
+
+        for child in node['children']:
+            self.add_parent(child, node)
 
     def add_super_by(self):
         for node in self.id_map.values():
