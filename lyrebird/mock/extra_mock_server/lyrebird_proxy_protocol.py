@@ -2,6 +2,7 @@ from aiohttp import web, client
 from typing import List, Set, Optional
 from urllib import parse as urlparse
 import re
+from lyrebird import utils
 
 
 class UnknownLyrebirdProxyProtocol(Exception):
@@ -94,14 +95,14 @@ class LyrebirdProxyContext:
         if not request.query.get('proxy'):
             return
 
-        origin_url = request.query.get('proxy')
-        origin_url = urlparse.unquote(origin_url)
-        url = urlparse.urlparse(origin_url)
+        query_list = str(request.url).split('proxy=')
+        origin_url = query_list[1] if len(query_list) > 1 else ''
+        url = urlparse.urlparse(urlparse.unquote(origin_url))
 
         self.origin_url = origin_url
         # forward url to lyrebird main port 'default 9090'
         port = lb_config.get('mock.port')
-        self.forward_url = f'http://127.0.0.1:{port}/mock/?proxy={urlparse.quote(origin_url)}'
+        self.forward_url = f'http://127.0.0.1:{port}/mock/?proxy={origin_url}'
         self.netloc = url.netloc
         self.request = request
 
@@ -122,12 +123,10 @@ class LyrebirdProxyContext:
             return
 
         origin_query_str = ''
-        qs_index = request.path_qs.find('?')
-        if qs_index >= 0:
+        raw_query_array = utils.get_query_array(request.path_qs)
+        if raw_query_array:
             # query string to 2D array
             # like a=1&b=2 ==> [(a, 1), (b, 2)]
-            raw_query_string = request.path_qs[qs_index+1:]
-            raw_query_array = re.split('\\&|\\=', raw_query_string)
             raw_query_items = list(zip(raw_query_array[::2], raw_query_array[1::2]))
             # remove lyrebrid proxy protocol keys from query string
             raw_query_items = list(filter(lambda x: x[0] not in ['proxyscheme',
