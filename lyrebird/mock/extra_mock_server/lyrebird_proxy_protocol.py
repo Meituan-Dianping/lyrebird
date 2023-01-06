@@ -97,13 +97,15 @@ class LyrebirdProxyContext:
 
         query_list = str(request.url).split('proxy=')
         origin_url = query_list[1] if len(query_list) > 1 else ''
-        url = urlparse.urlparse(urlparse.unquote(origin_url))
 
-        self.origin_url = origin_url
+        unquote_origin_url = urlparse.unquote(origin_url)
+        url_obj = urlparse.urlparse(unquote_origin_url)
+
+        self.origin_url = unquote_origin_url
         # forward url to lyrebird main port 'default 9090'
         port = lb_config.get('mock.port')
         self.forward_url = f'http://127.0.0.1:{port}/mock/?proxy={origin_url}'
-        self.netloc = url.netloc
+        self.netloc = url_obj.netloc
         self.request = request
 
         # Set init success
