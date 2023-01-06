@@ -57,7 +57,7 @@ def test_status_api(client):
 
 def test_mock_api_with_query(client, clear):
     origin_url = 'http://www.bing.com?q=,+%'
-    url = quote(origin_url)
+    url = quote(origin_url, safe='')
     client.get(f'/mock/?url={url}')
     cache_list = context.application.cache
     assert len(cache_list._cache) == 1
