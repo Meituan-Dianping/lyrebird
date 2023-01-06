@@ -40,6 +40,11 @@ def client():
     yield client
 
 
+@pytest.fixture
+def clear():
+    context.application.cache._cache.clear()
+
+
 def test_mock_api(client):
     resp = client.get('/mock/http://www.bing.com')
     assert 200 <= resp.status_code <= 400
@@ -50,7 +55,7 @@ def test_status_api(client):
     assert resp.status_code == 200
 
 
-def test_mock_api_with_query(client):
+def test_mock_api_with_query(client, clear):
     origin_url = 'http://www.bing.com?q=,+%'
     url = quote(origin_url)
     client.get(f'/mock/?url={url}')
