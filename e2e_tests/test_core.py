@@ -70,7 +70,7 @@ def test_lb_proxy_protocol_target_in_header(lyrebird, mock_server):
 
 
 def test_lb_proxy_protocol_target_in_query(lyrebird, mock_server):
-    r = requests.get(url=lyrebird.uri_extra_mock + f'?proxy={quote(mock_server.api_status)}')
+    r = requests.get(url=lyrebird.uri_extra_mock + f'?proxy={quote(mock_server.api_status, safe="")}')
     assert r.text == 'OK'
 
 

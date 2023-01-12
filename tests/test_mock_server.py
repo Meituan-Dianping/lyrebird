@@ -1,11 +1,13 @@
 from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 from lyrebird.mock.mock_server import LyrebirdMockServer
+from lyrebird.mock import context
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.event import EventServer
 from lyrebird import application
 from lyrebird import reporter
 from typing import NamedTuple
 import pytest
+from urllib.parse import quote
 
 
 conf = {
@@ -38,6 +40,11 @@ def client():
     yield client
 
 
+@pytest.fixture
+def clear():
+    context.application.cache._cache.clear()
+
+
 def test_mock_api(client):
     resp = client.get('/mock/http://www.bing.com')
     assert 200 <= resp.status_code <= 400
@@ -46,3 +53,13 @@ def test_mock_api(client):
 def test_status_api(client):
     resp = client.get('/api/status')
     assert resp.status_code == 200
+
+
+def test_mock_api_with_query(client, clear):
+    origin_url = 'http://www.bing.com?q=,+%'
+    url = quote(origin_url, safe='')
+    client.get(f'/mock/?url={url}')
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+    assert cache_list._cache[0]['request']['query']['url'] == url
+    assert cache_list._cache[0]['request']['url'] == f'?url={url}'
