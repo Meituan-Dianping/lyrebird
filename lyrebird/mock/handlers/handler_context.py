@@ -70,6 +70,11 @@ class HandlerContext:
             if len(request_info_from_header) > 0:
                 request_info = request_info_from_header
 
+        # parse query
+        query_array = utils.get_query_array(request_info['url'])
+        query = dict(zip(query_array[::2], query_array[1::2]))
+        request_info['query'] = query
+
         if raw_headers:
             headers = raw_headers
         else:
@@ -78,7 +83,6 @@ class HandlerContext:
         _request = dict(
             headers=headers,
             method=self.request.method,
-            query=self.request.args,
             timestamp=round(time.time(), 3)
         )
         _request.update(request_info)

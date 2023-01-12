@@ -185,6 +185,17 @@ def render(data):
         return data
 
 
+def get_query_array(url):
+    # query string to array
+    # like a=1&b=2 ==> [a, 1, b, 2]
+    query_array = []
+    qs_index = url.find('?')
+    if qs_index >= 0:
+        query_string = url[qs_index+1:]
+        query_array = re.split('\\&|\\=', query_string)
+    return query_array
+
+
 class CaseInsensitiveDict(dict):
     '''
     A dict data-structure that ignore key's case.

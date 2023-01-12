@@ -87,7 +87,7 @@ class Lyrebird:
 
     def start(self, checker_path=None):
 
-        cmdline = f'python -m lyrebird -b -v --no-mitm --mock {self.port} --extra-mock {self.extra_mock_port}'
+        cmdline = f'python3 -m lyrebird -b -v --no-mitm --mock {self.port} --extra-mock {self.extra_mock_port}'
         if checker_path:
             cmdline = cmdline + f' --script {checker_path}'
         self.lyrebird_process = subprocess.Popen(cmdline, shell=True, start_new_session=True)
