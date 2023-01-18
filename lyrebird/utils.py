@@ -159,7 +159,7 @@ def handle_jinja2_keywords(data, params=None):
 
     Handle 3 kinds of unexpected left brackets:
     1. More than 2 big brackets              `{{{ }}}` `{{# #}}` `{{% %}}`
-    2. Mismatched keyword                    `{{{` `{{#}}` `{{%`
+    2. Mismatched keyword                    `{{{` `{{#` `{{%`
     3. Unknown arguments between {{ and }}   `{{unknown}}`
 
     Convert unexpected brackets into presentable string in Jinja2, such as `var` -> `{{ 'var' }}`
