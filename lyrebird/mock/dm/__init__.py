@@ -290,7 +290,8 @@ class DataManager:
 
         return _matched_data
 
-    def _format_respose_data(self, flow):
+    @staticmethod
+    def _format_respose_data(flow):
         # TODO render mock data before response, support more functions
         origin_response_data = flow['response']['data']
 

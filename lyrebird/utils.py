@@ -152,10 +152,79 @@ def render_data_with_tojson(data):
     return data_with_tojson
 
 
+def handle_jinja2_keywords(data, params=None):
+    '''
+    Jinja2 will throw an exception when dealing with unexpected left brackets, but right brackets will not
+    So only left brackets need to be handled
+
+    Handle 3 kinds of unexpected left brackets:
+    1. More than 2 big brackets              `{{{ }}}` `{{# #}}` `{{% %}}`
+    2. Mismatched keyword                    `{{{` `{{#}}` `{{%`
+    3. Unknown arguments between {{ and }}   `{{unknown}}`
+
+    Convert unexpected brackets into presentable string in Jinja2, such as `var` -> `{{ 'var' }}`
+    The unexpected left brackets above will be convert into:
+    `{{#`          ->  `{{ '{{#' }}`
+    `{{unknown}}`  ->  `{{ '{{' }}unknown{{ '}}' }}`
+    '''
+
+    keywords_pair = {
+        '{{': '}}',
+        '{%': '%}',
+        '{#': '#}'
+    }
+
+    # split by multiple `{` followed by `{` or `#`` or `%`, such as `{{`, `{{{`, `{{{{`, `{#`, `{{#`
+    # EXAMPLE
+    # data = '{{ip}} {{ip {{{ip'
+    # item_list = ['', '{{', 'ip}} ', '{{', 'ip ', '{{{', 'ip']
+    item_list = re.split('({+[{|#|%])', data)
+    if len(item_list) == 1:
+        return data
+
+    left_pattern_index = None
+    for index, item in enumerate(item_list):
+        if index%2:
+            # 1. Handle more than 2 big brackets
+            if len(item) > 2:
+                item_list[index] = "{{ '%s' }}" % (item)
+            elif item not in keywords_pair:
+                item_list[index] = "{{ '%s' }}" % (item)
+            else:
+                left_pattern_index = index
+            continue
+
+        if left_pattern_index is None:
+            continue
+
+        left_pattern = item_list[left_pattern_index]
+        left_pattern_index = None
+
+        # 2. Handle mismatched keyword
+        right_pattern = keywords_pair[left_pattern]
+        if right_pattern not in item:
+            item_list[index-1] = "{{ '%s' }}" % (item_list[index-1])
+            continue
+
+        # 3. Handle unknown arguments between {{ and }}
+        if left_pattern == '{{':
+            key_n_lefted = item.split('}}', 1)
+            if len(key_n_lefted) != 2:
+                continue
+            key, lefted = key_n_lefted
+            if [key for p in params if key.startswith(p)]:
+                continue
+            item_list[index-1] = "{{ '%s' }}" % (item_list[index-1])
+            item_list[index] = "%s{{ '}}' }}%s" % (key, lefted)
+
+    after_data = ''.join(item_list)
+    return after_data
+
+
 def render(data):
     if not isinstance(data, str):
         logger.warning(f'Format error! Expected str, found {type(data)}')
-        return
+        return data
 
     params = {
         'config': config,
@@ -166,16 +235,7 @@ def render(data):
     }
 
     # escape unknown canshu
-    findall_obj = re.findall('{{.*}}', data)
-    for target in findall_obj:
-        key = target.strip('{{').strip('}}')
-        for format_key in params.keys():
-            if key.startswith(format_key):
-                break
-        else:
-            key = target.strip('{{').strip('}}')
-            replace_str = "{{ '{{' }}" + key + "{{ '}}' }}"
-            data = data.replace(target, replace_str, 1)
+    data = handle_jinja2_keywords(data, params)
 
     try:
         template_data = Template(data, keep_trailing_newline=True)
