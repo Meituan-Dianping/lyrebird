@@ -234,7 +234,6 @@ def render(data):
         'now':  datetime.datetime.now()
     }
 
-    # escape unknown canshu
     data = handle_jinja2_keywords(data, params)
 
     try:
