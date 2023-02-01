@@ -221,7 +221,7 @@ def handle_jinja2_keywords(data, params=None):
 def render(data):
     if not isinstance(data, str):
         logger.warning(f'Format error! Expected str, found {type(data)}')
-        return data
+        return
 
     params = {
         'config': config,
@@ -238,7 +238,6 @@ def render(data):
         return template_data.render(params)
     except Exception:
         logger.error(f'Format error!\n {traceback.format_exc()}')
-        return data
 
 
 def get_query_array(url):
