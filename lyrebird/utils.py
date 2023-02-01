@@ -184,11 +184,9 @@ def handle_jinja2_keywords(data, params=None):
 
     left_pattern_index = None
     for index, item in enumerate(item_list):
-        if index%2:
+        if index % 2:
             # 1. Handle more than 2 big brackets
-            if len(item) > 2:
-                item_list[index] = "{{ '%s' }}" % (item)
-            elif item not in keywords_pair:
+            if (len(item) > 2) or (item not in keywords_pair):
                 item_list[index] = "{{ '%s' }}" % (item)
             else:
                 left_pattern_index = index
@@ -211,11 +209,10 @@ def handle_jinja2_keywords(data, params=None):
             key_n_lefted = item.split('}}', 1)
             if len(key_n_lefted) != 2:
                 continue
-            key, lefted = key_n_lefted
+            key, _ = key_n_lefted
             if [key for p in params if key.startswith(p)]:
                 continue
             item_list[index-1] = "{{ '%s' }}" % (item_list[index-1])
-            item_list[index] = "%s{{ '}}' }}%s" % (key, lefted)
 
     after_data = ''.join(item_list)
     return after_data

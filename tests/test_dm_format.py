@@ -111,7 +111,7 @@ def test_format_empty_parameter(config):
     assert data == response_data_str
 
 
-def test_format_with_mismatched_keyword(config):
+def test_format_with_mismatched_left_keyword(config):
     mismatched_str = ' ip {{ip {%ip {#ip'
     response_data_str = '{{ip}}' + mismatched_str
     flow = {
@@ -122,6 +122,18 @@ def test_format_with_mismatched_keyword(config):
     DataManager._format_respose_data(flow)
     data = flow['response']['data']
     assert data == f'127.0.0.1{mismatched_str}'
+
+
+def test_format_with_mismatched_right_keyword(config):
+    response_data_str = ' ip ip}} }} ip%} ip#}'
+    flow = {
+        'response': {
+            'data': response_data_str
+        }
+    }
+    DataManager._format_respose_data(flow)
+    data = flow['response']['data']
+    assert data == response_data_str
 
 
 def test_format_with_more_than_2_big_brackets(config):
@@ -137,7 +149,7 @@ def test_format_with_more_than_2_big_brackets(config):
 
 
 def test_format_unknown_parameter(config):
-    response_data_str = '{{unknown}}{{unknown}}{{unknown2}}'
+    response_data_str = '{{unknown}} content {{unknown}} content {{unknown2}}'
     flow = {
         'response': {
             'data': response_data_str
