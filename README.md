@@ -1,12 +1,9 @@
 <p align="center"><a herf="https://meituan-dianping.github.io/lyrebird/"><img src="./image/lyrebird.png" width="220"></a></p>
 <h1 align="center">Lyrebird</h1>
 
-![Unit Test](https://github.com/Meituan-Dianping/lyrebird/workflows/Unit%20Test/badge.svg)
-![E2E Test](https://github.com/Meituan-Dianping/lyrebird/workflows/E2E%20Test/badge.svg)
-![Publish to pypi](https://github.com/Meituan-Dianping/lyrebird/workflows/Publish%20to%20pypi/badge.svg)
-![Publish Docker image](https://github.com/Meituan-Dianping/lyrebird/workflows/Publish%20Docker%20image/badge.svg)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Meituan-Dianping/lyrebird.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Meituan-Dianping/lyrebird/context:python)
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/Meituan-Dianping/lyrebird.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Meituan-Dianping/lyrebird/context:javascript)
+![Tests](https://github.com/Meituan-Dianping/lyrebird/workflows/Tests/badge.svg)
+![Publish](https://github.com/Meituan-Dianping/lyrebird/workflows/Publish/badge.svg)
+![CodeQL](https://github.com/Meituan-Dianping/lyrebird/workflows/CodeQL/badge.svg)
 
 # [PYPI](https://pypi.org/project/lyrebird/)
 
