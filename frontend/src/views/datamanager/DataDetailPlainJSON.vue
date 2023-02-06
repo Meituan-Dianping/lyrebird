@@ -63,6 +63,12 @@ export default {
   beforeDestroy () {
     this.$bus.$off('keydown', this.onKeyDown)
   },
+  activated () {
+    this.$bus.$on('keydown', this.onKeyDown)
+  },
+  deactivated () {
+    this.$bus.$off('keydown', this.onKeyDown)
+  },
   computed: {
     currentTab: {
       get () {

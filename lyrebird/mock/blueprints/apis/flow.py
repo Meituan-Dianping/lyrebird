@@ -47,6 +47,10 @@ def get_flow_list_by_filter(filter_obj):
             )if item.get('response') and len(item.get('response').keys()) > 1 else {},
             action=item.get('action', [])
         )
+        # Add key `request.port` when port is not default
+        if item['request'].get('port') not in ['443', '80']:
+            info['request']['port'] = item['request'].get('port')
+
         # Add key `proxy_response` into info only if item contains proxy_response
         if item.get('proxy_response'):
             info['proxy_response'] = {

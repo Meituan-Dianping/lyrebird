@@ -95,6 +95,7 @@
             <span v-if="item.request.scheme">://</span>
 
             <span class="flow-list-item-url-host">{{ item.request.host}}</span>
+            <span v-show="item.request.port" class="flow-list-item-url-host">:{{ item.request.port}}</span>
             <span class="flow-list-item-url-path">{{ item.request.path}}</span>
 
             <span class="flow-list-item-url-params" v-if="item.request.params">?</span>

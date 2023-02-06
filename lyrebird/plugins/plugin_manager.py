@@ -86,7 +86,8 @@ class PluginManager(StaticServer):
                 application.on_request.append({
                     'name': handler[0],
                     'func': handler[1],
-                    'rules': handler[2] if len(handler) > 2 else None
+                    'rules': handler[2] if len(handler) > 2 else None,
+                    'rank': handler[3] if len(handler) > 3 and isinstance(handler[3], (int, float)) else 0
                 })
 
             # Subscribe handler on response
@@ -94,7 +95,8 @@ class PluginManager(StaticServer):
                 application.on_response.append({
                     'name': handler[0],
                     'func': handler[1],
-                    'rules': handler[2] if len(handler) > 2 else None
+                    'rules': handler[2] if len(handler) > 2 else None,
+                    'rank': handler[3] if len(handler) > 3 and isinstance(handler[3], (int, float)) else 0
                 })
 
             # Subscribe handler on proxy request
@@ -102,7 +104,8 @@ class PluginManager(StaticServer):
                 application.on_request_upstream.append({
                     'name': handler[0],
                     'func': handler[1],
-                    'rules': handler[2] if len(handler) > 2 else None
+                    'rules': handler[2] if len(handler) > 2 else None,
+                    'rank': handler[3] if len(handler) > 3 and isinstance(handler[3], (int, float)) else 0
                 })
 
             # Subscribe handler on proxy response
@@ -110,7 +113,8 @@ class PluginManager(StaticServer):
                 application.on_response_upstream.append({
                     'name': handler[0],
                     'func': handler[1],
-                    'rules': handler[2] if len(handler) > 2 else None
+                    'rules': handler[2] if len(handler) > 2 else None,
+                    'rank': handler[3] if len(handler) > 3 and isinstance(handler[3], (int, float)) else 0
                 })
 
             for status_item in plugin.manifest.status:

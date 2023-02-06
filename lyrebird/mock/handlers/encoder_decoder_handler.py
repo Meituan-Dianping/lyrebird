@@ -9,7 +9,7 @@ class EncoderDecoder(FunctionExecutor):
         self.decoder = application.decoder
 
     def encoder_handler(self, flow, output=None):
-        matched_funcs = EncoderDecoder.get_matched_handler(self.encoder, flow)
+        matched_funcs = EncoderDecoder.get_matched_sorted_handler(self.encoder, flow)
         if output == None:
             EncoderDecoder.func_handler(matched_funcs, flow, handler_type='encoder')
             return
@@ -23,7 +23,7 @@ class EncoderDecoder(FunctionExecutor):
         output.update(new_flow)
 
     def decoder_handler(self, flow, output=None):
-        matched_funcs = EncoderDecoder.get_matched_handler(self.decoder, flow)
+        matched_funcs = EncoderDecoder.get_matched_sorted_handler(self.decoder, flow)
         if output == None:
             EncoderDecoder.func_handler(matched_funcs, flow, handler_type='decoder')
             return

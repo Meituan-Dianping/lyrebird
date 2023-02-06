@@ -4,7 +4,7 @@ from .. import checker
 
 class OnRequestHandler:
 
-    def __call__(self, rules=None, *args, **kw):
+    def __call__(self, rules=None, rank=0, *args, **kw):
         def func(origin_func):
             func_type = checker.TYPE_ON_REQUEST
             if not checker.scripts_tmp_storage.get(func_type):
@@ -12,7 +12,8 @@ class OnRequestHandler:
             checker.scripts_tmp_storage[func_type].append({
                 'name': origin_func.__name__,
                 'func': origin_func,
-                'rules': rules
+                'rules': rules,
+                'rank': rank if isinstance(rank, (int, float)) else 0
             })
             return origin_func
         return func
