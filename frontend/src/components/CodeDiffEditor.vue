@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="code-diff-editor" style="width:100%;height:100%;border:1px solid grey"></div>
+    <div id="code-diff-editor" style="width:100%;height:100%;padding:12px"></div>
   </div>
 </template>
 
@@ -29,7 +29,7 @@ export default {
     }
   },
   watch: {
-    content: function () {
+    diffContent: function () {
       console.debug("Code diff editor: content change");
       if ((this.editor)) {
         this.editor.setModel({

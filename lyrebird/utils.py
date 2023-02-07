@@ -238,6 +238,7 @@ def render(data):
         return template_data.render(params)
     except Exception:
         logger.error(f'Format error!\n {traceback.format_exc()}')
+        return data
 
 
 def get_query_array(url):

@@ -37,7 +37,9 @@ export default {
     uneditableKey: ['id', 'rule', 'super_by'],
     stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label', 'super_by'],
     displayCopyKey: ['id'],
-    treeUndeletableId: []
+    treeUndeletableId: [],
+    renderedRespData: '',
+    isEditorContentEquals: true
   },
   mutations: {
     setTitle (state, title) {
@@ -173,6 +175,12 @@ export default {
     },
     concatTreeUndeletableId (state, treeUndeletableId) {
       state.treeUndeletableId = state.treeUndeletableId.concat(treeUndeletableId)
+    },
+    setRenderedRespData (state, renderedRespData) {
+      state.renderedRespData = renderedRespData
+    },
+    setIsEditorContentEquals (state, isEditorContentEquals) {
+      state.isEditorContentEquals = isEditorContentEquals
     }
   },
   actions: {
@@ -404,7 +412,7 @@ export default {
         .then((res) => {
           commit('setSnapshotName', res.data.data.name)
         })
-        .catch((err) => { 
+        .catch((err) => {
           bus.$emit('msg.error', 'Load snapshot information error: ' + err.data.message)
         })
     },
@@ -423,6 +431,19 @@ export default {
         })
         .catch(error => {
           bus.$emit('msg.error', 'Delete error: ' + error.data.message)
+        })
+    },
+    loadRenderedData ( { commit }, data ) {
+      api.getRenderedData(data)
+        .then(response => {
+          commit('setRenderedRespData', response.data.data)
+          if (data != response.data.data) {
+            commit('setIsEditorContentEquals', false)
+          } else {
+            commit('setIsEditorContentEquals', true)
+          }
+        }).catch(error => {
+            bus.$emit('msg.error', 'Load rendered data error: ' + error.data.message)
         })
     }
   }

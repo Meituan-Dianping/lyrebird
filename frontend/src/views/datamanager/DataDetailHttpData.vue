@@ -1,6 +1,6 @@
 <template>
   <div class="small-tab">
-    <tabs @on-click="onRespDataTabClick" v-model="currentTab" :animated="false" size="small">
+    <tabs v-model="currentTab" :animated="false" size="small">
       <tab-pane label="Information" name="info" />
       <tab-pane label="Request" name="req" />
       <tab-pane label="RequestData" name="reqData" />
@@ -16,7 +16,7 @@
         v-on:on-jsonpath-change="onJsonPathChange"
       ></CodeEditor>
       <CodeDiffEditor
-        v-if="isShowCodeDiffEditor"
+        v-else
         class="data-detail"
         :language="currentTabContentType"
         :content="editorContent"
@@ -25,28 +25,6 @@
       ></CodeDiffEditor>
     </div>
     <div class="save-btn" v-if="dataDetail">
-      <!-- <v-tooltip top>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            v-bind="attrs"
-            v-on="on"
-            fab
-            dark
-            color="primary"
-            class="save-btn-detail"
-            @click="save"
-          >
-            <v-icon
-            class="save-btn-icon"
-            dark>
-              mdi-content-save-outline
-            </v-icon>
-          </v-btn>
-        </template>
-        <span>Save (⌘+s)</span>
-      </v-tooltip> -->
-
-      <!-- <v-card id="create"> -->
       <v-speed-dial
         :open-on-hover="true"
       >
@@ -66,30 +44,21 @@
             </v-icon>
           </v-btn>
         </template>
-        <v-btn
-          fab
-          dark
-          small
-          color="primary"
-          class="save-btn-detail"
-          :value="currentTab"
-          @click="showDiff"
-          title="Show the differences"
-        >
-          <v-icon>mdi-eye-outline</v-icon>
-        </v-btn>
-        <v-btn
-          fab
-          dark
-          small
-          color="primary"
-          class="save-btn-detail"
-          :value="currentTab"
-          @click="hideDiff"
-          title="Hide the differences"
-        >
-          <v-icon>mdi-eye-off-outline</v-icon>
-        </v-btn>
+        <div>
+          <v-btn
+            v-if="this.currentTab==='respData' && !this.isEditorContentEquals"
+            fab
+            dark
+            small
+            color="primary"
+            class="save-btn-detail"
+            @click="showEditorDiff"
+            :title="isShowEditorDiff?'Hide the difference':'Show the difference'"
+          >
+            <v-icon v-if="isShowEditorDiff">mdi-eye-off-outline</v-icon>
+            <v-icon v-else>mdi-eye-outline</v-icon>
+          </v-btn>
+        </div>
       </v-speed-dial>
     <!-- </v-card> -->
 
@@ -120,7 +89,7 @@ export default {
         resp: null,
         respData: null,
       },
-      isShowDiff: false,
+      isShowEditorDiff: false,
     }
   },
   mounted () {
@@ -183,34 +152,23 @@ export default {
         this.$store.commit('setRenderedRespData', val)
       }
     },
-    isShowCodeDiffEditor() {
+    isShowCodeDiffEditor () {
       if (this.currentTab === 'respData') {
-        if (this.isShowDiff){
+        if (this.isShowEditorDiff){
           return true
         }
       } else {
         return false
       }
     },
-    isCurrentTabRespData () {
-      if (this.currentTab === 'respData') {
-        return true
-      } else {
-        return false
-      }
-    },
-    isShowEye () {
-      if (this.editorContent != this.editorDiffContent && !this.isShowDiff) {
-        return true
-      } else {
-        return false
-      }
+    isEditorContentEquals () {
+      return this.$store.state.dataManager.isEditorContentEquals
     }
   },
   watch: {
     dataDetail (val) {
       this.setDataDetailEditorCache(val)
-      this.onRespDataTabClick()
+      this.updateEditorDiffContent()
     },
   },
   methods: {
@@ -264,17 +222,22 @@ export default {
       })
       this.editorCache.respData = typeof (val.response.data) == 'object' ? JSON.stringify(val.response.data) : val.response.data
     },
-    onRespDataTabClick () {
-        const responseData = this.editorCache.respData
-        this.$store.dispatch('loadRenderedData', {'data': responseData})
-        console.log("12333")
+    loadEditorDiffContent () {
+      if (this.currentTab === 'respData') {
+        const data = this.editorCache['respData']
+        this.$store.dispatch('loadRenderedData', data)
+      }
     },
-    showDiff () {
-      this.isShowDiff = true
+    updateEditorDiffContent () {
+      this.loadEditorDiffContent()
+      this.isShowEditorDiff = false
     },
-    hideDiff () {
-      this.isShowDiff = false
-    },
+    showEditorDiff () {
+      this.isShowEditorDiff = !this.isShowEditorDiff
+      if (this.isShowEditorDiff) {
+        this.loadEditorDiffContent()
+      }
+    }
   }
 }
 </script>

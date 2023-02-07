@@ -60,5 +60,10 @@ class Render(Resource):
 
     def put(self):
         origin_data = request.json.get('data')
-        data = utils.render(origin_data)
+        tojson = request.json.get('tojson')
+        if tojson:
+            data_with_tojson = utils.render_data_with_tojson(origin_data)
+        else:
+            data_with_tojson = origin_data
+        data = utils.render(data_with_tojson)
         return context.make_ok_response(data=data)
