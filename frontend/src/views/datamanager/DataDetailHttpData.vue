@@ -60,9 +60,6 @@
           </v-btn>
         </div>
       </v-speed-dial>
-    <!-- </v-card> -->
-
-
     </div>
   </div>
 </template>
@@ -87,9 +84,9 @@ export default {
         req: null,
         reqData: null,
         resp: null,
-        respData: null,
+        respData: null
       },
-      isShowEditorDiff: false,
+      isShowEditorDiff: false
     }
   },
   mounted () {
