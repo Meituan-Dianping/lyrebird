@@ -151,7 +151,7 @@ export default {
     },
     isShowCodeDiffEditor () {
       if (this.currentTab === 'respData') {
-        if (this.isShowEditorDiff){
+        if (this.isShowEditorDiff) {
           return true
         }
       } else {
