@@ -58,8 +58,9 @@
             @click="save"
           >
             <v-icon
-            class="save-btn-icon"
-            dark>
+              class="save-btn-icon"
+              dark
+            >
               mdi-content-save-outline
             </v-icon>
           </v-btn>

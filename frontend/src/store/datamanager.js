@@ -38,8 +38,6 @@ export default {
     stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label', 'super_by'],
     displayCopyKey: ['id'],
     treeUndeletableId: []
-    // renderedRespData: '',
-    // isEditorContentEquals: true
   },
   mutations: {
     setTitle (state, title) {
@@ -176,12 +174,6 @@ export default {
     concatTreeUndeletableId (state, treeUndeletableId) {
       state.treeUndeletableId = state.treeUndeletableId.concat(treeUndeletableId)
     }
-    // setRenderedRespData (state, renderedRespData) {
-    //   state.renderedRespData = renderedRespData
-    // },
-    // setIsEditorContentEquals (state, isEditorContentEquals) {
-    //   state.isEditorContentEquals = isEditorContentEquals
-    // }
   },
   actions: {
     loadDataMap ({ state, commit }) {
