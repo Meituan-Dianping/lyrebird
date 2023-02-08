@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="code-diff-editor" style="width:100%;height:100%;padding:12px"></div>
+    <div id="code-diff-editor" class="pa-3" style="width:100%;height:100%;border-top:1px;solid grey"></div>
   </div>
 </template>
 
@@ -33,8 +33,8 @@ export default {
       console.debug("Code diff editor: content change");
       if ((this.editor)) {
         this.editor.setModel({
-        original: monaco.editor.createModel(this.content,this.language),
-        modified: monaco.editor.createModel(this.diffContent,this.language)
+        original: monaco.editor.createModel(this.content, this.language),
+        modified: monaco.editor.createModel(this.diffContent, this.language)
         });
       }
     }
@@ -48,9 +48,9 @@ export default {
       }
     )
     this.editor.setModel({
-        original: monaco.editor.createModel(this.content,this.language),
-        modified: monaco.editor.createModel(this.diffContent,this.language)
-        });
+      original: monaco.editor.createModel(this.content, this.language),
+      modified: monaco.editor.createModel(this.diffContent, this.language)
+    })
   }
 };
 </script>
