@@ -96,6 +96,6 @@ export const render = (data) => {
   return axios({
     url: '/api/render',
     method: 'PUT',
-    data: {'data': data, 'is_render_var': true}
+    data: { data }
   })
 }

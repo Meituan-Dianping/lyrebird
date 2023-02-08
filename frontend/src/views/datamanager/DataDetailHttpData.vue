@@ -35,13 +35,13 @@
             dark
             fab
             class="save-btn-detail"
-            @click="eyeButtonClick"
+            @click="diffButtonClick"
           >
-          <v-icon v-if="isShowEyeButton">mdi-eye-off-outline</v-icon>
+          <v-icon v-if="isShowDiffButton">mdi-eye-off-outline</v-icon>
           <v-icon v-else>mdi-eye-outline</v-icon>
           </v-btn>
         </template>
-        <span v-if="!isShowEyeButton">Show the diff</span>
+        <span v-if="!isShowDiffButton">Show the diff</span>
         <span v-else>Hide the diff</span>
       </v-tooltip>
     </div>
@@ -94,8 +94,9 @@ export default {
         resp: null,
         respData: null
       },
-      isShowEyeButton: false,
+      isShowDiffButton: false,
       isEditorContentEquals: true,
+      isTreeNodeClicked: false,
       renderedRespData: ''
     }
   },
@@ -161,9 +162,10 @@ export default {
     },
     isShowCodeDiffEditor () {
       if (this.currentTab === 'respData') {
-        if (this.isShowEyeButton) {
+        if (this.isShowDiffButton) {
           return true
         }
+        return false
       }
       return false
     }
@@ -171,7 +173,7 @@ export default {
   watch: {
     dataDetail (val) {
       this.setDataDetailEditorCache(val)
-      this.updateEditorDiffContent()
+      this.updateDiffButtonStatus()
     },
   },
   methods: {
@@ -235,28 +237,30 @@ export default {
           } else {
             this.isEditorContentEquals = true
           }
+          if (this.isTreeNodeClicked) {
+            this.isShowDiffButton = false
+          }
         }).catch(error => {
             bus.$emit('msg.error', 'Load rendered data error: ' + error.data.message)
         })
     },
     onTabClick () {
       if (this.currentTab === 'respData') {
-        this.loadEditorDiffContent()
-        if (!this.isEditorContentEquals) {
-          this.isShowEyeButton = true
-        }
-      }
-    },
-    eyeButtonClick () {
-      this.isShowEyeButton = !this.isShowEyeButton
-      if (this.isShowEyeButton) {
+        this.isTreeNodeClicked = false
         this.loadEditorDiffContent()
       }
     },
-    updateEditorDiffContent () {
+    diffButtonClick () {
+      this.isTreeNodeClicked = false
+      this.isShowDiffButton = !this.isShowDiffButton
+      if (this.isShowDiffButton) {
+        this.loadEditorDiffContent()
+      }
+    },
+    updateDiffButtonStatus() {
       if (this.currentTab === 'respData') {
+        this.isTreeNodeClicked = true
         this.loadEditorDiffContent()
-        this.isShowEyeButton = false
       }
     }
   }
@@ -266,5 +270,18 @@ export default {
 <style scoped>
 .small-tab > .ivu-tabs > .ivu-tabs-bar {
   margin-bottom: 0;
+}
+.show-diff-btn {
+  color: #fff;
+  font-size: 0.6rem;
+  text-align: center;
+  line-height: 3rem;
+  width: 3rem;
+  height: 3rem;
+  position: fixed;
+  right: 60px;
+  bottom: 140px;
+  border-radius: 50%;
+  z-index: 2;
 }
 </style>
