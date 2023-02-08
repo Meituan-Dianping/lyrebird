@@ -296,12 +296,6 @@ class DataManager:
         origin_response_data = flow['response']['data']
 
         try:
-            flow['response']['data'] = utils.render_data_with_tojson(flow['response']['data'])
-        except Exception:
-            flow['response']['data'] = origin_response_data
-            logger.warning(f'Format response string to json error! {flow["request"]["url"]}\n {traceback.format_exc()}')
-
-        try:
             flow['response']['data'] = utils.render(flow['response']['data'])
         except Exception:
             flow['response']['data'] = origin_response_data

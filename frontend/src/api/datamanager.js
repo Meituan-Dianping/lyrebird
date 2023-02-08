@@ -169,10 +169,3 @@ export const deleteByQuery = (ids) => {
   })
 }
 
-export const getRenderedData = (data) => {
-  return axios({
-    url: '/api/render',
-    method: 'PUT',
-    data: {'data': data, 'tojson': true}
-  })
-}

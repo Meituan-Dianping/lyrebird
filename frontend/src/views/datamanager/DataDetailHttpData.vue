@@ -1,6 +1,6 @@
 <template>
   <div class="small-tab">
-    <tabs v-model="currentTab" :animated="false" size="small">
+    <tabs v-model="currentTab" @on-click="onTabClick" :animated="false" size="small">
       <tab-pane label="Information" name="info" />
       <tab-pane label="Request" name="req" />
       <tab-pane label="RequestData" name="reqData" />
@@ -13,29 +13,49 @@
         class="data-detail"
         :language="currentTabContentType"
         v-model="editorContent"
-        v-on:on-jsonpath-change="onJsonPathChange"
-      ></CodeEditor>
+        v-on:on-jsonpath-change="onJsonPathChange" />
       <CodeDiffEditor
         v-else
         class="data-detail"
         :language="currentTabContentType"
         :content="editorContent"
         :diffContent="editorDiffContent"
-        :readOnly="true"
-      ></CodeDiffEditor>
+        :readOnly="true" />
+    </div>
+    <div
+      class="show-diff-btn"
+      v-if="this.currentTab==='respData' && !this.isEditorContentEquals"
+    >
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            color="primary"
+            dark
+            fab
+            class="save-btn-detail"
+            @click="eyeButtonClick"
+          >
+          <v-icon v-if="isShowEyeButton">mdi-eye-off-outline</v-icon>
+          <v-icon v-else>mdi-eye-outline</v-icon>
+          </v-btn>
+        </template>
+        <span v-if="!isShowEyeButton">Show the diff</span>
+        <span v-else>Hide the diff</span>
+      </v-tooltip>
     </div>
     <div class="save-btn" v-if="dataDetail">
-      <v-speed-dial
-        :open-on-hover="true"
-      >
-        <template v-slot:activator>
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
           <v-btn
+            v-bind="attrs"
+            v-on="on"
             color="primary"
             dark
             fab
             class="save-btn-detail"
             @click="save"
-            title="Save (⌘+s)"
           >
             <v-icon
             class="save-btn-icon"
@@ -44,22 +64,8 @@
             </v-icon>
           </v-btn>
         </template>
-        <div>
-          <v-btn
-            v-if="this.currentTab==='respData' && !this.isEditorContentEquals"
-            fab
-            dark
-            small
-            color="primary"
-            class="save-btn-detail"
-            @click="showEditorDiff"
-            :title="isShowEditorDiff?'Hide the difference':'Show the difference'"
-          >
-            <v-icon v-if="isShowEditorDiff">mdi-eye-off-outline</v-icon>
-            <v-icon v-else>mdi-eye-outline</v-icon>
-          </v-btn>
-        </div>
-      </v-speed-dial>
+        <span>Save (⌘+s)</span>
+      </v-tooltip>
     </div>
   </div>
 </template>
@@ -69,6 +75,7 @@ import DataDetailInfo from '@/views/datamanager/DataDetailInfo.vue'
 import CodeEditor from '@/components/CodeEditor.vue'
 import Icon from 'vue-svg-icon/Icon.vue'
 import CodeDiffEditor from '@/components/CodeDiffEditor.vue'
+import { render } from '@/api'
 
 export default {
   components: {
@@ -86,7 +93,9 @@ export default {
         resp: null,
         respData: null
       },
-      isShowEditorDiff: false
+      isShowEyeButton: false,
+      isEditorContentEquals: true,
+      renderedRespData: ''
     }
   },
   mounted () {
@@ -139,27 +148,23 @@ export default {
     },
     editorDiffContent: {
       get () {
-        const content = this.$store.state.dataManager.renderedRespData
+        const content = this.renderedRespData
         if (!content) {
           return ''
         }
         return content
       },
       set (val) {
-        this.$store.commit('setRenderedRespData', val)
+        this.renderedRespData = val
       }
     },
     isShowCodeDiffEditor () {
       if (this.currentTab === 'respData') {
-        if (this.isShowEditorDiff) {
+        if (this.isShowEyeButton) {
           return true
         }
-      } else {
-        return false
       }
-    },
-    isEditorContentEquals () {
-      return this.$store.state.dataManager.isEditorContentEquals
+      return false
     }
   },
   watch: {
@@ -220,19 +225,37 @@ export default {
       this.editorCache.respData = typeof (val.response.data) == 'object' ? JSON.stringify(val.response.data) : val.response.data
     },
     loadEditorDiffContent () {
+      const data = this.editorCache['respData']
+      render(data)
+        .then(response => {
+          this.renderedRespData = response.data.data
+          if (data != response.data.data) {
+            this.isEditorContentEquals = false
+          } else {
+            this.isEditorContentEquals = true
+          }
+        }).catch(error => {
+            bus.$emit('msg.error', 'Load rendered data error: ' + error.data.message)
+        })
+    },
+    onTabClick () {
       if (this.currentTab === 'respData') {
-        const data = this.editorCache['respData']
-        this.$store.dispatch('loadRenderedData', data)
+        this.loadEditorDiffContent()
+        if (!this.isEditorContentEquals) {
+          this.isShowEyeButton = true
+        }
+      }
+    },
+    eyeButtonClick () {
+      this.isShowEyeButton = !this.isShowEyeButton
+      if (this.isShowEyeButton) {
+        this.loadEditorDiffContent()
       }
     },
     updateEditorDiffContent () {
-      this.loadEditorDiffContent()
-      this.isShowEditorDiff = false
-    },
-    showEditorDiff () {
-      this.isShowEditorDiff = !this.isShowEditorDiff
-      if (this.isShowEditorDiff) {
+      if (this.currentTab === 'respData') {
         this.loadEditorDiffContent()
+        this.isShowEyeButton = false
       }
     }
   }

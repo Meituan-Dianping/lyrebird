@@ -218,7 +218,7 @@ def handle_jinja2_keywords(data, params=None):
     return after_data
 
 
-def render(data):
+def render(data, is_render_var=True):
     if not isinstance(data, str):
         logger.warning(f'Format error! Expected str, found {type(data)}')
         return
@@ -231,9 +231,10 @@ def render(data):
         'now':  datetime.datetime.now()
     }
 
-    data = handle_jinja2_keywords(data, params)
-
     try:
+        if is_render_var:
+            data = render_data_with_tojson(data)
+        data = handle_jinja2_keywords(data, params)
         template_data = Template(data, keep_trailing_newline=True)
         return template_data.render(params)
     except Exception:

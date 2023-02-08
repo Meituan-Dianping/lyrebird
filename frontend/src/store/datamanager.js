@@ -37,9 +37,9 @@ export default {
     uneditableKey: ['id', 'rule', 'super_by'],
     stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label', 'super_by'],
     displayCopyKey: ['id'],
-    treeUndeletableId: [],
-    renderedRespData: '',
-    isEditorContentEquals: true
+    treeUndeletableId: []
+    // renderedRespData: '',
+    // isEditorContentEquals: true
   },
   mutations: {
     setTitle (state, title) {
@@ -175,13 +175,13 @@ export default {
     },
     concatTreeUndeletableId (state, treeUndeletableId) {
       state.treeUndeletableId = state.treeUndeletableId.concat(treeUndeletableId)
-    },
-    setRenderedRespData (state, renderedRespData) {
-      state.renderedRespData = renderedRespData
-    },
-    setIsEditorContentEquals (state, isEditorContentEquals) {
-      state.isEditorContentEquals = isEditorContentEquals
     }
+    // setRenderedRespData (state, renderedRespData) {
+    //   state.renderedRespData = renderedRespData
+    // },
+    // setIsEditorContentEquals (state, isEditorContentEquals) {
+    //   state.isEditorContentEquals = isEditorContentEquals
+    // }
   },
   actions: {
     loadDataMap ({ state, commit }) {
@@ -431,19 +431,6 @@ export default {
         })
         .catch(error => {
           bus.$emit('msg.error', 'Delete error: ' + error.data.message)
-        })
-    },
-    loadRenderedData ( { commit }, data ) {
-      api.getRenderedData(data)
-        .then(response => {
-          commit('setRenderedRespData', response.data.data)
-          if (data != response.data.data) {
-            commit('setIsEditorContentEquals', false)
-          } else {
-            commit('setIsEditorContentEquals', true)
-          }
-        }).catch(error => {
-            bus.$emit('msg.error', 'Load rendered data error: ' + error.data.message)
         })
     }
   }
