@@ -218,7 +218,7 @@ def handle_jinja2_keywords(data, params=None):
     return after_data
 
 
-def render(data):
+def render(data, enable_tojson=True):
     if not isinstance(data, str):
         logger.warning(f'Format error! Expected str, found {type(data)}')
         return
@@ -231,6 +231,8 @@ def render(data):
         'now':  datetime.datetime.now()
     }
 
+    if enable_tojson:
+        data = render_data_with_tojson(data)
     data = handle_jinja2_keywords(data, params)
 
     try:
@@ -238,6 +240,7 @@ def render(data):
         return template_data.render(params)
     except Exception:
         logger.error(f'Format error!\n {traceback.format_exc()}')
+        return data
 
 
 def get_query_array(url):

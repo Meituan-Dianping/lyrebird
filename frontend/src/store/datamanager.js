@@ -404,7 +404,7 @@ export default {
         .then((res) => {
           commit('setSnapshotName', res.data.data.name)
         })
-        .catch((err) => { 
+        .catch((err) => {
           bus.$emit('msg.error', 'Load snapshot information error: ' + err.data.message)
         })
     },

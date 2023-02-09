@@ -152,7 +152,7 @@ export const importSnapshot = (parentId, snapshotName, snapshotId) => {
   })
 }
 
-export const getSnapShotDetail = (id) => { 
+export const getSnapShotDetail = (id) => {
   return axios({
     url: '/api/snapshot/' + id
   })
@@ -168,3 +168,4 @@ export const deleteByQuery = (ids) => {
     data: { query }
   })
 }
+

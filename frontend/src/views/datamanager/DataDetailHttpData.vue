@@ -1,6 +1,6 @@
 <template>
   <div class="small-tab">
-    <tabs v-model="currentTab" :animated="false" size="small">
+    <tabs v-model="currentTab" @on-click="onTabClick" :animated="false" size="small">
       <tab-pane label="Information" name="info" />
       <tab-pane label="Request" name="req" />
       <tab-pane label="RequestData" name="reqData" />
@@ -9,11 +9,41 @@
     </tabs>
     <div>
       <CodeEditor
+        v-if="!isShowCodeDiffEditor"
         class="data-detail"
         :language="currentTabContentType"
         v-model="editorContent"
-        v-on:on-jsonpath-change="onJsonPathChange"
-      ></CodeEditor>
+        v-on:on-jsonpath-change="onJsonPathChange" />
+      <CodeDiffEditor
+        v-else
+        class="data-detail"
+        :language="currentTabContentType"
+        :content="editorContent"
+        :diffContent="editorDiffContent"
+        :readOnly="true" />
+    </div>
+    <div
+      class="show-diff-btn"
+      v-if="this.currentTab==='respData' && !this.isEditorContentEquals"
+    >
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            color="primary"
+            dark
+            fab
+            class="save-btn-detail"
+            @click="diffButtonClick"
+          >
+          <v-icon v-if="isShowDiffButton">mdi-eye-off-outline</v-icon>
+          <v-icon v-else>mdi-eye-outline</v-icon>
+          </v-btn>
+        </template>
+        <span v-if="!isShowDiffButton">Show the diff</span>
+        <span v-else>Hide the diff</span>
+      </v-tooltip>
     </div>
     <div class="save-btn" v-if="dataDetail">
       <v-tooltip top>
@@ -21,15 +51,16 @@
           <v-btn
             v-bind="attrs"
             v-on="on"
-            fab
-            dark
             color="primary"
+            dark
+            fab
             class="save-btn-detail"
             @click="save"
           >
-            <v-icon 
-            class="save-btn-icon"
-            dark>
+            <v-icon
+              class="save-btn-icon"
+              dark
+            >
               mdi-content-save-outline
             </v-icon>
           </v-btn>
@@ -44,11 +75,14 @@
 import DataDetailInfo from '@/views/datamanager/DataDetailInfo.vue'
 import CodeEditor from '@/components/CodeEditor.vue'
 import Icon from 'vue-svg-icon/Icon.vue'
+import CodeDiffEditor from '@/components/CodeDiffEditor.vue'
+import { render } from '@/api'
 
 export default {
   components: {
     DataDetailInfo,
     CodeEditor,
+    CodeDiffEditor,
     'svg-icon': Icon
   },
   data () {
@@ -59,7 +93,11 @@ export default {
         reqData: null,
         resp: null,
         respData: null
-      }
+      },
+      isShowDiffButton: false,
+      isEditorContentEquals: true,
+      isTreeNodeClicked: false,
+      renderedRespData: ''
     }
   },
   mounted () {
@@ -109,12 +147,34 @@ export default {
       set (val) {
         this.editorCache[this.currentTab] = val
       }
+    },
+    editorDiffContent: {
+      get () {
+        const content = this.renderedRespData
+        if (!content) {
+          return ''
+        }
+        return content
+      },
+      set (val) {
+        this.renderedRespData = val
+      }
+    },
+    isShowCodeDiffEditor () {
+      if (this.currentTab === 'respData') {
+        if (this.isShowDiffButton) {
+          return true
+        }
+        return false
+      }
+      return false
     }
   },
   watch: {
     dataDetail (val) {
       this.setDataDetailEditorCache(val)
-    }
+      this.updateDiffButtonStatus()
+    },
   },
   methods: {
     save () {
@@ -166,6 +226,42 @@ export default {
         headers: val.response.headers
       })
       this.editorCache.respData = typeof (val.response.data) == 'object' ? JSON.stringify(val.response.data) : val.response.data
+    },
+    loadEditorDiffContent () {
+      const data = this.editorCache['respData']
+      render(data)
+        .then(response => {
+          this.renderedRespData = response.data.data
+          if (data != response.data.data) {
+            this.isEditorContentEquals = false
+          } else {
+            this.isEditorContentEquals = true
+          }
+          if (this.isTreeNodeClicked) {
+            this.isShowDiffButton = false
+          }
+        }).catch(error => {
+            bus.$emit('msg.error', 'Load rendered data error: ' + error.data.message)
+        })
+    },
+    onTabClick () {
+      if (this.currentTab === 'respData') {
+        this.isTreeNodeClicked = false
+        this.loadEditorDiffContent()
+      }
+    },
+    diffButtonClick () {
+      this.isTreeNodeClicked = false
+      this.isShowDiffButton = !this.isShowDiffButton
+      if (this.isShowDiffButton) {
+        this.loadEditorDiffContent()
+      }
+    },
+    updateDiffButtonStatus() {
+      if (this.currentTab === 'respData') {
+        this.isTreeNodeClicked = true
+        this.loadEditorDiffContent()
+      }
     }
   }
 }
@@ -174,5 +270,18 @@ export default {
 <style scoped>
 .small-tab > .ivu-tabs > .ivu-tabs-bar {
   margin-bottom: 0;
+}
+.show-diff-btn {
+  color: #fff;
+  font-size: 0.6rem;
+  text-align: center;
+  line-height: 3rem;
+  width: 3rem;
+  height: 3rem;
+  position: fixed;
+  right: 60px;
+  bottom: 140px;
+  border-radius: 50%;
+  z-index: 2;
 }
 </style>
