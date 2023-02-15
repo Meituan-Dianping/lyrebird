@@ -231,9 +231,10 @@ export default {
       const data = this.editorCache['respData']
       render(data)
         .then(response => {
-          this.renderedRespData = response.data.data
           if (data != response.data.data) {
             this.isEditorContentEquals = false
+            const renderedRespDataObj = JSON.parse(response.data.data)
+            this.renderedRespData = JSON.stringify(renderedRespDataObj, null, 4)
           } else {
             this.isEditorContentEquals = true
           }

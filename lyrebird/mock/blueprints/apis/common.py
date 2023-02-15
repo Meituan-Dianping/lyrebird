@@ -60,6 +60,6 @@ class Render(Resource):
 
     def put(self):
         origin_data = request.json.get('data')
-        enable_tojson = request.json.get('enable_tojson')
+        enable_tojson = request.json.get('enable_tojson', True)
         data = utils.render(origin_data, enable_tojson)
         return context.make_ok_response(data=data)

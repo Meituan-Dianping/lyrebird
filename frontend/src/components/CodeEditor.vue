@@ -39,7 +39,6 @@ export default {
           this.editor.trigger(this.editor.getValue(), 'editor.action.formatDocument')
         }
       }
-
     }
   },
   mounted: function () {
