@@ -104,7 +104,7 @@ class LyrebirdProxyContext:
         self.origin_url = unquote_origin_url
         # forward url to lyrebird main port 'default 9090'
         port = lb_config.get('mock.port')
-        self.forward_url = f'http://127.0.0.1:{port}/mock/?proxy={origin_url}'
+        self.forward_url = f'http://127.0.0.1:{port}/mock/{origin_url}'
         self.netloc = url_obj.netloc
         self.request = request
 
