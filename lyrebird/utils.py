@@ -9,7 +9,8 @@ import datetime
 import netifaces
 import traceback
 from pathlib import Path
-from jinja2 import Template
+from jinja2 import Template, StrictUndefined
+from jinja2.exceptions import UndefinedError, TemplateSyntaxError
 from contextlib import closing
 from lyrebird.log import get_logger
 from lyrebird.application import config
@@ -133,7 +134,7 @@ def download(link, input_path):
             f.write(chunck)
 
 
-def render_data_with_tojson(data):
+def handle_jinja2_tojson_by_config(data):
     config_value_tojson_key = config.get('config.value.tojsonKey')
     data_with_tojson = data
     for tojson_key in config_value_tojson_key:
@@ -210,6 +211,7 @@ def handle_jinja2_keywords(data, params=None):
             if len(key_n_lefted) != 2:
                 continue
             key, _ = key_n_lefted
+            key = key.strip()
             if [key for p in params if key.startswith(p)]:
                 continue
             item_list[index-1] = "{{ '%s' }}" % (item_list[index-1])
@@ -232,15 +234,23 @@ def render(data, enable_tojson=True):
     }
 
     if enable_tojson:
-        data = render_data_with_tojson(data)
-    data = handle_jinja2_keywords(data, params)
+        data = handle_jinja2_tojson_by_config(data)
+
+    # Jinja2 doc
+    # undefined and UndefinedError https://jinja.palletsprojects.com/en/3.1.x/api/#undefined-types
+    # TemplateSyntaxError https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.TemplateSyntaxError
 
     try:
+        template_data = Template(data, keep_trailing_newline=True, undefined=StrictUndefined)
+        data = template_data.render(params)
+    except (UndefinedError, TemplateSyntaxError):
+        data = handle_jinja2_keywords(data, params)
         template_data = Template(data, keep_trailing_newline=True)
-        return template_data.render(params)
+        data = template_data.render(params)
     except Exception:
         logger.error(f'Format error!\n {traceback.format_exc()}')
-        return data
+
+    return data
 
 
 def get_query_array(url):
