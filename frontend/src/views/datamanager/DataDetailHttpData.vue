@@ -19,8 +19,7 @@
         class="data-detail"
         :language="currentTabContentType"
         :content="editorContent"
-        :diffContent="editorDiffContent"
-        :readOnly="true" />
+        :diffContent="editorDiffContent" />
     </div>
     <div
       class="show-diff-btn"
@@ -233,8 +232,9 @@ export default {
         .then(response => {
           if (data != response.data.data) {
             this.isEditorContentEquals = false
-            const renderedRespDataObj = JSON.parse(response.data.data)
-            this.renderedRespData = JSON.stringify(renderedRespDataObj, null, 4)
+            if (this.isShowDiffButton){
+              this.renderedRespData = response.data.data
+            }
           } else {
             this.isEditorContentEquals = true
           }
@@ -256,6 +256,8 @@ export default {
       this.isShowDiffButton = !this.isShowDiffButton
       if (this.isShowDiffButton) {
         this.loadEditorDiffContent()
+      } else {
+        this.renderedRespData = ''
       }
     },
     updateDiffButtonStatus() {
