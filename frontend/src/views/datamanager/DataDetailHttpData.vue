@@ -20,7 +20,7 @@
         :language="currentTabContentType"
         :content="editorContent"
         :diffContent="editorDiffContent"
-        :readOnly="true" />
+        :readOnly="false" />
     </div>
     <div
       class="show-diff-btn"
@@ -233,8 +233,7 @@ export default {
         .then(response => {
           if (data != response.data.data) {
             this.isEditorContentEquals = false
-            const renderedRespDataObj = JSON.parse(response.data.data)
-            this.renderedRespData = JSON.stringify(renderedRespDataObj, null, 4)
+            this.renderedRespData = response.data.data
           } else {
             this.isEditorContentEquals = true
           }

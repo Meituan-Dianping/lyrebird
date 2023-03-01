@@ -31,7 +31,7 @@ export default {
   watch: {
     diffContent: function () {
       console.debug("Code diff editor: content change");
-      if ((this.editor)) {
+      if (this.editor) {
         this.editor.setModel({
         original: monaco.editor.createModel(this.content, this.language),
         modified: monaco.editor.createModel(this.diffContent, this.language)
@@ -51,6 +51,9 @@ export default {
       original: monaco.editor.createModel(this.content, this.language),
       modified: monaco.editor.createModel(this.diffContent, this.language)
     })
+
+    const modifiedEditor = this.editor.getModifiedEditor()
+    modifiedEditor.trigger('anyString', 'editor.action.formatDocument')
   }
 };
 </script>
