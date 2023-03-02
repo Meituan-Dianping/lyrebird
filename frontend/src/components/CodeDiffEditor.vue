@@ -39,7 +39,13 @@ export default {
       }
 
       const modifiedEditor = this.editor.getModifiedEditor()
-      modifiedEditor.trigger('anyString', 'editor.action.formatDocument')
+      modifiedEditor.getAction('editor.action.formatDocument').run()
+
+      setTimeout(() => {
+        modifiedEditor.updateOptions({
+          readOnly: true
+        })
+      }, 1000)
     }
   },
   mounted: function () {

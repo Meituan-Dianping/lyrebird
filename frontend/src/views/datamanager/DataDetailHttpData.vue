@@ -240,6 +240,7 @@ export default {
           }
           if (this.isTreeNodeClicked) {
             this.isShowDiffButton = false
+            this.resetRenderedRespData()
           }
         }).catch(error => {
             bus.$emit('msg.error', 'Load rendered data error: ' + error.data.message)
@@ -249,22 +250,23 @@ export default {
       if (this.currentTab === 'respData') {
         this.isTreeNodeClicked = false
         this.loadEditorDiffContent()
+      } else {
+        this.resetRenderedRespData()
       }
     },
     diffButtonClick () {
       this.isTreeNodeClicked = false
       this.isShowDiffButton = !this.isShowDiffButton
-      if (this.isShowDiffButton) {
-        this.loadEditorDiffContent()
-      } else {
-        this.renderedRespData = ''
-      }
+      this.isShowDiffButton ? this.loadEditorDiffContent() : this.resetRenderedRespData()
     },
     updateDiffButtonStatus() {
       if (this.currentTab === 'respData') {
         this.isTreeNodeClicked = true
         this.loadEditorDiffContent()
       }
+    },
+    resetRenderedRespData() {
+      this.renderedRespData = ''
     }
   }
 }
