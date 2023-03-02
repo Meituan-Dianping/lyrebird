@@ -1,40 +1,44 @@
 from flask_restful import Resource
 from flask import request
 from lyrebird.mock import context
-from lyrebird import application, reporter
-
+from lyrebird import application, reporter, version
 
 class Menu(Resource):
 
     def get(self):
+        
         menu = [
             {
                 'name': 'inspector',
                 'title': 'Inspector',
                 'type': 'router',
                 'path': '/',
-                'icon': 'mdi-monitor'
+                'icon': 'mdi-monitor',
+                'version': version.VERSION
             },
             {
                 'name': 'datamanager',
                 'title': 'DataManager',
                 'type': 'router',
                 'path': '/datamanager',
-                'icon': 'mdi-database-plus'
+                'icon': 'mdi-database-plus',
+                'version': version.VERSION
             },
             {
                 'name': 'checker',
                 'title': 'Extension',
                 'type': 'router',
                 'path': '/checker',
-                'icon': 'mdi-script-text-outline'
+                'icon': 'mdi-script-text-outline',
+                'version': version.VERSION
             },
             {
                 'name': 'inspector-pro',
                 'title': 'Inspector Pro',
                 'type': 'router',
                 'path': '/inspector-pro',
-                'icon': 'mdi-timeline-outline'
+                'icon': 'mdi-timeline-outline',
+                'version': version.VERSION
             }]
 
         # Load plugins from new plugin manager
@@ -46,9 +50,12 @@ class Menu(Resource):
                 'type': 'router',
                 'path': '/plugins',
                 'icon': plugin.manifest.icon,
+                'version': plugin.version,
                 'params': {
                     'src': f'/plugins/{plugin_id}',
-                    'name': plugin_id
+                    'name': plugin_id,
+                    'location': plugin.location,
+                    'api': [f'{api[2]} {api[0]}' for api in plugin.manifest.api]
                 }
             })
         # When there is no actived menu, the first one is displayed by default
