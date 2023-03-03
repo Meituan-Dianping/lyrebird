@@ -41,6 +41,9 @@ export default {
       const modifiedEditor = this.editor.getModifiedEditor()
       modifiedEditor.getAction('editor.action.formatDocument').run()
 
+      // The condition for formatDocument is that the diff content is read-only status,
+      // and formatDocument is an asynchronous operation.
+      // So add a delay of 1 second to wait for the formatting to complete, and then be able to set the diff content to read-only status.
       setTimeout(() => {
         modifiedEditor.updateOptions({
           readOnly: true

@@ -36,11 +36,11 @@
             class="save-btn-detail"
             @click="diffButtonClick"
           >
-          <v-icon v-if="isShowDiffButton">mdi-eye-off-outline</v-icon>
-          <v-icon v-else>mdi-eye-outline</v-icon>
+          <v-icon v-if="diffButtonStatus === 'show'">mdi-eye-outline</v-icon>
+          <v-icon v-else>mdi-eye-off-outline</v-icon>
           </v-btn>
         </template>
-        <span v-if="!isShowDiffButton">Show the diff</span>
+        <span v-if="diffButtonStatus === 'show'">Show the diff</span>
         <span v-else>Hide the diff</span>
       </v-tooltip>
     </div>
@@ -93,7 +93,7 @@ export default {
         resp: null,
         respData: null
       },
-      isShowDiffButton: false,
+      diffButtonStatus: 'show',
       isEditorContentEquals: true,
       isTreeNodeClicked: false,
       renderedRespData: ''
@@ -161,7 +161,7 @@ export default {
     },
     isShowCodeDiffEditor () {
       if (this.currentTab === 'respData') {
-        if (this.isShowDiffButton) {
+        if (this.diffButtonStatus === 'hide') {
           return true
         }
         return false
@@ -232,14 +232,14 @@ export default {
         .then(response => {
           if (data != response.data.data) {
             this.isEditorContentEquals = false
-            if (this.isShowDiffButton){
+            if (this.diffButtonStatus === 'hide'){
               this.renderedRespData = response.data.data
             }
           } else {
             this.isEditorContentEquals = true
           }
           if (this.isTreeNodeClicked) {
-            this.isShowDiffButton = false
+            this.diffButtonStatus = 'show'
             this.resetRenderedRespData()
           }
         }).catch(error => {
@@ -256,8 +256,13 @@ export default {
     },
     diffButtonClick () {
       this.isTreeNodeClicked = false
-      this.isShowDiffButton = !this.isShowDiffButton
-      this.isShowDiffButton ? this.loadEditorDiffContent() : this.resetRenderedRespData()
+      if (this.diffButtonStatus === 'show') {
+        this.diffButtonStatus = 'hide'
+        this.loadEditorDiffContent()
+      } else {
+        this.diffButtonStatus = 'show'
+        this.resetRenderedRespData()
+      }
     },
     updateDiffButtonStatus() {
       if (this.currentTab === 'respData') {
