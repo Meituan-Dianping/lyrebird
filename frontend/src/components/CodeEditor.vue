@@ -57,7 +57,7 @@ export default {
       id: 'json-path',
       label: 'Copy JsonPath',
       keybindings: [
-        monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_J)
+        monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ)
       ],
       precondition: "editorLangId == 'json'",
       keybindingContext: "editorLangId == 'json'",

@@ -31,12 +31,23 @@ export default {
   watch: {
     diffContent: function () {
       console.debug("Code diff editor: content change");
-      if ((this.editor)) {
+      if (this.editor) {
         this.editor.setModel({
         original: monaco.editor.createModel(this.content, this.language),
         modified: monaco.editor.createModel(this.diffContent, this.language)
         });
       }
+
+      const modifiedEditor = this.editor.getModifiedEditor()
+      modifiedEditor.getAction('editor.action.formatDocument').run()
+
+      // The condition of formatDocument is that the diff content is not read-only, and formatDocument is async.
+      // So add 1 second delay to wait for the formatting to complete, and then set the diff content to read-only.
+      setTimeout(() => {
+        modifiedEditor.updateOptions({
+          readOnly: true
+        })
+      }, 1000)
     }
   },
   mounted: function () {

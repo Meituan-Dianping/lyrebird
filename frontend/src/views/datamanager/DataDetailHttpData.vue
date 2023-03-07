@@ -19,8 +19,7 @@
         class="data-detail"
         :language="currentTabContentType"
         :content="editorContent"
-        :diffContent="editorDiffContent"
-        :readOnly="true" />
+        :diffContent="editorDiffContent" />
     </div>
     <div
       class="show-diff-btn"
@@ -37,11 +36,11 @@
             class="save-btn-detail"
             @click="diffButtonClick"
           >
-          <v-icon v-if="isShowDiffButton">mdi-eye-off-outline</v-icon>
-          <v-icon v-else>mdi-eye-outline</v-icon>
+          <v-icon v-if="diffButtonStatus === 'show'">mdi-eye-outline</v-icon>
+          <v-icon v-else>mdi-eye-off-outline</v-icon>
           </v-btn>
         </template>
-        <span v-if="!isShowDiffButton">Show the diff</span>
+        <span v-if="diffButtonStatus === 'show'">Show the diff</span>
         <span v-else>Hide the diff</span>
       </v-tooltip>
     </div>
@@ -94,7 +93,7 @@ export default {
         resp: null,
         respData: null
       },
-      isShowDiffButton: false,
+      diffButtonStatus: 'show',
       isEditorContentEquals: true,
       isTreeNodeClicked: false,
       renderedRespData: ''
@@ -162,7 +161,7 @@ export default {
     },
     isShowCodeDiffEditor () {
       if (this.currentTab === 'respData') {
-        if (this.isShowDiffButton) {
+        if (this.diffButtonStatus === 'hide') {
           return true
         }
         return false
@@ -233,13 +232,15 @@ export default {
         .then(response => {
           if (data != response.data.data) {
             this.isEditorContentEquals = false
-            const renderedRespDataObj = JSON.parse(response.data.data)
-            this.renderedRespData = JSON.stringify(renderedRespDataObj, null, 4)
+            if (this.diffButtonStatus === 'hide'){
+              this.renderedRespData = response.data.data
+            }
           } else {
             this.isEditorContentEquals = true
           }
           if (this.isTreeNodeClicked) {
-            this.isShowDiffButton = false
+            this.diffButtonStatus = 'show'
+            this.resetRenderedRespData()
           }
         }).catch(error => {
             bus.$emit('msg.error', 'Load rendered data error: ' + error.data.message)
@@ -249,13 +250,18 @@ export default {
       if (this.currentTab === 'respData') {
         this.isTreeNodeClicked = false
         this.loadEditorDiffContent()
+      } else {
+        this.resetRenderedRespData()
       }
     },
     diffButtonClick () {
       this.isTreeNodeClicked = false
-      this.isShowDiffButton = !this.isShowDiffButton
-      if (this.isShowDiffButton) {
+      if (this.diffButtonStatus === 'show') {
+        this.diffButtonStatus = 'hide'
         this.loadEditorDiffContent()
+      } else {
+        this.diffButtonStatus = 'show'
+        this.resetRenderedRespData()
       }
     },
     updateDiffButtonStatus() {
@@ -263,6 +269,9 @@ export default {
         this.isTreeNodeClicked = true
         this.loadEditorDiffContent()
       }
+    },
+    resetRenderedRespData() {
+      this.renderedRespData = ''
     }
   }
 }
