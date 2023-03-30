@@ -23,7 +23,7 @@ const opts = {
 
         error: '#FF4B4B',
         warning: '#FB8C00',
-        info: '#ffc107',
+        info: '#2196F3',
         success: '#4CAF50',
 
         accent: '#000520',

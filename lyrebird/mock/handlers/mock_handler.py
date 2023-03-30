@@ -37,6 +37,7 @@ class MockHandler:
         handler_context.add_flow_action({
             'id': 'mock',
             'name': Path(__file__).name,
+            'group_id': activated_group['id'],
             'mock_id': hit_data['id']
         })
         MockDataHelper.read_mock_data(handler_context)
