@@ -276,10 +276,6 @@ export default {
       this.$store.commit('setDataListSelectedLabel', labels)
       this.$store.dispatch('loadDataMap')
     },
-    changeLabelDisplayState () {
-      const status = !this.isLabelDisplay
-      this.$store.commit('setIsLabelDisplay', status)
-    },
     changeSelectableStatus () {
       this.$store.commit('setIsSelectableStatus', !this.isSelectableStatus)
       this.$store.commit('setSelectedLeaf', [])
