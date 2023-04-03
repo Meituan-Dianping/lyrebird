@@ -68,7 +68,7 @@ export default {
       return this.$store.state.dataManager.groupList
     },
     isReloadWhenEnter () {
-      return this.$store.state.dataManager.isReloadWhenEnter
+      return !this.$store.state.dataManager.isCloseReloadWhenEnter
     }
   },
   methods: {

@@ -187,12 +187,13 @@ export default {
     },
     isReloadWhenEnter: {
       get () {
-        return this.$store.state.dataManager.isReloadWhenEnter
+        return !this.$store.state.dataManager.isCloseReloadWhenEnter
       },
       set (val) {
-        this.$store.commit('setIsReloadWhenEnter', val)
+        const isCloseReloadWhenEnter = !val
+        this.$store.commit('setIsCloseReloadWhenEnter', isCloseReloadWhenEnter)
         this.$store.dispatch('updateConfigByKey', {
-          'mock.data.tree.forceReload': val
+          'mock.data.tree.closeReload': isCloseReloadWhenEnter
         })
       }
     },

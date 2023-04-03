@@ -3,7 +3,7 @@ import { bus } from '@/eventbus'
 
 var configCommitMap = [
   {'name': 'mock.data.showLabel', 'commit': 'setIsLabelDisplay'},
-  {'name': 'mock.data.tree.forceReload', 'commit': 'setIsReloadWhenEnter'},
+  {'name': 'mock.data.tree.closeReload', 'commit': 'setIsCloseReloadWhenEnter'},
   {'name': 'mock.data.tree.undeletableId', 'commit': 'concatTreeUndeletableId'},
   {'name': 'mock.data.detail.stickyTopKey', 'commit': 'concatStickyTopKey'},
   {'name': 'mock.data.detail.undeletableKey', 'commit': 'concatUndeletableKey'},
@@ -22,11 +22,15 @@ var configPreLoad = [
 export default {
   state: {
     config: {},
+    initialized: false,
     preLoadFuncSet: new Set()
   },
   mutations: {
     setConfig (state, config) {
       state.config = config
+    },
+    setInitialized (state, initialized) {
+      state.initialized = initialized
     },
     addPreLoadFuncSet(state, preLoadFunc) {
       state.preLoadFuncSet.add(preLoadFunc)
@@ -36,7 +40,7 @@ export default {
     }
   },
   actions: {
-    loadConfig({ commit, dispatch }) {
+    loadConfig({ state, commit, dispatch }) {
       api.getConfig()
         .then(response => {
           commit('setConfig', response.data)
@@ -46,10 +50,13 @@ export default {
             }
           }
           // preload
-          for (const config of configPreLoad) {
-            if (response.data.hasOwnProperty(config.name) && response.data[config.name]) {
-              commit('addPreLoadFuncSet', config.commit, { root: true })
-              dispatch(config.commit, { root: true })
+          if (!state.initialized) {
+            for (const config of configPreLoad) {
+              if (response.data.hasOwnProperty(config.name) && response.data[config.name]) {
+                commit('addPreLoadFuncSet', config.commit, { root: true })
+                commit('setInitialized', true)
+                dispatch(config.commit, { root: true })
+              }
             }
           }
         })
