@@ -51,10 +51,12 @@ export default {
     if (this.groupList.length == 0 || this.isReloadWhenEnter) {
       this.loadDataMap()
     }
-    this.$io.on('datamanagerUpdate', this.onDatamanagerUpdate)
+    this.$io.on('datamanagerUpdate', this.loadDataMap)
+    this.$io.on('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
   },
   deactivated() {
-    this.$io.removeListener('datamanagerUpdate', this.onDatamanagerUpdate)
+    this.$io.removeListener('datamanagerUpdate', this.loadDataMap)
+    this.$io.removeListener('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
   },
   data () {
     return {
@@ -72,14 +74,9 @@ export default {
     }
   },
   methods: {
-    onDatamanagerUpdate (payload) {
-      if (payload && payload.doubleCheck) {
-        this.isShownReloadMessage = true
-        this.durationMessage = payload.durationMessage ? payload.durationMessage : 'for a long time'
-      }
-      else {
-        this.loadDataMap()
-      }
+    onDatamanagerUpdateMessage (payload) {
+      this.isShownReloadMessage = true
+      this.durationMessage = payload.durationMessage ? payload.durationMessage : 'for a long time'
     },
     loadDataMap () {
       this.isShownReloadMessage = false
