@@ -11,14 +11,6 @@
           <v-icon size="12px" color="primary">mdi-refresh</v-icon>
         </v-btn>
 
-        <v-btn v-if="isLabelDisplay" icon @click.stop="changeLabelDisplayState" title="Hide labels">
-          <v-icon size="12px" color="primary">mdi-eye-off-outline</v-icon>
-        </v-btn>
-
-        <v-btn v-else icon @click.stop="changeLabelDisplayState" title="Show labels">
-          <v-icon size="12px" color="primary">mdi-eye-outline</v-icon>
-        </v-btn>
-
         <span class="mx-1">
           <LabelDropdown :initLabels="selectedLabel" :placement="'bottom-end'" @onLabelChange="editLabel">
             <template #dropdownButton>
@@ -64,8 +56,65 @@
           <v-icon size="12px" color="primary">mdi-pencil</v-icon>
         </v-btn>
 
-      </v-row>
+        <v-menu
+          left
+          bottom
+          offset-y
+          offset-overflow
+          :close-on-content-click="false"
+          style="position: absolute;"
+        >
 
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              icon
+              v-bind="attrs"
+              v-on="on"
+              class="ml-1"
+              title="Settings"
+            >
+              <v-icon size="12px" color="primary">mdi-cog-outline</v-icon>
+            </v-btn>
+          </template>
+
+          <v-list dense>
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch v-model="isPreloadDataMap"/>
+              </v-list-item-action>
+
+              <v-list-item-content>
+                <v-list-item-title>Preload</v-list-item-title>
+                <v-list-item-subtitle>Proload DataTree before entering DataManager</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch v-model="isReloadWhenEnter"/>
+              </v-list-item-action>
+
+              <v-list-item-content>
+                <v-list-item-title>Reload</v-list-item-title>
+                <v-list-item-subtitle>Reload when entering DataManager</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch v-model="isLabelDisplay"/>
+              </v-list-item-action>
+
+              <v-list-item-content>
+                <v-list-item-title>Labels</v-list-item-title>
+                <v-list-item-subtitle>Display labels in each tree nodes</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+
+        </v-menu>
+
+      </v-row>
     </v-container>
     
     <Row>
@@ -125,8 +174,39 @@ export default {
     selectedLabel () {
       return this.$store.state.dataManager.dataListSelectedLabel
     },
-    isLabelDisplay () {
-      return this.$store.state.dataManager.isLabelDisplay
+    isLabelDisplay: {
+      get () {
+        return this.$store.state.dataManager.isLabelDisplay
+      },
+      set (val) {
+        this.$store.commit('setIsLabelDisplay', val)
+        this.$store.dispatch('updateConfigByKey', {
+          'mock.data.showLabel': val
+        })
+      }
+    },
+    isReloadWhenEnter: {
+      get () {
+        return !this.$store.state.dataManager.isCloseReloadWhenEnter
+      },
+      set (val) {
+        const isCloseReloadWhenEnter = !val
+        this.$store.commit('setIsCloseReloadWhenEnter', isCloseReloadWhenEnter)
+        this.$store.dispatch('updateConfigByKey', {
+          'mock.data.tree.closeReload': isCloseReloadWhenEnter
+        })
+      }
+    },
+    isPreloadDataMap: {
+      get () {
+        return this.$store.state.settings.preLoadFuncSet.has('loadDataMap')
+      },
+      set (val) {
+        val ? this.$store.commit('addPreLoadFuncSet', 'loadDataMap') : this.$store.commit('deletePreLoadFuncSet', 'loadDataMap')
+        this.$store.dispatch('updateConfigByKey', {
+          'mock.data.tree.preload': val
+        })
+      }
     },
     isSelectableStatus () {
       return this.$store.state.dataManager.isSelectableStatus
@@ -196,10 +276,6 @@ export default {
       }
       this.$store.commit('setDataListSelectedLabel', labels)
       this.$store.dispatch('loadDataMap')
-    },
-    changeLabelDisplayState () {
-      const status = !this.isLabelDisplay
-      this.$store.commit('setIsLabelDisplay', status)
     },
     changeSelectableStatus () {
       this.$store.commit('setIsSelectableStatus', !this.isSelectableStatus)

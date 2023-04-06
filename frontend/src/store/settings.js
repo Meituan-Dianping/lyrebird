@@ -3,6 +3,7 @@ import { bus } from '@/eventbus'
 
 var configCommitMap = [
   {'name': 'mock.data.showLabel', 'commit': 'setIsLabelDisplay'},
+  {'name': 'mock.data.tree.closeReload', 'commit': 'setIsCloseReloadWhenEnter'},
   {'name': 'mock.data.tree.undeletableId', 'commit': 'concatTreeUndeletableId'},
   {'name': 'mock.data.detail.stickyTopKey', 'commit': 'concatStickyTopKey'},
   {'name': 'mock.data.detail.undeletableKey', 'commit': 'concatUndeletableKey'},
@@ -14,23 +15,48 @@ var configCommitMap = [
   {'name': 'env.ip', 'commit': 'setIpList'}
 ]
 
+var configPreLoad = [
+  {'name': 'mock.data.tree.preload', 'commit': 'loadDataMap'},
+]
+
 export default {
   state: {
-    config: {}
+    config: {},
+    initialized: false,
+    preLoadFuncSet: new Set()
   },
   mutations: {
     setConfig (state, config) {
       state.config = config
+    },
+    setInitialized (state, initialized) {
+      state.initialized = initialized
+    },
+    addPreLoadFuncSet(state, preLoadFunc) {
+      state.preLoadFuncSet.add(preLoadFunc)
+    },
+    deletePreLoadFuncSet (state, preLoadFunc) {
+      state.preLoadFuncSet.delete(preLoadFunc)
     }
   },
   actions: {
-    loadConfig({ commit }) {
+    loadConfig({ state, commit, dispatch }) {
       api.getConfig()
         .then(response => {
           commit('setConfig', response.data)
           for (const config of configCommitMap) {
             if (response.data.hasOwnProperty(config.name)) {
               commit(config.commit, response.data[config.name], { root: true })
+            }
+          }
+          // preload
+          if (!state.initialized) {
+            for (const config of configPreLoad) {
+              if (response.data.hasOwnProperty(config.name) && response.data[config.name]) {
+                commit('addPreLoadFuncSet', config.commit, { root: true })
+                commit('setInitialized', true)
+                dispatch(config.commit, { root: true })
+              }
             }
           }
         })
@@ -42,7 +68,6 @@ export default {
       api.updateConfigByKey(data)
         .then(_ => {
           dispatch('loadConfig')
-          dispatch('loadStatus')
           bus.$emit('msg.success', `Update config success!`)
         })
         .catch(error => {

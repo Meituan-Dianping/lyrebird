@@ -9,6 +9,30 @@
         <data-detail></data-detail>
       </div>
     </Split>
+
+    <v-snackbar
+      v-model="isShownReloadMessage"
+      transition="slide-y-reverse-transition"
+      color="primaryBrightest"
+      :timeout="-1"
+      rounded="pill"
+      class="mb-3"
+    >
+      <span class="accent--text">Mock Data updated {{durationMessage}}</span>
+      <v-btn text small class="px-1 ml-1" height="20" color="primary" @click.stop="loadDataMap"><b>CLICK TO UPDATE</b></v-btn>
+
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          plain
+          v-bind="attrs"
+          class="primaryLight--text"
+          @click="isShownReloadMessage = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+
   </div>
 </template>
 
@@ -24,19 +48,38 @@ export default {
     SnapshotImportSelector,
   },
   activated () {
-    this.loadDataMap()
+    if (this.groupList.length == 0 || this.isReloadWhenEnter) {
+      this.loadDataMap()
+    }
     this.$io.on('datamanagerUpdate', this.loadDataMap)
+    this.$io.on('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
   },
   deactivated() {
     this.$io.removeListener('datamanagerUpdate', this.loadDataMap)
+    this.$io.removeListener('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
   },
   data () {
     return {
-      split: 0.35
+      split: 0.35,
+      isShownReloadMessage: false,
+      durationMessage: 'for a long time',
+    }
+  },
+  computed: {
+    groupList () {
+      return this.$store.state.dataManager.groupList
+    },
+    isReloadWhenEnter () {
+      return !this.$store.state.dataManager.isCloseReloadWhenEnter
     }
   },
   methods: {
+    onDatamanagerUpdateMessage (payload) {
+      this.isShownReloadMessage = true
+      this.durationMessage = payload.durationMessage ? payload.durationMessage : 'for a long time'
+    },
     loadDataMap () {
+      this.isShownReloadMessage = false
       this.$store.dispatch('loadDataMap')
     }
   }

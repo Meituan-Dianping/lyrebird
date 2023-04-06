@@ -31,6 +31,7 @@ export default {
     deleteNode: [],
     dataListSelectedLabel: [],
     isLabelDisplay: true,
+    isCloseReloadWhenEnter: false,
     isReloadTreeWhenUpdate: false,
     undisplayedKey: ['children', 'type', 'parent_id', 'abs_parent_path', 'parent'],
     undeletableKey: ['id', 'rule', 'name', 'label', 'category', 'super_by'],
@@ -143,6 +144,9 @@ export default {
     },
     setIsLabelDisplay (state, isLabelDisplay) {
       state.isLabelDisplay = isLabelDisplay
+    },
+    setIsCloseReloadWhenEnter (state, isCloseReloadWhenEnter) {
+      state.isCloseReloadWhenEnter = isCloseReloadWhenEnter
     },
     setUndisplayedKey (state, undisplayedKey) {
       state.undisplayedKey = undisplayedKey
