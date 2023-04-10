@@ -36,7 +36,7 @@
     </v-navigation-drawer>
 
     <v-main class="ma-3">
-      <v-toolbar-title class="mb-2 page-title">{{ activeMenuItemName }}</v-toolbar-title>
+      <plugin-dialog></plugin-dialog>
       <keep-alive exclude="datamanager">
         <!-- Cache children component exclude datamanager . Because v-treeview component has memory leak if it in the keep-alive tag -->
         <router-view class="router-container background" />
@@ -56,6 +56,7 @@ import svgIcon from 'vue-svg-icon/Icon.vue'
 import AppBar from '@/views/appbar/AppBar.vue'
 import StatusBar from '@/views/statusbar/StatusBar.vue'
 import StatusInfo from '@/views/statusbar/StatusInfo.vue'
+import PluginDialog from './PluginDialog.vue'
 
 export default {
   name: 'MainLayout',
@@ -64,6 +65,7 @@ export default {
     AppBar,
     StatusBar,
     StatusInfo,
+    PluginDialog,
   },
   mounted() {
     this.$store.dispatch('loadMenu')

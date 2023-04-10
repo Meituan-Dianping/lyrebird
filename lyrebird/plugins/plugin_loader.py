@@ -1,5 +1,6 @@
 import os
 import imp
+import runpy
 import inspect
 import traceback
 from pathlib import Path
@@ -152,9 +153,18 @@ def load_from_path(plugin_path):
     # TODO
     manifest = manifest_cache[0][0]
     caller_info = manifest_cache[0][1]
-    plugin = Plugin(manifest['id'], **manifest)
-    plugin.location = str(Path(caller_info.filename).parent)
-    return plugin
+
+    # get plugin version if version file exist.
+    version_file = Path(plugin_path)/pkg/'version.py'
+    if version_file.exists():
+        plugin_version = runpy.run_path(str(version_file))['VERSION']
+
+    return Plugin(
+        manifest['id'],
+        version=plugin_version,
+        location=str(Path(caller_info.filename).parent),
+        **manifest
+    )
 
 
 def get_plugin_storage():
