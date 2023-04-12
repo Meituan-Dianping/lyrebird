@@ -16,6 +16,10 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
       - name: Install and Build 🔧
         run: |
           cd docs
