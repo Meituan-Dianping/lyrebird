@@ -98,6 +98,13 @@ class HandlerContext:
         self.flow['client_address'] = self.client_address
 
         self.flow['request'] = _request
+
+        if self.request.method in ['POST', 'PUT'] and application.config.get('mock.request.keep_origin_data'):
+            origin_data = DataHelper.origin2string(self.request)
+            self.flow['origin_request'] = {
+                'data': origin_data
+            }
+
         context.application.cache.add(self.flow)
 
         logger.debug(f'[On client request] {self.flow["request"]["url"]}')
@@ -248,6 +255,15 @@ class HandlerContext:
             'timestamp': round(time.time(), 3)
         }
         HeadersHelper.origin2flow(self.response, output=self.flow[output_key])
+
+    def update_request_data2flow(self, output=None, output_key='request', chain=None):
+        if not output:
+            output = self.flow
+
+        if not chain:
+            chain = self.request_chain
+
+        DataHelper.origin2flow(self.request, output=output[output_key], chain=chain)
 
     def update_response_data2flow(self, output_key='response'):
         DataHelper.origin2flow(self.response, output=self.flow[output_key], chain=self.response_chain)

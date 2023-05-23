@@ -42,6 +42,31 @@ class DataHelper:
             return _data
 
     @staticmethod
+    def origin2string(origin_obj, output=None):
+        if not origin_obj:
+            return
+
+        _data = origin_obj.data
+        if not _data:
+            return
+
+        # Read raw headers, support the request from extra mock 9999 port
+        if 'Proxy-Raw-Headers' in origin_obj.headers:
+            _origin_headers = json.loads(origin_obj.headers['Proxy-Raw-Headers'])
+            raw_headers = CaseInsensitiveDict(_origin_headers)
+        else:
+            raw_headers = origin_obj.headers
+
+        for headers_key, func in origin2flow_handlers.items():
+            headers_val = raw_headers.get(headers_key, '')
+            _data = func.origin2string(headers_val, _data)
+
+        if output:
+            output['data'] = _data
+        else:
+            return _data
+
+    @staticmethod
     def flow2origin(flow_obj, output=None, chain=None):
         _data = flow_obj.get('data')
         if _data is None:
