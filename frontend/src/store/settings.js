@@ -4,6 +4,7 @@ import { bus } from '@/eventbus'
 var configCommitMap = [
   {'name': 'mock.mode', 'commit': 'setDiffMode'},
   {'name': 'mock.data.showLabel', 'commit': 'setIsLabelDisplay'},
+  {'name': 'mock.data.tree.closeReload', 'commit': 'setIsCloseReloadWhenEnter'},
   {'name': 'mock.request.keep_origin_data', 'commit': 'setIsRequestKeepOriginData'},
   {'name': 'mock.data.tree.undeletableId', 'commit': 'concatTreeUndeletableId'},
   {'name': 'mock.data.detail.stickyTopKey', 'commit': 'concatStickyTopKey'},
