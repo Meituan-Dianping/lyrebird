@@ -27,7 +27,16 @@ def origin2flow(content_encoding, request_data, chain=None):
 
     return _data
 
-def origin2flow(content_encoding, request_data):
+def flow2origin(content_encoding, flow_data):
+    func = _get_matched_action(content_encoding)
+    try:
+        _data = func.flow2origin(flow_data)
+    except Exception as e:
+        _data = DefaultHandler.flow2origin(flow_data)
+        logger.warning(f'Convert Content-Encoding: {content_encoding} data flow2origin failed! {e}')
+    return _data
+
+def origin2string(content_encoding, request_data):
     func = _get_matched_action(content_encoding)
     try:
         _data = func.origin2string(request_data)
@@ -36,13 +45,4 @@ def origin2flow(content_encoding, request_data):
         _data = func.origin2string(request_data)
         logger.warning(f'Convert Content-Encoding: {content_encoding} data origin2flow failed! {e}')
 
-    return _data
-
-def flow2origin(content_encoding, flow_data):
-    func = _get_matched_action(content_encoding)
-    try:
-        _data = func.flow2origin(flow_data)
-    except Exception as e:
-        _data = DefaultHandler.flow2origin(flow_data)
-        logger.warning(f'Convert Content-Encoding: {content_encoding} data flow2origin failed! {e}')
     return _data

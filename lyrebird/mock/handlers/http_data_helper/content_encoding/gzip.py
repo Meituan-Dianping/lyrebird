@@ -9,11 +9,11 @@ class GzipHandler:
         return _data
 
     @staticmethod
-    def origin2string(request_data):
-        _data = gzip.decompress(request_data)
+    def flow2origin(flow_data):
+        _data = gzip.compress(flow_data)
         return _data
 
     @staticmethod
-    def flow2origin(flow_data):
-        _data = gzip.compress(flow_data)
+    def origin2string(request_data):
+        _data = gzip.decompress(request_data)
         return _data

@@ -42,6 +42,25 @@ class DataHelper:
             return _data
 
     @staticmethod
+    def flow2origin(flow_obj, output=None, chain=None):
+        _data = flow_obj.get('data')
+        if _data is None:
+            return
+
+        if chain:
+            for func in chain[::-1]:
+                _data = func.flow2origin(_data)
+        else:
+            for headers_key, func in flow2origin_handlers.items():
+                headers_val = flow_obj['headers'].get(headers_key, '')
+                _data = func.flow2origin(headers_val, _data)
+
+        if output:
+            output.data = _data
+        else:
+            return _data
+
+    @staticmethod
     def origin2string(origin_obj, output=None):
         if not origin_obj:
             return
@@ -63,24 +82,5 @@ class DataHelper:
 
         if output:
             output['data'] = _data
-        else:
-            return _data
-
-    @staticmethod
-    def flow2origin(flow_obj, output=None, chain=None):
-        _data = flow_obj.get('data')
-        if _data is None:
-            return
-
-        if chain:
-            for func in chain[::-1]:
-                _data = func.flow2origin(_data)
-        else:
-            for headers_key, func in flow2origin_handlers.items():
-                headers_val = flow_obj['headers'].get(headers_key, '')
-                _data = func.flow2origin(headers_val, _data)
-
-        if output:
-            output.data = _data
         else:
             return _data
