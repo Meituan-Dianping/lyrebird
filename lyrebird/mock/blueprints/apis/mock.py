@@ -14,6 +14,11 @@ class MockGroup(Resource):
 
     def get(self, group_id=None, label=None):
         if group_id:
+            query = request.args
+            if query and query.get('childrenOnly') == 'true':
+                children = context.application.data_manager._get_group_children(group_id) or []
+                return application.make_ok_response(data=children)
+
             _group = context.application.data_manager.get(group_id)
             if not _group:
                 return context.make_fail_response('Not found group')

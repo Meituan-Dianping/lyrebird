@@ -91,12 +91,12 @@
 
             <v-list-item>
               <v-list-item-action>
-                <v-switch v-model="isReloadWhenEnter"/>
+                <v-switch v-model="isLoadTreeAsync"/>
               </v-list-item-action>
 
               <v-list-item-content>
-                <v-list-item-title>Reload</v-list-item-title>
-                <v-list-item-subtitle>Reload when entering DataManager</v-list-item-subtitle>
+                <v-list-item-title>Load asyn</v-list-item-title>
+                <v-list-item-subtitle>Load data asynchronous</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
 
@@ -107,9 +107,21 @@
 
               <v-list-item-content>
                 <v-list-item-title>Labels</v-list-item-title>
-                <v-list-item-subtitle>Display labels in each tree nodes</v-list-item-subtitle>
+                <v-list-item-subtitle>Display labels in each tree node</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
+
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch v-model="isDisplayConfiguration"/>
+              </v-list-item-action>
+
+              <v-list-item-content>
+                <v-list-item-title>Configuration</v-list-item-title>
+                <v-list-item-subtitle>Display configuration file in each group</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
           </v-list>
 
         </v-menu>
@@ -134,6 +146,7 @@
       </v-overlay>
       <DocumentTree :treeData="treeData" class="overflow-auto data-list" :searchStr="searchStr"/>
     </Row>
+    <NodeMenu/>
     <DeleteDialog/>
     <CreateDialog/>
     <DuplicateDialog/>
@@ -143,6 +156,7 @@
 <script>
 import LabelDropdown from '@/components/LabelDropdown.vue'
 import DocumentTree from '@/components/DocumentTree.vue'
+import NodeMenu from '@/components/DocumentTreeNodeMenu.vue'
 import DeleteDialog from '@/components/DocumentTreeDialogDelete.vue'
 import CreateDialog from '@/components/DocumentTreeDialogCreate.vue'
 import DuplicateDialog from '@/components/DocumentTreeDialogDuplicate.vue'
@@ -152,6 +166,7 @@ export default {
   components: {
     LabelDropdown,
     DocumentTree,
+    NodeMenu,
     CreateDialog,
     DuplicateDialog,
     DeleteDialog,
@@ -185,16 +200,28 @@ export default {
         })
       }
     },
-    isReloadWhenEnter: {
+    isDisplayConfiguration: {
       get () {
-        return !this.$store.state.dataManager.isCloseReloadWhenEnter
+        return this.$store.state.dataManager.isDisplayConfiguration
       },
       set (val) {
-        const isCloseReloadWhenEnter = !val
-        this.$store.commit('setIsCloseReloadWhenEnter', isCloseReloadWhenEnter)
+        this.$store.commit('setIsDisplayConfiguration', val)
         this.$store.dispatch('updateConfigByKey', {
-          'mock.data.tree.closeReload': isCloseReloadWhenEnter
+          'mock.data.shownConfig': val
         })
+        this.$store.dispatch('loadDataMap')
+      }
+    },
+    isLoadTreeAsync: {
+      get () {
+        return this.$store.state.dataManager.isLoadTreeAsync
+      },
+      set (val) {
+        this.$store.commit('setIsTreeLoadAsync', val)
+        this.$store.dispatch('updateConfigByKey', {
+          'mock.data.tree.asynchronous': val
+        })
+        this.$store.dispatch('loadDataMap')
       }
     },
     isPreloadDataMap: {

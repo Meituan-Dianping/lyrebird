@@ -3,6 +3,11 @@ import json
 import codecs
 from pathlib import Path
 from urllib.parse import urlparse
+from lyrebird.log import get_logger
+from lyrebird.mock.dm import mock_data_upgrade
+
+
+logger = get_logger()
 
 
 PROP_FILE_NAME = '.lyrebird_prop'
@@ -28,6 +33,8 @@ class FileDataAdapter:
         self.context.root_path = _root_path
         self.context.reload()
 
+        mock_data_upgrade.upgrade(self)
+
     def _reload(self):
         self.context.id_map = {}
         self._load_prop()
@@ -52,10 +59,29 @@ class FileDataAdapter:
     def _get_group(self, id_):
         return self.context.id_map.get(id_)
 
+    def _get_group_children(self, id_):
+        node = self.context.id_map.get(id_)
+        return node.get('children')
+
     def _add_group(self, data, **kwargs):
         self._save_prop()
 
     def _update_group(self, data):
+        # Update node
+        # 1. Add new key into node
+        update_data = {k: data[k] for k in data if k not in self.context.update_group_ignore_keys}
+        data.update(update_data)
+
+        # 2. Remove deleted key in node
+        delete_keys = [k for k in data if k not in data and k not in self.context.update_group_ignore_keys]
+        for key in delete_keys:
+            data.pop(key)
+
+        # 3. Update existed value
+        for key, value in data.items():
+            if key in data:
+                data[key] = value
+
         self._save_prop()
 
     def _delete_group(self, data):

@@ -43,7 +43,7 @@ export default {
       searchRefreshDataListTimer: null,
       realSearchStr: '',
       searchByIdResult: '',
-      selectLimit: 200
+      selectLimit: 500
     }
   },
   computed: {

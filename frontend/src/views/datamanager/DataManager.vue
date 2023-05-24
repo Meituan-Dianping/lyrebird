@@ -48,7 +48,7 @@ export default {
     SnapshotImportSelector,
   },
   activated () {
-    if (this.groupList.length == 0 || this.isReloadWhenEnter) {
+    if (this.groupList.length == 0 || !this.isLoadTreeAsync) {
       this.loadDataMap()
     }
     this.$io.on('datamanagerUpdate', this.loadDataMap)
@@ -69,8 +69,8 @@ export default {
     groupList () {
       return this.$store.state.dataManager.groupList
     },
-    isReloadWhenEnter () {
-      return !this.$store.state.dataManager.isCloseReloadWhenEnter
+    isLoadTreeAsync () {
+      return this.$store.state.dataManager.isLoadTreeAsync
     }
   },
   methods: {

@@ -39,7 +39,10 @@ class DataManager:
 
         self.add_group_ignore_keys = set(['id', 'type', 'children'])
         self.update_group_ignore_keys = set(['id', 'parent_id', 'type', 'children'])
-        self.supported_data_type = ['data', 'json']
+        self.supported_data_type = ['data', 'json', 'config']
+        self.allow_virtual_node_data_type = set(['config', 'super'])
+
+        self.virtual_base_config_id = None
 
         self.unsave_keys = set()
 
@@ -77,14 +80,53 @@ class DataManager:
 
     def reload(self):
         self._adapter._reload()
-        self.add_parent_into_node()
+        # self.add_base_config_node()
+        self.add_parent()
         self.add_super_by()
 
-    def add_parent_into_node(self):
-        self.add_parent(self.root)
+    def _get_group_children(self, group_id):
+        children = self._adapter._get_group_children(group_id)
+        parent_node = self.id_map.get(group_id)
+        for child in children:
+            self.add_parent_generator(child, parent_node)
+            self.add_super_by(node=child)
+        return children
+
+    def add_base_config_node(self):
+        root_id = self.root['id']
+        root_children = self.id_map.get(root_id).get('children', [])
+        for node in root_children:
+            if node['type'] == 'config':
+                self.virtual_base_config_id = node['id']
+                return
+        raise BaseConfigNodeNotFound()
+
+        self.virtual_base_config_id
+
+        if self.root.get('children') is None:
+            self.root['children'] = []
+        self.root_virtual_config_id = str(uuid.uuid4())
+        config_node = {
+            'id': self.root_virtual_config_id,
+            'name': 'Settings',
+            'type': 'config',
+            'parent_id': self.root['id']
+        }
+        self.root['children'].append(config_node)
+        self.id_map[self.root_virtual_config_id] = config_node
+
+
+    def add_parent(self, node=None):
+        if not node:
+            root_id = self.root['id']
+            root = self.id_map.get(root_id)
+            self.add_parent_generator(root)
+        else:
+            parent_node = self.id_map.get(node['parent_id'])
+            self.add_parent_generator(node, parent_node=parent_node)
         self.unsave_keys.update(['parent', 'abs_parent_path'])
 
-    def add_parent(self, node, parent_node=None):
+    def add_parent_generator(self, node, parent_node=None):
         parent_node_parent = parent_node['parent'] if parent_node and parent_node.get('parent') else []
         parent_obj = parent_node_parent + [{
             'id': node['id'],
@@ -93,7 +135,7 @@ class DataManager:
             'parent_id': node['parent_id']
         }]
 
-        abs_parent_path = f"{parent_node['abs_parent_path']}{node['name']}/" if parent_node else '/'
+        abs_parent_path = f"{parent_node['abs_parent_path']}{node['name']}/" if parent_node and parent_node.get('abs_parent_path') else '/'
 
         node.update({
             'parent': parent_obj,
@@ -104,10 +146,12 @@ class DataManager:
             return
 
         for child in node['children']:
-            self.add_parent(child, node)
+            self.add_parent_generator(child, node)
 
-    def add_super_by(self):
-        for node in self.id_map.values():
+    def add_super_by(self, node=None):
+        node_list = [node] if node else self.id_map.values()
+
+        for node in node_list:
             if not node.get('super_id'):
                 continue
             super_parent_node = self.id_map.get(node['super_id'])
@@ -130,12 +174,28 @@ class DataManager:
         node = self.id_map.get(_id)
         if not node:
             raise IDNotFound(_id)
+
+        link = node.get('link')
+        if link:
+            link_node = self.id_map.get(_id)
+            if not link_node:
+                logger.error('link node not found!')
+                raise IDNotFound(link_node)
+            data = self.get(node['link'])
+            data['link'] = data['id']
+            data['id'] = link_node['id']
+            return data
+
         if node.get('type') == 'group' or node.get('type') == None:
             return self._adapter._get_group(_id)
         elif node.get('type') == 'data':
             return self._adapter._load_data(_id)
         elif node.get('type') == 'json':
             return self._adapter._load_data(_id)
+        elif node.get('type') == 'config':
+            data = self._adapter._load_data(_id)
+            data.pop('name', None)
+            return data
         else:
             raise UnsupportedType
 
@@ -208,6 +268,11 @@ class DataManager:
         self.activated_data.update({i: data_map[i] for i in ordered_data_id if data_map.get(i)})
         self.activated_group[_id] = _node
 
+        # Apply config
+        config = self._get_activated_data_config_id()
+        if config:
+            application._cm.add_config(config, type='dm', level=-1, apply_now=True)
+
         # After activate
         self._check_activated_data_rules_contains_request_data()
         self._adapter._after_activate(**kwargs)
@@ -255,6 +320,10 @@ class DataManager:
         """
         Clear activated data
         """
+        config = self._get_activated_data_config_id()
+        if config:
+            application._cm.remove_config(config, type='dm', apply_now=True)
+
         self.activated_data = OrderedDict()
         self.activated_group = {}
         self._check_activated_data_rules_contains_request_data()
@@ -304,6 +373,27 @@ class DataManager:
     def _is_match_rule(self, flow, rules):
         return MatchRules.match(flow, rules)
 
+    def _get_activated_data_config_id(self):
+        config_id = None
+        for id_ in self.activated_data:
+            node = self.id_map.get(id_)
+            if not node:
+                continue
+            if node['type'] == 'config':
+                config_id = id_
+                break
+
+        if not config_id:
+            return
+        config_node = self.activated_data.get(config_id)
+        if not config_node:
+            return
+
+        try:
+            return json.loads(config_node['json'])
+        except Exception:
+            logger.error(f'Load config {config_node["id"]} error! \n {traceback.format_exc()}')
+
     # -----
     # Data tree operations
     # -----
@@ -324,6 +414,8 @@ class DataManager:
 
         if data.get('type') == 'json':
             self._make_data_json(raw_data, data)
+        elif data.get('type') == 'config':
+            self._make_data_config(raw_data, data)
         elif data.get('type') == 'data':
             self._make_data_http_data(raw_data, data)
         else:
@@ -367,6 +459,12 @@ class DataManager:
 
         data['name'] = data['name'] if data.get('name') else 'Unnamed JSON'
 
+    def _make_data_config(self, raw_data, data):
+        if 'json' not in data:
+            data['json'] = {}
+
+        data['name'] = '.Settings'
+
     def add_data(self, parent_id, raw_data, **kwargs):
         if not isinstance(raw_data, dict):
             raise DataObjectShouldBeADict
@@ -387,7 +485,7 @@ class DataManager:
             if parent_node['type'] != 'group':
                 raise OnlyGroupCanContainAnyOtherObject
 
-        data = self._make_data(raw_data)
+        data = self._make_data(raw_data, **kwargs)
         data['parent_id'] = parent_id
         _data_id = data['id']
         _data_name = data.get('name')
@@ -758,7 +856,14 @@ class DataManager:
         node = self.id_map.get(_id)
         if not node:
             raise IDNotFound(_id)
-        node['name'] = data['name']
+
+        if node.get('link'):
+            data['type'] = node['type']
+            self.add_data(node['parent_id'], data, data_id=data['id'])
+            return
+
+        if 'name' in data:
+            node['name'] = data['name']
         self._adapter._update_data(data)
         self._adapter._update_group(node)
 
@@ -965,6 +1070,10 @@ class DataObjectShouldBeADict(Exception):
 
 
 class IDNotFound(Exception):
+    pass
+
+
+class BaseConfigNodeNotFound(Exception):
     pass
 
 

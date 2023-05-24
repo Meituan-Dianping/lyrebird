@@ -11,17 +11,19 @@
 
       <span>
         <v-btn v-if="data.type === 'group'" icon class="mr-1 my-0" @click.stop="onToggleStatusChange">
-          <v-icon small :color="toggleColor">
-            {{isNodeOpen ? 'mdi-chevron-down' : 'mdi-chevron-right'}}
+          <v-icon small :color="toggleColor" :class="toggleClass">
+            {{ isLoading ? 'mdi-autorenew': 'mdi-chevron-down' }}
           </v-icon>
         </v-btn>
-        <v-icon v-else-if="data.type === 'json'" small color="accent" size="14px" class="mr-1">mdi-alpha-j-box-outline</v-icon>
-        <v-icon v-else small color="accent" size="14px" class="mr-1">mdi-file</v-icon>
+        <v-icon v-else-if="data.type === 'json'" small :color="iconColor" size="14px" class="mr-1">mdi-alpha-j-box-outline</v-icon>
+        <v-icon v-else-if="data.type === 'config'" small :color="iconColor" size="14px" class="mr-1">mdi-file-cog-outline</v-icon>
+        <v-icon v-else small :color="iconColor" size="14px" class="mr-1">mdi-file</v-icon>
+      </span>
 
+      <span>
         <div class="status-point" v-show="isGroupActivated"/>
-
         <span :class="nameClass">
-          <span v-if="data.parent_id" color="accent" small>{{data.name}}</span>
+          <span v-if="data.parent_id">{{data.name}}</span>
           <v-icon v-else small color="accent">mdi-home</v-icon>
         </span>
         <span v-if="data.label && isLabelDisplay">
@@ -54,115 +56,17 @@
           <v-icon size="12px" color="error">mdi-delete</v-icon>
         </v-btn>
 
-        <v-menu
-          v-model="showMenu"
-          offset-y
-          bottom
-          left
-          allow-overflow
-          offset-overflow
-          absolute
-          :position-x="menuPositionX"
-          :position-y="menuPositionY"
+        <v-btn
+          icon
+          @click="changeMenuStatus"
+          class="mr-1"
         >
-          <!-- slot, got origin click event -->
-          <template v-slot:activator="{ on:{click}, attrs }">
-            <v-btn
-              icon
-              @click="changeMenuStatus"
-              v-bind="attrs"
-              class="mr-1"
-            >
-              <v-icon
-                size="12px" 
-                color="primary"
-              >mdi-dots-horizontal</v-icon>
-            </v-btn>
-          </template>
+          <v-icon
+            size="12px" 
+            color="primary"
+          >mdi-dots-horizontal</v-icon>
+        </v-btn>
 
-          <v-list dense>
-
-            <v-list-item key="cut" link @click="onTreeNodeCut">
-              <v-list-item-title>Cut</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item key="copy" link @click="onTreeNodeCopy">
-              <v-list-item-title>Copy</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item
-              key="paste"
-              link
-              v-show="data.type==='group'"
-              :disabled="!pasteButtonEnable"
-              @click="onTreeNodePaste"
-            >
-              <v-list-item-title>Paste</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item
-              key="duplicate"
-              link
-              :disabled="!duplicateButtonEnable"
-              @click="onTreeNodeDuplicate"
-            >
-              <v-list-item-title>Duplicate</v-list-item-title>
-            </v-list-item>
-
-            <v-divider v-show="data.type==='group'"/>
-
-            <v-list-item
-              key="addGroup"
-              link
-              v-show="data.type==='group'"
-              @click="onTreeNodeAddGroup"
-            >
-              <v-list-item-title>Add</v-list-item-title>
-            </v-list-item>
-
-            <v-divider v-show="data.type==='group'"/>
-
-            <v-list-item
-              key="import"
-              link
-              v-show="data.type==='group'"
-              style="padding:0px"
-            >
-              <v-list-item-title>
-                <Upload
-                  :on-success="handlerUploadSuccess"
-                  :on-error="handlerUploadError"
-                  action="/api/snapshot/import"
-                  :format="['lb']"
-                  accept=".lb"
-                  :data="{parent_id: data.id}"
-                  :show-upload-list="false"
-                  style="width: 100%;"
-                >
-                  <div style="padding: 7px 16px; width:100%;">
-                    Import
-                  </div>
-                </Upload>
-              </v-list-item-title>
-            </v-list-item>
-
-            <v-list-item
-              key="export"
-              link
-              v-show="data.type==='group'"
-              style="padding:0px;"
-            >
-              <v-list-item-title>
-                <a :href="'/api/snapshot/export/' + data.id"
-                  :download="data.name + '.lb'"
-                  class="dropdown-menu-item-link"
-                  style="color:#000520"
-                >Export</a>
-              </v-list-item-title>
-            </v-list-item>
-
-          </v-list>
-        </v-menu>
       </span>
 
     </v-row>
@@ -171,15 +75,14 @@
 
 <script>
 
+import { getGroupChildren } from '@/api'
+
 export default {
   props: ['data', 'selected'],
   data () {
     return {
       isMouseOver: false,
-      shownDuplicateDialogCount: 50,
-      showMenu: false,
-      menuPositionX: 0,
-      menuPositionY: 0,
+      isLoading: false,
     }
   },
   computed: {
@@ -190,7 +93,19 @@ export default {
       if (this.isNodeFocused) {
         return ['tree-node-inner-text', 'tree-node-inner-text-selected']
       }
-      return ['tree-node-inner-text']
+      if (this.data.link) {
+        return ['tree-node-inner-text', 'accent--text', 'text--secondary']
+      }
+      return ['tree-node-inner-text', 'accent--text']
+    },
+    toggleClass () {
+      if (this.isLoading) {
+        return 'loading-icon'
+      }
+      if (!this.isNodeOpen) {
+        return 'toggle-icon-status'
+      }
+      return ''
     },
     toggleColor () {
       if (this.isGroupActivated) {
@@ -199,26 +114,19 @@ export default {
       if (this.isNodeFocused) {
         return 'primary'
       }
+      if (!this.isNodeOpen) {
+        return 'accent'
+      }
       if (this.data.children && this.data.children.length) {
         return 'accent'
       }
       return 'content'
     },
+    iconColor () {
+      return this.data.link ? 'text--secondary' : 'accent'
+    },
     isSelectableStatus () {
       return this.$store.state.dataManager.isSelectableStatus
-    },
-    
-    pasteButtonEnable () {
-      const pasteTarget = this.$store.state.dataManager.pasteTarget
-      if (pasteTarget === null) {
-        return false
-      } else {
-        // Paste target should not be it self or it's children
-        return !this.containsPasteTarget(pasteTarget, this.data)
-      }
-    },
-    duplicateButtonEnable () {
-      return this.data.parent_id
     },
     isGroupActivated () {
       return this.$store.state.inspector.activatedGroup.hasOwnProperty(this.data.id)
@@ -226,14 +134,17 @@ export default {
     isNodeFocused () {
       return this.$store.state.dataManager.focusNodeInfo && this.data.id === this.$store.state.dataManager.focusNodeInfo.id
     },
-    duplicateNodeChildrenCount () {
-      return this.countNodeChildren(this.data)
-    },
     isNodeDeletable () {
       return this.$store.state.dataManager.treeUndeletableId.indexOf(this.data.id) === -1
     },
     isNodeOpen () {
       return this.$store.state.dataManager.groupListOpenNode.indexOf(this.data.id) > -1
+    },
+    isDisplayConfiguration () {
+      return this.$store.state.dataManager.isDisplayConfiguration
+    },
+    isLoadTreeAsync () {
+      return this.$store.state.dataManager.isLoadTreeAsync
     },
     isLabelDisplay () {
       return this.$store.state.dataManager.isLabelDisplay
@@ -254,16 +165,6 @@ export default {
     }
   },
   methods: {
-    containsPasteTarget (target, node) {
-      if (node.id === target.id) {
-        return true
-      }
-      if (node.parent) {
-        return this.containsPasteTarget(target, node.parent)
-      } else {
-        return false
-      }
-    },
     changeDeleteDialogStatus () {
       this.$store.commit('setDeleteNode', [this.data])
       this.$store.commit('setDeleteDialogSource', 'single')
@@ -271,17 +172,33 @@ export default {
     },
     changeMenuStatus (e) {
       e.preventDefault()
-      this.showMenu = false
-      this.menuPositionX = e.clientX
-      this.menuPositionY = e.clientY
-      this.showMenu = true
+      this.$store.commit('setIsShownNodeMenu', true)
+      this.$store.commit('setShownNodeMenuPosition', {'x': e.clientX, 'y': e.clientY})
+      console.log('this.$store.state.dataManager.isShownNodeMenu', this.$store.state.dataManager.isShownNodeMenu);
     },
     onToggleStatusChange () {
       if (this.isNodeOpen) {
         this.$store.commit('deleteGroupListOpenNode', this.data.id)
-      } else {
+        return
+      } 
+      if (!this.isLoadTreeAsync) {
         this.$store.commit('addGroupListOpenNode', this.data.id)
+        return
       }
+      if (this.isLoading) {
+        return
+      }
+
+      this.isLoading = true
+      getGroupChildren(this.data.id)
+        .then(response => {
+          this.data.children = response.data.data
+          this.isLoading = false
+          this.$store.commit('addGroupListOpenNode', this.data.id)
+        })
+        .catch(error => {
+          this.$bus.$emit('msg.error', 'Load group ' + this.data.name + ' children error: ' + error.data.message)
+        })
     },
     onTreeNodeClick () {
       this.$store.commit('setFocusNodeInfo', this.data)
@@ -291,53 +208,15 @@ export default {
         this.$store.dispatch('loadDataDetail', this.data)
       } else if (this.data.type === 'json') {
         this.$store.dispatch('loadDataDetail', this.data)
+      } else if (this.data.type === 'config') {
+        this.$store.dispatch('loadDataDetail', this.data)
       } else { }
-    },
-    onTreeNodeCut () {
-      this.$store.dispatch('cutGroupOrData', this.data)
-    },
-    onTreeNodeCopy () {
-      this.$store.dispatch('copyGroupOrData', this.data)
-    },
-    onTreeNodePaste () {
-      this.$store.dispatch('pasteGroupOrData', this.data)
-    },
-    onTreeNodeDuplicate () {
-      if (this.duplicateNodeChildrenCount >= this.shownDuplicateDialogCount) {
-        this.$store.commit('setIsShownDuplicateDialog', true)
-        return
-      }
-      this.$store.dispatch('duplicateGroupOrData', this.data)
-    },
-    onTreeNodeAddGroup () {
-      this.$store.commit('setIsShownCreateDialog', true)
     },
     onTreeNodeActivate () {
       this.$store.dispatch('activateGroup', this.data)
     },
     onTreeNodeDeactivate () {
       this.$store.dispatch('deactivateGroup')
-    },
-    handlerUploadSuccess (res, file) {
-      if (res.code === 1000) {
-        this.$bus.$emit('msg.success', 'Import snapshot ' + file.name + ' success!')
-        this.$store.dispatch('loadDataMap')
-      } else {
-        this.$bus.$emit('msg.error', 'Import snapshot ' + file.name + ' error: ' + res.message)
-      }
-    },
-    handlerUploadError (error, file) {
-      this.$bus.$emit('msg.error', 'Import snapshot ' + file.name + ' error: ' + error)
-    },
-    countNodeChildren (node) {
-      let count = 0
-      if (!node.children || node.children.length===0) {
-        return 0
-      }
-      for (const child of node.children) {
-        count += this.countNodeChildren(child)
-      }
-      return count + node.children.length
     }
   }
 }
@@ -397,6 +276,27 @@ export default {
 }
 .ivu-upload > .ivu-upload-select {
   width: 100%;
+}
+.toggle-icon-status {
+  transform:rotate(-90deg);
+  /* animation-name: loading-icon-rotate;
+  animation-duration: 800ms;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite; */
+}
+.loading-icon {
+  animation-name: loading-icon-rotate;
+  animation-duration: 800ms;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes loading-icon-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 .status-point {
   display: inline-block;

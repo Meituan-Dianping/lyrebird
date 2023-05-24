@@ -20,6 +20,8 @@ export default {
     isShownCreateDialog: false,
     isShownDuplicateDialog: false,
     isShownDeleteDialog: false,
+    isShownNodeMenu: false,
+    shownNodeMenuPosition: null,
     importSnapshotParentNode: {},
     snapshotName: '',
     labels: [],
@@ -31,7 +33,8 @@ export default {
     deleteNode: [],
     dataListSelectedLabel: [],
     isLabelDisplay: true,
-    isCloseReloadWhenEnter: false,
+    isDisplayConfiguration: false,
+    isLoadTreeAsync: false,
     isReloadTreeWhenUpdate: false,
     undisplayedKey: ['children', 'type', 'parent_id', 'abs_parent_path', 'parent'],
     undeletableKey: ['id', 'rule', 'name', 'label', 'category', 'super_by'],
@@ -133,6 +136,12 @@ export default {
     setIsShownDeleteDialog (state, isShownDeleteDialog) {
       state.isShownDeleteDialog = isShownDeleteDialog
     },
+    setIsShownNodeMenu (state, isShownNodeMenu) {
+      state.isShownNodeMenu = isShownNodeMenu
+    },
+    setShownNodeMenuPosition (state, shownNodeMenuPosition) {
+      state.shownNodeMenuPosition = shownNodeMenuPosition
+    },
     setDeleteDialogSource (state, deleteDialogSource) {
       state.deleteDialogSource = deleteDialogSource
     },
@@ -145,8 +154,11 @@ export default {
     setIsLabelDisplay (state, isLabelDisplay) {
       state.isLabelDisplay = isLabelDisplay
     },
-    setIsCloseReloadWhenEnter (state, isCloseReloadWhenEnter) {
-      state.isCloseReloadWhenEnter = isCloseReloadWhenEnter
+    setIsDisplayConfiguration (state, isDisplayConfiguration) {
+      state.isDisplayConfiguration = isDisplayConfiguration
+    },
+    setIsTreeLoadAsync (state, isLoadTreeAsync) {
+      state.isLoadTreeAsync = isLoadTreeAsync
     },
     setUndisplayedKey (state, undisplayedKey) {
       state.undisplayedKey = undisplayedKey
@@ -184,17 +196,44 @@ export default {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           commit('setIsLoading', true)
-          api.getGroupMap({labels: state.dataListSelectedLabel})
-            .then(response => {
-              commit('addGroupListOpenNode', response.data.data.id)
-              commit('setGroupList', [response.data.data])
-              commit('concatTreeUndeletableId', response.data.data.id)
-              commit('setIsLoading', false)
-            })
-            .catch(error => {
-              commit('setIsLoading', false)
-              bus.$emit('msg.error', 'Load data failed: ' + error.data.message)
-            })
+          commit('setGroupListOpenNode', [])
+          if (state.isLoadTreeAsync) {
+            api.getGroupMap({labels: state.dataListSelectedLabel})
+              .then(response => {
+                commit('setGroupList', [response.data.data])
+                commit('concatTreeUndeletableId', response.data.data.id)
+
+                api.getGroupChildren(response.data.data.id)
+                  .then(r => {
+                    state.groupList[0].children = []
+                    state.groupList[0].children.push(...r.data.data)
+                    commit('addGroupListOpenNode', response.data.data.id)
+                    commit('setIsLoading', false)
+                  })
+                  .catch(error => {
+                    bus.$emit('msg.error', 'Load group ' + state.groupList[0].name + ' children error: ' + error)
+                    commit('setIsLoading', false)
+                  })
+
+                commit('setIsLoading', false)
+              })
+              .catch(error => {
+                commit('setIsLoading', false)
+                bus.$emit('msg.error', 'Load data failed: ' + error.data.message)
+              })
+          } else {
+            api.getGroupMap({labels: state.dataListSelectedLabel})
+              .then(response => {
+                commit('addGroupListOpenNode', response.data.data.id)
+                commit('setGroupList', [response.data.data])
+                commit('concatTreeUndeletableId', response.data.data.id)
+                commit('setIsLoading', false)
+              })
+              .catch(error => {
+                commit('setIsLoading', false)
+                bus.$emit('msg.error', 'Load data failed: ' + error.data.message)
+              })
+          }
           resolve()
         }, 1)
       })
