@@ -256,15 +256,6 @@ class HandlerContext:
         }
         HeadersHelper.origin2flow(self.response, output=self.flow[output_key])
 
-    def update_request_data2flow(self, output=None, output_key='request', chain=None):
-        if not output:
-            output = self.flow
-
-        if not chain:
-            chain = self.request_chain
-
-        DataHelper.origin2flow(self.request, output=output[output_key], chain=chain)
-
     def update_response_data2flow(self, output_key='response'):
         DataHelper.origin2flow(self.response, output=self.flow[output_key], chain=self.response_chain)
 

@@ -5,8 +5,6 @@ var configCommitMap = [
   {'name': 'mock.mode', 'commit': 'setDiffMode'},
   {'name': 'mock.data.showLabel', 'commit': 'setIsLabelDisplay'},
   {'name': 'mock.request.keep_origin_data', 'commit': 'setIsRequestKeepOriginData'},
-  {'name': 'mock.data.tree.asynchronous', 'commit': 'setIsTreeLoadAsync'},
-  {'name': 'mock.data.shownConfig', 'commit': 'setIsDisplayConfiguration'},
   {'name': 'mock.data.tree.undeletableId', 'commit': 'concatTreeUndeletableId'},
   {'name': 'mock.data.detail.stickyTopKey', 'commit': 'concatStickyTopKey'},
   {'name': 'mock.data.detail.undeletableKey', 'commit': 'concatUndeletableKey'},
@@ -78,7 +76,6 @@ export default {
         })
     },
     commitAndupdateConfigByKey({ dispatch, commit }, { command, val }) {
-      console.log(command, val)
       let updateConfig = {}
       for (const config of configCommitMap) {
         if (config.commit == command) {
@@ -87,7 +84,6 @@ export default {
           break
         }
       }
-      console.log(updateConfig)
       api.updateConfigByKey(updateConfig)
         .then(_ => {
           dispatch('loadConfig')
