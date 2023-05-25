@@ -38,6 +38,15 @@ def test_flow_editor_json(lyrebird_with_args, mock_server):
     assert r.text == hashlib.md5(mock_server.api_post.encode() + data.encode()).hexdigest()
 
 
+def test_flow_editor_js(lyrebird_with_args, mock_server):
+    lyrebird_with_args.start(checker_path=flow_editor_path)
+
+    data = "console.log('hello world')"
+    headers = {"Content-Type": "application/javascript"}
+    r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, data=data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + data.encode()).hexdigest()
+
+
 def test_flow_editor_text(lyrebird_with_args, mock_server):
     lyrebird_with_args.start(checker_path=flow_editor_path)
     data = "asdasdasd"
