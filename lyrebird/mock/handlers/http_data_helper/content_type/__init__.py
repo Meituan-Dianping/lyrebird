@@ -29,7 +29,8 @@ def origin2flow(content_type, request_data, chain=None):
         _data = func.origin2flow(request_data)
         logger.warning(f'Convert Content-Type: {content_type} data origin2flow failed! {e}')
     finally:
-        chain.append(func)
+        if chain and isinstance(chain, list):
+            chain.append(func)
 
     return _data
 

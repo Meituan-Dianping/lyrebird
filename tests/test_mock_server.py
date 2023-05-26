@@ -5,9 +5,12 @@ from lyrebird.task import BackgroundTaskServer
 from lyrebird.event import EventServer
 from lyrebird import application
 from lyrebird import reporter
-from typing import NamedTuple
+
+import json
 import pytest
-from urllib.parse import quote
+import binascii
+from typing import NamedTuple
+from urllib.parse import quote, urlencode
 
 
 conf = {
@@ -45,6 +48,11 @@ def clear():
     context.application.cache._cache.clear()
 
 
+@pytest.fixture
+def keep_origin_data():
+    application.config['mock.request.keep_origin_data'] = True
+
+
 def test_mock_api(client):
     resp = client.get('/mock/http://www.bing.com')
     assert 200 <= resp.status_code <= 400
@@ -63,3 +71,172 @@ def test_mock_api_with_query(client, clear):
     assert len(cache_list._cache) == 1
     assert cache_list._cache[0]['request']['query']['url'] == url
     assert cache_list._cache[0]['request']['url'] == f'?url={url}'
+
+
+def test_mock_content_type_json(client, clear):
+    url = '/mock/http://www.bing.com'
+    origin_json = {
+        'name': 'Lyrebird'
+    }
+    origin_body = json.dumps(origin_json)
+    headers = {'Content-Type': 'application/json'}
+
+    client.post(url, headers=headers, data=origin_body)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['request']['data']
+
+    assert origin_json == flow_body
+
+
+def test_mock_content_type_javascript(client, clear):
+    url = '/mock/http://www.bing.com'
+    origin_js = 'console.log("Hello, world!");'
+    headers = {'Content-Type': 'application/javascript'}
+
+    client.post(url, headers=headers, data=origin_js)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['request']['data']
+
+    assert origin_js == flow_body
+
+
+def test_mock_content_type_text(client, clear):
+    url = '/mock/http://www.bing.com'
+    origin_text = 'Hello, world!'
+    headers = {'Content-Type': 'text/plain'}
+
+    client.post(url, headers=headers, data=origin_text)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['request']['data']
+
+    assert origin_text == flow_body
+
+
+def test_mock_content_type_form(client, clear):
+    url = '/mock/http://www.bing.com'
+    origin_data = 'name=Lyrebird&com=mt&blank='
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+    client.post(url, headers=headers, data=origin_data)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['request']['data']
+
+    assert origin_data == urlencode(flow_body)
+
+
+def test_mock_content_type_default(client, clear):
+    url = '/mock/http://www.bing.com'
+    origin_data = b'Lyrebird'
+    headers = {'Content-Type': 'image/png'}
+
+    client.post(url, headers=headers, data=origin_data)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['request']['data']
+
+    flow_body_a2b = binascii.a2b_base64(flow_body.encode())
+
+    assert origin_data == flow_body_a2b
+
+
+def test_mock_content_type_json_keep_origin_request(client, clear, keep_origin_data):
+    url = '/mock/http://www.bing.com'
+    origin_json = {
+        'name': 'Lyrebird'
+    }
+    origin_body = json.dumps(origin_json)
+    headers = {'Content-Type': 'application/json'}
+
+    client.post(url, headers=headers, data=origin_body)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['origin_request']['data']
+
+    assert origin_body == flow_body
+
+
+def test_mock_content_type_javascript_keep_origin_request(client, clear, keep_origin_data):
+    url = '/mock/http://www.bing.com'
+    origin_js = 'console.log("Hello, world!");'
+    headers = {'Content-Type': 'application/javascript'}
+
+    client.post(url, headers=headers, data=origin_js)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['origin_request']['data']
+
+    assert origin_js == flow_body
+
+
+def test_mock_content_type_text_keep_origin_request(client, clear, keep_origin_data):
+    url = '/mock/http://www.bing.com'
+    origin_text = 'Hello, world!'
+    headers = {'Content-Type': 'text/plain'}
+
+    client.post(url, headers=headers, data=origin_text)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['origin_request']['data']
+
+    assert origin_text == flow_body
+
+
+def test_mock_content_type_form_keep_origin_request(client, clear, keep_origin_data):
+    url = '/mock/http://www.bing.com'
+    origin_data = 'name=Lyrebird&com=mt&blank'
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+    client.post(url, headers=headers, data=origin_data)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['origin_request']['data']
+
+    assert origin_data == flow_body
+
+def test_mock_content_type_default_keep_origin_request(client, clear, keep_origin_data):
+    url = '/mock/http://www.bing.com'
+    origin_data = b'Lyrebird'
+    headers = {'Content-Type': 'image/png'}
+
+    client.post(url, headers=headers, data=origin_data)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['origin_request']['data']
+
+    flow_body_a2b = binascii.a2b_base64(flow_body.encode())
+
+    assert origin_data == flow_body_a2b
