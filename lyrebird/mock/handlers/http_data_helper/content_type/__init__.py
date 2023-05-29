@@ -50,5 +50,5 @@ def origin2string(content_type, request_data):
     except Exception as e:
         func = DefaultHandler
         _data = func.origin2string(request_data)
-        logger.warning(f'Convert Content-Type: {content_type} data origin2flow failed! {e}')
+        logger.warning(f'Convert Content-Type: {content_type} data origin2string failed! {e}')
     return _data
