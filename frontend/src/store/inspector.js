@@ -11,6 +11,8 @@ export default {
     focusedFlowDetail: null,
     originFlowList: [],
     recordMode: '',
+    diffMode: 'normal',
+    isRequestKeepOriginData: false,
     flowFilters: [],
     selectedFlowFilter: {}
   },
@@ -53,6 +55,12 @@ export default {
     },
     setRecordMode (state, recordMode) {
       state.recordMode = recordMode
+    },
+    setDiffMode (state, diffMode) {
+      state.diffMode = diffMode
+    },
+    setIsRequestKeepOriginData (state, isRequestKeepOriginData) {
+      state.isRequestKeepOriginData = isRequestKeepOriginData
     },
     setFlowFilters (state, flowFilters) {
       state.flowFilters = flowFilters

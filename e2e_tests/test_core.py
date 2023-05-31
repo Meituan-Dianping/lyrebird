@@ -32,6 +32,13 @@ def test_json(lyrebird, mock_server):
     assert r.text == hashlib.md5(mock_server.api_post.encode() + data.encode()).hexdigest()
 
 
+def test_javascript(lyrebird, mock_server):
+    data = "(function(){\n    var name = 'Lyrebird';\n  })();"
+    headers = {"Content-Type": "application/javascript"}
+    r = requests.post(url=lyrebird.uri_mock + mock_server.api_post, data=data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + data.encode()).hexdigest()
+
+
 def test_text(lyrebird, mock_server):
     data = "asdasdasd"
     headers = {"Content-Type": "text/plain"}

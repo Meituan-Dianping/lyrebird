@@ -27,6 +27,7 @@ class LyrebirdProxyServer(ProcessServer):
     def wait_for_mitm_start(self, config, logger):
         timeout = 30
         wait_time_count = 0
+        ip = config.get('ip')
         mock_port = config.get('mock.port')
         proxy_port = config.get('proxy.port')
         while True:
@@ -36,8 +37,10 @@ class LyrebirdProxyServer(ProcessServer):
             time.sleep(1)
             wait_time_count += 1
             try:
-                resp = requests.get(f'http://127.0.0.1:{mock_port}/api/status',
-                                    proxies={'http': f'http://127.0.0.1:{proxy_port}'})
+                resp = requests.get(
+                    f'http://{ip}:{mock_port}/api/status',
+                    proxies={'http': f'http://{ip}:{proxy_port}'}
+                )
                 if resp.status_code != 200:
                     continue
                 else:

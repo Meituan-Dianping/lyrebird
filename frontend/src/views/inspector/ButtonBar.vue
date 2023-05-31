@@ -29,30 +29,8 @@
         <span>Clear</span>
       </v-tooltip>
 
-      <v-divider vertical class="button-bar-divider border"/>
-      <b style="padding-right:5px">Diff Mode</b>
-      <v-switch
-        small
-        dense
-        inset
-        v-model="diffMode"
-        color="primary"
-        class="button-bar-diff-mode"
-        @change="changeDiffMode"
-      />
 
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn plain icon small v-bind="attrs" v-on="on">
-            <v-icon small size="18px" color="content">mdi-help-circle-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>Get the proxy response while the request is mocked</span>
-      </v-tooltip>
-
-      <v-divider vertical class="button-bar-divider border"/>
-
-      <b style="padding-right:5px">Mock Group</b>
+      <b class="pr-1 pl-3">Mock Group</b>
 
       <v-chip
         label small outlined
@@ -124,6 +102,54 @@
           @click:clear="clearInspectorSearch"
         />
       </div>
+
+
+      <v-menu
+        left
+        bottom
+        offset-y
+        offset-overflow
+        :close-on-content-click="false"
+        style="position: absolute;"
+      >
+
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            v-bind="attrs"
+            v-on="on"
+            class="ml-1"
+            title="Settings"
+          >
+            <v-icon size="18px" color="content">mdi-cog-outline</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list dense>
+          <v-list-item>
+            <v-list-item-action>
+              <v-switch v-model="diffMode"/>
+            </v-list-item-action>
+
+            <v-list-item-content>
+              <v-list-item-title>Diff Mode</v-list-item-title>
+              <v-list-item-subtitle>Get the proxy response while the request is mocked</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-action>
+              <v-switch v-model="isRequestKeepOriginData"/>
+            </v-list-item-action>
+
+            <v-list-item-content>
+              <v-list-item-title>Origin request body</v-list-item-title>
+              <v-list-item-subtitle>Keep origin request body</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+
+      </v-menu>
     </div>
 
     <MockDataSelector ref="searchModal" :showRoot="false">
@@ -158,7 +184,6 @@
 <script>
 import MockDataSelector from '@/components/SearchModal.vue'
 import Icon from 'vue-svg-icon/Icon.vue'
-import { getDiffModeStatus, setDiffModeStatus } from '@/api'
 
 export default {
   name: 'buttonBar',
@@ -168,15 +193,31 @@ export default {
   },
   data () {
     return {
-      diffMode: false
     }
   },
-  mounted () {
-    this.loadDiffModeStatus()
-  },
   computed: {
-    isRecordMode () {
-      return this.$store.state.inspector.recordMode === 'record'
+    diffMode: {
+      get () {
+        return this.$store.state.inspector.diffMode === 'multiple'
+      },
+      set (val) {
+        const mode = val ? 'multiple' : 'normal'
+        this.$store.commit('setDiffMode', mode)
+        this.$store.dispatch('updateConfigByKey', {
+          'mock.mode': mode
+        })
+      }
+    },
+    isRequestKeepOriginData: {
+      get () {
+        return this.$store.state.inspector.isRequestKeepOriginData
+      },
+      set (val) {
+        this.$store.dispatch('commitAndupdateConfigByKey', {
+          'command': 'setIsRequestKeepOriginData',
+          val
+        })
+      }
     },
     isEmptySelectedFlow () {
       return this.$store.state.inspector.selectedFlows.length === 0
@@ -224,19 +265,6 @@ export default {
   methods: {
     showMockDataSelector () {
       this.$refs.searchModal.toggal()
-    },
-    loadDiffModeStatus () {
-      getDiffModeStatus()
-        .then(response => {
-          this.diffMode = response.data.diffmode === 'multiple'
-        })
-        .catch(error => {
-          this.$bus.$emit('msg.error', 'Load diff mode status failed: ' + error.data.message)
-        })
-    },
-    changeDiffMode (payload) {
-      const mode = payload ? 'multiple' : 'normal'
-      setDiffModeStatus(mode)
     },
     changeFlowFilter () {
       this.$store.dispatch('loadFlowList')

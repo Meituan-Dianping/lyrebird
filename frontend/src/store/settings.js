@@ -2,9 +2,11 @@ import * as api from '@/api'
 import { bus } from '@/eventbus'
 
 var configCommitMap = [
+  {'name': 'mock.mode', 'commit': 'setDiffMode'},
   {'name': 'mock.data.showLabel', 'commit': 'setIsLabelDisplay'},
   {'name': 'mock.data.tree.asynchronous', 'commit': 'setIsTreeLoadAsync'},
   {'name': 'mock.data.shownConfig', 'commit': 'setIsDisplayConfiguration'},
+  {'name': 'mock.request.keep_origin_data', 'commit': 'setIsRequestKeepOriginData'},
   {'name': 'mock.data.tree.undeletableId', 'commit': 'concatTreeUndeletableId'},
   {'name': 'mock.data.detail.stickyTopKey', 'commit': 'concatStickyTopKey'},
   {'name': 'mock.data.detail.undeletableKey', 'commit': 'concatUndeletableKey'},
@@ -67,6 +69,24 @@ export default {
     },
     updateConfigByKey({ dispatch }, data) {
       api.updateConfigByKey(data)
+        .then(_ => {
+          dispatch('loadConfig')
+          bus.$emit('msg.success', `Update config success!`)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', `Update config failed ${error.data.message}`)
+        })
+    },
+    commitAndupdateConfigByKey({ dispatch, commit }, { command, val }) {
+      let updateConfig = {}
+      for (const config of configCommitMap) {
+        if (config.commit == command) {
+          updateConfig[config.name] = val
+          commit(command, val)
+          break
+        }
+      }
+      api.updateConfigByKey(updateConfig)
         .then(_ => {
           dispatch('loadConfig')
           bus.$emit('msg.success', `Update config success!`)
