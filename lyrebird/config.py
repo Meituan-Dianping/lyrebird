@@ -5,6 +5,7 @@ import json
 from packaging import version
 import jinja2
 from lyrebird import log as nlog
+from lyrebird.mock import context
 
 logger = nlog.get_logger()
 
@@ -72,6 +73,11 @@ class ConfigManager():
         forbidden_modify_fields = self.contains_forbidden_modify_field(update_conf)
         if forbidden_modify_fields:
             raise ConfigException(f'Config field cannot be modified: {forbidden_modify_fields}')
+
+        # TODO handle bug diff mode not effect
+        # Remove bellow code next version
+        if 'mock.mode' in update_conf:
+            context.application.is_diff_mode = update_conf['mock.mode']
 
         logger.debug(f'Need update config fields: {update_conf}')
         self.config.update(update_conf)
