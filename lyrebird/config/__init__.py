@@ -6,6 +6,8 @@ from pathlib import Path
 from copy import deepcopy
 from packaging import version
 from lyrebird import log as nlog
+
+from lyrebird.config.diff_mode import SettingDiffMode
 from lyrebird.config.checker_switch import SettingCheckerSwitch
 
 logger = nlog.get_logger()
@@ -24,7 +26,8 @@ config_template = {
 }
 
 CONFIG_FUNC_MAP = {
-    'checker.switch': SettingCheckerSwitch
+    'checker.switch': SettingCheckerSwitch,
+    'mock.mode': SettingDiffMode
 }
 
 
@@ -83,7 +86,7 @@ class ConfigManager():
         if forbidden_modify_fields:
             raise ConfigException(f'Config field cannot be modified: {forbidden_modify_fields}')
 
-        self.add_config(update_conf, type='api_patch', override_same_type=True)
+        self.add_config(update_conf, type='api_patch', apply_now=True)
 
         logger.debug(f'Need update config fields: {update_conf}')
         self.config.update(update_conf)
@@ -132,7 +135,7 @@ class ConfigManager():
             self.merge_generator(key_child, origin_config, new_config, level)
 
         if apply_now:
-            self.apply_config(new_config)
+            self.add_each_config_item(new_config)
 
     def merge_generator(self, key, origin_config, new_config, level):
         if level == 0:
@@ -161,6 +164,13 @@ class ConfigManager():
         else:
             origin_config[key] = new_config[key]
 
+    def add_each_config_item(self, config):
+        # 处理第一层的key
+        for key, value in config.items():
+            if key not in CONFIG_FUNC_MAP:
+                continue
+            CONFIG_FUNC_MAP[key].add(value)
+
     def remove_config(self, config, type='', level=-1, apply_now=False):
         remove_config = None
         recover_config = None
@@ -185,7 +195,7 @@ class ConfigManager():
             self.unmerge_generator(key_child, origin_config, remove_config, level=level)
 
         if apply_now:
-            self.apply_config(remove_config, is_remove=True)
+            self.remove_each_config_item(remove_config)
 
     def unmerge_generator(self, key, origin_config, remove_config, level):
         if level == 0:
@@ -208,12 +218,12 @@ class ConfigManager():
         else:
             origin_config.pop(key, None)
 
-    def apply_config(self, config, is_remove=False):
+    def remove_each_config_item(self, config):
         # 处理第一层的key
         for key, value in config.items():
             if key not in CONFIG_FUNC_MAP:
                 continue
-            CONFIG_FUNC_MAP[key].apply(value, is_remove=is_remove)
+            CONFIG_FUNC_MAP[key].apply(value)
 
 
 class Config:
