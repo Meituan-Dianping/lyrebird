@@ -40,7 +40,7 @@ class Menu(Resource):
         # Load plugins from new plugin manager
         _pm = application.server['plugin']
         for plugin_id, plugin in _pm.plugins.items():
-            if plugin.manifest.is_close_frontend:
+            if plugin.manifest.no_frontend:
                 continue
 
             menu.append({
