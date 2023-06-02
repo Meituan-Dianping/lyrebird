@@ -80,7 +80,7 @@ class DataManager:
 
     def reload(self):
         self._adapter._reload()
-        # self.add_base_config_node()
+        self.add_base_config_node()
         self.add_parent()
         self.add_super_by()
 
