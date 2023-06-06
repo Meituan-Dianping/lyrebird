@@ -957,7 +957,8 @@ class DataManager:
         type_map = {
             'group': [],
             'data': [],
-            'json': []
+            'json': [],
+            'setting': []
         }
         for id_ in ids:
             node = self.id_map.get(id_)
@@ -998,8 +999,8 @@ class DataManager:
             })
 
             type_map = self._get_type_hashmap(id_list)
-            node_delete_group_ids = type_map['group'] + type_map['data'] + type_map['json']
-            node_delete_data_ids = type_map['data'] + type_map['json']
+            node_delete_group_ids = type_map['group'] + type_map['data'] + type_map['json'] + type_map['setting']
+            node_delete_data_ids = type_map['data'] + type_map['json'] + type_map['setting']
 
             for id_ in id_list:
                 # Delete from parent

@@ -77,7 +77,7 @@ export default {
           bus.$emit('msg.error', `Update config failed ${error.data.message}`)
         })
     },
-    commitAndupdateConfigByKey({ dispatch, commit }, { command, val }) {
+    commitAndupdateConfigByKey({ dispatch, commit }, { command, isShowMessage, val }) {
       let updateConfig = {}
       for (const config of configCommitMap) {
         if (config.commit == command) {
@@ -89,7 +89,9 @@ export default {
       api.updateConfigByKey(updateConfig)
         .then(_ => {
           dispatch('loadConfig')
-          bus.$emit('msg.success', `Update config success!`)
+          if (isShowMessage) {
+            bus.$emit('msg.success', `Update config success!`)
+          }
         })
         .catch(error => {
           bus.$emit('msg.error', `Update config failed ${error.data.message}`)

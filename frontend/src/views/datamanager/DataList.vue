@@ -80,23 +80,23 @@
           <v-list dense>
             <v-list-item>
               <v-list-item-action>
-                <v-switch v-model="isPreloadDataMap"/>
-              </v-list-item-action>
-
-              <v-list-item-content>
-                <v-list-item-title>Preload</v-list-item-title>
-                <v-list-item-subtitle>Proload DataTree before entering DataManager</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-action>
                 <v-switch v-model="isLoadTreeAsync"/>
               </v-list-item-action>
 
               <v-list-item-content>
                 <v-list-item-title>Load asyn</v-list-item-title>
                 <v-list-item-subtitle>Load data asynchronous</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch v-model="isPreloadDataMap"/>
+              </v-list-item-action>
+
+              <v-list-item-content>
+                <v-list-item-title>Preload</v-list-item-title>
+                <v-list-item-subtitle>Proload DataTree before entering DataManager</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
 
@@ -226,6 +226,8 @@ export default {
     },
     isPreloadDataMap: {
       get () {
+        console.log(this.$store.state.settings.preLoadFuncSet)
+        console.log(this.$store.state.settings.preLoadFuncSet.has('loadDataMap'))
         return this.$store.state.settings.preLoadFuncSet.has('loadDataMap')
       },
       set (val) {

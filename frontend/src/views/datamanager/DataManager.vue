@@ -51,11 +51,9 @@ export default {
     if (this.groupList.length == 0 || !this.isLoadTreeAsync) {
       this.loadDataMap()
     }
-    this.$io.on('datamanagerUpdate', this.loadDataMap)
     this.$io.on('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
   },
   deactivated() {
-    this.$io.removeListener('datamanagerUpdate', this.loadDataMap)
     this.$io.removeListener('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
   },
   data () {
