@@ -99,22 +99,6 @@ class DataManager:
             if node['type'] == 'config':
                 self.virtual_base_config_id = node['id']
                 return
-        raise BaseConfigNodeNotFound()
-
-        self.virtual_base_config_id
-
-        if self.root.get('children') is None:
-            self.root['children'] = []
-        self.root_virtual_config_id = str(uuid.uuid4())
-        config_node = {
-            'id': self.root_virtual_config_id,
-            'name': 'Settings',
-            'type': 'config',
-            'parent_id': self.root['id']
-        }
-        self.root['children'].append(config_node)
-        self.id_map[self.root_virtual_config_id] = config_node
-
 
     def add_parent(self, node=None):
         if not node:
@@ -958,7 +942,7 @@ class DataManager:
             'group': [],
             'data': [],
             'json': [],
-            'setting': []
+            'config': []
         }
         for id_ in ids:
             node = self.id_map.get(id_)
@@ -999,8 +983,8 @@ class DataManager:
             })
 
             type_map = self._get_type_hashmap(id_list)
-            node_delete_group_ids = type_map['group'] + type_map['data'] + type_map['json'] + type_map['setting']
-            node_delete_data_ids = type_map['data'] + type_map['json'] + type_map['setting']
+            node_delete_group_ids = type_map['group'] + type_map['data'] + type_map['json'] + type_map['config']
+            node_delete_data_ids = type_map['data'] + type_map['json'] + type_map['config']
 
             for id_ in id_list:
                 # Delete from parent

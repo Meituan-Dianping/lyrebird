@@ -61,7 +61,7 @@ export default {
       set (val) {
         this.$store.dispatch('commitAndupdateConfigByKey', {
           'command': 'setIsTreeLoadAsync',
-          'isShowMessage': true,
+          'isShowMessage': false,
           val
         })
         this.$store.dispatch('loadDataMap')

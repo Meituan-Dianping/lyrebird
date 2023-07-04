@@ -112,9 +112,6 @@ export default {
       Object.assign(newData, JSON.parse(this.editorCache.info))
       newData['json'] = this.editorCache.json
       this.$store.commit('setIsReloadTreeWhenUpdate', false)
-      if (this.data.link) {
-        
-      }
       this.$store.dispatch('saveDataDetail', newData)
     },
     onJsonPathChange (payload) {
