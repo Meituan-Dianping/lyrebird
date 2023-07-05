@@ -88,9 +88,13 @@ class DataManager:
     def _get_group_children(self, group_id):
         children = self._adapter._get_group_children(group_id)
         parent_node = self.id_map.get(group_id)
+        self.handle_group_config(children, parent_node['id'])
+
         for child in children:
             self.add_parent_generator(child, parent_node)
             self.add_super_by(node=child)
+
+        children.sort(key=lambda sub_node: sub_node['name'])
         return children
 
     def init_config_base_node(self):
@@ -114,14 +118,14 @@ class DataManager:
             return
 
         all_new_config_node = {}
-        for node in self.id_map.values():
+        for id_, node in self.id_map.items():
             if node['type'] != 'group':
                 continue
 
             if not node.get('children'):
                 continue
 
-            new_config_node = self.handle_group_config(node)
+            new_config_node = self.handle_group_config(node['children'], id_)
             if not new_config_node:
                 continue
 
@@ -130,10 +134,7 @@ class DataManager:
         if all_new_config_node:
             self.id_map.update(all_new_config_node)
 
-    def handle_group_config(self, node):
-        node_list = node['children']
-        node_id = node['id']
-
+    def handle_group_config(self, node_list, node_id):
         has_config_index = -1
         for index, node in enumerate(node_list):
             if node['type'] == 'config':
@@ -145,8 +146,13 @@ class DataManager:
         if is_show_config == has_config:
             return
 
-        new_config_node = {}
-        if is_show_config and not has_config:
+        elif has_config and not is_show_config:
+            del node_list[has_config_index]
+            return
+
+        elif is_show_config and not has_config:
+            new_config_node = {}
+
             config_node_id = str(uuid.uuid4())
             config_node = {
                 'id': config_node_id,
@@ -158,10 +164,7 @@ class DataManager:
             node_list.append(config_node)
             new_config_node[config_node_id] = config_node
 
-        elif not is_show_config and has_config:
-            del node_list[has_config_index]
-
-        return new_config_node
+            return new_config_node
 
     def add_parent(self, node=None):
         if not node:
