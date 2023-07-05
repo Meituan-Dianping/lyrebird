@@ -128,6 +128,10 @@ class FileDataAdapter:
         prop_writer = PropWriter()
         prop_writer.dict_ignore_key.update(self.context.unsave_keys)
 
+        for id_, node in self.context.id_map.items():
+            if self.context.is_data_virtual_node(node):
+                prop_writer.ignore_id.add(id_)
+
         prop_str = prop_writer.parse(self.context.root)
         prop_file = self.context.root_path / PROP_FILE_NAME
         with codecs.open(prop_file, 'w') as f:
@@ -227,6 +231,7 @@ class PropWriter:
             'NoneType': self.none_parser
         }
         self.dict_ignore_key = set()
+        self.ignore_id = set()
 
     def parse(self, prop):
         prop_type = type(prop)
@@ -255,6 +260,8 @@ class PropWriter:
     def list_parser(self, val):
         list_str = '['
         for item in val:
+            if item.get('id') in self.ignore_id:
+                continue
             item_str = self.parse(item)
             list_str += item_str + ','
         if list_str.endswith(','):

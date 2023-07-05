@@ -226,8 +226,6 @@ export default {
     },
     isPreloadDataMap: {
       get () {
-        console.log(this.$store.state.settings.preLoadFuncSet)
-        console.log(this.$store.state.settings.preLoadFuncSet.has('loadDataMap'))
         return this.$store.state.settings.preLoadFuncSet.has('loadDataMap')
       },
       set (val) {
@@ -297,6 +295,10 @@ export default {
         })
     },
     editLabel (payload) {
+      // When label is not empty, close isLoadTreeAsync
+      if (payload.labels.length > 0) {
+        this.isLoadTreeAsync = false
+      }
       this.$store.commit('setDataListSelectedLabel', {})
       let labels = []
       for (const id of payload.labels) {

@@ -60,6 +60,7 @@
           icon
           @click="changeMenuStatus"
           class="mr-1"
+          v-show="data.type !== 'config'"
         >
           <v-icon
             size="12px" 

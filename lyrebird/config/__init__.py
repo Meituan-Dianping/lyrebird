@@ -11,7 +11,7 @@ from lyrebird import application
 from lyrebird.config.diff_mode import SettingDiffMode
 from lyrebird.config.checker_switch import SettingCheckerSwitch
 
-from .keywords import CONFIG_TREE_SHOW_CONFIG
+from .keywords import CONFIG_TREE_SHOW_CONFIG, CONFIG_TREE_LOAD_CHILDREN_ASYNC
 
 logger = nlog.get_logger()
 

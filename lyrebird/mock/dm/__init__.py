@@ -41,7 +41,7 @@ class DataManager:
         self.add_group_ignore_keys = set(['id', 'type', 'children'])
         self.update_group_ignore_keys = set(['id', 'parent_id', 'type', 'children'])
         self.supported_data_type = ['data', 'json', 'config']
-        self.allow_virtual_node_data_type = set(['config', 'super'])
+        self.virtual_node_data_type = set(['config']) # TODO Next is `super``
 
         self.virtual_base_config_id = None
 
@@ -249,6 +249,13 @@ class DataManager:
         else:
             raise UnsupportedType
 
+    def is_data_virtual_node(self, node):
+        if node['type'] == 'config':
+            if 'link' in node:
+                return node['link'] == self.context.virtual_base_config_id
+ 
+        return False
+
     # -----
     # Mock operations
     # -----
@@ -289,7 +296,14 @@ class DataManager:
             node = self.id_map.get(group_id)
             map_pointer.append(node)
 
+        self._sort_tree_children_by_name(self.display_data_map)
+
         return self.display_data_map
+
+    def root_without_children(self):
+        async_tree = {k: v for k,v in self.root.items() if k not in ['children']}
+        async_tree['children'] = []
+        return async_tree
 
     def activate(self, search_id, **kwargs):
         """
@@ -704,6 +718,9 @@ class DataManager:
         return self._adapter.duplicate(_id)
 
     def _copy_node(self, parent_node, node, **kwargs):
+        if self.is_data_virtual_node(node):
+            return
+
         new_node = {}
         new_node.update(node)
         new_node['id'] = str(uuid.uuid4())
@@ -759,6 +776,13 @@ class DataManager:
                     node['children'] = []
                 continue
             node['children'] = sorted(node['children'], key=lambda sub_node: sub_node['name'])
+
+    def _sort_tree_children_by_name(self, node):
+        if not node.get('children'):
+            return
+        node['children'].sort(key=lambda sub_node: sub_node['name'])
+        for child in node['children']:
+            self._sort_tree_children_by_name(child)
 
     # -----
     # Conflict checker
