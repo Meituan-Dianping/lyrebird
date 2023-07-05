@@ -6,9 +6,12 @@ from pathlib import Path
 from copy import deepcopy
 from packaging import version
 from lyrebird import log as nlog
+from lyrebird import application
 
 from lyrebird.config.diff_mode import SettingDiffMode
 from lyrebird.config.checker_switch import SettingCheckerSwitch
+
+from .keywords import CONFIG_TREE_SHOW_CONFIG
 
 logger = nlog.get_logger()
 
@@ -90,6 +93,11 @@ class ConfigManager():
 
         logger.debug(f'Need update config fields: {update_conf}')
         self.config.update(update_conf)
+        application.server['event'].publish('system', {
+            'system': {
+                'action': 'config.update', 'config': update_conf
+            }
+        })
         logger.debug(f'Update done. config: {self.config}')
 
     def read_config(self):

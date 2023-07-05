@@ -13,6 +13,7 @@ from lyrebird.log import get_logger
 from lyrebird.application import config
 from lyrebird.mock import context
 from lyrebird.mock.dm.match import MatchRules
+from lyrebird.config import CONFIG_TREE_SHOW_CONFIG
 
 PROP_FILE_NAME = '.lyrebird_prop'
 logger = get_logger()
@@ -80,7 +81,7 @@ class DataManager:
 
     def reload(self):
         self._adapter._reload()
-        self.add_base_config_node()
+        self.handle_node_type_config()
         self.add_parent()
         self.add_super_by()
 
@@ -92,13 +93,75 @@ class DataManager:
             self.add_super_by(node=child)
         return children
 
-    def add_base_config_node(self):
+    def init_config_base_node(self):
+        if self.virtual_base_config_id:
+            return
+
         root_id = self.root['id']
-        root_children = self.id_map.get(root_id).get('children', [])
+        root_node = self.id_map.get(root_id)
+        if not root_node:
+            return
+
+        root_children = root_node.get('children', [])
         for node in root_children:
             if node['type'] == 'config':
                 self.virtual_base_config_id = node['id']
                 return
+
+    def handle_node_type_config(self):
+        self.init_config_base_node()
+        if not self.virtual_base_config_id:
+            return
+
+        all_new_config_node = {}
+        for node in self.id_map.values():
+            if node['type'] != 'group':
+                continue
+
+            if not node.get('children'):
+                continue
+
+            new_config_node = self.handle_group_config(node)
+            if not new_config_node:
+                continue
+
+            all_new_config_node.update(new_config_node)
+
+        if all_new_config_node:
+            self.id_map.update(all_new_config_node)
+
+    def handle_group_config(self, node):
+        node_list = node['children']
+        node_id = node['id']
+
+        has_config_index = -1
+        for index, node in enumerate(node_list):
+            if node['type'] == 'config':
+                has_config_index = index
+                break
+
+        is_show_config = application.config.get(CONFIG_TREE_SHOW_CONFIG)
+        has_config = has_config_index != -1
+        if is_show_config == has_config:
+            return
+
+        new_config_node = {}
+        if is_show_config and not has_config:
+            config_node_id = str(uuid.uuid4())
+            config_node = {
+                'id': config_node_id,
+                'name': '.Settings',
+                'type': 'config',
+                'parent_id': node_id,
+                'link': self.virtual_base_config_id
+            }
+            node_list.append(config_node)
+            new_config_node[config_node_id] = config_node
+
+        elif not is_show_config and has_config:
+            del node_list[has_config_index]
+
+        return new_config_node
 
     def add_parent(self, node=None):
         if not node:
