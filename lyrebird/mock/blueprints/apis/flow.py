@@ -4,6 +4,7 @@ from lyrebird import application
 from lyrebird.event_filter import Filter
 from urllib.parse import urlencode, unquote
 from flask import request, Response
+from copy import deepcopy
 import json
 
 
@@ -12,14 +13,31 @@ class Flow(Resource):
     当前请求单条数据
     """
 
-    def get(self, id):
+    def get(self, id, is_decode = ''):
         for item in context.application.cache.items():
             if item['id'] == id:
                 # Import decoder for decoding the requested content
                 display_item = {}
                 application.encoders_decoders.decoder_handler(item, output=display_item)
+                if is_decode == 'decode':
+                    display_item['request'] = deepcopy(display_item['request'])
+                    for key in ('url', 'path', 'query'):
+                        request_decode(display_item['request'], key)
                 return application.make_ok_response(data=display_item)
         return application.make_fail_response(f'Request {id} not found')
+
+
+def request_decode(decode_obj, decode_key):
+    if not decode_obj or not decode_obj.get(decode_key, None):
+        return
+    if isinstance(decode_obj[decode_key], str):
+        decode_obj[decode_key] = unquote(decode_obj[decode_key])
+    elif isinstance(decode_obj[decode_key], list):
+        for idx, _ in enumerate(decode_obj[decode_key]):
+            request_decode(decode_obj[decode_key], idx)
+    elif isinstance(decode_obj[decode_key], dict):
+        for key, _ in decode_obj[decode_key].items():
+            request_decode(decode_obj[decode_key], key)
 
 
 def get_flow_list_by_filter(filter_obj):
