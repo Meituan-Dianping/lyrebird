@@ -307,20 +307,29 @@ export default {
     filterMethod (value, option) {
       return option.toUpperCase().indexOf(value.toUpperCase()) !== -1
     },
+    isMatchByAnd (url, searchList) {
+      for (const searchItem of searchList)
+        if (!this.filterMethod(searchItem, url)) 
+          return false
+      return true
+    },
+    isMatch (url, searchList) {
+      for (const searchItem of searchList) 
+        if(this.isMatchByAnd(url, searchItem))
+          return true
+      return false
+    },
     refreshFlowList () {
       let displayFlowList = []
       let searchStr = typeof(this.searchStr) === 'string' ? this.searchStr.trim() : ''
-      // Split searchStr by one or more spaces
-      let searchStrList = searchStr.split(/\s+/)
+      // Split searchStr by one or more (spaces, |)
+      let searchStrList = searchStr.split(/\|+/)
+      for(const idx in searchStrList){
+        searchStrList[idx].trim()
+        searchStrList[idx] = searchStrList[idx].split(/\s+/)
+      }
       for (const flow of this.originFlowList) {
-        let isMatch = true
-        for (const searchItem of searchStrList) {
-          if (!this.filterMethod(searchItem, flow.request.url)) {
-            isMatch = false
-            break
-          }
-        }
-        isMatch ? displayFlowList.push(flow) : null
+        this.isMatch(flow.request.url, searchStrList) ? displayFlowList.push(flow) : null
       }
       this.displayFlowCount = displayFlowList.length
       this.pageCount = Math.max(Math.ceil(this.displayFlowCount / this.pageSize), 1)
