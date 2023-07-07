@@ -252,7 +252,7 @@ class DataManager:
     def is_data_virtual_node(self, node):
         if node['type'] == 'config':
             if 'link' in node:
-                return node['link'] == self.context.virtual_base_config_id
+                return node['link'] == self.virtual_base_config_id
  
         return False
 
