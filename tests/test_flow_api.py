@@ -18,6 +18,7 @@ def client():
     application._cm.config = _conf
     application.encoders_decoders = EncoderDecoder()
     server = LyrebirdMockServer()
+    server.app.testing = True
 
     client = server.app.test_client()
     client.delete('/api/flow', json={'idx': ''})
@@ -77,25 +78,25 @@ def test_flow_with_id_and_decode1(client):
     client.get(f'/mock/http://i.meituan.com?word={test_word_encode}')
     flow_id = client.get('/api/flow').json[0]['id']
     resp = client.get(f'/api/flow/{flow_id}?is_decode=true')
-    assert  resp.json['code'] == 1000 and  resp.json['data']['request']['query']['word'] == test_word_decode
+    assert  resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_decode
 
 
 def test_flow_with_id_and_decode2(client):
     client.get(f'/mock/http://i.meituan.com?word={test_word_decode}')
     flow_id = client.get('/api/flow').json[0]['id']
     resp = client.get(f'/api/flow/{flow_id}?is_decode=true')
-    assert  resp.json['code'] == 1000 and  resp.json['data']['request']['query']['word'] == test_word_decode
+    assert  resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_decode
 
 
 def test_flow_with_id_and_no_decode1(client):
     client.get(f'/mock/http://i.meituan.com?word={test_word_decode}')
     flow_id = client.get('/api/flow').json[0]['id']
     resp = client.get(f'/api/flow/{flow_id}')
-    assert  resp.json['code'] == 1000 and  resp.json['data']['request']['query']['word'] == test_word_decode
+    assert  resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_decode
 
 
 def test_flow_with_id_and_no_decode2(client):
     client.get(f'/mock/http://i.meituan.com?word={test_word_encode}')
     flow_id = client.get('/api/flow').json[0]['id']
     resp = client.get(f'/api/flow/{flow_id}')
-    assert  resp.json['code'] == 1000 and  resp.json['data']['request']['query']['word'] == test_word_encode
+    assert  resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_encode
