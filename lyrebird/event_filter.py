@@ -30,9 +30,9 @@ class Filter:
         for target_rule, patterns in filter_dict.items():
             if type(patterns) != list:
                 patterns = [patterns]
-            if not Filter.is_jsonpath_match_patterns(patterns, flow, target_rule):
-                return False
-        return True
+            if Filter.is_jsonpath_match_patterns(patterns, flow, target_rule):
+                return True
+        return False
     
     @staticmethod
     def get_items_after_filtration(source_items, filter_obj):
