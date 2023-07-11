@@ -143,6 +143,9 @@ class DataManager:
             self.id_map.update(all_new_config_node)
 
     def handle_group_config(self, node_list, node_id):
+        if not self.virtual_base_config_id:
+            return
+
         has_config_index = -1
         for index, node in enumerate(node_list):
             if node['type'] == 'config':
