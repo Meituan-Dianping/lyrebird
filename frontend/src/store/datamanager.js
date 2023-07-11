@@ -36,7 +36,7 @@ export default {
     isDisplayConfiguration: false,
     isLoadTreeAsync: false,
     isReloadTreeWhenUpdate: false,
-    undisplayedKey: ['children', 'type', 'parent_id', 'abs_parent_path', 'parent'],
+    undisplayedKey: ['children', 'type', 'parent_id', 'abs_parent_path', 'parent', 'link'],
     undeletableKey: ['id', 'rule', 'name', 'label', 'category', 'super_by'],
     uneditableKey: ['id', 'rule', 'super_by'],
     stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label', 'super_by'],

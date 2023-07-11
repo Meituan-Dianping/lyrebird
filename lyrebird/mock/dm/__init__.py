@@ -88,9 +88,17 @@ class DataManager:
     def _get_group_children(self, group_id):
         children = self._adapter._get_group_children(group_id)
         parent_node = self.id_map.get(group_id)
+        if not parent_node:
+            raise IDNotFound(group_id)
         self.handle_group_config(children, parent_node['id'])
 
         for child in children:
+            # update id_map
+            if child['id'] not in self.id_map:
+                self.id_map.update({
+                    child['id']: child
+                })
+
             self.add_parent_generator(child, parent_node)
             self.add_super_by(node=child)
 
@@ -122,8 +130,8 @@ class DataManager:
             if node['type'] != 'group':
                 continue
 
-            if not node.get('children'):
-                continue
+            if 'children' not in node:
+                node['children'] = []
 
             new_config_node = self.handle_group_config(node['children'], id_)
             if not new_config_node:
@@ -333,7 +341,7 @@ class DataManager:
         self.activated_group[_id] = _node
 
         # Apply config
-        config = self._get_activated_data_config_id()
+        config = self._get_activated_data_config()
         if config:
             application._cm.add_config(config, type='dm', level=-1, apply_now=True)
 
@@ -384,7 +392,7 @@ class DataManager:
         """
         Clear activated data
         """
-        config = self._get_activated_data_config_id()
+        config = self._get_activated_data_config()
         if config:
             application._cm.remove_config(config, type='dm', apply_now=True)
 
@@ -437,9 +445,12 @@ class DataManager:
     def _is_match_rule(self, flow, rules):
         return MatchRules.match(flow, rules)
 
-    def _get_activated_data_config_id(self):
+    def _get_activated_data_config(self):
         config_id = None
-        for id_ in self.activated_data:
+        for id_, data in self.activated_data.items():
+            if 'json' not in data:
+                continue
+
             node = self.id_map.get(id_)
             if not node:
                 continue

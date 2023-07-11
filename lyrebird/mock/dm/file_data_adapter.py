@@ -67,20 +67,22 @@ class FileDataAdapter:
         self._save_prop()
 
     def _update_group(self, data):
-        # Update node
+        id_ = data['id']
+        node = self.context.id_map.get(id_)
+
         # 1. Add new key into node
         update_data = {k: data[k] for k in data if k not in self.context.update_group_ignore_keys}
-        data.update(update_data)
+        node.update(update_data)
 
         # 2. Remove deleted key in node
         delete_keys = [k for k in data if k not in data and k not in self.context.update_group_ignore_keys]
         for key in delete_keys:
-            data.pop(key)
+            node.pop(key)
 
         # 3. Update existed value
         for key, value in data.items():
-            if key in data:
-                data[key] = value
+            if key in node:
+                node[key] = value
 
         self._save_prop()
 
@@ -128,9 +130,8 @@ class FileDataAdapter:
         prop_writer = PropWriter()
         prop_writer.dict_ignore_key.update(self.context.unsave_keys)
 
-        for id_, node in self.context.id_map.items():
-            if self.context.is_data_virtual_node(node):
-                prop_writer.ignore_id.add(id_)
+        # handle link node
+        prop_writer.dict_ignore_child_key.add('link')
 
         prop_str = prop_writer.parse(self.context.root)
         prop_file = self.context.root_path / PROP_FILE_NAME
@@ -231,7 +232,7 @@ class PropWriter:
             'NoneType': self.none_parser
         }
         self.dict_ignore_key = set()
-        self.ignore_id = set()
+        self.dict_ignore_child_key = set()
 
     def parse(self, prop):
         prop_type = type(prop)
@@ -260,8 +261,6 @@ class PropWriter:
     def list_parser(self, val):
         list_str = '['
         for item in val:
-            if item.get('id') in self.ignore_id:
-                continue
             item_str = self.parse(item)
             list_str += item_str + ','
         if list_str.endswith(','):
@@ -285,6 +284,8 @@ class PropWriter:
         self.indent += 1
         children_str = '"children":['
         for child in val:
+            if self.dict_ignore_child_key & set(child.keys()):
+                continue
             child_str = self.parse(child)
             children_str += '\n' + '  '*self.indent + child_str + ','
         if children_str.endswith(','):

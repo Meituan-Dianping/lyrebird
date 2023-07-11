@@ -175,7 +175,6 @@ export default {
       e.preventDefault()
       this.$store.commit('setIsShownNodeMenu', true)
       this.$store.commit('setShownNodeMenuPosition', {'x': e.clientX, 'y': e.clientY})
-      console.log('this.$store.state.dataManager.isShownNodeMenu', this.$store.state.dataManager.isShownNodeMenu);
     },
     onToggleStatusChange () {
       if (this.isNodeOpen) {

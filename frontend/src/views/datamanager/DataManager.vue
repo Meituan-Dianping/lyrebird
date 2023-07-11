@@ -48,9 +48,6 @@ export default {
     SnapshotImportSelector,
   },
   activated () {
-    if (this.groupList.length == 0 || !this.isLoadTreeAsync) {
-      this.loadDataMap()
-    }
     this.$io.on('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
   },
   deactivated() {
@@ -67,8 +64,23 @@ export default {
     groupList () {
       return this.$store.state.dataManager.groupList
     },
-    isLoadTreeAsync () {
-      return this.$store.state.dataManager.isLoadTreeAsync
+    isPreloadDataMap () {
+      return this.$store.state.settings.preLoadFuncSet.has('loadDataMap')
+    },
+    settingsInitialized () {
+      return this.$store.state.settings.initialized
+    }
+  },
+  watch: {
+    settingsInitialized (val) {
+      // Cannot be implemented in `activated`, `activated` is earlier than settings init
+      // Must be run after settings initialized, otherwise it will cause duplicated request to the API api/group
+      if (!val) { 
+        return 
+      }
+      if (!this.isPreloadDataMap) {
+        this.loadDataMap()
+      }
     }
   },
   methods: {

@@ -136,8 +136,6 @@ class ConfigManager():
 
         self.merge_config(self.config, config.config, level=level, apply_now=apply_now)
 
-        print('ok')
-
     def merge_config(self, origin_config, new_config, level=-1, apply_now=False):
         for key_child in list(new_config.keys()):
             self.merge_generator(key_child, origin_config, new_config, level)
@@ -161,12 +159,11 @@ class ConfigManager():
         elif type(origin_config[key]) != type(new_config[key]):
             origin_config[key] = deepcopy(new_config[key])
 
+        elif isinstance(new_config[key], list):
+            origin_config[key] = deepcopy(new_config[key])
+
         elif isinstance(new_config[key], dict):
             for key_child in list(new_config[key].keys()):
-                self.merge_generator(key_child, origin_config[key], new_config[key], level-1)
-
-        elif isinstance(new_config[key], list):
-            for key_child in range(len(new_config[key]))[::-1]:
                 self.merge_generator(key_child, origin_config[key], new_config[key], level-1)
 
         else:
@@ -219,10 +216,6 @@ class ConfigManager():
             for key_child in list(remove_config[key].keys()):
                 self.unmerge_generator(key_child, origin_config[key], remove_config[key], level-1)
 
-        elif isinstance(remove_config[key], list):
-            for key_child in range(len(remove_config[key]))[::-1]:
-                self.unmerge_config(key_child, origin_config[key], remove_config[key], level-1)
-
         else:
             origin_config.pop(key, None)
 
@@ -231,7 +224,7 @@ class ConfigManager():
         for key, value in config.items():
             if key not in CONFIG_FUNC_MAP:
                 continue
-            CONFIG_FUNC_MAP[key].apply(value)
+            CONFIG_FUNC_MAP[key].remove(value)
 
 
 class Config:

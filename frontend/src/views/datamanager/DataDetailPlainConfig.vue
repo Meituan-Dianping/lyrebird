@@ -123,7 +123,6 @@ export default {
       }
       this.save()
       event.preventDefault()
-      console.log("Save", event)
     },
     setDataDetailEditorCache (val) {
       if (val === null || Object.keys(val).length === 0) {
