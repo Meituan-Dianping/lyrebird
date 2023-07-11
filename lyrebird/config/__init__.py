@@ -93,11 +93,6 @@ class ConfigManager():
 
         logger.debug(f'Need update config fields: {update_conf}')
         self.config.update(update_conf)
-        application.server['event'].publish('system', {
-            'system': {
-                'action': 'config.update', 'config': update_conf
-            }
-        })
         logger.debug(f'Update done. config: {self.config}')
 
     def read_config(self):
