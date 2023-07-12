@@ -377,6 +377,14 @@ def data_manager(root, tmpdir):
 
 
 def test_load_from_path(root):
+    _conf = {
+        'ip': '127.0.0.1',
+        'mock.port': 9090,
+        'config.value.tojsonKey': ['custom.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
+        'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"}
+    }
+    application._cm = MockConfigManager(config=_conf)
+
     _dm = dm.DataManager()
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)
@@ -1240,17 +1248,3 @@ def test_get_snapshot_file_detail(data_manager):
 
     snapshot_info, output_path = data_manager.get_snapshot_file_detail(filename)
     assert snapshot_info == data_manager.id_map.get(group_id)
-
-
-def test_mock_data_upgrade_2_14_to_2_15(data_manager):
-    prop_str_correct = '{"id":"root","name":"root","type":"group","parent_id":null,"children":[\n  {"id":"*","name":".Settings","type":"config","parent_id":"root"},\n  {"id":"groupA-UUID","name":"groupA","type":"group","parent_id":"root","super_id":"groupB-UUID","children":[\n    {"id":"dataA-UUID","name":"dataA","type":"data","parent_id":"groupA-UUID"},\n    {"id":"dataB-UUID","name":"dataB","type":"data","parent_id":"groupA-UUID"}]},\n  {"id":"groupB-UUID","name":"groupB","type":"group","parent_id":"root","super_id":"groupC-UUID","children":[\n    {"id":"dataC-UUID","name":"dataC","type":"data","parent_id":"groupB-UUID"}]},\n  {"id":"groupC-UUID","name":"groupC","type":"group","parent_id":"root","super_id":"groupD-UUID","children":[]},\n  {"id":"groupD-UUID","name":"groupD","type":"group","parent_id":"root","super_id":"groupE-UUID","children":[\n    {"id":"dataD-UUID","name":"dataD","type":"data","parent_id":"groupD-UUID"}]},\n  {"id":"groupE-UUID","name":"groupE","type":"group","parent_id":"root","children":[\n    {"id":"dataC-UUID","name":"dataC","type":"data","parent_id":"groupE-UUID"},\n    {"id":"dataD-UUID","name":"dataD","type":"data","parent_id":"groupE-UUID"}]},\n  {"id":"groupF-UUID","name":"groupF","type":"group","parent_id":"root","children":[\n    {"id":"groupG-UUID","name":"groupG","type":"group","parent_id":"groupF-UUID","children":[\n      {"id":"groupH-UUID","label":[{"name":"label_a","color":"red","description":"description label_a"},{"name":"label_b","color":"green","description":"description label_b"}],"name":"groupH","type":"group","parent_id":"groupG-UUID","children":[]}]},\n    {"id":"groupI-UUID","label":[{"name":"label_a","color":"red","description":"description label_a"}],"name":"groupI","type":"group","parent_id":"groupF-UUID","children":[\n      {"id":"dataD-UUID","name":"dataD","type":"data","parent_id":"groupI-UUID"}]}]},\n  {"id":"groupJ-UUID","name":"groupJ","type":"group","parent_id":"root","children":[\n    {"id":"dataF-UUID","name":"dataF","type":"data","parent_id":"groupJ-UUID"},\n    {"id":"dataG-UUID","name":"dataG","type":"data","parent_id":"groupJ-UUID"},\n    {"id":"dataH-UUID","name":"dataH","type":"data","parent_id":"groupJ-UUID"},\n    {"id":"dataI-UUID","name":"dataI","type":"data","parent_id":"groupJ-UUID"}]},\n  {"id":"groupK-UUID","name":"groupK","type":"group","parent_id":"root","children":[\n    {"id":"dataJ-UUID","name":"dataJ","type":"data","parent_id":"groupK-UUID"}]}]}'
-
-    prop_writer = dm.file_data_adapter.PropWriter()
-    prop_writer.dict_ignore_key.update(data_manager.unsave_keys)
-    prop_str = prop_writer.parse(data_manager.root)
-
-    pattern = r'"id":"[0-9a-fA-F-]+","name":".Settings","type":"config","parent_id":"root"},\n  '
-    replacement = '"id":"*","name":".Settings","type":"config","parent_id":"root"},\n  '
-    prop_str = re.sub(pattern, replacement, prop_str)
-
-    assert prop_str == prop_str_correct

@@ -1,3 +1,4 @@
+import re
 import pytest
 import codecs
 import json
@@ -88,19 +89,6 @@ def root(tmpdir):
 
 @pytest.fixture
 def data_manager(root, tmpdir):
-    conf = {
-        'version': '0.10.4',
-        'proxy.filters': ['kuxun', 'meituan', 'sankuai', 'dianping'],
-        'proxy.port': 4272,
-        'mock.port': 9090,
-        'ip': '127.0.0.1',
-        'mock.data': 'data',
-        'mock.proxy_headers': {
-            'scheme': 'MKScheme',
-            'host': 'MKOriginHost',
-            'port': 'MKOriginPort'
-        }
-    }
     application._cm = ConfigManager()
     lyrebird.mock.context.application.socket_io = FakeSocketio()
     application.encoders_decoders = EncoderDecoder()
@@ -153,6 +141,32 @@ def event_server():
     server = EventServer()
     application.server['event'] = server
     yield server
+
+
+def test_mock_data_upgrade_2_14_to_2_15(data_manager):
+    prop_str_correct = '{"id":"root","name":"root","type":"group","parent_id":null,"children":[\n  {"id":"groupA-UUID","name":"groupA","type":"group","parent_id":"root","children":[\n    {"id":"dataA-UUID","name":"dataA","type":"data","parent_id":"groupA-UUID"}]},\n  {"id":"groupB-UUID","name":"groupC","type":"group","parent_id":"root","children":[]}]}'
+
+    prop_writer = dm.file_data_adapter.PropWriter()
+    prop_writer.dict_ignore_key.update(data_manager.unsave_keys)
+    prop_str = prop_writer.parse(data_manager.root)
+
+    assert prop_str == prop_str_correct
+
+    application._cm.config[CONFIG_TREE_SHOW_CONFIG] = True
+
+    data_manager.reload()
+
+    prop_str_correct_with_config = '{"id":"root","name":"root","type":"group","parent_id":null,"children":[\n  {"id":"*","name":".Settings","type":"config","parent_id":"root"},\n  {"id":"groupA-UUID","name":"groupA","type":"group","parent_id":"root","children":[\n    {"id":"dataB-UUID","name":".Settings","type":"config","parent_id":"groupA-UUID"},\n    {"id":"dataA-UUID","name":"dataA","type":"data","parent_id":"groupA-UUID"}]},\n  {"id":"groupB-UUID","name":"groupC","type":"group","parent_id":"root","children":[]}]}'
+    prop_writer = dm.file_data_adapter.PropWriter()
+    prop_writer.dict_ignore_key.update(data_manager.unsave_keys)
+    prop_writer.dict_ignore_child_key.add('link')
+    prop_str = prop_writer.parse(data_manager.root)
+
+    pattern = r'"id":"[0-9a-fA-F-]+","name":".Settings","type":"config","parent_id":"root"},\n  '
+    replacement = '"id":"*","name":".Settings","type":"config","parent_id":"root"},\n  '
+    prop_str = re.sub(pattern, replacement, prop_str)
+
+    assert prop_str == prop_str_correct_with_config
 
 
 def test_get_all_group_close_show_config(data_manager):
