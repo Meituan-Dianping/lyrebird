@@ -1,8 +1,3 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "python.testing.pytestArgs": [
-    "tests"
-  ],
-  "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

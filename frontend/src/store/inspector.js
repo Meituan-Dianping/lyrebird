@@ -71,16 +71,6 @@ export default {
         return
       }
       state.selectedFlowFilter = selectedFlowFilterName
-      // if (selectedFlowFilterName === null) {
-      //   state.selectedFlowFilter = {}
-      //   return
-      // }
-      // for (const filter of state.flowFilters) {
-      //   if (filter.name === selectedFlowFilterName) {
-      //     state.selectedFlowFilter = filter
-      //     return
-      //   }
-      // }
     }
   },
   actions: {
