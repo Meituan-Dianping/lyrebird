@@ -12,6 +12,17 @@ _conf = {
 test_word_encode = r'%E4%BD%A0%E5%A5%BD%EF%BC%8C%E4%B8%96%E7%95%8C'
 test_word_decode = '你好，世界'
 
+application._cm = ConfigManager()
+application._cm.config = _conf
+application.encoders_decoders = EncoderDecoder()
+server = LyrebirdMockServer()
+server.app.testing = True
+
+with server.app.test_client() as client:
+    client.delete('/api/flow', json={'idx': ''})
+    client.get('/mock/http://i.meituan.com')
+    client.get('/mock/http://www.baidu.com')
+
 @pytest.fixture
 def client():
     application._cm = ConfigManager()
@@ -21,11 +32,10 @@ def client():
     server.app.testing = True
 
     client = server.app.test_client()
-    client.delete('/api/flow', json={'idx': ''})
-    client.get('/mock/http://i.meituan.com')
-    client.get('/mock/http://www.baidu.com')
-
+    ctx = server.app.app_context()
+    ctx.push()
     yield client
+    ctx.pop()
 
 
 def test_flow_list_with_get(client):
