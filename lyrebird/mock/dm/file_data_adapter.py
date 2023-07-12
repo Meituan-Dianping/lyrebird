@@ -34,6 +34,7 @@ class FileDataAdapter:
         self.context.reload()
 
         mock_data_upgrade.upgrade(self)
+        self.context.reload()
 
     def _reload(self):
         self.context.id_map = {}
