@@ -71,8 +71,8 @@ def get_and_update_selected_filter_by_name(filter_name):
         for item in context.application.filters:
             if item['name'] == filter_name:
                 context.application.selected_filter = item
-                application.config['inspector.selected_filter'] = filter_name
                 break
+    application.config['inspector.selected_filter'] = filter_name
     return context.application.selected_filter
 
 
