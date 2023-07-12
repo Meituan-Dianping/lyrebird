@@ -1,8 +1,17 @@
 import pytest
 from lyrebird import application
+from lyrebird.mock import context
 from lyrebird.config import ConfigManager
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
+
+def get_server():
+    application._cm = ConfigManager()
+    application._cm.config = _conf
+    application.encoders_decoders = EncoderDecoder()
+    server = LyrebirdMockServer()
+    server.app.testing = True
+    return server
 
 _conf = {
     'ip': '127.0.0.1',
@@ -12,25 +21,14 @@ _conf = {
 test_word_encode = r'%E4%BD%A0%E5%A5%BD%EF%BC%8C%E4%B8%96%E7%95%8C'
 test_word_decode = '你好，世界'
 
-application._cm = ConfigManager()
-application._cm.config = _conf
-application.encoders_decoders = EncoderDecoder()
-server = LyrebirdMockServer()
-server.app.testing = True
-
-with server.app.test_client() as client:
-    client.delete('/api/flow', json={'idx': ''})
-    client.get('/mock/http://i.meituan.com')
-    client.get('/mock/http://www.baidu.com')
+with get_server().app.test_client() as init_client:
+    context.application.cache._cache.clear()
+    init_client.get('/mock/http://i.meituan.com')
+    init_client.get('/mock/http://www.bing.com')
 
 @pytest.fixture
 def client():
-    application._cm = ConfigManager()
-    application._cm.config = _conf
-    application.encoders_decoders = EncoderDecoder()
-    server = LyrebirdMockServer()
-    server.app.testing = True
-
+    server = get_server()
     client = server.app.test_client()
     ctx = server.app.app_context()
     ctx.push()
@@ -46,10 +44,10 @@ def test_flow_list_with_get(client):
 def test_flow_list_with_post_and_search_simple(client):
     resp = client.post('/api/flow/search', json={'selectedFilter': {
                                                     'ignore': [
-                                                        'www.baidu.com'
+                                                        'www.bing.com'
                                                     ]
                                                 }})
-    assert len(resp.json) == 1 and resp.json[0]['request']['url'] != 'http://www.baidu.com'
+    assert len(resp.json) == 1 and resp.json[0]['request']['url'] != 'http://www.bing.com'
 
 
 def test_flow_list_with_post_and_search_advanced_must(client):
@@ -57,12 +55,12 @@ def test_flow_list_with_post_and_search_advanced_must(client):
                                                     'advanced': {
                                                             'must': {
                                                                 'request.url': [
-                                                                    'www.baidu.com'
+                                                                    'www.bing.com'
                                                                 ]
                                                         }
                                                     }
                                                 }})
-    assert len(resp.json) == 1 and resp.json[0]['request']['url'] == 'http://www.baidu.com'
+    assert len(resp.json) == 1 and resp.json[0]['request']['url'] == 'http://www.bing.com'
 
 
 def test_flow_list_with_post_and_search_advanced_must_not(client):
@@ -70,12 +68,12 @@ def test_flow_list_with_post_and_search_advanced_must_not(client):
                                                     'advanced': {
                                                             'must_not': {
                                                                 'request.url': [
-                                                                    'www.baidu.com'
+                                                                    'www.bing.com'
                                                                 ]
                                                         }
                                                     }
                                                 }})
-    assert len(resp.json) == 1 and resp.json[0]['request']['url'] != 'http://www.baidu.com'
+    assert len(resp.json) == 1 and resp.json[0]['request']['url'] != 'http://www.bing.com'
 
 
 def test_flow_with_id(client):
