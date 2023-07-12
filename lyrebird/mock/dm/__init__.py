@@ -382,6 +382,8 @@ class DataManager:
 
     def _collect_data_in_node(self, node):
         id_list = []
+        if self.is_data_virtual_node(node):
+            return []
         if node.get('type') in self.supported_data_type:
             return [node['id']]
         elif node.get('type', '') == 'group':

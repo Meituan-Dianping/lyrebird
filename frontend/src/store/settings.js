@@ -57,10 +57,10 @@ export default {
             for (const config of configPreLoad) {
               if (response.data.hasOwnProperty(config.name) && response.data[config.name]) {
                 commit('addPreLoadFuncSet', config.commit, { root: true })
-                commit('setInitialized', true)
                 dispatch(config.commit, { root: true })
               }
             }
+            commit('setInitialized', true)
           }
         })
         .catch(error => {

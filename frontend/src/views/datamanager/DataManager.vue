@@ -49,6 +49,9 @@ export default {
   },
   activated () {
     this.$io.on('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
+    if (this.settingsInitialized && !this.isPreloadDataMap) {
+      this.loadDataMap()
+    }
   },
   deactivated() {
     this.$io.removeListener('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
@@ -73,8 +76,7 @@ export default {
   },
   watch: {
     settingsInitialized (val) {
-      // Cannot be implemented in `activated`, `activated` is earlier than settings init
-      // Must be run after settings initialized, otherwise it will cause duplicated request to the API api/group
+      // `activated` might be earlier than settings init
       if (!val) { 
         return 
       }
