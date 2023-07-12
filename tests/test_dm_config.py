@@ -170,6 +170,7 @@ def test_mock_data_upgrade_2_14_to_2_15(data_manager):
 
 
 def test_get_all_group_close_show_config(data_manager):
+    application._cm.config[CONFIG_TREE_SHOW_CONFIG] = False
     data_manager.reload()
     dm_root_child = set([c['id'] for c in data_manager.root['children']])
     prop_root_child = set([c['id'] for c in prop['children']])
