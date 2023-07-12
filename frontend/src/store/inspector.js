@@ -14,9 +14,7 @@ export default {
     diffMode: 'normal',
     isRequestKeepOriginData: false,
     flowFilters: [],
-    selectedFlowFilter: {},
-    isReloadFlowList: false,
-    reloadFlowListTimer: null
+    selectedFlowFilter: ''
   },
   mutations: {
     setActivitedGroup (state, group) {
@@ -69,18 +67,20 @@ export default {
     },
     setSelectedFlowFilter (state, selectedFlowFilterName) {
       if (selectedFlowFilterName === null) {
-        state.selectedFlowFilter = {}
+        state.selectedFlowFilter = ''
         return
       }
-      for (const filter of state.flowFilters) {
-        if (filter.name === selectedFlowFilterName) {
-          state.selectedFlowFilter = filter
-          return
-        }
-      }
-    },
-    setIsReloadFlowList (state, value) {
-      state.isReloadFlowList = value
+      state.selectedFlowFilter = selectedFlowFilterName
+      // if (selectedFlowFilterName === null) {
+      //   state.selectedFlowFilter = {}
+      //   return
+      // }
+      // for (const filter of state.flowFilters) {
+      //   if (filter.name === selectedFlowFilterName) {
+      //     state.selectedFlowFilter = filter
+      //     return
+      //   }
+      // }
     }
   },
   actions: {
@@ -193,17 +193,6 @@ export default {
         .catch(error => {
           bus.$emit('msg.error', 'Delete flow error: ' + error.data.message)
         })
-    },
-    startLoadFlowListTimer({ state, dispatch }) {
-      state.reloadFlowListTimer = setInterval(() => {
-        if(state.isReloadFlowList){
-          dispatch('loadFlowList');
-          state.isReloadFlowList = false
-        }
-      }, 500);
-    },
-    destoryLoadFlowListTimer({ state }) {
-      clearInterval(state.reloadFlowListTimer)
     }
   }
 }

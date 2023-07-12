@@ -225,11 +225,6 @@ export default {
   },
   destroyed () {
     this.$io.removeListener('action', this.reload)
-    this.$store.dispatch('destoryLoadFlowListTimer')
-  },
-  mounted () {
-    this.$store.dispatch('startLoadFlowListTimer')
-    this.reload()
   },
   computed: {
     originFlowList () {
@@ -264,7 +259,7 @@ export default {
   },
   methods: {
     reload () {
-      this.$store.commit('setIsReloadFlowList', true)
+      this.$store.dispatch('loadFlowList')
     },
     onTableResize () {
       const height = window.innerHeight - 44 - 40 - 12 - 26 - 7 - 1 - 8 - 12 - 32 - 12 - 12 - 28

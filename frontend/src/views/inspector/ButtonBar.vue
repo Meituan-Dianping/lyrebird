@@ -87,7 +87,6 @@
           item-value="name"
           style="border-bottom:none!important;"
           :menu-props="{ bottom: true, offsetY: true }"
-          @change="changeFlowFilter"
         />
       </div>
       <div class="inspector-search">
@@ -247,7 +246,7 @@ export default {
     },
     selectedFlowFilter: {
       get () {
-        return this.$store.state.inspector.selectedFlowFilter.name
+        return this.$store.state.inspector.selectedFlowFilter
       },
       set (val) {
         this.$store.commit('setSelectedFlowFilter', val)
@@ -262,12 +261,14 @@ export default {
       }
     }
   },
+  watch: {
+    selectedFlowFilter () {
+      this.$store.dispatch('loadFlowList')
+    }
+  },
   methods: {
     showMockDataSelector () {
       this.$refs.searchModal.toggal()
-    },
-    changeFlowFilter () {
-      this.$store.dispatch('loadFlowList')
     },
     clearAllFlow () {
       this.$store.dispatch('clearInspector')

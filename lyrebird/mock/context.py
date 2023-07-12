@@ -55,7 +55,7 @@ class Application:
         self.work_mode = Mode.NORMAL
         self.is_diff_mode = MockMode.NORMAL
         self.filters = []
-        self.selected_filter = {}
+        self.selected_filter = ''
         self.data_manager = DataManager()
         # SocketIO
         self.socket_io: SocketIO = None
@@ -86,7 +86,7 @@ class Application:
         default_filter = _conf.get('inspector.default_filter')
         for f in self.filters:
             if f['name'] == default_filter:
-                self.selected_filter = f
+                self.selected_filter = f['name']
                 break
 
     def init_datamanager(self, uri):
@@ -121,7 +121,7 @@ SocketIO emit interval
 Because of iview table has render preformance problem
 We need to limit render time
 """
-EMIT_INTERVAL = 0.25
+EMIT_INTERVAL = 0.5
 last_emit_time = {}
 
 

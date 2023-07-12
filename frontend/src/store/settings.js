@@ -12,7 +12,7 @@ var configCommitMap = [
   {'name': 'mock.data.detail.undisplayedKey', 'commit': 'concatUndisplayedKey'},
   {'name': 'mock.data.detail.uneditableKey', 'commit': 'concatUneditableKey'},
   {'name': 'inspector.filters', 'commit': 'setFlowFilters'},
-  {'name': 'inspector.default_filter', 'commit': 'setSelectedFlowFilter'},
+  {'name': 'inspector.selected_filter', 'commit': 'setSelectedFlowFilter'},
   {'name': 'mock.data.list.title', 'commit': 'setTitle'},
   {'name': 'env.ip', 'commit': 'setIpList'}
 ]
@@ -53,6 +53,7 @@ export default {
           }
           // preload
           if (!state.initialized) {
+            dispatch('loadFlowList')
             for (const config of configPreLoad) {
               if (response.data.hasOwnProperty(config.name) && response.data[config.name]) {
                 commit('addPreLoadFuncSet', config.commit, { root: true })

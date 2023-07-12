@@ -11,9 +11,8 @@ class Filter:
     def is_target_match_patterns(pattern_list, target):
         if not pattern_list or not target:
             return False
-        for pattern in pattern_list:
-            if TargetMatch.is_match(target, pattern):
-                return True
+        if TargetMatch.is_match(target, '|'.join(pattern_list)):
+            return True
         return False
     
     @staticmethod
