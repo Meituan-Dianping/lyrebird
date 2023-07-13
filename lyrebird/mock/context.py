@@ -55,7 +55,7 @@ class Application:
         self.work_mode = Mode.NORMAL
         self.is_diff_mode = MockMode.NORMAL
         self.filters = []
-        self.selected_filter = ''
+        self.selected_filter = {}
         self.data_manager = DataManager()
         # SocketIO
         self.socket_io: SocketIO = None
@@ -86,7 +86,7 @@ class Application:
         default_filter = _conf.get('inspector.default_filter')
         for f in self.filters:
             if f['name'] == default_filter:
-                self.selected_filter = f['name']
+                self.selected_filter = f
                 break
 
     def init_datamanager(self, uri):
@@ -126,6 +126,19 @@ last_emit_time = {}
 
 
 application = Application()
+
+
+def get_and_update_selected_filter_by_name(filter_name):
+    selected_filter = application.selected_filter
+    if not filter_name:
+        application.selected_filter = {}
+    elif not selected_filter or filter_name != selected_filter['name']:
+        for item in application.filters:
+            if item['name'] == filter_name:
+                application.selected_filter = item
+                break
+    app.config['inspector.default_filter'] = filter_name
+    return application.selected_filter
 
 
 def make_ok_response(**kwargs):

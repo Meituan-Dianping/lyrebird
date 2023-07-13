@@ -63,19 +63,6 @@ def get_flow_list_by_filter(filter_obj):
     return req_list
 
 
-def get_and_update_selected_filter_by_name(filter_name):
-    selected_filter = context.application.selected_filter
-    if not filter_name:
-        context.application.selected_filter = ''
-    elif not selected_filter or filter_name != selected_filter['name']:
-        for item in context.application.filters:
-            if item['name'] == filter_name:
-                context.application.selected_filter = item
-                break
-    application.config['inspector.selected_filter'] = filter_name
-    return context.application.selected_filter
-
-
 class FlowList(Resource):
     """
     当前请求列表
@@ -111,7 +98,7 @@ class FlowList(Resource):
             return application.make_ok_response()
         elif action == 'search':
             filter_name = request.json.get('selectedFilter')
-            filter_obj = get_and_update_selected_filter_by_name(filter_name)
+            filter_obj = context.get_and_update_selected_filter_by_name(filter_name)
             req_list = get_flow_list_by_filter(filter_obj)
             return Response(json.dumps(req_list, ensure_ascii=False), mimetype='application/json', status=200)
         else:
