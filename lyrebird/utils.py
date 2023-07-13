@@ -12,6 +12,7 @@ from pathlib import Path
 from jinja2 import Template, StrictUndefined
 from jinja2.exceptions import UndefinedError, TemplateSyntaxError
 from contextlib import closing
+from urllib.parse import unquote
 from lyrebird.log import get_logger
 from lyrebird.application import config
 
@@ -262,6 +263,19 @@ def get_query_array(url):
         query_string = url[qs_index+1:]
         query_array = re.split('\\&|\\=', query_string)
     return query_array
+
+
+def url_decode(decode_obj, decode_key):
+    if not decode_obj or not decode_obj.get(decode_key, None):
+        return
+    if isinstance(decode_obj[decode_key], str):
+        decode_obj[decode_key] = unquote(decode_obj[decode_key])
+    elif isinstance(decode_obj[decode_key], list):
+        for idx, _ in enumerate(decode_obj[decode_key]):
+            url_decode(decode_obj[decode_key], idx)
+    elif isinstance(decode_obj[decode_key], dict):
+        for key, _ in decode_obj[decode_key].items():
+            url_decode(decode_obj[decode_key], key)
 
 
 class CaseInsensitiveDict(dict):

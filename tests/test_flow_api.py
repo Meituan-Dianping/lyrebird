@@ -25,6 +25,7 @@ with get_server().app.test_client() as init_client:
     context.application.cache._cache.clear()
     init_client.get('/mock/http://i.meituan.com')
     init_client.get('/mock/http://www.bing.com')
+    init_client.get('/mock/http://www.baidu.com')
 
 @pytest.fixture
 def client():
@@ -38,42 +39,62 @@ def client():
 
 def test_flow_list_with_get(client):
     resp = client.get('/api/flow')
-    assert len(resp.json) == 2
+    assert len(resp.json) == 3
 
 
 def test_flow_list_with_post_and_search_simple(client):
     resp = client.post('/api/flow/search', json={'selectedFilter': {
                                                     'ignore': [
-                                                        'www.bing.com'
+                                                        'www.bing.com',
+                                                        'www.baidu.com'
                                                     ]
                                                 }})
-    assert len(resp.json) == 1 and resp.json[0]['request']['url'] != 'http://www.bing.com'
+    assert len(resp.json) == 1 and resp.json[0]['request']['host'] == 'i.meituan.com'
 
 
 def test_flow_list_with_post_and_search_advanced_must(client):
     resp = client.post('/api/flow/search', json={'selectedFilter': {
                                                     'advanced': {
-                                                            'must': {
-                                                                'request.url': [
-                                                                    'www.bing.com'
-                                                                ]
+                                                        'must': {
+                                                            'request.url': [
+                                                                'www.bing.com'
+                                                            ]
                                                         }
                                                     }
                                                 }})
-    assert len(resp.json) == 1 and resp.json[0]['request']['url'] == 'http://www.bing.com'
+    assert len(resp.json) == 1 and resp.json[0]['request']['host'] == 'www.bing.com'
 
 
 def test_flow_list_with_post_and_search_advanced_must_not(client):
     resp = client.post('/api/flow/search', json={'selectedFilter': {
                                                     'advanced': {
-                                                            'must_not': {
-                                                                'request.url': [
-                                                                    'www.bing.com'
-                                                                ]
+                                                        'must_not': {
+                                                            'request.url': [
+                                                                'www.baidu.com',
+                                                                'www.bing.com'
+                                                            ]
                                                         }
                                                     }
                                                 }})
-    assert len(resp.json) == 1 and resp.json[0]['request']['url'] != 'http://www.bing.com'
+    assert len(resp.json) == 1 and resp.json[0]['request']['host'] == 'i.meituan.com'
+
+
+def test_flow_list_with_post_and_search_both_advanced_condition(client):
+    resp = client.post('/api/flow/search', json={'selectedFilter': {
+                                                    'advanced': {
+                                                        'must_not': {
+                                                            'request.url': [
+                                                                'www.baidu.com'
+                                                            ]
+                                                        },
+                                                        'must': {
+                                                            'request.url': [
+                                                                'http://i.meituan.com'
+                                                            ]
+                                                        }
+                                                    }
+                                                }})
+    assert len(resp.json) == 1 and resp.json[0]['request']['host'] == 'i.meituan.com'
 
 
 def test_flow_with_id(client):
@@ -82,29 +103,43 @@ def test_flow_with_id(client):
     assert resp.json['code'] == 1000
 
 
-def test_flow_with_id_and_decode1(client):
+def test_flow_with_id_and_decode_input_encode(client):
     client.get(f'/mock/http://i.meituan.com?word={test_word_encode}')
     flow_id = client.get('/api/flow').json[0]['id']
     resp = client.get(f'/api/flow/{flow_id}?is_decode=true')
-    assert  resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_decode
+    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_decode
 
 
-def test_flow_with_id_and_decode2(client):
+def test_flow_with_id_and_decode_input_decode(client):
     client.get(f'/mock/http://i.meituan.com?word={test_word_decode}')
     flow_id = client.get('/api/flow').json[0]['id']
     resp = client.get(f'/api/flow/{flow_id}?is_decode=true')
-    assert  resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_decode
+    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_decode
 
 
-def test_flow_with_id_and_no_decode1(client):
-    client.get(f'/mock/http://i.meituan.com?word={test_word_decode}')
+def test_flow_with_id_and_decode_use_capital_letter_true(client):
+    client.get(f'/mock/http://i.meituan.com?word={test_word_encode}')
     flow_id = client.get('/api/flow').json[0]['id']
-    resp = client.get(f'/api/flow/{flow_id}')
-    assert  resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_decode
+    resp = client.get(f'/api/flow/{flow_id}?is_decode=True')
+    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_decode
 
 
-def test_flow_with_id_and_no_decode2(client):
+def test_flow_with_id_and_decode_use_capital_letter_false(client):
+    client.get(f'/mock/http://i.meituan.com?word={test_word_encode}')
+    flow_id = client.get('/api/flow').json[0]['id']
+    resp = client.get(f'/api/flow/{flow_id}?is_decode=FALSE')
+    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_encode
+
+
+def test_flow_with_id_and_no_decode_input_encode(client):
     client.get(f'/mock/http://i.meituan.com?word={test_word_encode}')
     flow_id = client.get('/api/flow').json[0]['id']
     resp = client.get(f'/api/flow/{flow_id}')
-    assert  resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_encode
+    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_encode
+
+
+def test_flow_with_id_and_no_decode_input_decode(client):
+    client.get(f'/mock/http://i.meituan.com?word={test_word_decode}')
+    flow_id = client.get('/api/flow').json[0]['id']
+    resp = client.get(f'/api/flow/{flow_id}')
+    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == test_word_decode
