@@ -322,10 +322,13 @@ export default {
     refreshFlowList () {
       let displayFlowList = []
       let searchStr = typeof(this.searchStr) === 'string' ? this.searchStr.trim() : ''
+      if(!searchStr){
+        displayFlowList = this.originFlowList
+      }
       // Split searchStr by one or more (spaces, |)
       let searchStrList = searchStr.split(/\|+/)
       for(const idx in searchStrList){
-        searchStrList[idx].trim()
+        searchStrList[idx] = searchStrList[idx].trim()
         searchStrList[idx] = searchStrList[idx].split(/\s+/)
       }
       for (const flow of this.originFlowList) {
