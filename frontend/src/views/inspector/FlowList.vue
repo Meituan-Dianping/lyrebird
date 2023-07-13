@@ -309,7 +309,7 @@ export default {
     },
     isMatchByAnd (url, searchList) {
       for (const searchItem of searchList)
-        if (!this.filterMethod(searchItem, url)) 
+        if (!searchItem || !this.filterMethod(searchItem, url)) 
           return false
       return true
     },
