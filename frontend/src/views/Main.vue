@@ -78,6 +78,7 @@ export default {
   beforeDestroy() {
     document.removeEventListener('keydown', this._keydownListener)
     this.$io.removeListener('statusBarUpdate', this.loadAllStatusList)
+    this.$io.removeListener('datamanagerUpdate', this.loadDataMap)
     this.$io.removeListener('msgSuccess', this.successMessage)
     this.$io.removeListener('msgInfo', this.infoMessage)
     this.$io.removeListener('msgError', this.errorMessage)
@@ -94,6 +95,7 @@ export default {
     this.$bus.$on('msg.error', this.errorMessage)
     this.$bus.$on('msg.destroy', this.destroyMessage)
     this.$io.on('statusBarUpdate', this.loadAllStatusList)
+    this.$io.on('datamanagerUpdate', this.loadDataMap)
     this.$io.on('msgSuccess', this.successMessage)
     this.$io.on('msgInfo', this.infoMessage)
     this.$io.on('msgError', this.errorMessage)
@@ -158,6 +160,9 @@ export default {
     },
     loadAllStatusList() {
       this.$store.dispatch('loadAllStatusList')
+    },
+    loadDataMap() {
+      this.$store.dispatch('loadDataMap')
     },
     successMessage(msg) {
       this.$Message.success({

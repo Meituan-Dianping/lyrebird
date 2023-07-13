@@ -22,12 +22,14 @@
 <script>
 import DataDetailHttpData from '@/views/datamanager/DataDetailHttpData.vue'
 import DataDetailPlainJSON from '@/views/datamanager/DataDetailPlainJSON.vue'
+import DataDetailPlainConfig from '@/views/datamanager/DataDetailPlainConfig.vue'
 import DataDetailFolder from '@/views/datamanager/DataDetailFolder.vue'
 import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
 import { getGroupDetail } from '@/api'
 
 export default {
   components: {
+    DataDetailPlainConfig,
     DataDetailPlainJSON,
     DataDetailHttpData,
     DataDetailFolder,
@@ -50,6 +52,8 @@ export default {
         return 'DataDetailHttpData'
       } else if (payload.type === 'json') {
         return 'DataDetailPlainJSON'
+      } else if (payload.type === 'config') {
+        return 'DataDetailPlainConfig'
       } else if (payload.type === 'group') {
         return 'DataDetailFolder'
       } else {

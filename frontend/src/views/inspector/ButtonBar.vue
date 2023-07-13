@@ -215,6 +215,7 @@ export default {
       set (val) {
         this.$store.dispatch('commitAndupdateConfigByKey', {
           'command': 'setIsRequestKeepOriginData',
+          'isShowMessage': true,
           val
         })
       }

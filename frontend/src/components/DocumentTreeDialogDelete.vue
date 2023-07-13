@@ -74,7 +74,6 @@
                     <p class="text-center data-list-dialog-delete-advanced-selection my-1">Delete Leaf only</p>
                   </v-col>
                 </v-row>
-                </v-radio-group>
 
               </v-expansion-panel-content>
             </v-expansion-panel>
