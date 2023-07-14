@@ -81,11 +81,28 @@ export default {
     generateAndCopyCurl(state, requestData){
       let cmd = generateCurl(requestData)
       try {
-        navigator.clipboard.writeText(cmd);
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(cmd);
+        } else {
+          // 部分浏览器，在非安全环境下禁止使用navigator.clipboard，故建立一个不可见的文本框，然后选中复制，完成后删除文本框
+            let textArea = document.createElement("textarea");
+            textArea.value = cmd;
+            textArea.style.position = "absolute";
+            textArea.style.opacity = 0;
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            new Promise((res, rej) => {
+                document.execCommand('copy') ? res() : rej();
+                textArea.remove();
+            });
+        }
         bus.$emit('msg.success', 'Generate curl success, curl have been copied to Clipboard')
       } catch (err) {
         bus.$emit('msg.error', 'Copy url error:' + err)
-      }      
+      }
     }
   },
   actions: {

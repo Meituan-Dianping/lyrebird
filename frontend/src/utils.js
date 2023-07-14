@@ -41,7 +41,6 @@ export const generateCurl = (requestData) => {
   curl = curl.concat(generateCurlHeader(requestData['headers']))
   curl = curl.concat(generateCurlData(requestData['data'], contentType))
   curl = curl.concat(generateCurlUrl(requestData['url']))
-  console.log(curl)
   return curl.join(' ')
 }
 
@@ -54,9 +53,13 @@ function generateCurlMethod (method) {
 }
 
 function generateCurlHeader (headers) {
+  let ignoreKey = [
+    'Host'
+  ]
   let headerStrList = []
   for(let key in headers){
-    headerStrList.push(`-H \"${key}:${headers[key]}\"`)
+    if(!ignoreKey.includes(key))
+      headerStrList.push(`-H \"${key}:${headers[key]}\"`)
   }
   return headerStrList
 }
@@ -66,7 +69,7 @@ function generateCurlData (data, dataType) {
   if(!dataType){
     bus.$emit('msg.warrning', 'Generate curl param -d failed: Unknown ContentType')
   }else if(dataType == 'application/json'){
-    dataStrList.push('-d '+JSON.stringify(data))
+    dataStrList.push(`-d \'${JSON.stringify(data)}\'`)
   }else if(dataType == 'application/x-www-form-urlencoded'){
     for(let key in data){
       dataStrList.push(`-d \"${key}=${data[key]}\"`)
