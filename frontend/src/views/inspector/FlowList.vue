@@ -108,6 +108,27 @@
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <span v-bind="attrs" v-on="on">
+                  <v-btn 
+                  icon
+                  x-small
+                  plain
+                  @click="generateCurlUrl(item)"
+                  >
+                    <v-icon
+                      small
+                      color="accent"
+                    >mdi-xml</v-icon>
+                  </v-btn>
+                </span>
+              </template>
+              Generate and Copy Curl
+            </v-tooltip>
+          </span>
+
+          <span class="flow-list-item-copy-btn" @click.stop>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <span v-bind="attrs" v-on="on">
                   <v-btn icon x-small plain>
                     <v-icon
                       x-small
@@ -119,7 +140,7 @@
                   </v-btn>
                 </span>
               </template>
-              Copy
+              Copy Url
             </v-tooltip>
 
           </span>
@@ -358,6 +379,9 @@ export default {
       } 
       return row.response.mock
     },
+    generateCurlUrl(item){
+      this.$store.dispatch('getFlowDetailForCmd', item.id)
+    },
     onUrlCopy () {
       this.$bus.$emit('msg.success', 'URL copied!')
     },
@@ -471,7 +495,7 @@ export default {
   display: inline-block;
   word-break: keep-all;
   max-width: 900px;
-  width: calc(100% - 50px);
+  width: calc(100% - 100px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -495,5 +519,6 @@ export default {
   display: inline-block;
   overflow: hidden;
   cursor: pointer;
+  margin-bottom: 2px;
 }
 </style>

@@ -1,3 +1,5 @@
+import { bus } from '@/eventbus'
+
 export const readablizeBytes = (bytes) => {
   if(bytes===0){
       return '0 B'
@@ -30,4 +32,47 @@ export const timestampToDatetime = (timeStamp) => {
   let minute = (dateObj.getMinutes() < 10 ? '0'+dateObj.getMinutes() : dateObj.getMinutes())
   let second = (dateObj.getSeconds() < 10 ? '0'+dateObj.getSeconds() : dateObj.getSeconds())
   return month + '/' + date + ' ' + hour + ':' + minute + ':' + second
+}
+
+export const generateCurl = (requestData) => {
+  let contentType = requestData['headers']['Content-Type'] || ''
+  let curl = ['curl']
+  curl = curl.concat(generateCurlMethod(requestData['method']))
+  curl = curl.concat(generateCurlHeader(requestData['headers']))
+  curl = curl.concat(generateCurlData(requestData['data'], contentType))
+  curl = curl.concat(generateCurlUrl(requestData['url']))
+  console.log(curl)
+  return curl.join(' ')
+}
+
+function generateCurlUrl (url) {
+  return url
+}
+
+function generateCurlMethod (method) {
+  return ['-X '+method]
+}
+
+function generateCurlHeader (headers) {
+  let headerStrList = []
+  for(let key in headers){
+    headerStrList.push(`-H \"${key}:${headers[key]}\"`)
+  }
+  return headerStrList
+}
+
+function generateCurlData (data, dataType) {
+  let dataStrList = []
+  if(!dataType){
+    bus.$emit('msg.warrning', 'Generate curl param -d failed: Unknown ContentType')
+  }else if(dataType == 'application/json'){
+    dataStrList.push('-d '+JSON.stringify(data))
+  }else if(dataType == 'application/x-www-form-urlencoded'){
+    for(let key in data){
+      dataStrList.push(`-d \"${key}=${data[key]}\"`)
+    }
+  }else{
+    bus.$emit('msg.error', `Generate curl param -d failed: ${dataType} ContentType not support`)
+  }
+  return dataStrList
 }
