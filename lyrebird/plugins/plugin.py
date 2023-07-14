@@ -16,6 +16,7 @@ class Plugin:
             view=('dist', 'index.html'),
             icon='mdi-widgets',
             api=[],
+            no_frontend=False,
             background=[],
             event=[],
             on_request=[],

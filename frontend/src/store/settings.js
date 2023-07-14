@@ -4,7 +4,8 @@ import { bus } from '@/eventbus'
 var configCommitMap = [
   {'name': 'mock.mode', 'commit': 'setDiffMode'},
   {'name': 'mock.data.showLabel', 'commit': 'setIsLabelDisplay'},
-  {'name': 'mock.data.tree.closeReload', 'commit': 'setIsCloseReloadWhenEnter'},
+  {'name': 'mock.data.tree.asynchronous', 'commit': 'setIsTreeLoadAsync'},
+  {'name': 'mock.data.shownConfig', 'commit': 'setIsDisplayConfiguration'},
   {'name': 'mock.request.keep_origin_data', 'commit': 'setIsRequestKeepOriginData'},
   {'name': 'mock.data.tree.undeletableId', 'commit': 'concatTreeUndeletableId'},
   {'name': 'mock.data.detail.stickyTopKey', 'commit': 'concatStickyTopKey'},
@@ -56,10 +57,10 @@ export default {
             for (const config of configPreLoad) {
               if (response.data.hasOwnProperty(config.name) && response.data[config.name]) {
                 commit('addPreLoadFuncSet', config.commit, { root: true })
-                commit('setInitialized', true)
                 dispatch(config.commit, { root: true })
               }
             }
+            commit('setInitialized', true)
           }
         })
         .catch(error => {
@@ -76,7 +77,7 @@ export default {
           bus.$emit('msg.error', `Update config failed ${error.data.message}`)
         })
     },
-    commitAndupdateConfigByKey({ dispatch, commit }, { command, val }) {
+    commitAndupdateConfigByKey({ dispatch, commit }, { command, isShowMessage, val }) {
       let updateConfig = {}
       for (const config of configCommitMap) {
         if (config.commit == command) {
@@ -88,7 +89,9 @@ export default {
       api.updateConfigByKey(updateConfig)
         .then(_ => {
           dispatch('loadConfig')
-          bus.$emit('msg.success', `Update config success!`)
+          if (isShowMessage) {
+            bus.$emit('msg.success', `Update config success!`)
+          }
         })
         .catch(error => {
           bus.$emit('msg.error', `Update config failed ${error.data.message}`)

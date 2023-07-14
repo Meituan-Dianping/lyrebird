@@ -1,6 +1,7 @@
+import re
+import json
 import pytest
 import codecs
-import json
 import tarfile
 import lyrebird
 from pathlib import Path
@@ -115,7 +116,7 @@ dataJ = {
         'url': 'http://unittest.com/api/search'
     },
     'response': {
-        'data': '"keyA":"valueA","keyB":"{{config.get(\'custom.8df051be-4381-41b6-9252-120d9b558bf6\')}}","keyC":"valueC"'
+        'data': '{"keyA":"valueA","keyB":"{{config.get(\'custom.8df051be-4381-41b6-9252-120d9b558bf6\')}}","keyC":"valueC"}'
     }
 }
 
@@ -376,6 +377,14 @@ def data_manager(root, tmpdir):
 
 
 def test_load_from_path(root):
+    _conf = {
+        'ip': '127.0.0.1',
+        'mock.port': 9090,
+        'config.value.tojsonKey': ['custom.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
+        'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"}
+    }
+    application._cm = MockConfigManager(config=_conf)
+
     _dm = dm.DataManager()
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)
@@ -386,6 +395,16 @@ def test_load_from_path(root):
     assert 'groupA-UUID' in _dm.id_map
     assert 'groupB-UUID' in _dm.id_map
     assert 'groupC-UUID' in _dm.id_map
+
+
+def test_load(data_manager):
+    data_manager.reload()
+    assert 'dataA-UUID' in data_manager.id_map
+    assert 'dataB-UUID' in data_manager.id_map
+    assert 'dataC-UUID' in data_manager.id_map
+    assert 'groupA-UUID' in data_manager.id_map
+    assert 'groupB-UUID' in data_manager.id_map
+    assert 'groupC-UUID' in data_manager.id_map
 
 
 def test_activate(data_manager):
@@ -660,6 +679,14 @@ def test_conflict_checker(data_manager):
 
     conflict_rules = data_manager.check_conflict('groupE-UUID')
     assert len(conflict_rules) == 2
+
+
+def test_get_group_children(data_manager):
+    children = data_manager._get_group_children('groupF-UUID')
+    assert len(children) == 2
+
+    children = data_manager._get_group_children('groupG-UUID')
+    assert len(children) == 1
 
 
 def test_add_group(data_manager):
@@ -1007,6 +1034,10 @@ def test_prop_writer_with_dict_ignore_key(data_manager):
     prop_writer = dm.file_data_adapter.PropWriter()
     prop_writer.dict_ignore_key.update(data_manager.unsave_keys)
     prop_str = prop_writer.parse(data_manager.root)
+
+    pattern = r'{"id":"[0-9a-fA-F-]+","name":".Settings","type":"config","parent_id":"root"},\n  '
+    prop_str = re.sub(pattern, '', prop_str)
+
     assert prop_str == prop_str_correct
     new_prop = json.loads(prop_str)
     assert prop == new_prop

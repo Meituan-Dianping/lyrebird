@@ -87,6 +87,14 @@ def test_group_get_with_group_id(client):
     assert resp.json['code'] == 1000
 
 
+def test_group_get_children(client):
+    group_id = 'groupA-UUID'
+    resp = client.get(f'/api/group/{group_id}?childrenOnly=true')
+    assert resp.json['code'] == 1000
+    data = resp.json['data']
+    assert len(data) == 1
+
+
 def test_group_get_without_group_id(client):
     resp = client.get('/api/group')
     assert resp.json['code'] == 1000

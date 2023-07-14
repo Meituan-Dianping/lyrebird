@@ -189,9 +189,10 @@ export default {
         })
       bus.$emit('msg.success', 'Clear Inspector success!')
     },
-    saveSelectedFlow ({ state }) {
+    saveSelectedFlow ({ state, dispatch }) {
       api.saveSelectedFlow(state.selectedIds)
         .then(response => {
+          dispatch('loadDataMap')
           bus.$emit('msg.success', state.selectedIds.length + ' flow saved!')
         })
         .catch(error => {

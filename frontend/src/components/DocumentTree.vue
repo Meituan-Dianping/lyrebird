@@ -43,12 +43,29 @@ export default {
       searchRefreshDataListTimer: null,
       realSearchStr: '',
       searchByIdResult: '',
-      selectLimit: 200
+      selectLimit: 500,
+      originAsync: false
     }
+  },
+  created() {
+    this.originAsync = this.isLoadTreeAsync
   },
   computed: {
     isSelectableStatus () {
       return this.$store.state.dataManager.isSelectableStatus
+    },
+    isLoadTreeAsync: {
+      get () {
+        return this.$store.state.dataManager.isLoadTreeAsync
+      },
+      set (val) {
+        this.$store.dispatch('commitAndupdateConfigByKey', {
+          'command': 'setIsTreeLoadAsync',
+          'isShowMessage': false,
+          val
+        })
+        this.$store.dispatch('loadDataMap')
+      }
     },
     groupListOpenNode: {
       get () {
@@ -72,6 +89,10 @@ export default {
       clearTimeout(this.searchRefreshDataListTimer)
       this.searchRefreshDataListTimer = setTimeout(() => {
         if (newValue !== oldValue) {
+          // When originAsync is true, and searchStr is not empty, close isLoadTreeAsync
+          if (this.originAsync == true) {
+            this.isLoadTreeAsync = newValue === ''
+          }
           this.realSearchStr = this.searchStr
           clearTimeout(this.searchRefreshDataListTimer)
         }

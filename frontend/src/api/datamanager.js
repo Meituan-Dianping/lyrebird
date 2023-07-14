@@ -20,6 +20,12 @@ export const getGroupDetail = (groupId) => {
   })
 }
 
+export const getGroupChildren = (groupId) => {
+  return axios({
+    url: '/api/group/' + groupId + '?childrenOnly=true'
+  })
+}
+
 export const createGroup = (name, parentId) => {
   return axios({
     url: '/api/group',

@@ -3,6 +3,11 @@ import json
 import codecs
 from pathlib import Path
 from urllib.parse import urlparse
+from lyrebird.log import get_logger
+from lyrebird.mock.dm import mock_data_upgrade
+
+
+logger = get_logger()
 
 
 PROP_FILE_NAME = '.lyrebird_prop'
@@ -26,6 +31,9 @@ class FileDataAdapter:
         if not _root_path.is_dir():
             raise RootPathIsNotDir(root_path)
         self.context.root_path = _root_path
+        self.context.reload()
+
+        mock_data_upgrade.upgrade(self)
         self.context.reload()
 
     def _reload(self):
@@ -52,10 +60,31 @@ class FileDataAdapter:
     def _get_group(self, id_):
         return self.context.id_map.get(id_)
 
+    def _get_group_children(self, id_):
+        node = self.context.id_map.get(id_)
+        return node.get('children')
+
     def _add_group(self, data, **kwargs):
         self._save_prop()
 
     def _update_group(self, data):
+        id_ = data['id']
+        node = self.context.id_map.get(id_)
+
+        # 1. Add new key into node
+        update_data = {k: data[k] for k in data if k not in self.context.update_group_ignore_keys}
+        node.update(update_data)
+
+        # 2. Remove deleted key in node
+        delete_keys = [k for k in data if k not in data and k not in self.context.update_group_ignore_keys]
+        for key in delete_keys:
+            node.pop(key)
+
+        # 3. Update existed value
+        for key, value in data.items():
+            if key in node:
+                node[key] = value
+
         self._save_prop()
 
     def _delete_group(self, data):
@@ -101,6 +130,9 @@ class FileDataAdapter:
         self.context._sort_children_by_name()
         prop_writer = PropWriter()
         prop_writer.dict_ignore_key.update(self.context.unsave_keys)
+
+        # handle link node
+        prop_writer.dict_ignore_child_key.add('link')
 
         prop_str = prop_writer.parse(self.context.root)
         prop_file = self.context.root_path / PROP_FILE_NAME
@@ -201,6 +233,7 @@ class PropWriter:
             'NoneType': self.none_parser
         }
         self.dict_ignore_key = set()
+        self.dict_ignore_child_key = set()
 
     def parse(self, prop):
         prop_type = type(prop)
@@ -252,6 +285,8 @@ class PropWriter:
         self.indent += 1
         children_str = '"children":['
         for child in val:
+            if self.dict_ignore_child_key & set(child.keys()):
+                continue
             child_str = self.parse(child)
             children_str += '\n' + '  '*self.indent + child_str + ','
         if children_str.endswith(','):

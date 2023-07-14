@@ -13,6 +13,7 @@ from lyrebird.log import get_logger
 from lyrebird.application import config
 from lyrebird.mock import context
 from lyrebird.mock.dm.match import MatchRules
+from lyrebird.config import CONFIG_TREE_SHOW_CONFIG
 
 PROP_FILE_NAME = '.lyrebird_prop'
 logger = get_logger()
@@ -39,7 +40,10 @@ class DataManager:
 
         self.add_group_ignore_keys = set(['id', 'type', 'children'])
         self.update_group_ignore_keys = set(['id', 'parent_id', 'type', 'children'])
-        self.supported_data_type = ['data', 'json']
+        self.supported_data_type = ['data', 'json', 'config']
+        self.virtual_node_data_type = set(['config']) # TODO Next is `super``
+
+        self.virtual_base_config_id = None
 
         self.unsave_keys = set()
 
@@ -77,14 +81,112 @@ class DataManager:
 
     def reload(self):
         self._adapter._reload()
-        self.add_parent_into_node()
+        self.handle_node_type_config()
+        self.add_parent()
         self.add_super_by()
 
-    def add_parent_into_node(self):
-        self.add_parent(self.root)
+    def _get_group_children(self, group_id):
+        children = self._adapter._get_group_children(group_id)
+        parent_node = self.id_map.get(group_id)
+        if not parent_node:
+            raise IDNotFound(group_id)
+        self.handle_group_config(children, parent_node['id'])
+
+        for child in children:
+            # update id_map
+            if child['id'] not in self.id_map:
+                self.id_map.update({
+                    child['id']: child
+                })
+
+            self.add_parent_generator(child, parent_node)
+            self.add_super_by(node=child)
+
+        children.sort(key=lambda sub_node: sub_node['name'])
+        return children
+
+    def init_config_base_node(self):
+        if self.virtual_base_config_id:
+            return
+
+        root_id = self.root['id']
+        root_node = self.id_map.get(root_id)
+        if not root_node:
+            return
+
+        root_children = root_node.get('children', [])
+        for node in root_children:
+            if node['type'] == 'config':
+                self.virtual_base_config_id = node['id']
+                return
+
+    def handle_node_type_config(self):
+        self.init_config_base_node()
+        if not self.virtual_base_config_id:
+            return
+
+        all_new_config_node = {}
+        for id_, node in self.id_map.items():
+            if node['type'] != 'group':
+                continue
+
+            if 'children' not in node:
+                node['children'] = []
+
+            new_config_node = self.handle_group_config(node['children'], id_)
+            if not new_config_node:
+                continue
+
+            all_new_config_node.update(new_config_node)
+
+        if all_new_config_node:
+            self.id_map.update(all_new_config_node)
+
+    def handle_group_config(self, node_list, node_id):
+        has_config_index = -1
+        for index, node in enumerate(node_list):
+            if node['type'] == 'config':
+                has_config_index = index
+                break
+
+        is_show_config = application.config.get(CONFIG_TREE_SHOW_CONFIG)
+        has_config = has_config_index != -1
+        if is_show_config == has_config:
+            return
+
+        elif has_config and not is_show_config:
+            del node_list[has_config_index]
+            return
+
+        elif is_show_config and not has_config:
+            if not self.virtual_base_config_id:
+                return
+            new_config_node = {}
+
+            config_node_id = str(uuid.uuid4())
+            config_node = {
+                'id': config_node_id,
+                'name': '.Settings',
+                'type': 'config',
+                'parent_id': node_id,
+                'link': self.virtual_base_config_id
+            }
+            node_list.append(config_node)
+            new_config_node[config_node_id] = config_node
+
+            return new_config_node
+
+    def add_parent(self, node=None):
+        if not node:
+            root_id = self.root['id']
+            root = self.id_map.get(root_id)
+            self.add_parent_generator(root)
+        else:
+            parent_node = self.id_map.get(node['parent_id'])
+            self.add_parent_generator(node, parent_node=parent_node)
         self.unsave_keys.update(['parent', 'abs_parent_path'])
 
-    def add_parent(self, node, parent_node=None):
+    def add_parent_generator(self, node, parent_node=None):
         parent_node_parent = parent_node['parent'] if parent_node and parent_node.get('parent') else []
         parent_obj = parent_node_parent + [{
             'id': node['id'],
@@ -93,7 +195,7 @@ class DataManager:
             'parent_id': node['parent_id']
         }]
 
-        abs_parent_path = f"{parent_node['abs_parent_path']}{node['name']}/" if parent_node else '/'
+        abs_parent_path = f"{parent_node['abs_parent_path']}{node['name']}/" if parent_node and parent_node.get('abs_parent_path') else '/'
 
         node.update({
             'parent': parent_obj,
@@ -104,10 +206,12 @@ class DataManager:
             return
 
         for child in node['children']:
-            self.add_parent(child, node)
+            self.add_parent_generator(child, node)
 
-    def add_super_by(self):
-        for node in self.id_map.values():
+    def add_super_by(self, node=None):
+        node_list = [node] if node else self.id_map.values()
+
+        for node in node_list:
             if not node.get('super_id'):
                 continue
             super_parent_node = self.id_map.get(node['super_id'])
@@ -130,14 +234,37 @@ class DataManager:
         node = self.id_map.get(_id)
         if not node:
             raise IDNotFound(_id)
+
+        link = node.get('link')
+        if link:
+            link_node = self.id_map.get(_id)
+            if not link_node:
+                logger.error('link node not found!')
+                raise IDNotFound(link_node)
+            data = self.get(node['link'])
+            data['link'] = data['id']
+            data['id'] = link_node['id']
+            return data
+
         if node.get('type') == 'group' or node.get('type') == None:
             return self._adapter._get_group(_id)
         elif node.get('type') == 'data':
             return self._adapter._load_data(_id)
         elif node.get('type') == 'json':
             return self._adapter._load_data(_id)
+        elif node.get('type') == 'config':
+            data = self._adapter._load_data(_id)
+            data.pop('name', None)
+            return data
         else:
             raise UnsupportedType
+
+    def is_data_virtual_node(self, node):
+        if node['type'] == 'config':
+            if 'link' in node:
+                return node['link'] == self.virtual_base_config_id
+ 
+        return False
 
     # -----
     # Mock operations
@@ -179,7 +306,14 @@ class DataManager:
             node = self.id_map.get(group_id)
             map_pointer.append(node)
 
+        self._sort_tree_children_by_name(self.display_data_map)
+
         return self.display_data_map
+
+    def root_without_children(self):
+        async_tree = {k: v for k,v in self.root.items() if k not in ['children']}
+        async_tree['children'] = []
+        return async_tree
 
     def activate(self, search_id, **kwargs):
         """
@@ -207,6 +341,11 @@ class DataManager:
         data_map = {d['id']: d for d in data_list}
         self.activated_data.update({i: data_map[i] for i in ordered_data_id if data_map.get(i)})
         self.activated_group[_id] = _node
+
+        # Apply config
+        config = self._get_activated_data_config()
+        if config:
+            application._cm.add_config(config, type='dm', level=-1, apply_now=True)
 
         # After activate
         self._check_activated_data_rules_contains_request_data()
@@ -243,6 +382,8 @@ class DataManager:
 
     def _collect_data_in_node(self, node):
         id_list = []
+        if self.is_data_virtual_node(node):
+            return []
         if node.get('type') in self.supported_data_type:
             return [node['id']]
         elif node.get('type', '') == 'group':
@@ -255,6 +396,10 @@ class DataManager:
         """
         Clear activated data
         """
+        config = self._get_activated_data_config()
+        if config:
+            application._cm.remove_config(config, type='dm', apply_now=True)
+
         self.activated_data = OrderedDict()
         self.activated_group = {}
         self._check_activated_data_rules_contains_request_data()
@@ -304,6 +449,30 @@ class DataManager:
     def _is_match_rule(self, flow, rules):
         return MatchRules.match(flow, rules)
 
+    def _get_activated_data_config(self):
+        config_id = None
+        for id_, data in self.activated_data.items():
+            if 'json' not in data:
+                continue
+
+            node = self.id_map.get(id_)
+            if not node:
+                continue
+            if node['type'] == 'config':
+                config_id = id_
+                break
+
+        if not config_id:
+            return
+        config_node = self.activated_data.get(config_id)
+        if not config_node:
+            return
+
+        try:
+            return json.loads(config_node['json'])
+        except Exception:
+            logger.error(f'Load config {config_node["id"]} error! \n {traceback.format_exc()}')
+
     # -----
     # Data tree operations
     # -----
@@ -324,6 +493,8 @@ class DataManager:
 
         if data.get('type') == 'json':
             self._make_data_json(raw_data, data)
+        elif data.get('type') == 'config':
+            self._make_data_config(raw_data, data)
         elif data.get('type') == 'data':
             self._make_data_http_data(raw_data, data)
         else:
@@ -367,6 +538,12 @@ class DataManager:
 
         data['name'] = data['name'] if data.get('name') else 'Unnamed JSON'
 
+    def _make_data_config(self, raw_data, data):
+        if 'json' not in data:
+            data['json'] = {}
+
+        data['name'] = '.Settings'
+
     def add_data(self, parent_id, raw_data, **kwargs):
         if not isinstance(raw_data, dict):
             raise DataObjectShouldBeADict
@@ -387,7 +564,7 @@ class DataManager:
             if parent_node['type'] != 'group':
                 raise OnlyGroupCanContainAnyOtherObject
 
-        data = self._make_data(raw_data)
+        data = self._make_data(raw_data, **kwargs)
         data['parent_id'] = parent_id
         _data_id = data['id']
         _data_name = data.get('name')
@@ -556,6 +733,9 @@ class DataManager:
         return self._adapter.duplicate(_id)
 
     def _copy_node(self, parent_node, node, **kwargs):
+        if self.is_data_virtual_node(node):
+            return
+
         new_node = {}
         new_node.update(node)
         new_node['id'] = str(uuid.uuid4())
@@ -611,6 +791,13 @@ class DataManager:
                     node['children'] = []
                 continue
             node['children'] = sorted(node['children'], key=lambda sub_node: sub_node['name'])
+
+    def _sort_tree_children_by_name(self, node):
+        if not node.get('children'):
+            return
+        node['children'].sort(key=lambda sub_node: sub_node['name'])
+        for child in node['children']:
+            self._sort_tree_children_by_name(child)
 
     # -----
     # Conflict checker
@@ -758,7 +945,14 @@ class DataManager:
         node = self.id_map.get(_id)
         if not node:
             raise IDNotFound(_id)
-        node['name'] = data['name']
+
+        if node.get('link'):
+            data['type'] = node['type']
+            self.add_data(node['parent_id'], data, data_id=data['id'])
+            return
+
+        if 'name' in data:
+            node['name'] = data['name']
         self._adapter._update_data(data)
         self._adapter._update_group(node)
 
@@ -852,7 +1046,8 @@ class DataManager:
         type_map = {
             'group': [],
             'data': [],
-            'json': []
+            'json': [],
+            'config': []
         }
         for id_ in ids:
             node = self.id_map.get(id_)
@@ -893,8 +1088,8 @@ class DataManager:
             })
 
             type_map = self._get_type_hashmap(id_list)
-            node_delete_group_ids = type_map['group'] + type_map['data'] + type_map['json']
-            node_delete_data_ids = type_map['data'] + type_map['json']
+            node_delete_group_ids = type_map['group'] + type_map['data'] + type_map['json'] + type_map['config']
+            node_delete_data_ids = type_map['data'] + type_map['json'] + type_map['config']
 
             for id_ in id_list:
                 # Delete from parent
@@ -965,6 +1160,10 @@ class DataObjectShouldBeADict(Exception):
 
 
 class IDNotFound(Exception):
+    pass
+
+
+class BaseConfigNodeNotFound(Exception):
     pass
 
 
