@@ -3,7 +3,7 @@ import axios from 'axios'
 
 export const getFlowDetail = (flowId, isDecode=false) => {
   return axios({
-    url: '/api/flow/' + flowId
+    url: '/api/flow/' + flowId + '?id_decode=' + isDecode
   })
 }
 
