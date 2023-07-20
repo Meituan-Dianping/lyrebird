@@ -10,7 +10,7 @@ from lyrebird import log
 from lyrebird.utils import JSONFormat
 from lyrebird.base_server import ThreadServer
 from lyrebird.mock import context
-from sqlalchemy import event, or_
+from sqlalchemy import event, and_
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
@@ -21,7 +21,7 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 """
 Database server
 
-Worked as a backgrund thread
+Worked as a background thread
 storage all event message into database
 """
 
@@ -146,10 +146,10 @@ class LyrebirdDatabaseServer(ThreadServer):
             _subquery = _subquery.filter(Event.channel.in_(channel_rules))
         if len(search_str_list) > 0:
             _subquery = _subquery.filter(Event.message != None)
-            or_cond = []
+            and_cond = []
             for search_str in search_str_list:
-                or_cond.append(Event.message.like(f'%%{search_str}%%'))
-            _subquery = _subquery.filter(or_(*or_cond))
+                and_cond.append(Event.message.like(f'%%{search_str}%%'))
+            _subquery = _subquery.filter(and_(*and_cond))
         _subquery = _subquery.offset(offset).limit(limit).subquery()
         result = session.query(Event).filter(Event.id == _subquery.c.id).all()
         self._scoped_session.remove()
@@ -183,10 +183,10 @@ class LyrebirdDatabaseServer(ThreadServer):
             query = query.filter(Event.channel.in_(channel_rules))
         if len(search_str_list) > 0:
             query = query.filter(Event.message != None)
-            or_cond = []
+            and_cond = []
             for search_str in search_str_list:
-                or_cond.append(Event.message.like(f'%%{search_str}%%'))
-            query = query.filter(or_(*or_cond))
+                and_cond.append(Event.message.like(f'%%{search_str}%%'))
+            query = query.filter(and_(*and_cond))
         result = query.count()
         self._scoped_session.remove()
         return math.ceil(result / page_size)
