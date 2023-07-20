@@ -266,17 +266,24 @@ def get_query_array(url):
 
 
 def url_decode(decode_obj, decode_key):
-    try:
-        if isinstance(decode_obj[decode_key], str):
-            decode_obj[decode_key] = unquote(decode_obj[decode_key])
-        elif isinstance(decode_obj[decode_key], list):
-            for idx, _ in enumerate(decode_obj[decode_key]):
-                url_decode(decode_obj[decode_key], idx)
-        elif isinstance(decode_obj[decode_key], dict):
-            for key, _ in decode_obj[decode_key].items():
-                url_decode(decode_obj[decode_key], key)
-    except (IndexError, KeyError):
+    if not check_key_in_list_or_dict(decode_obj, decode_key):
         return
+    if isinstance(decode_obj[decode_key], str):
+        decode_obj[decode_key] = unquote(decode_obj[decode_key])
+    elif isinstance(decode_obj[decode_key], list):
+        for idx, _ in enumerate(decode_obj[decode_key]):
+            url_decode(decode_obj[decode_key], idx)
+    elif isinstance(decode_obj[decode_key], dict):
+        for key, _ in decode_obj[decode_key].items():
+            url_decode(decode_obj[decode_key], key)
+
+
+def check_key_in_list_or_dict(obj, key):
+    if isinstance(obj, list) and isinstance(key, int) and key < len(obj):
+        return True
+    elif isinstance(obj, dict) and key in obj:
+        return True
+    return False
 
 
 class CaseInsensitiveDict(dict):
