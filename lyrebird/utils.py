@@ -266,16 +266,17 @@ def get_query_array(url):
 
 
 def url_decode(decode_obj, decode_key):
-    if not decode_obj or not decode_obj.get(decode_key, None):
+    try:
+        if isinstance(decode_obj[decode_key], str):
+            decode_obj[decode_key] = unquote(decode_obj[decode_key])
+        elif isinstance(decode_obj[decode_key], list):
+            for idx, _ in enumerate(decode_obj[decode_key]):
+                url_decode(decode_obj[decode_key], idx)
+        elif isinstance(decode_obj[decode_key], dict):
+            for key, _ in decode_obj[decode_key].items():
+                url_decode(decode_obj[decode_key], key)
+    except (IndexError, KeyError):
         return
-    if isinstance(decode_obj[decode_key], str):
-        decode_obj[decode_key] = unquote(decode_obj[decode_key])
-    elif isinstance(decode_obj[decode_key], list):
-        for idx, _ in enumerate(decode_obj[decode_key]):
-            url_decode(decode_obj[decode_key], idx)
-    elif isinstance(decode_obj[decode_key], dict):
-        for key, _ in decode_obj[decode_key].items():
-            url_decode(decode_obj[decode_key], key)
 
 
 class CaseInsensitiveDict(dict):
