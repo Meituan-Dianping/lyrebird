@@ -34,6 +34,9 @@
             </template>
           </LabelDropdown>
         </span>
+        <span v-if="inputValueType === 'link'">
+          <a :href=infoValue.link target="_blank"> {{ infoValue.link }}</a>
+        </span>
         <span v-else-if="inputValueType === 'category'">
           <Select v-model="infoValue.selected" multiple size="small">
             <Option v-for="item in infoValue.allItem" :value="item.value" :key="item.value">{{ item.value }}</Option>
@@ -230,6 +233,8 @@ export default {
         return 'longList'
       } else if (this.infoValue && this.infoValue.hasOwnProperty('value') && this.infoValue.hasOwnProperty('info') ) {
         return 'stringObject'
+      } else if (this.infoValue && this.infoValue.hasOwnProperty('link') && this.infoValue.hasOwnProperty('value') ) {
+        return 'link'
       } else {
         return 'string'
       }
