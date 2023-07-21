@@ -151,7 +151,10 @@ export default {
       }
       if (menuItem.type === 'router') {
         if (menuItem.name === 'plugin-view' || menuItem.name === 'plugin-container') {
-          this.$store.commit('plugin/setSrc', menuItem.params.src)
+          let lastPluginSrc = this.$store.state.plugin.src
+          if (lastPluginSrc === null || lastPluginSrc.split('?')[0] !== menuItem.params.src) {
+            this.$store.commit('plugin/setSrc', menuItem.params.src)
+          }
         }
         this.$router.push({ name: menuItem.name, params: menuItem.params })
       } else {
