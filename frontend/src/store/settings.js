@@ -54,7 +54,6 @@ export default {
           }
           // preload
           if (!state.initialized) {
-            // dispatch('loadFlowList')
             for (const config of configPreLoad) {
               if (!config.name || (response.data.hasOwnProperty(config.name) && response.data[config.name])) {
                 commit('addPreLoadFuncSet', config.commit, { root: true })
