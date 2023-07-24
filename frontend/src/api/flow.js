@@ -1,9 +1,9 @@
 import axios from 'axios'
 
 
-export const getFlowDetail = (flowId, isDecode=false) => {
+export const getFlowDetail = (flowId) => {
   return axios({
-    url: '/api/flow/' + flowId + '?id_decode=' + isDecode
+    url: '/api/flow/' + flowId
   })
 }
 
