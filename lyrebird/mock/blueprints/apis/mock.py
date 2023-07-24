@@ -3,6 +3,7 @@ from lyrebird.mock import context
 from flask import request
 import traceback
 from lyrebird import application, log
+from lyrebird.config import CONFIG_TREE_LOAD_CHILDREN_ASYNC
 
 logger = log.get_logger()
 
@@ -14,6 +15,11 @@ class MockGroup(Resource):
 
     def get(self, group_id=None, label=None):
         if group_id:
+            query = request.args
+            if query and query.get('childrenOnly') == 'true':
+                children = context.application.data_manager._get_group_children(group_id) or []
+                return application.make_ok_response(data=children)
+
             _group = context.application.data_manager.get(group_id)
             if not _group:
                 return context.make_fail_response('Not found group')
@@ -21,26 +27,32 @@ class MockGroup(Resource):
             return application.make_ok_response(data=_group)
 
         context.application.data_manager.reload()
+
+        if label:
+            # update mock data tree with label
+            groups_set = set()
+
+            label_list = label.split('+')
+            for label_id in label_list:
+                label = application.labels.label_map.get(label_id)
+                if not label:
+                    return application.make_fail_response(f'Label {label_id} is not found!')
+
+                if not groups_set:
+                    groups_set = set(label['groups'])
+                else:
+                    groups_set = groups_set & set(label['groups'])
+
+            data_map = context.application.data_manager.make_data_map_by_group(groups_set)
+            return application.make_ok_response(data=data_map)
+
+        if application.config.get(CONFIG_TREE_LOAD_CHILDREN_ASYNC):
+            # Although async, reload is needed
+            data_map = context.application.data_manager.root_without_children()
+            return application.make_ok_response(data=data_map)
+
         root = context.application.data_manager.root
-        if not label:
-            return application.make_ok_response(data=root)
-
-        # update mock data tree with label
-        groups_set = set()
-
-        label_list = label.split('+')
-        for label_id in label_list:
-            label = application.labels.label_map.get(label_id)
-            if not label:
-                return application.make_fail_response(f'Label {label_id} is not found!')
-
-            if not groups_set:
-                groups_set = set(label['groups'])
-            else:
-                groups_set = groups_set & set(label['groups'])
-
-        data_map = context.application.data_manager.make_data_map_by_group(groups_set)
-        return application.make_ok_response(data=data_map)
+        return application.make_ok_response(data=root)
 
     def post(self):
         data = request.json.get('data')

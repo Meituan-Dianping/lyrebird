@@ -48,14 +48,12 @@ export default {
     SnapshotImportSelector,
   },
   activated () {
-    if (this.groupList.length == 0 || this.isReloadWhenEnter) {
+    this.$io.on('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
+    if (this.settingsInitialized && !this.isPreloadDataMap) {
       this.loadDataMap()
     }
-    this.$io.on('datamanagerUpdate', this.loadDataMap)
-    this.$io.on('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
   },
   deactivated() {
-    this.$io.removeListener('datamanagerUpdate', this.loadDataMap)
     this.$io.removeListener('datamanagerUpdateMessage', this.onDatamanagerUpdateMessage)
   },
   data () {
@@ -69,8 +67,22 @@ export default {
     groupList () {
       return this.$store.state.dataManager.groupList
     },
-    isReloadWhenEnter () {
-      return !this.$store.state.dataManager.isCloseReloadWhenEnter
+    isPreloadDataMap () {
+      return this.$store.state.settings.preLoadFuncSet.has('loadDataMap')
+    },
+    settingsInitialized () {
+      return this.$store.state.settings.initialized
+    }
+  },
+  watch: {
+    settingsInitialized (val) {
+      // `activated` might be earlier than settings init
+      if (!val) { 
+        return 
+      }
+      if (!this.isPreloadDataMap) {
+        this.loadDataMap()
+      }
     }
   },
   methods: {

@@ -78,6 +78,7 @@ export default {
   beforeDestroy() {
     document.removeEventListener('keydown', this._keydownListener)
     this.$io.removeListener('statusBarUpdate', this.loadAllStatusList)
+    this.$io.removeListener('datamanagerUpdate', this.loadDataMap)
     this.$io.removeListener('msgSuccess', this.successMessage)
     this.$io.removeListener('msgInfo', this.infoMessage)
     this.$io.removeListener('msgError', this.errorMessage)
@@ -94,6 +95,7 @@ export default {
     this.$bus.$on('msg.error', this.errorMessage)
     this.$bus.$on('msg.destroy', this.destroyMessage)
     this.$io.on('statusBarUpdate', this.loadAllStatusList)
+    this.$io.on('datamanagerUpdate', this.loadDataMap)
     this.$io.on('msgSuccess', this.successMessage)
     this.$io.on('msgInfo', this.infoMessage)
     this.$io.on('msgError', this.errorMessage)
@@ -149,7 +151,10 @@ export default {
       }
       if (menuItem.type === 'router') {
         if (menuItem.name === 'plugin-view' || menuItem.name === 'plugin-container') {
-          this.$store.commit('plugin/setSrc', menuItem.params.src)
+          let lastPluginSrc = this.$store.state.plugin.src
+          if (lastPluginSrc === null || lastPluginSrc.split('?')[0] !== menuItem.params.src) {
+            this.$store.commit('plugin/setSrc', menuItem.params.src)
+          }
         }
         this.$router.push({ name: menuItem.name, params: menuItem.params })
       } else {
@@ -158,6 +163,9 @@ export default {
     },
     loadAllStatusList() {
       this.$store.dispatch('loadAllStatusList')
+    },
+    loadDataMap() {
+      this.$store.dispatch('loadDataMap')
     },
     successMessage(msg) {
       this.$Message.success({

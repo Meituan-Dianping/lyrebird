@@ -40,6 +40,9 @@ class Menu(Resource):
         # Load plugins from new plugin manager
         _pm = application.server['plugin']
         for plugin_id, plugin in _pm.plugins.items():
+            if plugin.manifest.no_frontend:
+                continue
+
             menu.append({
                 'name': 'plugin-container',
                 'title': plugin.manifest.name,
@@ -56,7 +59,14 @@ class Menu(Resource):
             self.set_active_menu(menu[0])
         active_menu = application.active_menu
         for index, menu_item in enumerate(menu):
-            if menu_item['name'] == active_menu.get('name'):
+            if active_menu.get('name') == 'plugin-container' and 'params' in active_menu:
+                if 'params' not in menu_item:
+                    continue
+                if menu_item['params'].get('name') != active_menu['params'].get('name'):
+                    continue
+                active_menu_index = index
+                break
+            elif menu_item['name'] == active_menu.get('name'):
                 active_menu_index = index
                 break
         return context.make_ok_response(menu=menu, activeMenuItem=active_menu, activeMenuItemIndex=active_menu_index)
