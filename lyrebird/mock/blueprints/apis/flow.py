@@ -67,6 +67,10 @@ def get_flow_list_by_filter(filter_obj):
         # Change status
         if item['request']['headers'].get(headers.MITMPROXY_COMMAND):
             info['status'] = item['request']['headers'][headers.MITMPROXY_COMMAND]
+        # SSR
+        if item['request']['headers'].get('lyrebird') == 'mock':
+            info['status'] = 'ssr'
+
         req_list.append(info)
     return req_list
 

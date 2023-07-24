@@ -7,6 +7,7 @@ var configCommitMap = [
   {'name': 'mock.data.tree.asynchronous', 'commit': 'setIsTreeLoadAsync'},
   {'name': 'mock.data.shownConfig', 'commit': 'setIsDisplayConfiguration'},
   {'name': 'mock.request.keep_origin_data', 'commit': 'setIsRequestKeepOriginData'},
+  {'name': 'mock.request.ssr.mock_in_body', 'commit': 'setIsSsrMockInBody'},
   {'name': 'mock.data.tree.undeletableId', 'commit': 'concatTreeUndeletableId'},
   {'name': 'mock.data.detail.stickyTopKey', 'commit': 'concatStickyTopKey'},
   {'name': 'mock.data.detail.undeletableKey', 'commit': 'concatUndeletableKey'},

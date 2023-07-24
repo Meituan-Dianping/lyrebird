@@ -66,6 +66,19 @@
           <span>Get the server response while the request is mocked</span>
         </v-tooltip>
 
+        <v-tooltip bottom v-if="item.status === 'ssr'">
+          <template v-slot:activator="{ on, attrs }">
+            <span v-bind="attrs" v-on="on" class="flow-list-item-source">
+              <v-chip label small
+                class="flow-list-item-tag"
+                color="#FFF7E2"
+                text-color="#D69600"
+              >SSR</v-chip>
+            </span>
+          </template>
+          <span>Put mock data in request body instead of response data</span>
+        </v-tooltip>
+
         <v-tooltip bottom v-if="getRequestEditors(item).length">
           <template v-slot:activator="{ on, attrs }">
             <span v-bind="attrs" v-on="on" class="flow-list-item-source">
