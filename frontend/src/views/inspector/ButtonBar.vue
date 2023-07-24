@@ -97,7 +97,7 @@
           height=26
           v-model="searchStr"
           class="inspector-search-text"
-          label="Separate multiple keywords by spaces"
+          label="Separate multiple keywords by spaces or |"
           clearable
           @click:clear="clearInspectorSearch"
         />
