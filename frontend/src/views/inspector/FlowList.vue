@@ -115,13 +115,13 @@
                   @click="generateCurlUrl(item)"
                   >
                     <v-icon
-                      small
+                      x-small
                       color="accent"
                     >mdi-xml</v-icon>
                   </v-btn>
                 </span>
               </template>
-              Generate and Copy Curl
+              Copy as Curl
             </v-tooltip>
           </span>
 
