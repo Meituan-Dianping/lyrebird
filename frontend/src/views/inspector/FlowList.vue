@@ -226,9 +226,6 @@ export default {
   destroyed () {
     this.$io.removeListener('action', this.reload)
   },
-  mounted () {
-    this.reload()
-  },
   computed: {
     originFlowList () {
       return this.$store.state.inspector.originFlowList

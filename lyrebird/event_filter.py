@@ -11,9 +11,8 @@ class Filter:
     def is_target_match_patterns(pattern_list, target):
         if not pattern_list or not target:
             return False
-        for pattern in pattern_list:
-            if TargetMatch.is_match(target, pattern):
-                return True
+        if TargetMatch.is_match(target, '|'.join(pattern_list)):
+            return True
         return False
     
     @staticmethod
@@ -30,9 +29,9 @@ class Filter:
         for target_rule, patterns in filter_dict.items():
             if type(patterns) != list:
                 patterns = [patterns]
-            if not Filter.is_jsonpath_match_patterns(patterns, flow, target_rule):
-                return False
-        return True
+            if Filter.is_jsonpath_match_patterns(patterns, flow, target_rule):
+                return True
+        return False
     
     @staticmethod
     def get_items_after_filtration(source_items, filter_obj):
