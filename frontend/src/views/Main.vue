@@ -87,6 +87,7 @@ export default {
     this.$bus.$off('msg.info', this.infoMessage)
     this.$bus.$off('msg.error', this.errorMessage)
     this.$bus.$off('msg.destroy', this.destroyMessage)
+    this.$bus.$off('clipboard', this.copyToClipboard)
   },
   created() {
     this.$bus.$on('msg.success', this.successMessage)

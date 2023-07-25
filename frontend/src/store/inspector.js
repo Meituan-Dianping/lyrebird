@@ -80,7 +80,7 @@ export default {
     },
     generateAndCopyCurl(state, requestData){
       let cmd = generateCurl(requestData)
-      bus.$emit('clipboard', cmd, true)
+      bus.$emit('clipboard', cmd)
     }
   },
   actions: {
@@ -196,7 +196,7 @@ export default {
         })
     },
     getFlowDetailForCmd ({state, commit}, flowId) {
-      api.getFlowDetail(flowId, true)
+      api.getFlowDetail(flowId)
         .then(response => {
           commit('generateAndCopyCurl', response.data.data.request)
         })
