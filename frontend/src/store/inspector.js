@@ -196,7 +196,7 @@ export default {
         })
     },
     getFlowDetailForCmd ({state, commit}, flowId) {
-      api.getFlowDetailRaw(flowId)
+      api.getFlowDetailOrigin(flowId)
         .then(response => {
           commit('generateAndCopyCurl', response.data.data.request)
         })
