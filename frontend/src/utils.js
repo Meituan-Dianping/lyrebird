@@ -89,7 +89,6 @@ function generateJsonString (data) {
     try{
       res = JSON.stringify(data)
     }catch(e){
-      console.log(e)
       bus.$emit('msg.error', `Generate curl param -d failed: Data type conversion failed`)
     }
   }
