@@ -21,6 +21,7 @@ var configCommitMap = [
 
 var configPreLoad = [
   {'name': 'mock.data.tree.preload', 'commit': 'loadDataMap'},
+  {'name': '', 'commit': 'loadFlowList'},
 ]
 
 export default {
@@ -56,7 +57,7 @@ export default {
           // preload
           if (!state.initialized) {
             for (const config of configPreLoad) {
-              if (response.data.hasOwnProperty(config.name) && response.data[config.name]) {
+              if (!config.name || (response.data.hasOwnProperty(config.name) && response.data[config.name])) {
                 commit('addPreLoadFuncSet', config.commit, { root: true })
                 dispatch(config.commit, { root: true })
               }

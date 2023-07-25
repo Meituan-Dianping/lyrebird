@@ -271,7 +271,7 @@ export default {
     },
     selectedFlowFilter: {
       get () {
-        return this.$store.state.inspector.selectedFlowFilter.name
+        return this.$store.state.inspector.selectedFlowFilter
       },
       set (val) {
         this.$store.commit('setSelectedFlowFilter', val)
