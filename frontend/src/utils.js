@@ -35,17 +35,17 @@ export const timestampToDatetime = (timeStamp) => {
 }
 
 export const generateCurl = (requestData) => {
+  console.log(requestData)
   let contentType = requestData['headers']['Content-Type'] || ''
-  let curl = ['curl']
+  let curl = ['curl ' + generateCurlUrl(requestData['url'])]
   curl = curl.concat(generateCurlMethod(requestData['method']))
   curl = curl.concat(generateCurlHeader(requestData['headers']))
   curl = curl.concat(generateCurlData(requestData['data'], contentType))
-  curl = curl.concat(generateCurlUrl(requestData['url']))
-  return curl.join(' ')
+  return curl.join(' \\\n  ')
 }
 
 function generateCurlUrl (url) {
-  return url
+  return `-g \"${url}\"`
 }
 
 function generateCurlMethod (method) {
@@ -54,7 +54,8 @@ function generateCurlMethod (method) {
 
 function generateCurlHeader (headers) {
   let ignoreKey = [
-    'Host'
+    'Host',
+    'Accept-Encoding'
   ]
   let headerStrList = []
   for(let key in headers){
