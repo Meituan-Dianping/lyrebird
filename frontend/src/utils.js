@@ -76,7 +76,7 @@ function generateCurlData (data, dataType) {
   }else if(dataType.includes('application/x-www-form-urlencoded')){
     dataStrList = Object.entries(data).map(([key, value]) => `-d \"${key}=${data[key]}\"`)
   }else{
-    bus.$emit('msg.error', `Generate curl param -d failed: ${dataType} ContentType not support`)
+    dataStrList.push(`--data-raw \'${generateJsonString(data)}\'`)
   }
   return dataStrList
 }
@@ -84,7 +84,7 @@ function generateCurlData (data, dataType) {
 function generateJsonString (data) {
   let res = ''
   if(typeof data === 'string'){
-    return data
+    return data.trim()
   }else{
     try{
       res = JSON.stringify(data)
