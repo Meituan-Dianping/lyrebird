@@ -76,7 +76,7 @@ function generateCurlData (data, dataType) {
   }else if(dataType.includes('application/x-www-form-urlencoded')){
     dataStrList = Object.entries(data).map(([key, value]) => `-d \"${key}=${data[key]}\"`)
   }else{
-    dataStrList.push(`--data-raw \'${generateJsonString(data)}\'`)
+    bus.$emit('msg.error', `Generate curl param -d failed: ${dataType} ContentType not support`)
   }
   return dataStrList
 }
