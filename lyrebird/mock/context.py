@@ -115,6 +115,18 @@ class Application:
         with codecs.open(DEFAULT_CONF, 'w', 'utf-8') as f:
             f.write(json.dumps(self._conf, ensure_ascii=False, indent=4))
 
+    def get_and_update_selected_filter_by_name(self, filter_name):
+        old_filter = self.selected_filter
+        if not filter_name:
+            self.selected_filter = {}
+        elif not old_filter or filter_name != old_filter['name']:
+            for item in application.filters:
+                if item['name'] == filter_name:
+                    self.selected_filter = item
+                    break
+        app.config['inspector.default_filter'] = filter_name
+        return self.selected_filter
+
 
 """
 SocketIO emit interval
@@ -124,22 +136,7 @@ We need to limit render time
 EMIT_INTERVAL = 0.3
 last_emit_time = {}
 
-
 application = Application()
-
-
-def get_and_update_selected_filter_by_name(filter_name):
-    selected_filter = application.selected_filter
-    if not filter_name:
-        application.selected_filter = {}
-    elif not selected_filter or filter_name != selected_filter['name']:
-        for item in application.filters:
-            if item['name'] == filter_name:
-                application.selected_filter = item
-                break
-    app.config['inspector.default_filter'] = filter_name
-    return application.selected_filter
-
 
 def make_ok_response(**kwargs):
     ok_resp = {
