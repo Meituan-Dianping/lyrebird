@@ -76,7 +76,7 @@ function generateCurlData (data, dataType) {
   }else if(dataType.includes('application/x-www-form-urlencoded')){
     dataStrList = Object.entries(data).map(([key, value]) => `-d \"${key}=${data[key]}\"`)
   }else{
-    bus.$emit('msg.error', `Generate curl param -d failed: ${dataType} ContentType not support`)
+    bus.$emit('msg.error', `Generate curl param -d failed: Lyrebird doesn't support ContentType of ${dataType}`)
   }
   return dataStrList
 }
