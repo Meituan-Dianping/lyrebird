@@ -35,7 +35,6 @@ export const timestampToDatetime = (timeStamp) => {
 }
 
 export const generateCurl = (requestData) => {
-  console.log(requestData)
   let contentType = requestData['headers']['Content-Type'] || ''
   let curl = ['curl ' + generateCurlUrl(requestData['url'])]
   curl = curl.concat(generateCurlMethod(requestData['method']))
@@ -66,17 +65,33 @@ function generateCurlHeader (headers) {
 }
 
 function generateCurlData (data, dataType) {
+  if(typeof data === 'undefined' || !data){
+    return []
+  }
   let dataStrList = []
   if(!dataType){
-    bus.$emit('msg.warrning', 'Generate curl param -d failed: Unknown ContentType')
-  }else if(dataType == 'application/json'){
-    dataStrList.push(`-d \'${JSON.stringify(data)}\'`)
-  }else if(dataType == 'application/x-www-form-urlencoded'){
-    for(let key in data){
-      dataStrList.push(`-d \"${key}=${data[key]}\"`)
-    }
+    dataStrList.push(`--data-raw \'${generateJsonString(data)}\'`)
+  }else if(dataType.includes('application/json')){
+    dataStrList.push(`-d \'${generateJsonString(data)}\'`)
+  }else if(dataType.includes('application/x-www-form-urlencoded')){
+    dataStrList = Object.entries(data).map(([key, value]) => `-d \"${key}=${data[key]}\"`)
   }else{
     bus.$emit('msg.error', `Generate curl param -d failed: ${dataType} ContentType not support`)
   }
   return dataStrList
+}
+
+function generateJsonString (data) {
+  let res = ''
+  if(typeof data === 'string'){
+    return data
+  }else{
+    try{
+      res = JSON.stringify(data)
+    }catch(e){
+      console.log(e)
+      bus.$emit('msg.error', `Generate curl param -d failed: Data type conversion failed`)
+    }
+  }
+  return res
 }
