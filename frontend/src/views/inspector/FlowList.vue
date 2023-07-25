@@ -121,7 +121,7 @@
                   </v-btn>
                 </span>
               </template>
-              Copy as Curl
+              Copy as curl
             </v-tooltip>
           </span>
 
