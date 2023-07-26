@@ -15,7 +15,7 @@ export default {
     diffMode: 'normal',
     isRequestKeepOriginData: false,
     flowFilters: [],
-    selectedFlowFilter: {}
+    selectedFlowFilter: ''
   },
   mutations: {
     setActivitedGroup (state, group) {
@@ -68,15 +68,10 @@ export default {
     },
     setSelectedFlowFilter (state, selectedFlowFilterName) {
       if (selectedFlowFilterName === null) {
-        state.selectedFlowFilter = {}
+        state.selectedFlowFilter = ''
         return
       }
-      for (const filter of state.flowFilters) {
-        if (filter.name === selectedFlowFilterName) {
-          state.selectedFlowFilter = filter
-          return
-        }
-      }
+      state.selectedFlowFilter = selectedFlowFilterName
     },
     generateAndCopyCurl(state, requestData){
       let cmd = generateCurl(requestData)

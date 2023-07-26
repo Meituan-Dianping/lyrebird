@@ -109,8 +109,8 @@ class FlowList(Resource):
                 dm.save_data(flow)
             return application.make_ok_response()
         elif action == 'search':
-            filter_obj = request.json.get('selectedFilter')
-            context.application.selected_filter = filter_obj
+            filter_name = request.json.get('selectedFilter')
+            filter_obj = context.application.get_and_update_selected_filter_by_name(filter_name)
             req_list = get_flow_list_by_filter(filter_obj)
             return Response(json.dumps(req_list, ensure_ascii=False), mimetype='application/json', status=200)
         else:
