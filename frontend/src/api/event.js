@@ -23,7 +23,8 @@ const addPage = (url, options) => {
 
 const addSearchStr = (url, options) => {
   if (options.searchStr && options.searchStr.trim()) {
-    url += '/search/' + options.searchStr.trim().split(/\s+/).join('+')
+    var searchStr = options.searchStr.trim().split(/\s+/).join('+')
+    url += '/search?q=' + encodeURIComponent(searchStr)
   }
   return url
 }

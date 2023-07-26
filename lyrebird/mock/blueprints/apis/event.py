@@ -11,6 +11,8 @@ PAGE_SIZE = 20
 class Event(Resource):
 
     def get(self, channel=None, page=0, event_id=None, search_str=''):
+        if request.args.get('q'):
+            search_str = request.args.get('q')
         db = application.server['db']
         channel_rules = []
         if channel:
