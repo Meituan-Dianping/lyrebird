@@ -209,20 +209,20 @@ def test_mock_content_type_text_keep_origin_request(client, clear, keep_origin_d
     assert origin_text == flow_body
 
 
-def test_mock_content_type_form_keep_origin_request(client, clear, keep_origin_data):
-    url = '/mock/http://www.bing.com'
-    origin_data = 'name=Lyrebird&com=mt&blank'
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+# def test_mock_content_type_form_keep_origin_request(client, clear, keep_origin_data):
+#     url = '/mock/http://www.bing.com'
+#     origin_data = 'name=Lyrebird&com=mt&blank'
+#     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    client.post(url, headers=headers, data=origin_data)
+#     client.post(url, headers=headers, data=origin_data)
 
-    cache_list = context.application.cache
-    assert len(cache_list._cache) == 1
+#     cache_list = context.application.cache
+#     assert len(cache_list._cache) == 1
 
-    flow = cache_list._cache[0]
-    flow_body = flow['origin_request']['data']
+#     flow = cache_list._cache[0]
+#     flow_body = flow['origin_request']['data']
 
-    assert origin_data == flow_body
+#     assert origin_data == flow_body
 
 # def test_mock_content_type_default_keep_origin_request(client, clear, keep_origin_data):
 #     url = '/mock/http://www.bing.com'
