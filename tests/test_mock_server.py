@@ -224,19 +224,19 @@ def test_mock_content_type_form_keep_origin_request(client, clear, keep_origin_d
 
     assert origin_data == flow_body
 
-# def test_mock_content_type_default_keep_origin_request(client, clear, keep_origin_data):
-#     url = '/mock/http://www.bing.com'
-#     origin_data = b'Lyrebird'
-#     headers = {'Content-Type': 'image/png'}
+def test_mock_content_type_default_keep_origin_request(client, clear, keep_origin_data):
+    url = '/mock/http://www.bing.com'
+    origin_data = b'Lyrebird'
+    headers = {'Content-Type': 'image/png'}
 
-#     client.post(url, headers=headers, data=origin_data)
+    client.post(url, headers=headers, data=origin_data)
 
-#     cache_list = context.application.cache
-#     assert len(cache_list._cache) == 1
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
 
-#     flow = cache_list._cache[0]
-#     flow_body = flow['origin_request']['data']
+    flow = cache_list._cache[0]
+    flow_body = flow['origin_request']['data']
 
-#     flow_body_a2b = binascii.a2b_base64(flow_body.encode())
+    flow_body_a2b = binascii.a2b_base64(flow_body.encode())
 
-#     assert origin_data == flow_body_a2b
+    assert origin_data == flow_body_a2b
