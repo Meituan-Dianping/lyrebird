@@ -1,3 +1,5 @@
+import { bus } from '@/eventbus'
+
 export const readablizeBytes = (bytes) => {
   if(bytes===0){
       return '0 B'
@@ -30,4 +32,65 @@ export const timestampToDatetime = (timeStamp) => {
   let minute = (dateObj.getMinutes() < 10 ? '0'+dateObj.getMinutes() : dateObj.getMinutes())
   let second = (dateObj.getSeconds() < 10 ? '0'+dateObj.getSeconds() : dateObj.getSeconds())
   return month + '/' + date + ' ' + hour + ':' + minute + ':' + second
+}
+
+export const generateCurl = (requestData) => {
+  let contentType = requestData['headers']['Content-Type'] || ''
+  let curl = ['curl ' + generateCurlUrl(requestData['url'])]
+  curl = curl.concat(generateCurlMethod(requestData['method']))
+  curl = curl.concat(generateCurlHeader(requestData['headers']))
+  curl = curl.concat(generateCurlData(requestData['data'], contentType))
+  return curl.join(' \\\n  ')
+}
+
+function generateCurlUrl (url) {
+  return `-g \"${url}\"`
+}
+
+function generateCurlMethod (method) {
+  return ['-X '+method]
+}
+
+function generateCurlHeader (headers) {
+  let ignoreKey = [
+    'Host',
+    'Accept-Encoding'
+  ]
+  let headerStrList = []
+  for(let key in headers){
+    if(!ignoreKey.includes(key))
+      headerStrList.push(`-H \"${key}:${headers[key]}\"`)
+  }
+  return headerStrList
+}
+
+function generateCurlData (data, dataType) {
+  if(typeof data === 'undefined' || !data){
+    return []
+  }
+  let dataStrList = []
+  if(!dataType){
+    dataStrList.push(`--data-raw \'${generateJsonString(data)}\'`)
+  }else if(dataType.includes('application/json')){
+    dataStrList.push(`-d \'${generateJsonString(data)}\'`)
+  }else if(dataType.includes('application/x-www-form-urlencoded')){
+    dataStrList = Object.entries(data).map(([key, value]) => `-d \"${key}=${data[key]}\"`)
+  }else{
+    bus.$emit('msg.error', `Generate curl param -d failed: Lyrebird doesn't support ContentType of ${dataType}`)
+  }
+  return dataStrList
+}
+
+function generateJsonString (data) {
+  let res = ''
+  if(typeof data === 'string'){
+    return data.trim()
+  }else{
+    try{
+      res = JSON.stringify(data)
+    }catch(e){
+      bus.$emit('msg.error', `Generate curl param -d failed: Data type conversion failed`)
+    }
+  }
+  return res
 }

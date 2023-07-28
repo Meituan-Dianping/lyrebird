@@ -1,5 +1,6 @@
 import * as api from '@/api'
 import { bus } from '@/eventbus'
+import {generateCurl} from '@/utils'
 
 export default {
   state: {
@@ -75,6 +76,10 @@ export default {
         return
       }
       state.selectedFlowFilter = selectedFlowFilterName
+    },
+    generateAndCopyCurl(state, requestData){
+      let cmd = generateCurl(requestData)
+      bus.$emit('clipboard', cmd)
     }
   },
   actions: {
@@ -187,6 +192,15 @@ export default {
         })
         .catch(error => {
           bus.$emit('msg.error', 'Delete flow error: ' + error.data.message)
+        })
+    },
+    getFlowDetailForCmd ({state, commit}, flowId) {
+      api.getFlowDetailOrigin(flowId)
+        .then(response => {
+          commit('generateAndCopyCurl', response.data.data.request)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Get flow detail error: ' + error.data.message)
         })
     }
   }

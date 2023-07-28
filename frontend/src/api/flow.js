@@ -7,6 +7,12 @@ export const getFlowDetail = (flowId) => {
   })
 }
 
+export const getFlowDetailOrigin = (flowId) => {
+  return axios({
+    url: '/api/flow/' + flowId + "?is_origin=true"
+  })
+}
+
 export const getFlowList = () => {
   return axios({
     url: '/api/flow'

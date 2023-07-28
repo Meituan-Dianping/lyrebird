@@ -17,11 +17,15 @@ class Flow(Resource):
 
     def get(self, id):
         is_decode = request.args.get('is_decode', 'false').strip().lower() == 'true'
+        is_origin = request.args.get('is_origin', 'false').strip().lower() == 'true'
         for item in context.application.cache.items():
             if item['id'] == id:
                 # Import decoder for decoding the requested content
                 display_item = {}
-                application.encoders_decoders.decoder_handler(item, output=display_item)
+                if is_origin:
+                    display_item.update(item)
+                else:
+                    application.encoders_decoders.decoder_handler(item, output=display_item)
                 if is_decode:
                     display_item['request'] = deepcopy(display_item['request'])
                     for key in ('url', 'path', 'query'):

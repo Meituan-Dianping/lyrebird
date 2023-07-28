@@ -87,6 +87,7 @@ export default {
     this.$bus.$off('msg.info', this.infoMessage)
     this.$bus.$off('msg.error', this.errorMessage)
     this.$bus.$off('msg.destroy', this.destroyMessage)
+    this.$bus.$off('clipboard', this.copyToClipboard)
   },
   created() {
     this.$bus.$on('msg.success', this.successMessage)
@@ -94,6 +95,7 @@ export default {
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
     this.$bus.$on('msg.destroy', this.destroyMessage)
+    this.$bus.$on('clipboard', this.copyToClipboard)
     this.$io.on('statusBarUpdate', this.loadAllStatusList)
     this.$io.on('datamanagerUpdate', this.loadDataMap)
     this.$io.on('msgSuccess', this.successMessage)
@@ -198,6 +200,13 @@ export default {
     destroyMessage() {
       this.$Message.destroy()
     },
+    copyToClipboard(text) {
+      this.$copyText(text).then(e => {
+        this.$bus.$emit('msg.success', 'Copy Success')
+      }, e => {
+        this.$bus.$emit('msg.error', 'Copy Failed')
+      })
+    }
   },
 }
 </script>
