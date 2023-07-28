@@ -528,6 +528,5 @@ export default {
   display: inline-block;
   overflow: hidden;
   cursor: pointer;
-  margin-bottom: 2px;
 }
 </style>
