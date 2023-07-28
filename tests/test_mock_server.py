@@ -237,8 +237,8 @@ def test_mock_content_type_default_keep_origin_request(client, clear, keep_origi
     flow = cache_list._cache[0]
     flow_body = flow['origin_request']['data']
 
-    assert len(cache_list._cache) == 1
+    flow_body_a2b = binascii.a2b_base64(flow_body.encode())
 
-    # flow_body_a2b = binascii.a2b_base64(flow_body.encode())
+    assert len(cache_list._cache) == 1
 
     # assert origin_data == flow_body_a2b
