@@ -226,7 +226,7 @@ def test_mock_content_type_form_keep_origin_request(client, clear, keep_origin_d
 
 def test_mock_content_type_default_keep_origin_request(client, clear, keep_origin_data):
     url = '/mock/http://www.bing.com'
-    origin_data = b'lyrebird'
+    origin_data = b'Lyrebird'
     headers = {'Content-Type': 'image/png'}
 
     client.post(url, headers=headers, data=origin_data)
