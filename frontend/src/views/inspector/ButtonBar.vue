@@ -147,6 +147,17 @@
               <v-list-item-subtitle>Keep origin request body</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
+
+          <v-list-item>
+            <v-list-item-action>
+              <v-switch v-model="isSsrMockInBody"/>
+            </v-list-item-action>
+
+            <v-list-item-content>
+              <v-list-item-title>Open SSR</v-list-item-title>
+              <v-list-item-subtitle>Put mock data in request body instead of response data</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
         </v-list>
 
       </v-menu>
@@ -215,6 +226,18 @@ export default {
       set (val) {
         this.$store.dispatch('commitAndupdateConfigByKey', {
           'command': 'setIsRequestKeepOriginData',
+          'isShowMessage': true,
+          val
+        })
+      }
+    },
+    isSsrMockInBody: {
+      get () {
+        return this.$store.state.inspector.isSsrMockInBody
+      },
+      set (val) {
+        this.$store.dispatch('commitAndupdateConfigByKey', {
+          'command': 'setIsSsrMockInBody',
           'isShowMessage': true,
           val
         })

@@ -13,6 +13,7 @@ export default {
     recordMode: '',
     diffMode: 'normal',
     isRequestKeepOriginData: false,
+    isSsrMockInBody: false,
     flowFilters: [],
     selectedFlowFilter: ''
   },
@@ -61,6 +62,9 @@ export default {
     },
     setIsRequestKeepOriginData (state, isRequestKeepOriginData) {
       state.isRequestKeepOriginData = isRequestKeepOriginData
+    },
+    setIsSsrMockInBody (state, isSsrMockInBody) {
+      state.isSsrMockInBody = isSsrMockInBody
     },
     setFlowFilters (state, flowFilters) {
       state.flowFilters = flowFilters
