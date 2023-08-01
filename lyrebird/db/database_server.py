@@ -1,3 +1,4 @@
+import sys
 import json
 import math
 import datetime
@@ -35,8 +36,11 @@ class LyrebirdDatabaseServer(ThreadServer):
         self.database_uri = None
         super().__init__()
 
+        ROOT_DIR = application.root_dir()
+        DATABASE_STATE_FILE_NAME = 'database_broken'
+        self.database_state_file_path = ROOT_DIR/DATABASE_STATE_FILE_NAME
+
         if not path or path.isspace():
-            ROOT_DIR = application.root_dir()
             DEFAULT_NAME = 'lyrebird.db'
             self.database_uri = ROOT_DIR/DEFAULT_NAME
         else:
@@ -90,8 +94,23 @@ class LyrebirdDatabaseServer(ThreadServer):
         # https://www.sqlite.org/pragma.html
         event.listen(engine, 'connect', self._fk_pragma_on_connect)
 
+        # Get the state of whether the database file is broken
+        database_broken = self._read_database_state(self.database_state_file_path)
+        if database_broken:
+            self.database_uri.unlink()
+
         # Create all tables
-        Base.metadata.create_all(engine)
+        try:
+            Base.metadata.create_all(engine)
+            self._write_database_state(self.database_state_file_path, False)
+        except Exception as e:
+            self._write_database_state(self.database_state_file_path, True)
+            logger.error("检测到lyrebird数据库损坏，当前启动已停止，请重新启动。")
+            logger.warning("重新启动将默认删除原数据库，inspector中历史请求数据将丢失，请谨慎操作。")
+            sys.exit(1)
+        
+        # Ba
+        # se.metadata.create_all(engine)
         # Create session factory
         session_factory = sessionmaker(bind=engine)
         Session = scoped_session(session_factory)
@@ -99,6 +118,16 @@ class LyrebirdDatabaseServer(ThreadServer):
         self.auto_alter_tables(engine=engine)
 
         logger.info(f'Init DB engine: {self.database_uri}')
+    
+    def _read_database_state(self, file_path):
+        if not file_path.exists():
+            self._write_database_state(file_path=file_path, data=False)
+        with file_path.open('r') as f:
+            return json.load(f)
+    
+    def _write_database_state(self, file_path, data):
+        with file_path.open('w') as f:
+            f.write(json.dumps(data, ensure_ascii=False))
 
     def _fk_pragma_on_connect(self, dbapi_con, con_record):
         # https://www.sqlite.org/pragma.html#pragma_journal_mode
