@@ -96,17 +96,18 @@ class LyrebirdDatabaseServer(ThreadServer):
 
         # Get the state of whether the database file is broken
         database_broken = self._read_database_state(self.database_state_file_path)
-        if database_broken:
+        if database_broken == str(self.database_uri):
             self.database_uri.unlink()
+            logger.info("损坏的数据库已删除。")
 
         # Create all tables
         try:
             Base.metadata.create_all(engine)
             self._write_database_state(self.database_state_file_path, False)
         except Exception as e:
-            self._write_database_state(self.database_state_file_path, True)
+            self._write_database_state(self.database_state_file_path, str(self.database_uri))
             logger.error("检测到lyrebird数据库损坏，当前启动已停止，请重新启动。")
-            logger.warning("重新启动将默认删除原数据库，inspector中历史请求数据将丢失，请谨慎操作。")
+            logger.warning("重新启动将默认删除该损坏的数据库，inspector中历史请求数据将丢失，请谨慎操作。")
             sys.exit(1)
         
         # Ba
