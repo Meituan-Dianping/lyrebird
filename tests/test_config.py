@@ -1,5 +1,6 @@
 import pytest
-from lyrebird import config
+from lyrebird import config, application, reporter
+from lyrebird.task import BackgroundTaskServer
 from pathlib import Path
 import json
 import codecs
@@ -18,6 +19,14 @@ conf = {
         "port": "MKOriginPort"
     }
 }
+
+@pytest.fixture
+def cm():
+    cm = config.ConfigManager()
+    application.server['task'] = BackgroundTaskServer()
+    application.reporter = reporter.Reporter()
+    reporter.start()
+    yield cm
 
 
 def test_create(tmpdir):
@@ -48,8 +57,7 @@ def test_create_multiple_config(tmpdir):
     assert cm.config['key_diff'] == 'val_diff'
 
 
-def test_override_config_with_forbidden_modify_field():
-    cm = config.ConfigManager()
+def test_override_config_with_forbidden_modify_field(cm):
     cm.config = conf
 
     update_conf = {'version': '1.0.0', 'key1': 'value1'}
@@ -60,22 +68,19 @@ def test_override_config_with_forbidden_modify_field():
     assert 'Config field cannot be modified' in exec_msg
 
 
-def test_override_config_with_none():
-    cm = config.ConfigManager()
+def test_override_config_with_none(cm):
     cm.config = copy.deepcopy(conf)
     cm.override_config_field(None)
     assert cm.config == conf
 
 
-def test_override_config_with_empty_dict():
-    cm = config.ConfigManager()
+def test_override_config_with_empty_dict(cm):
     cm.config = copy.deepcopy(conf)
     cm.override_config_field({})
     assert cm.config == conf
 
 
-def test_override_config_with_normal():
-    cm = config.ConfigManager()
+def test_override_config_with_normal(cm):
     cm.config = copy.deepcopy(conf)
     cm.override_config_field({'key1': 'value1'})
     assert cm.config.get('key1') == 'value1'
