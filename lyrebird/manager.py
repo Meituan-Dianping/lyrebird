@@ -189,6 +189,8 @@ def run(args: argparse.Namespace):
 
     application.server['extra.mock'] = ExtraMockServer()
     application.server['db'] = LyrebirdDatabaseServer(path=args.database)
+    if not hasattr(application.server['db'], 'session'):
+        return
     application.server['plugin'] = PluginManager()
     application.server['checker'] = LyrebirdCheckerServer()
 

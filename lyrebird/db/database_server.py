@@ -46,7 +46,10 @@ class LyrebirdDatabaseServer(ThreadServer):
         else:
             self.database_uri = Path(path).expanduser().absolute()
 
-        self.init_engine()
+        init_engine_success = self.init_engine()
+        if not init_engine_success:
+            logger.error("Lyrebird database has been broken! Current startup has been stopped, please restart.")
+            logger.warning("Restarting will delete the broken database by default, historical request data in inspector will be lost, please be careful.")
 
         # init queue
         self.storage_queue = Queue()
@@ -98,7 +101,7 @@ class LyrebirdDatabaseServer(ThreadServer):
         database_broken = self._read_database_state(self.database_state_file_path)
         if database_broken == str(self.database_uri):
             self.database_uri.unlink()
-            logger.info("损坏的数据库已删除。")
+            logger.info("The broken database has been deleted.")
 
         # Create all tables
         try:
@@ -106,9 +109,7 @@ class LyrebirdDatabaseServer(ThreadServer):
             self._write_database_state(self.database_state_file_path, False)
         except Exception as e:
             self._write_database_state(self.database_state_file_path, str(self.database_uri))
-            logger.error("检测到lyrebird数据库损坏，当前启动已停止，请重新启动。")
-            logger.warning("重新启动将默认删除该损坏的数据库，inspector中历史请求数据将丢失，请谨慎操作。")
-            sys.exit(1)
+            return False
         
         # Ba
         # se.metadata.create_all(engine)
@@ -119,6 +120,7 @@ class LyrebirdDatabaseServer(ThreadServer):
         self.auto_alter_tables(engine=engine)
 
         logger.info(f'Init DB engine: {self.database_uri}')
+        return True
     
     def _read_database_state(self, file_path):
         if not file_path.exists():
