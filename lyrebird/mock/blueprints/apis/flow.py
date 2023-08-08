@@ -6,7 +6,7 @@ from lyrebird.event_filter import Filter
 from urllib.parse import urlencode, unquote
 from flask import request, Response
 from copy import deepcopy
-from lyrebird.utils import url_decode
+from lyrebird.utils import url_decode, get_default_from_config_and_param
 import json
 
 
@@ -16,8 +16,8 @@ class Flow(Resource):
     """
 
     def get(self, id):
-        is_decode = request.args.get('is_decode', 'false').strip().lower() == 'true'
-        is_origin = request.args.get('is_origin', 'false').strip().lower() == 'true'
+        is_decode = get_default_from_config_and_param('lyrebird_api_flow_detail_is_decode', request.args.get('is_decode'), 'str').strip().lower() == 'true'
+        is_origin = get_default_from_config_and_param('lyrebird_api_flow_detail_is_origin', request.args.get('is_origin'), 'str').strip().lower() == 'true'
         for item in context.application.cache.items():
             if item['id'] == id:
                 # Import decoder for decoding the requested content
