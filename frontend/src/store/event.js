@@ -59,6 +59,9 @@ export default {
         if (response.data.code !== 1000) {
           return
         }
+        if (response.data.channel.toString() !== state.channelFilters.toString()) {
+          return
+        }
         let events = response.data.events
         if (eventId) {
           let eventIndex = events.findIndex(e => e.event_id === eventId)
