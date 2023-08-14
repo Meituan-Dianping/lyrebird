@@ -110,8 +110,6 @@ class LyrebirdDatabaseServer(ThreadServer):
             self._write_database_state(self.database_state_file_path, str(self.database_uri))
             return False
         
-        # Ba
-        # se.metadata.create_all(engine)
         # Create session factory
         session_factory = sessionmaker(bind=engine)
         Session = scoped_session(session_factory)
