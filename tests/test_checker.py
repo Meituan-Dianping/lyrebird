@@ -1,7 +1,10 @@
 import pytest
+from copy import deepcopy
 from lyrebird.event import EventServer
 from lyrebird import application
 from lyrebird.checker import LyrebirdCheckerServer
+from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
+
 
 CHECKER_A_FILENAME = "checker_a.py"
 CHECKER_B_FILENAME = "checker_b.py"
@@ -11,6 +14,14 @@ CHECKER_B_SWITCH = False
 CHECKER_C_SWITCH = True
 
 CONTENT = u"from lyrebird import event\n@event('flow')\ndef test_func():\n\tpass"
+
+FLOW_DATA = {
+        "request": {
+            "url": "http://www.meituan.com",
+            "data": ""
+        }
+    }
+
 
 @pytest.fixture
 def checker_init(tmp_path, tmpdir):
@@ -218,3 +229,163 @@ def test_wrtie_inactivated_checker(event_server, checker_server):
 
     checker_b_info = application.checkers[CHECKER_B_FILENAME].json()
     assert checker_b_info.get('activated') == CHECKER_B_SWITCH
+
+
+def test_encoder_handler_match_and_no_output(event_server, checker_server):
+    new_content = u'''
+from lyrebird import encoder, decoder
+
+@encoder(rules={'request.url': ''})
+def test_func(flow):
+    flow['request']['data'] = "encode"
+    '''
+    flow = deepcopy(FLOW_DATA)
+    application.checkers[CHECKER_C_FILENAME].write(new_content)
+    application.encoders_decoders = EncoderDecoder()
+    application.encoders_decoders.encoder_handler(flow)
+    assert flow['request']['data'] == 'encode'
+    application.checkers[CHECKER_C_FILENAME].deactivate()
+
+
+def test_encoder_handler_not_match_and_no_output(event_server, checker_server):
+    new_content = u'''
+from lyrebird import encoder, decoder
+
+@encoder(rules={'request.url': 'www.bing.com'})
+def test_func(flow):
+    flow['request']['data'] = "encode"
+    '''
+    flow = deepcopy(FLOW_DATA)
+    application.checkers[CHECKER_C_FILENAME].write(new_content)
+    application.encoders_decoders = EncoderDecoder()
+    application.encoders_decoders.encoder_handler(flow)
+    assert flow['request']['data'] == ''
+    application.checkers[CHECKER_C_FILENAME].deactivate()
+
+
+def test_encoder_handler_match_and_exist_output(event_server, checker_server):
+    new_content = u'''
+from lyrebird import encoder, decoder
+
+@encoder(rules={'request.url': ''})
+def test_func(flow):
+    flow['request']['data'] = "encode"
+    '''
+    flow = deepcopy(FLOW_DATA)
+    output = {}
+    application.checkers[CHECKER_C_FILENAME].write(new_content)
+    application.encoders_decoders = EncoderDecoder()
+    application.encoders_decoders.encoder_handler(flow, output)
+    assert flow['request']['data'] == ''
+    assert output['request']['data'] == 'encode'
+    output['request']['data'] == 'test'
+    assert flow['request']['data'] == ''
+    application.checkers[CHECKER_C_FILENAME].deactivate()
+
+
+def test_encoder_handler_not_match_and_exist_output(event_server, checker_server):
+    new_content = u'''
+from lyrebird import encoder, decoder
+
+@encoder(rules={'request.url': 'www.bing.com'})
+def test_func(flow):
+    flow['request']['data'] = "encode"
+    '''
+    flow = deepcopy(FLOW_DATA)
+    output = {}
+    application.checkers[CHECKER_C_FILENAME].write(new_content)
+    application.encoders_decoders = EncoderDecoder()
+    application.encoders_decoders.encoder_handler(flow, output)
+    assert flow['request']['data'] == ''
+    assert output['request']['data'] == ''
+    output['request']['data'] == 'test'
+    assert flow['request']['data'] == ''
+    application.checkers[CHECKER_C_FILENAME].deactivate()
+
+
+def test_decoder_handler(event_server, checker_server):
+    new_content = u'''
+from lyrebird import encoder, decoder
+
+@decoder(rules={'request.url': ''})
+def test_func(flow):
+    flow['request']['data'] = "decode"
+    '''
+    flow =  deepcopy(FLOW_DATA)
+    application.checkers[CHECKER_C_FILENAME].write(new_content)
+    application.encoders_decoders = EncoderDecoder()
+    application.encoders_decoders.decoder_handler(flow)
+    assert flow['request']['data'] == 'decode'
+    application.checkers[CHECKER_C_FILENAME].deactivate()
+
+
+def test_decoder_handler_match_and_no_output(event_server, checker_server):
+    new_content = u'''
+from lyrebird import encoder, decoder
+
+@decoder(rules={'request.url': ''})
+def test_func(flow):
+    flow['request']['data'] = "decoder"
+    '''
+    flow = deepcopy(FLOW_DATA)
+    application.checkers[CHECKER_C_FILENAME].write(new_content)
+    application.encoders_decoders = EncoderDecoder()
+    application.encoders_decoders.decoder_handler(flow)
+    assert flow['request']['data'] == 'decoder'
+    application.checkers[CHECKER_C_FILENAME].deactivate()
+
+
+def test_decoder_handler_not_match_and_no_output(event_server, checker_server):
+    new_content = u'''
+from lyrebird import encoder, decoder
+
+@decoder(rules={'request.url': 'www.bing.com'})
+def test_func(flow):
+    flow['request']['data'] = "decoder"
+    '''
+    flow = deepcopy(FLOW_DATA)
+    application.checkers[CHECKER_C_FILENAME].write(new_content)
+    application.encoders_decoders = EncoderDecoder()
+    application.encoders_decoders.decoder_handler(flow)
+    assert flow['request']['data'] == ''
+    application.checkers[CHECKER_C_FILENAME].deactivate()
+
+
+def test_decoder_handler_match_and_exist_output(event_server, checker_server):
+    new_content = u'''
+from lyrebird import encoder, decoder
+
+@decoder(rules={'request.url': ''})
+def test_func(flow):
+    flow['request']['data'] = "decoder"
+    '''
+    flow = deepcopy(FLOW_DATA)
+    output = {}
+    application.checkers[CHECKER_C_FILENAME].write(new_content)
+    application.encoders_decoders = EncoderDecoder()
+    application.encoders_decoders.decoder_handler(flow, output)
+    assert flow['request']['data'] == ''
+    assert output['request']['data'] == 'decoder'
+    output['request']['data'] == 'test'
+    assert flow['request']['data'] == ''
+    application.checkers[CHECKER_C_FILENAME].deactivate()
+
+
+def test_decoder_handler_not_match_and_exist_output(event_server, checker_server):
+    new_content = u'''
+from lyrebird import encoder, decoder
+
+@decoder(rules={'request.url': 'www.bing.com'})
+def test_func(flow):
+    flow['request']['data'] = "decoder"
+    '''
+    flow = deepcopy(FLOW_DATA)
+    output = {}
+    application.checkers[CHECKER_C_FILENAME].write(new_content)
+    application.encoders_decoders = EncoderDecoder()
+    application.encoders_decoders.decoder_handler(flow, output)
+    assert flow['request']['data'] == ''
+    assert output['request']['data'] == ''
+    output['request']['data'] == 'test'
+    assert flow['request']['data'] == ''
+    application.checkers[CHECKER_C_FILENAME].deactivate()
