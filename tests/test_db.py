@@ -6,6 +6,7 @@ import lyrebird
 from lyrebird import reporter, application
 from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
+from lyrebird.config import PersonalConfigManager
 from lyrebird.db.database_server import LyrebirdDatabaseServer
 
 
@@ -26,6 +27,7 @@ def event_server(tmpdir):
         'mock.port': 9090
     }
     application._cm = MockConfigManager(config=_conf, ROOT=Path(tmpdir), root=Path(tmpdir))
+    PersonalConfigManager(root_dir=application.root_dir())
     lyrebird.mock.context.application.socket_io = FakeSocketio()
     server = EventServer()
     server.start()

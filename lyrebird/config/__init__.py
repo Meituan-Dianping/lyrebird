@@ -240,13 +240,16 @@ class ConfigException(Exception):
 
 
 class PersonalConfigManager():
-    ROOT = Path('~/.lyrebird').expanduser()
-    DEFAULT_FILENAME = 'personal_conf.json'
-    PERSONAL_CONFIG = ROOT / DEFAULT_FILENAME
-    
-    def __init__(self):
+    def __init__(self, root_dir=None):
+        if root_dir:
+            ROOT = root_dir
+        else:
+            ROOT = Path('~/.lyrebird').expanduser()
+        DEFAULT_FILENAME = 'personal_conf.json'
+        PERSONAL_CONFIG = ROOT / DEFAULT_FILENAME
+
         self.personal_conf_init = personal_config_template
-        self.personal_conf_file = self.PERSONAL_CONFIG
+        self.personal_conf_file = PERSONAL_CONFIG
         
         if not self.personal_conf_file.exists():
             self.write_config(self.personal_conf_init)
