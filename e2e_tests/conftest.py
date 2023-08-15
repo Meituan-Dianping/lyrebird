@@ -46,6 +46,8 @@ class MockServer:
         self.port = 5000
         self.api_status = f'http://127.0.0.1:{self.port}/status'
         self.api_post = f'http://127.0.0.1:{self.port}/e2e_serve'
+        self.api_param = f'http://127.0.0.1:{self.port}/test_param'
+        self.api_encoder_decoder = f'http://127.0.0.1:{self.port}/test_encoder_decoder'
 
     def start(self):
         self.mock_server_process = subprocess.Popen(
@@ -69,7 +71,9 @@ class Lyrebird:
         self.api_status = None
         self.uri_mock = None
         self.uri_extra_mock = None
+        self.encoder_decoder_path = None
         self._init_port()
+        self._init_encoder_decoder()
 
     def _init_port(self):
         self.port = self._find_free_port()
@@ -78,6 +82,10 @@ class Lyrebird:
         self.api_status = f'http://127.0.0.1:{self.port}/api/status'
         self.uri_mock = f'http://127.0.0.1:{self.port}/mock/'
         self.uri_extra_mock = f'http://127.0.0.1:{self.extra_mock_port}/'
+        self.uri_flow = f'http://127.0.0.1:{self.port}/api/flow'
+
+    def _init_encoder_decoder(self):
+        self.encoder_decoder_path = os.path.abspath(os.path.dirname(__file__)) + '/assets/encoder_decoder.py'
 
     def _find_free_port(self):
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
@@ -87,7 +95,7 @@ class Lyrebird:
 
     def start(self, checker_path=None):
 
-        cmdline = f'python3 -m lyrebird -b -v --no-mitm --mock {self.port} --extra-mock {self.extra_mock_port}'
+        cmdline = f'python3 -m lyrebird -b -v --no-mitm --mock {self.port} --extra-mock {self.extra_mock_port} --script {self.encoder_decoder_path}'
         if checker_path:
             cmdline = cmdline + f' --script {checker_path}'
         self.lyrebird_process = subprocess.Popen(cmdline, shell=True, start_new_session=True)
