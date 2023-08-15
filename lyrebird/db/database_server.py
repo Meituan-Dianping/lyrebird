@@ -36,19 +36,27 @@ class LyrebirdDatabaseServer(ThreadServer):
         super().__init__()
 
         ROOT_DIR = application.root_dir()
-        DATABASE_STATE_FILE_NAME = 'database_broken'
-        self.database_state_file_path = ROOT_DIR/DATABASE_STATE_FILE_NAME
+        DEFAULT_CONF_NAME = 'personal_conf.json'
+        self.personal_conf_file = ROOT_DIR/DEFAULT_CONF_NAME
+        self.personal_conf = self._read_file(self.personal_conf_file)
 
         if not path or path.isspace():
-            DEFAULT_NAME = 'lyrebird.db'
-            self.database_uri = ROOT_DIR/DEFAULT_NAME
+            DEFAULT_DB_NAME = 'lyrebird.db'
+            self.database_uri = ROOT_DIR/DEFAULT_DB_NAME
         else:
             self.database_uri = Path(path).expanduser().absolute()
+        
+        # Check whether the current database is broken
+        if str(self.database_uri) in self.personal_conf["event.broken_database_path_list"]:
+            self.database_uri.unlink()
+            self.personal_conf["event.broken_database_path_list"].remove(str(self.database_uri))
+            self._write_file(self.personal_conf_file, self.personal_conf)
+            logger.info("The broken database has been deleted.")
 
         init_engine_success = self.init_engine()
         if not init_engine_success:
-            logger.error("Lyrebird database has been broken! Current startup has been stopped, please restart.")
-            logger.warning("Restarting will delete the broken database by default, historical request data in inspector will be lost, please be careful.")
+            logger.error("Lyrebird database has been broken! Current startup has been stopped, please restart Lyrebird.")
+            logger.warning("Restarting will delete the broken database by default, historical events in inspector-pro will be lost, please be careful.")
 
         # init queue
         self.storage_queue = Queue()
@@ -96,18 +104,14 @@ class LyrebirdDatabaseServer(ThreadServer):
         # https://www.sqlite.org/pragma.html
         event.listen(engine, 'connect', self._fk_pragma_on_connect)
 
-        # Get the state of whether the database file is broken
-        database_broken = self._read_database_state(self.database_state_file_path)
-        if database_broken == str(self.database_uri):
-            self.database_uri.unlink()
-            logger.info("The broken database has been deleted.")
-
         # Create all tables
         try:
             Base.metadata.create_all(engine)
-            self._write_database_state(self.database_state_file_path, False)
-        except Exception as e:
-            self._write_database_state(self.database_state_file_path, str(self.database_uri))
+        except Exception:
+            # sqlalchemy.exc.DatabaseError (sqlite3.DatabaseError)
+            self.personal_conf["event.broken_database_path_list"].append(str(self.database_uri))
+            self._write_file(self.personal_conf_file, self.personal_conf)
+            logger.info(f'{traceback.format_exc()}')
             return False
         
         # Create session factory
@@ -119,15 +123,13 @@ class LyrebirdDatabaseServer(ThreadServer):
         logger.info(f'Init DB engine: {self.database_uri}')
         return True
     
-    def _read_database_state(self, file_path):
-        if not file_path.exists():
-            self._write_database_state(file_path=file_path, data=False)
+    def _read_file(self, file_path):
         with file_path.open('r') as f:
             return json.load(f)
     
-    def _write_database_state(self, file_path, data):
+    def _write_file(self, file_path, data):
         with file_path.open('w') as f:
-            f.write(json.dumps(data, ensure_ascii=False))
+            f.write(json.dumps(data, indent=4, ensure_ascii=False))
 
     def _fk_pragma_on_connect(self, dbapi_con, con_record):
         # https://www.sqlite.org/pragma.html#pragma_journal_mode

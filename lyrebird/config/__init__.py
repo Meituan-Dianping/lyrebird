@@ -33,6 +33,10 @@ CONFIG_FUNC_MAP = {
     'mock.mode': SettingDiffMode
 }
 
+personal_config_template = {
+    "event.broken_database_path_list": []
+}
+
 
 class ConfigManager():
     ROOT = Path('~/.lyrebird').expanduser()
@@ -231,3 +235,20 @@ class Config:
 
 class ConfigException(Exception):
     pass
+
+
+class PersonalConfigManager():
+    ROOT = Path('~/.lyrebird').expanduser()
+    DEFAULT_FILENAME = 'personal_conf.json'
+    PERSONAL_CONFIG = ROOT / DEFAULT_FILENAME
+    
+    def __init__(self):
+        self.personal_conf_init = personal_config_template
+        self.personal_conf_file = self.PERSONAL_CONFIG
+        
+        if not self.personal_conf_file.exists():
+            self.write_config(self.personal_conf_init)
+
+    def write_config(self, data):
+        with codecs.open(self.personal_conf_file, 'w', 'utf-8') as f:
+            f.write(json.dumps(data, indent=4, ensure_ascii=False))
