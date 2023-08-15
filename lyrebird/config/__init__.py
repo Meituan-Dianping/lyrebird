@@ -41,7 +41,9 @@ personal_config_template = {
 class ConfigManager():
     ROOT = Path('~/.lyrebird').expanduser()
     DEFAULT_FILENAME = 'conf.json'
+    DEFAULT_PERSONAL_FILENAME = 'personal_conf.json'
     BASE_CONFIG = ROOT / DEFAULT_FILENAME
+    PERSONAL_CONFIG = ROOT / DEFAULT_PERSONAL_FILENAME
     FORBIDDEN_MODIFY_FIELDS_IN_CONFIG = set(['version', 'proxy.port', 'mock.port'])
 
     def __init__(self, conf_path_list=None, custom_conf=None):
@@ -49,8 +51,12 @@ class ConfigManager():
         self.config_root = self.ROOT
         self.conf_file = self.BASE_CONFIG
         self.config_list = []
+        # Current personal config only supports checking whether lyrebird.db is broken.
+        self.personal_config = personal_config_template
+        self.personal_conf_file = self.PERSONAL_CONFIG
 
         self.update_base_config()
+        self.initialize_personal_config()
         self.read_config()
         if conf_path_list:
             for conf_path in conf_path_list:
@@ -226,6 +232,23 @@ class ConfigManager():
             if key not in CONFIG_FUNC_MAP:
                 continue
             CONFIG_FUNC_MAP[key].remove(value)
+    
+    def initialize_personal_config(self):
+        if not self.personal_conf_file.exists():
+            self.write_personal_config()
+        self.personal_config = self.read_personal_config()
+    
+    def update_personal_config(self, config_dict: dict):
+        self.personal_config = config_dict
+        self.write_personal_config()
+
+    def read_personal_config(self):
+        with codecs.open(self.personal_conf_file, 'r', 'utf-8') as f:
+            return json.load(f)
+
+    def write_personal_config(self):
+        with codecs.open(self.personal_conf_file, 'w', 'utf-8') as f:
+            f.write(json.dumps(self.personal_config, indent=4, ensure_ascii=False))
 
 
 class Config:
@@ -237,23 +260,3 @@ class Config:
 
 class ConfigException(Exception):
     pass
-
-
-class PersonalConfigManager():
-    def __init__(self, root_dir=None):
-        if root_dir:
-            ROOT = root_dir
-        else:
-            ROOT = Path('~/.lyrebird').expanduser()
-        DEFAULT_FILENAME = 'personal_conf.json'
-        PERSONAL_CONFIG = ROOT / DEFAULT_FILENAME
-
-        self.personal_conf_init = personal_config_template
-        self.personal_conf_file = PERSONAL_CONFIG
-        
-        if not self.personal_conf_file.exists():
-            self.write_config(self.personal_conf_init)
-
-    def write_config(self, data):
-        with codecs.open(self.personal_conf_file, 'w', 'utf-8') as f:
-            f.write(json.dumps(data, indent=4, ensure_ascii=False))

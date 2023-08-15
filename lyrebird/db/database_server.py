@@ -33,24 +33,22 @@ Base = declarative_base()
 class LyrebirdDatabaseServer(ThreadServer):
     def __init__(self, path=None):
         self.database_uri = None
+        self.personal_config = application._cm.personal_config
+
         super().__init__()
 
-        ROOT_DIR = application.root_dir()
-        DEFAULT_CONF_NAME = 'personal_conf.json'
-        self.personal_conf_file = ROOT_DIR/DEFAULT_CONF_NAME
-        self.personal_conf = self._read_file(self.personal_conf_file)
-
         if not path or path.isspace():
-            DEFAULT_DB_NAME = 'lyrebird.db'
-            self.database_uri = ROOT_DIR/DEFAULT_DB_NAME
+            ROOT_DIR = application.root_dir()
+            DEFAULT_NAME = 'lyrebird.db'
+            self.database_uri = ROOT_DIR/DEFAULT_NAME
         else:
             self.database_uri = Path(path).expanduser().absolute()
         
         # Check whether the current database is broken
-        if str(self.database_uri) in self.personal_conf["event.broken_database_path_list"]:
+        if str(self.database_uri) in self.personal_config["event.broken_database_path_list"]:
             self.database_uri.unlink()
-            self.personal_conf["event.broken_database_path_list"].remove(str(self.database_uri))
-            self._write_file(self.personal_conf_file, self.personal_conf)
+            self.personal_config["event.broken_database_path_list"].remove(str(self.database_uri))
+            application._cm.update_personal_config(self.personal_config)
             logger.info("The broken database has been deleted.")
 
         init_engine_success = self.init_engine()
@@ -109,8 +107,8 @@ class LyrebirdDatabaseServer(ThreadServer):
             Base.metadata.create_all(engine)
         except Exception:
             # sqlalchemy.exc.DatabaseError (sqlite3.DatabaseError)
-            self.personal_conf["event.broken_database_path_list"].append(str(self.database_uri))
-            self._write_file(self.personal_conf_file, self.personal_conf)
+            self.personal_config["event.broken_database_path_list"].append(str(self.database_uri))
+            application._cm.update_personal_config(self.personal_config)
             logger.info(f'{traceback.format_exc()}')
             return False
         
@@ -122,14 +120,6 @@ class LyrebirdDatabaseServer(ThreadServer):
 
         logger.info(f'Init DB engine: {self.database_uri}')
         return True
-    
-    def _read_file(self, file_path):
-        with file_path.open('r') as f:
-            return json.load(f)
-    
-    def _write_file(self, file_path, data):
-        with file_path.open('w') as f:
-            f.write(json.dumps(data, indent=4, ensure_ascii=False))
 
     def _fk_pragma_on_connect(self, dbapi_con, con_record):
         # https://www.sqlite.org/pragma.html#pragma_journal_mode

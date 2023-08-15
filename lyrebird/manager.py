@@ -13,7 +13,7 @@ from packaging.version import parse as vparse
 
 from lyrebird import application, log, project_builder, reporter, version
 from lyrebird.checker import LyrebirdCheckerServer
-from lyrebird.config import ConfigManager, PersonalConfigManager
+from lyrebird.config import ConfigManager
 from lyrebird.db.database_server import LyrebirdDatabaseServer
 from lyrebird.event import EventServer
 from lyrebird.mock.dm.label import LabelHandler
@@ -94,7 +94,6 @@ def main():
 
     custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else None
     application._cm = ConfigManager(conf_path_list=args.config, custom_conf=custom_conf)
-    PersonalConfigManager()
 
     # init logger for main process
     application._cm.config['verbose'] = args.verbose
