@@ -33,8 +33,6 @@ Base = declarative_base()
 class LyrebirdDatabaseServer(ThreadServer):
     def __init__(self, path=None):
         self.database_uri = None
-        self.personal_config = application._cm.personal_config
-
         super().__init__()
 
         if not path or path.isspace():
@@ -45,10 +43,11 @@ class LyrebirdDatabaseServer(ThreadServer):
             self.database_uri = Path(path).expanduser().absolute()
         
         # Check whether the current database is broken
-        if str(self.database_uri) in self.personal_config["event.broken_database_path_list"]:
+        personal_config = application._cm.personal_config
+        if str(self.database_uri) in personal_config["event.broken_database_path_list"]:
             self.database_uri.unlink()
-            self.personal_config["event.broken_database_path_list"].remove(str(self.database_uri))
-            application._cm.update_personal_config(self.personal_config)
+            personal_config["event.broken_database_path_list"].remove(str(self.database_uri))
+            application._cm.update_personal_config(personal_config)
             logger.info("The broken database has been deleted.")
 
         init_engine_success = self.init_engine()
@@ -107,8 +106,9 @@ class LyrebirdDatabaseServer(ThreadServer):
             Base.metadata.create_all(engine)
         except Exception:
             # sqlalchemy.exc.DatabaseError (sqlite3.DatabaseError)
-            self.personal_config["event.broken_database_path_list"].append(str(self.database_uri))
-            application._cm.update_personal_config(self.personal_config)
+            personal_config = application._cm.personal_config
+            personal_config["event.broken_database_path_list"].append(str(self.database_uri))
+            application._cm.update_personal_config(personal_config)
             logger.info(f'{traceback.format_exc()}')
             return False
         
