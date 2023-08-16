@@ -41,8 +41,19 @@ class LyrebirdDatabaseServer(ThreadServer):
             self.database_uri = ROOT_DIR/DEFAULT_NAME
         else:
             self.database_uri = Path(path).expanduser().absolute()
+        
+        # Check whether the current database is broken
+        personal_config = application._cm.personal_config
+        if str(self.database_uri) in personal_config["event.broken_database_path_list"]:
+            self.database_uri.unlink()
+            personal_config["event.broken_database_path_list"].remove(str(self.database_uri))
+            application._cm.update_personal_config(personal_config)
+            logger.warning(f"The broken DB has been deleted: {self.database_uri}")
 
-        self.init_engine()
+        init_engine_success = self.init_engine()
+        if not init_engine_success:
+            logger.error("Lyrebird database has been broken! Current startup has been stopped, please restart Lyrebird.")
+            logger.warning("Restarting will delete the broken database by default, historical events in inspector-pro will be lost, please be careful.")
 
         # init queue
         self.storage_queue = Queue()
@@ -91,7 +102,16 @@ class LyrebirdDatabaseServer(ThreadServer):
         event.listen(engine, 'connect', self._fk_pragma_on_connect)
 
         # Create all tables
-        Base.metadata.create_all(engine)
+        try:
+            Base.metadata.create_all(engine)
+        except Exception:
+            # sqlalchemy.exc.DatabaseError (sqlite3.DatabaseError)
+            personal_config = application._cm.personal_config
+            personal_config["event.broken_database_path_list"].append(str(self.database_uri))
+            application._cm.update_personal_config(personal_config)
+            logger.info(f'{traceback.format_exc()}')
+            return False
+        
         # Create session factory
         session_factory = sessionmaker(bind=engine)
         Session = scoped_session(session_factory)
@@ -99,6 +119,7 @@ class LyrebirdDatabaseServer(ThreadServer):
         self.auto_alter_tables(engine=engine)
 
         logger.info(f'Init DB engine: {self.database_uri}')
+        return True
 
     def _fk_pragma_on_connect(self, dbapi_con, con_record):
         # https://www.sqlite.org/pragma.html#pragma_journal_mode

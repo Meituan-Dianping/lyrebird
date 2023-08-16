@@ -6,10 +6,11 @@ import lyrebird
 from lyrebird import reporter, application
 from lyrebird.event import EventServer
 from lyrebird.task import BackgroundTaskServer
+from lyrebird.config import personal_config_template
 from lyrebird.db.database_server import LyrebirdDatabaseServer
 
 
-MockConfigManager = NamedTuple('MockConfigManager', [('config', dict), ('ROOT', object), ('root', object)])
+MockConfigManager = NamedTuple('MockConfigManager', [('config', dict), ('personal_config', dict), ('ROOT', object), ('root', object)])
 
 
 class FakeSocketio:
@@ -25,7 +26,8 @@ def event_server(tmpdir):
         'ip': '127.0.0.1',
         'mock.port': 9090
     }
-    application._cm = MockConfigManager(config=_conf, ROOT=Path(tmpdir), root=Path(tmpdir))
+    _personal_conf = personal_config_template
+    application._cm = MockConfigManager(config=_conf, personal_config=_personal_conf, ROOT=Path(tmpdir), root=Path(tmpdir))
     lyrebird.mock.context.application.socket_io = FakeSocketio()
     server = EventServer()
     server.start()
