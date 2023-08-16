@@ -286,17 +286,6 @@ def url_decode_for_list_or_dict(decode_obj, decode_key):
             url_decode(decode_obj[decode_key], key)
 
 
-def get_default_from_config_and_param(key, external_config, return_type = ''):
-    if return_type not in {'', 'bool', 'int', 'float', 'str', 'list', 'dict', 'set'}:
-        return
-    if not config.get(key) and not external_config:
-        return eval(return_type)() if return_type else None
-    elif not external_config:
-        return eval(return_type)(config.get(key)) if return_type else config.get(key)
-    else:
-        return eval(return_type)(external_config) if return_type else external_config
-
-
 class CaseInsensitiveDict(dict):
     '''
     A dict data-structure that ignore key's case.

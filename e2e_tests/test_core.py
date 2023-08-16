@@ -93,7 +93,7 @@ def test_api_flow_decode(lyrebird, mock_server):
     url_encode = mock_server.api_param + f'?param={quote(test_word)}'
     requests.get(url=lyrebird.uri_mock + url_encode)
     request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_decode=true').json()
+    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?disable_auto_decode=0').json()
     param = r['data']['request']['query']['param']
     url = r['data']['request']['url']
     assert param == test_word
@@ -104,7 +104,7 @@ def test_api_flow_not_decode(lyrebird, mock_server):
     url_encode = mock_server.api_param + f'?param={quote(test_word)}'
     requests.get(url=lyrebird.uri_mock + url_encode)
     request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_decode=false').json()
+    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?disable_auto_decode=1').json()
     param = r['data']['request']['query']['param']
     url = r['data']['request']['url']
     assert param == quote(test_word)
@@ -112,21 +112,22 @@ def test_api_flow_not_decode(lyrebird, mock_server):
 
 
 def test_api_flow_default_not_decode(lyrebird, mock_server):
+    url_ori = mock_server.api_param + f'?param={test_word}'
     url_encode = mock_server.api_param + f'?param={quote(test_word)}'
     requests.get(url=lyrebird.uri_mock + url_encode)
     request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
     r = requests.get(url=lyrebird.uri_flow + f'/{request_id}').json()
     param = r['data']['request']['query']['param']
     url = r['data']['request']['url']
-    assert param == quote(test_word)
-    assert url == url_encode
+    assert param == test_word
+    assert url == url_ori
 
 
 def test_api_flow_ori(lyrebird, mock_server):
     encode_word = test_word.encode('unicode_escape').decode()
     requests.post(url=lyrebird.uri_mock + mock_server.api_encoder_decoder, data={'word':encode_word})
     request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_origin=true').json()
+    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_origin=1').json()
     word = r['data']['request']['data']['word']
     assert word == encode_word
 
@@ -135,7 +136,7 @@ def test_api_flow_not_ori(lyrebird, mock_server):
     encode_word = test_word.encode('unicode_escape').decode()
     requests.post(url=lyrebird.uri_mock + mock_server.api_encoder_decoder, data={'word':encode_word})
     request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_origin=false').json()
+    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_origin=0').json()
     word = r['data']['request']['data']['word']
     assert word == test_word
 
@@ -149,16 +150,59 @@ def test_api_flow_default_not_ori(lyrebird, mock_server):
     assert word == test_word
 
 
+def test_api_flow_not_decode_and_ori(lyrebird, mock_server):
+    url_encode = mock_server.api_encoder_decoder + f'?param={quote(test_word)}'
+    encode_word = test_word.encode('unicode_escape').decode()
+    requests.post(url=lyrebird.uri_mock + url_encode, data={'word':encode_word})
+    request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
+    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_origin=1&disable_auto_decode=1').json()
+    word = r['data']['request']['data']['word']
+    param = r['data']['request']['query']['param']
+    url = r['data']['request']['url']
+    assert param == quote(test_word)
+    assert url == url_encode
+    assert word == encode_word
+
+
 def test_api_flow_decode_and_ori(lyrebird, mock_server):
     url_ori = mock_server.api_encoder_decoder + f'?param={test_word}'
     url_encode = mock_server.api_encoder_decoder + f'?param={quote(test_word)}'
     encode_word = test_word.encode('unicode_escape').decode()
     requests.post(url=lyrebird.uri_mock + url_encode, data={'word':encode_word})
     request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_origin=true&is_decode=true').json()
+    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_origin=1&disable_auto_decode=0').json()
     word = r['data']['request']['data']['word']
     param = r['data']['request']['query']['param']
     url = r['data']['request']['url']
     assert param == test_word
     assert url == url_ori
     assert word == encode_word
+
+
+def test_api_flow_not_decode_and_not_ori(lyrebird, mock_server):
+    url_encode = mock_server.api_encoder_decoder + f'?param={quote(test_word)}'
+    encode_word = test_word.encode('unicode_escape').decode()
+    requests.post(url=lyrebird.uri_mock + url_encode, data={'word':encode_word})
+    request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
+    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_origin=0&disable_auto_decode=1').json()
+    word = r['data']['request']['data']['word']
+    param = r['data']['request']['query']['param']
+    url = r['data']['request']['url']
+    assert param == quote(test_word)
+    assert url == url_encode
+    assert word == test_word
+
+
+def test_api_flow_decode_and_not_ori(lyrebird, mock_server):
+    url_ori = mock_server.api_encoder_decoder + f'?param={test_word}'
+    url_encode = mock_server.api_encoder_decoder + f'?param={quote(test_word)}'
+    encode_word = test_word.encode('unicode_escape').decode()
+    requests.post(url=lyrebird.uri_mock + url_encode, data={'word':encode_word})
+    request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
+    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?is_origin=0&disable_auto_decode=0').json()
+    word = r['data']['request']['data']['word']
+    param = r['data']['request']['query']['param']
+    url = r['data']['request']['url']
+    assert param == test_word
+    assert url == url_ori
+    assert word == test_word

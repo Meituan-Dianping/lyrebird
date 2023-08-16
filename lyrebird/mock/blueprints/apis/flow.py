@@ -3,10 +3,11 @@ from flask import request
 from lyrebird.mock import context, headers
 from lyrebird import application
 from lyrebird.event_filter import Filter
+from lyrebird.application import config
 from urllib.parse import urlencode, unquote
 from flask import request, Response
 from copy import deepcopy
-from lyrebird.utils import url_decode, get_default_from_config_and_param
+from lyrebird.utils import url_decode
 import json
 
 
@@ -16,8 +17,18 @@ class Flow(Resource):
     """
 
     def get(self, id):
-        is_decode = get_default_from_config_and_param('lyrebird_api_flow_detail_is_decode', request.args.get('is_decode'), 'str').strip().lower() == 'true'
-        is_origin = get_default_from_config_and_param('lyrebird_api_flow_detail_is_origin', request.args.get('is_origin'), 'str').strip().lower() == 'true'
+        def convert_to_int(value):
+            try:
+                return int(value)
+            except ValueError:
+                application.make_fail_response(f'Param type error')
+
+        is_origin = request.args.get('is_origin', 0)
+        disable_auto_decode = request.args.get('disable_auto_decode')
+        if disable_auto_decode == None:
+            disable_auto_decode = config.get('inspector.detail.disable_auto_decode', 0)
+        disable_auto_decode = convert_to_int(disable_auto_decode)
+        is_origin = convert_to_int(is_origin)
         for item in context.application.cache.items():
             if item['id'] == id:
                 # Import decoder for decoding the requested content
@@ -26,7 +37,7 @@ class Flow(Resource):
                     display_item.update(item)
                 else:
                     application.encoders_decoders.decoder_handler(item, output=display_item)
-                if is_decode:
+                if not disable_auto_decode:
                     display_item['request'] = deepcopy(display_item['request'])
                     for key in ('url', 'path', 'query'):
                         url_decode(display_item['request'], key)

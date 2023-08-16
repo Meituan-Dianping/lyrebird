@@ -139,7 +139,7 @@ def test_flow_with_id_and_decode_input_encode(client):
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
             break
-    resp = client.get(f'/api/flow/{flow_id}?is_decode=true')
+    resp = client.get(f'/api/flow/{flow_id}?disable_auto_decode=0')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
 
 
@@ -150,33 +150,33 @@ def test_flow_with_id_and_decode_input_decode(client):
         if flow['request']['host'] == 'i.meituan.com':
             flow_id = flow['id']
             break
-    resp = client.get(f'/api/flow/{flow_id}?is_decode=true')
+    resp = client.get(f'/api/flow/{flow_id}?disable_auto_decode=0')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
 
 
-def test_flow_with_id_and_decode_use_capital_letter_true(client):
+def test_flow_with_id_and_not_decode_input_encode(client):
     flow_id = None
     flows = client.get('/api/flow').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
             break
-    resp = client.get(f'/api/flow/{flow_id}?is_decode=True')
-    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
-
-
-def test_flow_with_id_and_decode_use_capital_letter_false(client):
-    flow_id = None
-    flows = client.get('/api/flow').json
-    for flow in flows:
-        if flow['request']['host'] == 'm.meituan.com':
-            flow_id = flow['id']
-            break
-    resp = client.get(f'/api/flow/{flow_id}?is_decode=FALSE')
+    resp = client.get(f'/api/flow/{flow_id}?disable_auto_decode=1')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_ENCODE
 
 
-def test_flow_with_id_and_no_decode_input_encode(client):
+def test_flow_with_id_and_not_decode_input_decode(client):
+    flow_id = None
+    flows = client.get('/api/flow').json
+    for flow in flows:
+        if flow['request']['host'] == 'i.meituan.com':
+            flow_id = flow['id']
+            break
+    resp = client.get(f'/api/flow/{flow_id}?disable_auto_decode=1')
+    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
+
+
+def test_flow_with_id_and_default_input_encode(client):
     flow_id = None
     flows = client.get('/api/flow').json
     for flow in flows:
@@ -184,10 +184,10 @@ def test_flow_with_id_and_no_decode_input_encode(client):
             flow_id = flow['id']
             break
     resp = client.get(f'/api/flow/{flow_id}')
-    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_ENCODE
+    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
 
 
-def test_flow_with_id_and_no_decode_input_decode(client):
+def test_flow_with_id_and_default_input_decode(client):
     flow_id = None
     flows = client.get('/api/flow').json
     for flow in flows:
