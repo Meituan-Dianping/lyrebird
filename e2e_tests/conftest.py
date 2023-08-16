@@ -46,7 +46,6 @@ class MockServer:
         self.port = 5000
         self.api_status = f'http://127.0.0.1:{self.port}/status'
         self.api_post = f'http://127.0.0.1:{self.port}/e2e_serve'
-        self.api_param = f'http://127.0.0.1:{self.port}/test_param'
         self.api_encoder_decoder = f'http://127.0.0.1:{self.port}/test_encoder_decoder'
 
     def start(self):

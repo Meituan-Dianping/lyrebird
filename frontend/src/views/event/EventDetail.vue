@@ -47,6 +47,8 @@ export default {
       this.currentTab = tabName
     },
     dismiss () {
+      this.$store.commit('setSelectedEventId', null)
+      this.$store.commit('setSelectedEvent', null)
       this.$store.commit('setEventDetail', null)
     }
   }

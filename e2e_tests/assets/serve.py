@@ -20,12 +20,6 @@ def status():
     return "OK"
 
 
-@app.route("/test_param/", methods=["GET"])
-def test_param():
-    param = request.args.get('param')
-    return param
-
-
 @app.route("/test_encoder_decoder/", methods=["POST"])
 def test_encoder_decoder():
     return "OK"

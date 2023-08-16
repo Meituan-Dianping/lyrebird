@@ -89,8 +89,8 @@ def test_lb_proxy_protocol_target_in_query_2(lyrebird, mock_server):
 
 
 def test_api_flow_decode(lyrebird, mock_server):
-    url_ori = mock_server.api_param + f'?param={test_word}'
-    url_encode = mock_server.api_param + f'?param={quote(test_word)}'
+    url_ori = mock_server.api_status + f'?param={test_word}'
+    url_encode = mock_server.api_status + f'?param={quote(test_word)}'
     requests.get(url=lyrebird.uri_mock + url_encode)
     request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
     r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?disable_auto_decode=0').json()
@@ -101,7 +101,7 @@ def test_api_flow_decode(lyrebird, mock_server):
 
 
 def test_api_flow_not_decode(lyrebird, mock_server):
-    url_encode = mock_server.api_param + f'?param={quote(test_word)}'
+    url_encode = mock_server.api_status + f'?param={quote(test_word)}'
     requests.get(url=lyrebird.uri_mock + url_encode)
     request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
     r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?disable_auto_decode=1').json()
@@ -112,8 +112,8 @@ def test_api_flow_not_decode(lyrebird, mock_server):
 
 
 def test_api_flow_default_not_decode(lyrebird, mock_server):
-    url_ori = mock_server.api_param + f'?param={test_word}'
-    url_encode = mock_server.api_param + f'?param={quote(test_word)}'
+    url_ori = mock_server.api_status + f'?param={test_word}'
+    url_encode = mock_server.api_status + f'?param={quote(test_word)}'
     requests.get(url=lyrebird.uri_mock + url_encode)
     request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
     r = requests.get(url=lyrebird.uri_flow + f'/{request_id}').json()
