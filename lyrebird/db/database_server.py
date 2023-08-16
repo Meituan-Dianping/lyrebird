@@ -48,7 +48,7 @@ class LyrebirdDatabaseServer(ThreadServer):
             self.database_uri.unlink()
             personal_config["event.broken_database_path_list"].remove(str(self.database_uri))
             application._cm.update_personal_config(personal_config)
-            logger.info("The broken database has been deleted.")
+            logger.warning(f"The broken DB has been deleted: {self.database_uri}")
 
         init_engine_success = self.init_engine()
         if not init_engine_success:

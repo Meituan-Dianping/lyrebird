@@ -56,13 +56,14 @@ class ConfigManager():
         self.personal_conf_file = self.PERSONAL_CONFIG
 
         self.update_base_config()
-        self.initialize_personal_config()
         self.read_config()
         if conf_path_list:
             for conf_path in conf_path_list:
                 self.update_conf_source(conf_path)
         if custom_conf:
             self.update_conf_custom(custom_conf)
+
+        self.initialize_personal_config()
 
     def update_conf_source(self, path):
         input_path: Path = Path(path).expanduser().absolute()
