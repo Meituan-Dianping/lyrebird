@@ -230,7 +230,9 @@ class LyrebirdDatabaseServer(ThreadServer):
         self.stop()
         self.database_uri.unlink()
         self.init_engine()
-        self.start()
+        if not self.server_thread.is_alive():
+            self.start()
+        self.running = True
 
 
 class Event(Base, JSONFormat):
