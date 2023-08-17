@@ -16,6 +16,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine, Table, MetaData
 from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.exc import OperationalError
 
 
 """
@@ -141,6 +142,9 @@ class LyrebirdDatabaseServer(ThreadServer):
         flow = Event(event_id=event_id, channel=channel, content=content, message=message)
         self.storage_queue.put(flow)
 
+    def start(self):
+        super().start()
+
     def run(self):
         session = self._scoped_session()
         while self.running:
@@ -149,6 +153,10 @@ class LyrebirdDatabaseServer(ThreadServer):
                 session.add(event)
                 session.commit()
                 context.emit('db_action', 'add event log')
+            except OperationalError:
+                logger.error(f'Save event failed. {traceback.format_exc()}')
+                logger.warning(f'DB would be reset: {self.database_uri}')
+                self.reset()
             except Exception:
                 logger.error(f'Save event failed. {traceback.format_exc()}')
 
@@ -211,13 +219,18 @@ class LyrebirdDatabaseServer(ThreadServer):
         result = query.count()
         self._scoped_session.remove()
         return math.ceil(result / page_size)
+    
+    def get_database_info(self):
+        database_info = dict()
+        database_info['path'] = str(self.database_uri)
+        database_info['size'] = self.database_uri.stat().st_size
+        return database_info
 
     def reset(self):
         self.stop()
         self.database_uri.unlink()
         self.init_engine()
-        # TODO After self.stop() could terminate Thread, change `self.running = True` into self.start()
-        self.running = True
+        self.start()
 
 
 class Event(Base, JSONFormat):

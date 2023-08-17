@@ -11,7 +11,26 @@
         <span>Clear</span>
       </v-tooltip>
 
-   
+      <v-tooltip right open-delay=500 v-if=this.eventFileOversized>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon size="18px" color="warning">mdi-information-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>Database path: {{ eventFilePath }}</span><br>
+        <span>Database size: {{ readableEventFileSize }}</span>
+        <b style="white-space:pre">   Please clear</b><v-icon size="18px" color="accent">mdi-eraser</v-icon><b>as soon as possible.</b>
+      </v-tooltip>
+      <v-tooltip right open-delay=500 v-else>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon size="18px" color="accent">mdi-information-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>Database path: {{ eventFilePath }}</span><br>
+        <span>Database size: {{ readableEventFileSize }}</span>
+      </v-tooltip>
+
     </div>
 
     <div class="inline">
@@ -67,12 +86,17 @@
 </template>
 
 <script>
+import { readablizeBytes } from '@/utils'
+import { eventFileInfo } from '@/api'
 import Icon from 'vue-svg-icon/Icon.vue'
 
 export default {
   name: 'eventButtonBar',
   components: {
     'svg-icon': Icon
+  },
+  activated () {
+    this.checkEventFileInfo()
   },
   data () {
     return {
@@ -87,9 +111,35 @@ export default {
       set (val) {
         this.$store.commit('setEventSearchStr', val)
       }
+    },
+    eventFilePath() {
+      return this.$store.state.event.eventFilePath
+    },
+    readableEventFileSize() {
+      return readablizeBytes(this.$store.state.event.eventFileSize)
+    },
+    eventFileOversized() {
+      return this.$store.state.event.eventFileOversized
     }
   },
   methods: {
+    checkEventFileInfo () {
+      eventFileInfo()
+        .then(response => {
+          let eventFilePath = response.data.path
+          let eventFileSize = response.data.size
+          let eventFileOversized = false
+          if (eventFileSize > 5e9) {
+            eventFileOversized = true
+            this.$bus.$emit('msg.info', 'Database is too large, please clear it as soon!  (path: ' + eventFilePath + ')')
+          }
+          this.$store.commit('setEventFilePath', eventFilePath)
+          this.$store.commit('setEventFileSize', eventFileSize)
+          this.$store.commit('setEventFileOversized', eventFileOversized)
+        }).catch(error => {
+          this.$bus.$emit('msg.error', 'Get event file info error: ' + error.data)
+        })
+    },
     clearAllEvents () {
       this.isShowClearDialog = false
       this.$store.dispatch('clearEvents')
