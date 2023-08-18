@@ -131,7 +131,7 @@ export default {
           let eventFileOversized = false
           if (eventFileSize > 5e9) {
             eventFileOversized = true
-            this.$bus.$emit('msg.info', 'Database is too large, please clear it as soon!  (path: ' + eventFilePath + ')')
+            this.$bus.$emit('msg.info', 'Database is too large, please clear it as soon!  (Path: ' + eventFilePath + ')')
           }
           this.$store.commit('setEventFilePath', eventFilePath)
           this.$store.commit('setEventFileSize', eventFileSize)
