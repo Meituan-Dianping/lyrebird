@@ -17,12 +17,6 @@ class Flow(Resource):
     """
 
     def get(self, id):
-        def convert_to_int(value):
-            try:
-                return int(value)
-            except ValueError:
-                application.make_fail_response(f'Param type error')
-
         is_origin = request.args.get('is_origin', 'false').strip().lower() == 'true'
         no_decode = request.args.get('no_decode')
         if no_decode is None:
