@@ -18,7 +18,7 @@
           </v-btn>
         </template>
         <span>Database path: {{ eventFilePath }}</span><br>
-        <span>Database size: {{ readableEventFileSize }}</span>
+        <span>Database size: {{ eventFileSize }}</span>
         <b style="white-space:pre">   Please clear</b><v-icon size="18px" color="accent">mdi-eraser</v-icon><b>as soon as possible.</b>
       </v-tooltip>
       <v-tooltip right open-delay=500 v-else>
@@ -28,7 +28,7 @@
           </v-btn>
         </template>
         <span>Database path: {{ eventFilePath }}</span><br>
-        <span>Database size: {{ readableEventFileSize }}</span>
+        <span>Database size: {{ eventFileSize }}</span>
       </v-tooltip>
 
     </div>
@@ -86,7 +86,6 @@
 </template>
 
 <script>
-import { readablizeBytes } from '@/utils'
 import { eventFileInfo } from '@/api'
 import Icon from 'vue-svg-icon/Icon.vue'
 
@@ -115,8 +114,8 @@ export default {
     eventFilePath() {
       return this.$store.state.event.eventFilePath
     },
-    readableEventFileSize() {
-      return readablizeBytes(this.$store.state.event.eventFileSize)
+    eventFileSize() {
+      return this.$store.state.event.eventFileSize
     },
     eventFileOversized() {
       return this.$store.state.event.eventFileOversized
@@ -126,14 +125,16 @@ export default {
     checkEventFileInfo () {
       eventFileInfo()
         .then(response => {
-          let eventFilePath = response.data.path
-          let eventFileSize = response.data.size
-          let eventFileOversized = false
-          if (eventFileSize > 5e9) {
-            eventFileOversized = true
-            this.$bus.$emit('msg.info', 'Database is too large, please clear it as soon!  (Path: ' + eventFilePath + ')')
+          let eventFileInfo = response.data.file_info
+          let eventFilePath = eventFileInfo.path
+          let eventFileSizeThreshold = eventFileInfo.threshold
+          let eventFileSize = eventFileInfo.size
+          let eventFileOversized = eventFileInfo.oversized
+          if (eventFileOversized) {
+            this.$bus.$emit('msg.info', 'Database size has exceeded ' + eventFileSizeThreshold +', please clear it as soon!')
           }
           this.$store.commit('setEventFilePath', eventFilePath)
+          this.$store.commit('setEventFileSizeThreshold', eventFileSizeThreshold)
           this.$store.commit('setEventFileSize', eventFileSize)
           this.$store.commit('setEventFileOversized', eventFileOversized)
         }).catch(error => {

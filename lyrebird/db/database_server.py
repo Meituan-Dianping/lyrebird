@@ -7,7 +7,7 @@ from queue import Queue
 from pathlib import Path
 from lyrebird import application
 from lyrebird import log
-from lyrebird.utils import JSONFormat
+from lyrebird.utils import convert_size, convert_size_to_byte, JSONFormat
 from lyrebird.base_server import ThreadServer
 from lyrebird.mock import context
 from sqlalchemy import event, and_
@@ -222,8 +222,17 @@ class LyrebirdDatabaseServer(ThreadServer):
     
     def get_database_info(self):
         database_info = dict()
+        threshold_str = application._cm.config.get('event.file_size_threshold')
+        threshold_byte = convert_size_to_byte(threshold_str)
+        size = self.database_uri.stat().st_size
+        if threshold_byte and size > threshold_byte:
+            oversized = True
+        else:
+            oversized = False
         database_info['path'] = str(self.database_uri)
-        database_info['size'] = self.database_uri.stat().st_size
+        database_info['threshold'] = threshold_str
+        database_info['size'] = convert_size(size)
+        database_info['oversized'] = oversized
         return database_info
 
     def reset(self):

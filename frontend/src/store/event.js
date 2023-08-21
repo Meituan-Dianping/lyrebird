@@ -13,7 +13,8 @@ export default {
     page: null,
     eventSearchStr: '',
     eventFilePath: '',
-    eventFileSize: 0,
+    eventFileSizeThreshold: '',
+    eventFileSize: '',
     eventFileOversized: false
   },
   mutations: {
@@ -43,6 +44,9 @@ export default {
     },
     setEventFilePath (state, val) {
       state.eventFilePath = val
+    },
+    setEventFileSizeThreshold (state, val) {
+      state.eventFileSizeThreshold = val
     },
     setEventFileSize (state, val) {
       state.eventFileSize = val
