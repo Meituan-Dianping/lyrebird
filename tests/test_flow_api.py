@@ -139,7 +139,7 @@ def test_flow_with_id_and_decode_input_encode(client):
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
             break
-    resp = client.get(f'/api/flow/{flow_id}?disable_auto_decode=0')
+    resp = client.get(f'/api/flow/{flow_id}?no_decode=0')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
 
 
@@ -150,7 +150,7 @@ def test_flow_with_id_and_decode_input_decode(client):
         if flow['request']['host'] == 'i.meituan.com':
             flow_id = flow['id']
             break
-    resp = client.get(f'/api/flow/{flow_id}?disable_auto_decode=0')
+    resp = client.get(f'/api/flow/{flow_id}?no_decode=0')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
 
 
@@ -161,7 +161,7 @@ def test_flow_with_id_and_not_decode_input_encode(client):
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
             break
-    resp = client.get(f'/api/flow/{flow_id}?disable_auto_decode=1')
+    resp = client.get(f'/api/flow/{flow_id}?no_decode=1')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_ENCODE
 
 
@@ -172,7 +172,7 @@ def test_flow_with_id_and_not_decode_input_decode(client):
         if flow['request']['host'] == 'i.meituan.com':
             flow_id = flow['id']
             break
-    resp = client.get(f'/api/flow/{flow_id}?disable_auto_decode=1')
+    resp = client.get(f'/api/flow/{flow_id}?no_decode=1')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
 
 

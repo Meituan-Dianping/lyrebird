@@ -20,11 +20,6 @@ def status():
     return "OK"
 
 
-@app.route("/test_encoder_decoder/", methods=["POST"])
-def test_encoder_decoder():
-    return "OK"
-
-
 if __name__ == "__main__":
     port = 5000
     if sys.argv:
