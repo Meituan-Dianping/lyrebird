@@ -20,7 +20,6 @@ def test_func(flow):
     flow['request']['data'] = 'decode'
     '''
 
-
 FLOW_DATA_MATCH = {
         'request': {
             'url': 'http://www.meituan.com',
@@ -54,6 +53,7 @@ def checker_init(tmp_path, tmpdir):
     application._cm = type('MockedContentManager', (), {'config': config, 'root':tmpdir, 'ROOT':tmpdir})()
 
     return application.checkers
+
 
 @pytest.fixture
 def checker_server(checker_init, tmp_path):

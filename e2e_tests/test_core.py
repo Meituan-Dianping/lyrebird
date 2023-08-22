@@ -9,6 +9,7 @@ from urllib.parse import quote
 
 curPath = os.path.abspath(os.path.dirname(__file__))
 
+
 def test_img_data(lyrebird, mock_server):
     with open(f"{curPath}/assets/1.png", "rb") as f:
         data = f.read()

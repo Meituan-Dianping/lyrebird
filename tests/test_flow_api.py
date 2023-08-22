@@ -242,7 +242,8 @@ def test_flow_with_id_and_origin(client):
             flow_id = flow['id']
             break
     resp = client.get(f'/api/flow/{flow_id}?is_origin=true')
-    assert resp.json['code'] == 1000 and 'modify_by_encoder_decoder' not in resp.json['data']['request']['headers']
+    assert resp.json['code'] == 1000 
+    assert 'modify_by_encoder_decoder' not in resp.json['data']['request']['headers']
 
 
 def test_flow_with_id_and_not_origin(client):
@@ -253,7 +254,9 @@ def test_flow_with_id_and_not_origin(client):
             flow_id = flow['id']
             break
     resp = client.get(f'/api/flow/{flow_id}?is_origin=false')
-    assert resp.json['code'] == 1000 and 'modify_by_encoder_decoder' in resp.json['data']['request']['headers']
+    assert resp.json['code'] == 1000
+    assert 'modify_by_encoder_decoder' in resp.json['data']['request']['headers']
+    assert resp.json['data']['request']['headers']['modify_by_encoder_decoder'] == 'decode'
 
 
 def test_flow_with_id_and_origin_capital(client):
@@ -264,7 +267,8 @@ def test_flow_with_id_and_origin_capital(client):
             flow_id = flow['id']
             break
     resp = client.get(f'/api/flow/{flow_id}?is_origin=TRUE')
-    assert resp.json['code'] == 1000 and 'modify_by_encoder_decoder' not in resp.json['data']['request']['headers']
+    assert resp.json['code'] == 1000
+    assert 'modify_by_encoder_decoder' not in resp.json['data']['request']['headers']
 
 
 def test_flow_with_id_and_not_origin_capital(client):
@@ -275,7 +279,8 @@ def test_flow_with_id_and_not_origin_capital(client):
             flow_id = flow['id']
             break
     resp = client.get(f'/api/flow/{flow_id}?is_origin=False')
-    assert resp.json['code'] == 1000 and 'modify_by_encoder_decoder' in resp.json['data']['request']['headers']
+    assert resp.json['code'] == 1000
+    assert 'modify_by_encoder_decoder' in resp.json['data']['request']['headers']
 
 
 def test_flow_with_id_and_origin_and_decode(client):

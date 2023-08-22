@@ -37,7 +37,6 @@ def checker_init(tmp_path, tmpdir):
 
     return application.checkers
 
-
 @pytest.fixture
 def checker_server(checker_init, tmp_path):
     server = LyrebirdCheckerServer()
