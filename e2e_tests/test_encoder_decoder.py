@@ -1,148 +1,72 @@
 import os
+import hashlib
+import json
+import gzip
 import requests
-from urllib.parse import quote
-
-extension_path = os.path.abspath(os.path.dirname(__file__)) + '/assets/encoder_decoder.py'
-test_word = "你好,世界!Hello,world!"
-
-def test_api_flow_decode(lyrebird, mock_server):
-    url_ori = mock_server.api_status + f'?param={test_word}'
-    url_encode = mock_server.api_status + f'?param={quote(test_word)}'
-    requests.get(url=lyrebird.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?no_decode=0').json()
-    param = r['data']['request']['query']['param']
-    url = r['data']['request']['url']
-    assert param == test_word
-    assert url == url_ori
 
 
-def test_api_flow_not_decode(lyrebird, mock_server):
-    url_encode = mock_server.api_status + f'?param={quote(test_word)}'
-    requests.get(url=lyrebird.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}?no_decode=1').json()
-    param = r['data']['request']['query']['param']
-    url = r['data']['request']['url']
-    assert param == quote(test_word)
-    assert url == url_encode
+current_path = os.path.abspath(os.path.dirname(__file__))
+script_path = [f'{current_path}/assets/flow_editor.py', f'{current_path}/assets/encoder_decoder.py']
 
 
-def test_api_flow_default_not_decode(lyrebird, mock_server):
-    url_ori = mock_server.api_status + f'?param={test_word}'
-    url_encode = mock_server.api_status + f'?param={quote(test_word)}'
-    requests.get(url=lyrebird.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird.uri_flow + f'/{request_id}').json()
-    param = r['data']['request']['query']['param']
-    url = r['data']['request']['url']
-    assert param == test_word
-    assert url == url_ori
+def test_flow_editor_img_data(lyrebird_with_args, mock_server):
+    lyrebird_with_args.start(checker_path=script_path)
+    with open(f"{current_path}/assets/1.png", "rb") as f:
+        data = f.read()
+    r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post,
+                      data=data, headers={'Content-Type': 'application/octet-stream'})
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + data).hexdigest()
 
 
-def test_api_flow_ori(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=extension_path)
-    url_encode = mock_server.api_status + f'?encoder_decoder_param={quote(test_word)}'
-    requests.get(url=lyrebird_with_args.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird_with_args.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird_with_args.uri_flow + f'/{request_id}?is_origin=true').json()
-    header = r['data']['request']['headers'].get('test_encoder_decoder','')
-    assert header == ''
+def test_flow_editor_img_file(lyrebird_with_args, mock_server):
+    lyrebird_with_args.start(checker_path=script_path)
+
+    files = {'file': ('1.png', open(f'{current_path}/assets/1.png', 'rb'), 'image/jpg')}
+    r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, files=files)
+    with open(f'{current_path}/assets/1.png', 'rb') as f:
+        data = f.read()
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + data).hexdigest()
 
 
-def test_api_flow_not_ori(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=extension_path)
-    url_encode = mock_server.api_status + f'?encoder_decoder_param={quote(test_word)}'
-    requests.get(url=lyrebird_with_args.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird_with_args.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird_with_args.uri_flow + f'/{request_id}?is_origin=false').json()
-    header = r['data']['request']['headers'].get('test_encoder_decoder','')
-    assert header == 'decode'
+def test_flow_editor_json(lyrebird_with_args, mock_server):
+    lyrebird_with_args.start(checker_path=script_path)
+
+    data = json.dumps({"name": {"12": 123}}, ensure_ascii=False)
+    headers = {"Content-Type": "application/json"}
+    r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, data=data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + data.encode()).hexdigest()
 
 
-def test_api_flow_ori_capital(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=extension_path)
-    url_encode = mock_server.api_status + f'?encoder_decoder_param={quote(test_word)}'
-    requests.get(url=lyrebird_with_args.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird_with_args.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird_with_args.uri_flow + f'/{request_id}?is_origin=True').json()
-    header = r['data']['request']['headers'].get('test_encoder_decoder','')
-    assert header == ''
+def test_flow_editor_js(lyrebird_with_args, mock_server):
+    lyrebird_with_args.start(checker_path=script_path)
+
+    data = "console.log('hello world')"
+    headers = {"Content-Type": "application/javascript"}
+    r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, data=data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + data.encode()).hexdigest()
 
 
-def test_api_flow_not_ori_capital(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=extension_path)
-    url_encode = mock_server.api_status + f'?encoder_decoder_param={quote(test_word)}'
-    requests.get(url=lyrebird_with_args.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird_with_args.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird_with_args.uri_flow + f'/{request_id}?is_origin=FALSE').json()
-    header = r['data']['request']['headers'].get('test_encoder_decoder','')
-    assert header == 'decode'
+def test_flow_editor_text(lyrebird_with_args, mock_server):
+    lyrebird_with_args.start(checker_path=script_path)
+    data = "asdasdasd"
+    headers = {"Content-Type": "text/plain"}
+    r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, data=data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + data.encode()).hexdigest()
 
 
-def test_api_flow_default_not_ori(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=extension_path)
-    url_encode = mock_server.api_status + f'?encoder_decoder_param={quote(test_word)}'
-    requests.get(url=lyrebird_with_args.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird_with_args.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird_with_args.uri_flow + f'/{request_id}').json()
-    header = r['data']['request']['headers'].get('test_encoder_decoder','')
-    assert header == 'decode'
+def test_flow_editor_form(lyrebird_with_args, mock_server):
+    lyrebird_with_args.start(checker_path=script_path)
+    data = 'z=9&a=1&a=2&b=1'
+    after_data = 'z=9&a=1&b=1'
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, data=data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + after_data.encode()).hexdigest()
 
 
-def test_api_flow_not_decode_and_ori(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=extension_path)
-    url_encode = mock_server.api_status + f'?encoder_decoder_param={quote(test_word)}'
-    requests.get(url=lyrebird_with_args.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird_with_args.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird_with_args.uri_flow + f'/{request_id}?is_origin=true&no_decode=1').json()
-    param = r['data']['request']['query']['encoder_decoder_param']
-    url = r['data']['request']['url']
-    header = r['data']['request']['headers'].get('test_encoder_decoder','')
-    assert param == quote(test_word)
-    assert url == url_encode
-    assert header == ''
-
-
-def test_api_flow_decode_and_ori(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=extension_path)
-    url_ori = mock_server.api_status + f'?encoder_decoder_param={test_word}'
-    url_encode = mock_server.api_status + f'?encoder_decoder_param={quote(test_word)}'
-    requests.get(url=lyrebird_with_args.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird_with_args.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird_with_args.uri_flow + f'/{request_id}?is_origin=true&no_decode=0').json()
-    param = r['data']['request']['query']['encoder_decoder_param']
-    url = r['data']['request']['url']
-    header = r['data']['request']['headers'].get('test_encoder_decoder','')
-    assert param == test_word
-    assert url == url_ori
-    assert header == ''
-
-
-def test_api_flow_not_decode_and_not_ori(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=extension_path)
-    url_encode = mock_server.api_status + f'?encoder_decoder_param={quote(test_word)}'
-    requests.get(url=lyrebird_with_args.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird_with_args.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird_with_args.uri_flow + f'/{request_id}?is_origin=false&no_decode=1').json()
-    param = r['data']['request']['query']['encoder_decoder_param']
-    url = r['data']['request']['url']
-    header = r['data']['request']['headers'].get('test_encoder_decoder','')
-    assert param == quote(test_word)
-    assert url == url_encode
-    assert header == 'decode'
-
-
-def test_api_flow_decode_and_not_ori(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=extension_path)
-    url_ori = mock_server.api_status + f'?encoder_decoder_param={test_word}'
-    url_encode = mock_server.api_status + f'?encoder_decoder_param={quote(test_word)}'
-    requests.get(url=lyrebird_with_args.uri_mock + url_encode)
-    request_id = requests.get(url=lyrebird_with_args.uri_flow).json()[0]['id']
-    r = requests.get(url=lyrebird_with_args.uri_flow + f'/{request_id}?is_origin=false&no_decode=0').json()
-    param = r['data']['request']['query']['encoder_decoder_param']
-    url = r['data']['request']['url']
-    header = r['data']['request']['headers'].get('test_encoder_decoder','')
-    assert param == test_word
-    assert url == url_ori
-    assert header == 'decode'
+def test_flow_editor_json_gzip(lyrebird_with_args, mock_server):
+    lyrebird_with_args.start(checker_path=script_path)
+    data = {"a": 1}
+    ziped_data = gzip.compress(json.dumps(data, ensure_ascii=False).encode())
+    headers = {"Content-Type": "application/json", "Content-Encoding": "gzip"}
+    r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, data=ziped_data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + ziped_data).hexdigest()

@@ -69,7 +69,6 @@ class Lyrebird:
         self.api_status = None
         self.uri_mock = None
         self.uri_extra_mock = None
-        self.encoder_decoder_path = None
         self._init_port()
 
     def _init_port(self):
@@ -79,7 +78,6 @@ class Lyrebird:
         self.api_status = f'http://127.0.0.1:{self.port}/api/status'
         self.uri_mock = f'http://127.0.0.1:{self.port}/mock/'
         self.uri_extra_mock = f'http://127.0.0.1:{self.extra_mock_port}/'
-        self.uri_flow = f'http://127.0.0.1:{self.port}/api/flow'
 
     def _find_free_port(self):
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
@@ -87,11 +85,11 @@ class Lyrebird:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             return s.getsockname()[1]
 
-    def start(self, checker_path=None):
+    def start(self, checker_path=[]):
 
         cmdline = f'python3 -m lyrebird -b -v --no-mitm --mock {self.port} --extra-mock {self.extra_mock_port}'
-        if checker_path:
-            cmdline = cmdline + f' --script {checker_path}'
+        for path in checker_path:
+            cmdline = cmdline + f' --script {path}'
         self.lyrebird_process = subprocess.Popen(cmdline, shell=True, start_new_session=True)
         _wait(requests.get, args=[self.api_status])
         _wait(requests.get, args=[self.uri_extra_mock])

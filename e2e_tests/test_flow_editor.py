@@ -7,7 +7,7 @@ import requests
 
 
 current_path = os.path.abspath(os.path.dirname(__file__))
-flow_editor_path = f'{current_path}/assets/flow_editor.py'
+flow_editor_path = [f'{current_path}/assets/flow_editor.py']
 
 
 def test_flow_editor_img_data(lyrebird_with_args, mock_server):

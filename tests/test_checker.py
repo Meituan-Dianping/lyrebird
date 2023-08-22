@@ -1,10 +1,7 @@
 import pytest
-from copy import deepcopy
 from lyrebird.event import EventServer
 from lyrebird import application
 from lyrebird.checker import LyrebirdCheckerServer
-from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
-
 
 CHECKER_A_FILENAME = "checker_a.py"
 CHECKER_B_FILENAME = "checker_b.py"
@@ -14,14 +11,6 @@ CHECKER_B_SWITCH = False
 CHECKER_C_SWITCH = True
 
 CONTENT = u"from lyrebird import event\n@event('flow')\ndef test_func():\n\tpass"
-
-FLOW_DATA = {
-        "request": {
-            "url": "http://www.meituan.com",
-            "data": ""
-        }
-    }
-
 
 @pytest.fixture
 def checker_init(tmp_path, tmpdir):
@@ -47,6 +36,7 @@ def checker_init(tmp_path, tmpdir):
     application._cm = type('MockedContentManager', (), {'config': config, 'root':tmpdir, 'ROOT':tmpdir})()
 
     return application.checkers
+
 
 @pytest.fixture
 def checker_server(checker_init, tmp_path):
