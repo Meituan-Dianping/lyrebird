@@ -131,14 +131,14 @@ export default {
           let eventFileSize = eventFileInfo.size
           let eventFileOversized = eventFileInfo.oversized
           if (eventFileOversized) {
-            this.$bus.$emit('msg.info', 'Database size has exceeded ' + eventFileSizeThreshold +', please clear it as soon!')
+            this.$bus.$emit('msg.info', `Database size has exceeded ${eventFileSizeThreshold}, please clear it as soon!`)
           }
           this.$store.commit('setEventFilePath', eventFilePath)
           this.$store.commit('setEventFileSizeThreshold', eventFileSizeThreshold)
           this.$store.commit('setEventFileSize', eventFileSize)
           this.$store.commit('setEventFileOversized', eventFileOversized)
         }).catch(error => {
-          this.$bus.$emit('msg.error', 'Get event file info error: ' + error.data)
+          this.$bus.$emit('msg.error', `Get event file info error: ${error.data.message}`)
         })
     },
     clearAllEvents () {
