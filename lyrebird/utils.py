@@ -33,8 +33,8 @@ def convert_size_to_byte(size_str):
     size_str = size_str.strip().upper()
     match = re.match(r'^(\d+\.?\d*)\s*([KMGTPEZY]?[B])$', size_str)
     if not match:
-        print(f'Invalid size string: {size_str}')
-        return None
+        logger.warning(f'Invalid size string: {size_str}')
+        return
     size = float(match.group(1))
     unit = match.group(2)
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
