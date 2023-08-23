@@ -29,7 +29,7 @@ def convert_size(size_bytes):
     return "%s %s" % (s, size_name[i])
 
 
-def convert_size_to_byte(size_str):
+def convert_size_to_byte(size_str: str):
     size_str = size_str.strip().upper()
     match = re.match(r'^(\d+\.?\d*)\s*([KMGTPEZY]?[B])$', size_str)
     if not match:
