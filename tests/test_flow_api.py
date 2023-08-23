@@ -2,6 +2,7 @@ import pytest
 from lyrebird import application
 from lyrebird.mock import context
 from lyrebird.config import ConfigManager
+from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 
@@ -72,11 +73,30 @@ TEST_FILTER = [
     }
 ]
 
+FILENAME = 'encoder_decoder.py'
+
+CONTENT = u'''
+from lyrebird import encoder, decoder
+
+@encoder(rules={'request.url': ''})
+def test_func(flow):
+    flow['request']['headers']['modify_by_encoder_decoder'] = 'encode'
+
+@decoder(rules={'request.url': ''})
+def test_func(flow):
+    flow['request']['headers']['modify_by_encoder_decoder'] = 'decode'
+    '''
+
 _conf = {
     'ip': '127.0.0.1',
     'mock.port': 9090,
-    'inspector.filters': TEST_FILTER
+    'inspector.filters': TEST_FILTER,
+    'checker.workspace': '',
+    'checker.switch': {
+        FILENAME: True
+    }
 }
+
 
 def get_server():
     application._cm = ConfigManager()
@@ -87,17 +107,33 @@ def get_server():
     return server
 
 
-
 with get_server().app.test_client() as init_client:
     context.application.cache._cache.clear()
     for url in REQUEST_URL:
         init_client.get(url)
 
+
 @pytest.fixture
-def client():
+def checker_server(tmp_path, tmpdir):
+    encoder_decoder_file = tmp_path / FILENAME
+    encoder_decoder_file.write_text(CONTENT)
+    _conf['checker.workspace'] = tmp_path
+    _conf['root'] = tmpdir
+    _conf['ROOT'] = tmpdir
+
+    server = LyrebirdCheckerServer()
+    server.start()
+    server.SCRIPTS_DIR = tmp_path
+    application.server['checker'] = server
+    application.encoders_decoders = EncoderDecoder()
+    yield server
+    server.stop()
+
+
+@pytest.fixture
+def client(checker_server):
     server = get_server()
     client = server.app.test_client()
-    ctx = server.app.app_context()
     yield client
 
 
@@ -139,7 +175,7 @@ def test_flow_with_id_and_decode_input_encode(client):
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
             break
-    resp = client.get(f'/api/flow/{flow_id}?is_decode=true')
+    resp = client.get(f'/api/flow/{flow_id}?no_decode=0')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
 
 
@@ -150,33 +186,33 @@ def test_flow_with_id_and_decode_input_decode(client):
         if flow['request']['host'] == 'i.meituan.com':
             flow_id = flow['id']
             break
-    resp = client.get(f'/api/flow/{flow_id}?is_decode=true')
+    resp = client.get(f'/api/flow/{flow_id}?no_decode=0')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
 
 
-def test_flow_with_id_and_decode_use_capital_letter_true(client):
+def test_flow_with_id_and_not_decode_input_encode(client):
     flow_id = None
     flows = client.get('/api/flow').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
             break
-    resp = client.get(f'/api/flow/{flow_id}?is_decode=True')
-    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
-
-
-def test_flow_with_id_and_decode_use_capital_letter_false(client):
-    flow_id = None
-    flows = client.get('/api/flow').json
-    for flow in flows:
-        if flow['request']['host'] == 'm.meituan.com':
-            flow_id = flow['id']
-            break
-    resp = client.get(f'/api/flow/{flow_id}?is_decode=FALSE')
+    resp = client.get(f'/api/flow/{flow_id}?no_decode=1')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_ENCODE
 
 
-def test_flow_with_id_and_no_decode_input_encode(client):
+def test_flow_with_id_and_not_decode_input_decode(client):
+    flow_id = None
+    flows = client.get('/api/flow').json
+    for flow in flows:
+        if flow['request']['host'] == 'i.meituan.com':
+            flow_id = flow['id']
+            break
+    resp = client.get(f'/api/flow/{flow_id}?no_decode=1')
+    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
+
+
+def test_flow_with_id_and_default_input_encode(client):
     flow_id = None
     flows = client.get('/api/flow').json
     for flow in flows:
@@ -184,10 +220,10 @@ def test_flow_with_id_and_no_decode_input_encode(client):
             flow_id = flow['id']
             break
     resp = client.get(f'/api/flow/{flow_id}')
-    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_ENCODE
+    assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
 
 
-def test_flow_with_id_and_no_decode_input_decode(client):
+def test_flow_with_id_and_default_input_decode(client):
     flow_id = None
     flows = client.get('/api/flow').json
     for flow in flows:
@@ -196,3 +232,104 @@ def test_flow_with_id_and_no_decode_input_decode(client):
             break
     resp = client.get(f'/api/flow/{flow_id}')
     assert resp.json['code'] == 1000 and resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
+
+
+def test_flow_with_id_and_origin(client):
+    flow_id = None
+    flows = client.get('/api/flow').json
+    for flow in flows:
+        if flow['request']['host'] == 'm.meituan.com':
+            flow_id = flow['id']
+            break
+    resp = client.get(f'/api/flow/{flow_id}?is_origin=true')
+    assert resp.json['code'] == 1000 
+    assert 'modify_by_encoder_decoder' not in resp.json['data']['request']['headers']
+
+
+def test_flow_with_id_and_not_origin(client):
+    flow_id = None
+    flows = client.get('/api/flow').json
+    for flow in flows:
+        if flow['request']['host'] == 'm.meituan.com':
+            flow_id = flow['id']
+            break
+    resp = client.get(f'/api/flow/{flow_id}?is_origin=false')
+    assert resp.json['code'] == 1000
+    assert 'modify_by_encoder_decoder' in resp.json['data']['request']['headers']
+    assert resp.json['data']['request']['headers']['modify_by_encoder_decoder'] == 'decode'
+
+
+def test_flow_with_id_and_origin_capital(client):
+    flow_id = None
+    flows = client.get('/api/flow').json
+    for flow in flows:
+        if flow['request']['host'] == 'm.meituan.com':
+            flow_id = flow['id']
+            break
+    resp = client.get(f'/api/flow/{flow_id}?is_origin=TRUE')
+    assert resp.json['code'] == 1000
+    assert 'modify_by_encoder_decoder' not in resp.json['data']['request']['headers']
+
+
+def test_flow_with_id_and_not_origin_capital(client):
+    flow_id = None
+    flows = client.get('/api/flow').json
+    for flow in flows:
+        if flow['request']['host'] == 'm.meituan.com':
+            flow_id = flow['id']
+            break
+    resp = client.get(f'/api/flow/{flow_id}?is_origin=False')
+    assert resp.json['code'] == 1000
+    assert 'modify_by_encoder_decoder' in resp.json['data']['request']['headers']
+
+
+def test_flow_with_id_and_origin_and_decode(client):
+    flow_id = None
+    flows = client.get('/api/flow').json
+    for flow in flows:
+        if flow['request']['host'] == 'm.meituan.com':
+            flow_id = flow['id']
+            break
+    resp = client.get(f'/api/flow/{flow_id}?is_origin=true&no_decode=0')
+    assert resp.json['code'] == 1000 
+    assert 'modify_by_encoder_decoder' not in resp.json['data']['request']['headers']
+    assert resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
+
+
+def test_flow_with_id_and_not_origin_and_decode(client):
+    flow_id = None
+    flows = client.get('/api/flow').json
+    for flow in flows:
+        if flow['request']['host'] == 'm.meituan.com':
+            flow_id = flow['id']
+            break
+    resp = client.get(f'/api/flow/{flow_id}?is_origin=false&no_decode=0')
+    assert resp.json['code'] == 1000
+    assert 'modify_by_encoder_decoder' in resp.json['data']['request']['headers']
+    assert resp.json['data']['request']['query']['word'] == TEST_WORD_DECODE
+
+
+def test_flow_with_id_and_origin_and_not_decode(client):
+    flow_id = None
+    flows = client.get('/api/flow').json
+    for flow in flows:
+        if flow['request']['host'] == 'm.meituan.com':
+            flow_id = flow['id']
+            break
+    resp = client.get(f'/api/flow/{flow_id}?is_origin=true&no_decode=1')
+    assert resp.json['code'] == 1000 
+    assert 'modify_by_encoder_decoder' not in resp.json['data']['request']['headers']
+    assert resp.json['data']['request']['query']['word'] == TEST_WORD_ENCODE
+
+
+def test_flow_with_id_and_not_origin_and_not_decode(client):
+    flow_id = None
+    flows = client.get('/api/flow').json
+    for flow in flows:
+        if flow['request']['host'] == 'm.meituan.com':
+            flow_id = flow['id']
+            break
+    resp = client.get(f'/api/flow/{flow_id}?is_origin=false&no_decode=1')
+    assert resp.json['code'] == 1000
+    assert 'modify_by_encoder_decoder' in resp.json['data']['request']['headers']
+    assert resp.json['data']['request']['query']['word'] == TEST_WORD_ENCODE
