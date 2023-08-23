@@ -11,7 +11,11 @@ export default {
     selectedEvent: null,
     eventDetail: '',
     page: null,
-    eventSearchStr: ''
+    eventSearchStr: '',
+    eventFilePath: '',
+    eventFileSizeThreshold: '',
+    eventFileSize: '',
+    eventFileOversized: false
   },
   mutations: {
     setChannelNames (state, channelNames) {
@@ -37,6 +41,18 @@ export default {
     },
     setEventSearchStr (state, val) {
       state.eventSearchStr = val
+    },
+    setEventFilePath (state, val) {
+      state.eventFilePath = val
+    },
+    setEventFileSizeThreshold (state, val) {
+      state.eventFileSizeThreshold = val
+    },
+    setEventFileSize (state, val) {
+      state.eventFileSize = val
+    },
+    setEventFileOversized (state, val) {
+      state.eventFileOversized = val
     }
   },
   actions: {

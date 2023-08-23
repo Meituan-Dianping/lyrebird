@@ -82,3 +82,12 @@ class EventExport(Resource):
         res.headers['Content-Disposition'] = f'attachment; filename={filename}'
         return res
 
+
+class EventFileInfo(Resource):
+
+    def get(self):
+        db = application.server['db']
+        file_info = dict()
+        if db is not None:
+            file_info = db.get_database_info()
+        return application.make_ok_response(file_info=file_info)

@@ -7,7 +7,7 @@ from queue import Queue
 from pathlib import Path
 from lyrebird import application
 from lyrebird import log
-from lyrebird.utils import JSONFormat
+from lyrebird.utils import convert_size, convert_size_to_byte, JSONFormat
 from lyrebird.base_server import ThreadServer
 from lyrebird.mock import context
 from sqlalchemy import event, and_
@@ -16,6 +16,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Text, DateTime, create_engine, Table, MetaData
 from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.exc import OperationalError
 
 
 """
@@ -141,6 +142,9 @@ class LyrebirdDatabaseServer(ThreadServer):
         flow = Event(event_id=event_id, channel=channel, content=content, message=message)
         self.storage_queue.put(flow)
 
+    def start(self):
+        super().start()
+
     def run(self):
         session = self._scoped_session()
         while self.running:
@@ -149,6 +153,10 @@ class LyrebirdDatabaseServer(ThreadServer):
                 session.add(event)
                 session.commit()
                 context.emit('db_action', 'add event log')
+            except OperationalError:
+                logger.error(f'Save event failed. {traceback.format_exc()}')
+                logger.warning(f'DB would be reset: {self.database_uri}')
+                self.reset()
             except Exception:
                 logger.error(f'Save event failed. {traceback.format_exc()}')
 
@@ -211,12 +219,28 @@ class LyrebirdDatabaseServer(ThreadServer):
         result = query.count()
         self._scoped_session.remove()
         return math.ceil(result / page_size)
+    
+    def get_database_info(self):
+        database_path = str(self.database_uri)
+        threshold_str = application._cm.config.get('event.file_size_threshold')
+        threshold_byte = convert_size_to_byte(threshold_str)
+        size = self.database_uri.stat().st_size
+        readable_size = convert_size(size)
+        oversized = threshold_byte and size > threshold_byte
+        database_info = {
+            'path': database_path,
+            'threshold': threshold_str,
+            'size': readable_size,
+            'oversized': oversized
+        }
+        return database_info
 
     def reset(self):
         self.stop()
         self.database_uri.unlink()
         self.init_engine()
-        # TODO After self.stop() could terminate Thread, change `self.running = True` into self.start()
+        if not self.server_thread.is_alive():
+            self.start()
         self.running = True
 
 
