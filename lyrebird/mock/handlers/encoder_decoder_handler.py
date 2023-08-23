@@ -14,11 +14,11 @@ class EncoderDecoder(FunctionExecutor):
             EncoderDecoder.func_handler(matched_funcs, flow, handler_type='encoder')
             return
 
+        new_flow = deepcopy(flow)
         if not matched_funcs:
-            output.update(flow)
+            output.update(new_flow)
             return
 
-        new_flow = deepcopy(flow)
         EncoderDecoder.func_handler(matched_funcs, new_flow, handler_type='encoder')
         output.update(new_flow)
 
@@ -28,10 +28,10 @@ class EncoderDecoder(FunctionExecutor):
             EncoderDecoder.func_handler(matched_funcs, flow, handler_type='decoder')
             return
 
+        new_flow = deepcopy(flow)
         if not matched_funcs:
-            output.update(flow)
+            output.update(new_flow)
             return
 
-        new_flow = deepcopy(flow)
         EncoderDecoder.func_handler(matched_funcs, new_flow, handler_type='decoder')
         output.update(new_flow)

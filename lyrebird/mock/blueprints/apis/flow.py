@@ -3,6 +3,7 @@ from flask import request
 from lyrebird.mock import context, headers
 from lyrebird import application
 from lyrebird.event_filter import Filter
+from lyrebird.application import config
 from urllib.parse import urlencode, unquote
 from flask import request, Response
 from copy import deepcopy
@@ -16,8 +17,15 @@ class Flow(Resource):
     """
 
     def get(self, id):
-        is_decode = request.args.get('is_decode', 'false').strip().lower() == 'true'
         is_origin = request.args.get('is_origin', 'false').strip().lower() == 'true'
+        no_decode = request.args.get('no_decode')
+        if no_decode is None:
+            no_decode = config.get('inspector.detail.no_decode', 0)
+        if isinstance(no_decode, str) and no_decode.strip().isdigit():
+            no_decode = int(no_decode)
+        elif not isinstance(no_decode, int):
+            return application.make_fail_response(f'Param no_decode type error, in the request of api/flow/{id}')
+        
         for item in context.application.cache.items():
             if item['id'] == id:
                 # Import decoder for decoding the requested content
@@ -26,7 +34,7 @@ class Flow(Resource):
                     display_item.update(item)
                 else:
                     application.encoders_decoders.decoder_handler(item, output=display_item)
-                if is_decode:
+                if not no_decode:
                     display_item['request'] = deepcopy(display_item['request'])
                     for key in ('url', 'path', 'query'):
                         url_decode(display_item['request'], key)
