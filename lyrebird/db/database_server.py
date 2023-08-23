@@ -222,17 +222,21 @@ class LyrebirdDatabaseServer(ThreadServer):
     
     def get_database_info(self):
         database_path = str(self.database_uri)
-        threshold_str = application._cm.config.get('event.file_size_threshold')
-        threshold_byte = convert_size_to_byte(threshold_str)
         size = self.database_uri.stat().st_size
         readable_size = convert_size(size)
-        oversized = threshold_byte and size > threshold_byte
         database_info = {
             'path': database_path,
-            'threshold': threshold_str,
             'size': readable_size,
-            'oversized': oversized
+            'oversized': False
         }
+
+        threshold_str = application._cm.config.get('event.file_size_threshold')
+        if threshold_str is not None:
+            threshold_byte = convert_size_to_byte(threshold_str)
+            oversized = threshold_byte and size > threshold_byte
+            database_info['threshold'] = threshold_str
+            database_info['oversized'] = oversized
+        
         return database_info
 
     def reset(self):
