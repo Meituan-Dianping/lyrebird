@@ -1,12 +1,23 @@
 import axios from 'axios'
 
+const addSearchStr = (url, options) => {
+  if (options.searchStr && options.searchStr.trim()) {
+    var searchStr = options.searchStr.trim().split(/\s+/).join('+')
+    url += '/search?q=' + encodeURIComponent(searchStr)
+  }
+  return url
+}
 //------Checker manager------
 /**
 Get checkers list
 */
-export const getCheckers = () => {
+export const getCheckers = (options) => {
+  let url = '/api/checker'
+  if (options) {
+    url = addSearchStr(url, options)
+  }
   return axios({
-    url: '/api/checker'
+    url
   })
 }
 

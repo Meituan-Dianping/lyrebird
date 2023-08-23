@@ -5,8 +5,11 @@ from lyrebird import application
 
 class Checker(Resource):
     def get(self, checker_id=None):
+        search_str = ''
+        if request.args.get('q'):
+            search_str = request.args.get('q')
         if not checker_id:
-            sorted_checker_groups = application.server['checker'].get_sorted_checker_groups()
+            sorted_checker_groups = application.server['checker'].get_sorted_checker_groups(search_str)
             return application.make_ok_response(data=sorted_checker_groups)
 
         _checker = application.checkers.get(checker_id)

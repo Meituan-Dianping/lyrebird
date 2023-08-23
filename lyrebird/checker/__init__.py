@@ -168,13 +168,15 @@ class LyrebirdCheckerServer(ThreadServer):
             self.activate_checker(self.checkers[checker_file.name], True)
             self.checkers[checker_file.name].debug = True
     
-    def get_sorted_checker_groups(self):
+    def get_sorted_checker_groups(self, search_str=None):
         activated_checkers = {}
         deactivated_checkers = {}
         activated_checkers_list = []
         deactivated_checkers_list = []
         sorted_checker_groups = []
         for checker in self.checkers.values():
+            if search_str and not (search_str in checker.name or search_str in checker.title):
+                continue
             category = checker.category
             activated = checker.activated
             checker_group = activated_checkers if activated else deactivated_checkers

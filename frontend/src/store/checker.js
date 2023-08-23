@@ -6,14 +6,12 @@ export default {
     checkers: [],
     focusChecker: '',
     focusCheckerDetail: null,
-    focusCheckerPanel: 'activated'
+    focusCheckerPanel: 'activated',
+    checkerSearchStr: ''
   },
   mutations: {
     setCheckers (state, checkers) {
       state.checkers = checkers
-      if (state.checkers.length) {
-        state.focusCheckerPanel = state.checkers[0].key
-      }
     },
     setFocusChecker (state, focusChecker) {
       state.focusChecker = focusChecker
@@ -23,11 +21,14 @@ export default {
     },
     setFocusCheckerDetail (state, focusCheckerDetail) {
       state.focusCheckerDetail = focusCheckerDetail
+    },
+    setCheckerSearchStr (state, checkerSearchStr) {
+      state.checkerSearchStr = checkerSearchStr
     }
   },
   actions: {
-    loadCheckers ({ commit }) {
-      api.getCheckers()
+    loadCheckers ({ state, commit }) {
+      api.getCheckers({searchStr: state.checkerSearchStr})
         .then(response => {
           commit('setCheckers', response.data.data)
         })
