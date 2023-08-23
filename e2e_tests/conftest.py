@@ -85,11 +85,11 @@ class Lyrebird:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             return s.getsockname()[1]
 
-    def start(self, checker_path=None):
+    def start(self, checker_path=[]):
 
         cmdline = f'python3 -m lyrebird -b -v --no-mitm --mock {self.port} --extra-mock {self.extra_mock_port}'
-        if checker_path:
-            cmdline = cmdline + f' --script {checker_path}'
+        for path in checker_path:
+            cmdline = cmdline + f' --script {path}'
         self.lyrebird_process = subprocess.Popen(cmdline, shell=True, start_new_session=True)
         _wait(requests.get, args=[self.api_status])
         _wait(requests.get, args=[self.uri_extra_mock])

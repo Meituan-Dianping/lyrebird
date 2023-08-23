@@ -1,4 +1,3 @@
-import pytest
 import os
 import hashlib
 import json
@@ -7,11 +6,11 @@ import requests
 
 
 current_path = os.path.abspath(os.path.dirname(__file__))
-flow_editor_path = [f'{current_path}/assets/flow_editor.py']
+script_path = [f'{current_path}/assets/flow_editor.py', f'{current_path}/assets/encoder_decoder.py']
 
 
 def test_flow_editor_img_data(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=flow_editor_path)
+    lyrebird_with_args.start(checker_path=script_path)
     with open(f"{current_path}/assets/1.png", "rb") as f:
         data = f.read()
     r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post,
@@ -20,7 +19,7 @@ def test_flow_editor_img_data(lyrebird_with_args, mock_server):
 
 
 def test_flow_editor_img_file(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=flow_editor_path)
+    lyrebird_with_args.start(checker_path=script_path)
 
     files = {'file': ('1.png', open(f'{current_path}/assets/1.png', 'rb'), 'image/jpg')}
     r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, files=files)
@@ -30,7 +29,7 @@ def test_flow_editor_img_file(lyrebird_with_args, mock_server):
 
 
 def test_flow_editor_json(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=flow_editor_path)
+    lyrebird_with_args.start(checker_path=script_path)
 
     data = json.dumps({"name": {"12": 123}}, ensure_ascii=False)
     headers = {"Content-Type": "application/json"}
@@ -39,7 +38,7 @@ def test_flow_editor_json(lyrebird_with_args, mock_server):
 
 
 def test_flow_editor_js(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=flow_editor_path)
+    lyrebird_with_args.start(checker_path=script_path)
 
     data = "console.log('hello world')"
     headers = {"Content-Type": "application/javascript"}
@@ -48,7 +47,7 @@ def test_flow_editor_js(lyrebird_with_args, mock_server):
 
 
 def test_flow_editor_text(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=flow_editor_path)
+    lyrebird_with_args.start(checker_path=script_path)
     data = "asdasdasd"
     headers = {"Content-Type": "text/plain"}
     r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, data=data, headers=headers)
@@ -56,7 +55,7 @@ def test_flow_editor_text(lyrebird_with_args, mock_server):
 
 
 def test_flow_editor_form(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=flow_editor_path)
+    lyrebird_with_args.start(checker_path=script_path)
     data = 'z=9&a=1&a=2&b=1'
     after_data = 'z=9&a=1&b=1'
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
@@ -65,7 +64,7 @@ def test_flow_editor_form(lyrebird_with_args, mock_server):
 
 
 def test_flow_editor_json_gzip(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=flow_editor_path)
+    lyrebird_with_args.start(checker_path=script_path)
     data = {"a": 1}
     ziped_data = gzip.compress(json.dumps(data, ensure_ascii=False).encode())
     headers = {"Content-Type": "application/json", "Content-Encoding": "gzip"}
