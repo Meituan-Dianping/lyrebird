@@ -92,10 +92,8 @@ class HandlerContext:
             DataHelper.origin2flow(self.request, output=_request, chain=self.request_chain)
 
         if self.request.headers.get('Lyrebird-Client-Address'):
-            # from extra mock server and mitmproxy
             self.client_address = self.request.headers.get('Lyrebird-Client-Address')
         else:
-            # from origin mock server
             self.client_address = self.request.remote_addr
         self.flow['client_address'] = self.client_address
 

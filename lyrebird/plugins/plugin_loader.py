@@ -100,7 +100,6 @@ def load_all_from_ep():
             logger.error(f'Load plugin {ep.name} failed: {ep.dist}\n{e}\n{traceback.format_exc()}')
             continue
         plugins[plugin.project_name] = plugin
-        logger.info(f'Load plugin from ep success: {plugin.project_name}')
     return plugins
 
 

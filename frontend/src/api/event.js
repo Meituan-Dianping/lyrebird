@@ -77,10 +77,3 @@ export const exportSnapshotFromEvent = (data) => {
     data
   })
 }
-
-export const eventFileInfo = () => {
-  return axios({
-    url: '/api/event/fileinfo',
-    method: 'GET'
-  })
-}

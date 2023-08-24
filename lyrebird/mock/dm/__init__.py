@@ -589,14 +589,6 @@ class DataManager:
 
         return _data_id
 
-    def _flow_str_2_data(self, data_str):
-        if not isinstance(data_str, str):
-            return data_str
-        try:
-            return json.loads(data_str)
-        except Exception:
-            return data_str
-
     def _flow_data_2_str(self, data):
         if isinstance(data, str):
             return data
