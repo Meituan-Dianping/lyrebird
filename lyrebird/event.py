@@ -159,12 +159,11 @@ class EventServer(ThreadServer):
         context.application.socket_io.emit('event', {'id': event_id, 'channel': channel})
 
         # Send report
-        if application.reporter:
-            application.reporter.report({
-                'action': 'event',
-                'channel': channel,
-                'event': message
-            })
+        application.reporter.report({
+            'action': 'event',
+            'channel': channel,
+            'event': message
+        })
 
         logger.debug(f'channel={channel} state={state}\nmessage:\n-----------\n{message}\n-----------\n')
 

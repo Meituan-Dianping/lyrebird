@@ -9,7 +9,7 @@ logger = get_logger()
 class JSONPath:
 
     @staticmethod
-    def search(root, path:str, find_one=False):
+    def search(root, path:str):
         """ Find JSON object in object (a ``list`` or ``dict`` JSON object) file by JSONPath
 
         ``root`` <list> or <dict> an object containing data
@@ -44,8 +44,6 @@ class JSONPath:
 
         result = []
         JSONPath._search_iterator(root, keys, result)
-        if find_one:
-            return result[0].node if result else None
         return result
 
     @staticmethod

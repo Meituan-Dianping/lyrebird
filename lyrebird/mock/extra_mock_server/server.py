@@ -47,7 +47,6 @@ async def send_request(context: LyrebirdProxyContext, target_url):
         headers = {k: v for k, v in request.headers.items() if k.lower() not in [
             'cache-control', 'host', 'transfer-encoding']}
         headers['Proxy-Raw-Headers'] = make_raw_headers_line(request)
-        headers['Lyrebird-Client-Address'] = request.remote
         request_body = None
         if request.body_exists:
             request_body = request.content
