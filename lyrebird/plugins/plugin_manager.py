@@ -21,6 +21,7 @@ class PluginManager(StaticServer):
         for plugin_path in self.plugin_path_list:
             try:
                 plugin = plugin_loader.load_from_path(plugin_path)
+                logger.info(f'Load plugin from path success: {plugin.project_name}')
             except:
                 logger.error(f'Load plugin failed. Skip plugin : {plugin_path}\n{traceback.format_exc()}')
                 continue

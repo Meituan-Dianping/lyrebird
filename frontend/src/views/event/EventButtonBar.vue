@@ -11,7 +11,26 @@
         <span>Clear</span>
       </v-tooltip>
 
-   
+      <v-tooltip right open-delay=500 v-if=this.eventFileOversized>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon size="18px" color="warning">mdi-information-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>Database path: {{ eventFilePath }}</span><br>
+        <span>Database size: {{ eventFileSize }}</span>
+        <b style="white-space:pre">   Please clear</b><v-icon size="18px" color="accent">mdi-eraser</v-icon><b>as soon as possible.</b>
+      </v-tooltip>
+      <v-tooltip right open-delay=500 v-else>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon size="18px" color="accent">mdi-information-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>Database path: {{ eventFilePath }}</span><br>
+        <span>Database size: {{ eventFileSize }}</span>
+      </v-tooltip>
+
     </div>
 
     <div class="inline">
@@ -67,12 +86,16 @@
 </template>
 
 <script>
+import { eventFileInfo } from '@/api'
 import Icon from 'vue-svg-icon/Icon.vue'
 
 export default {
   name: 'eventButtonBar',
   components: {
     'svg-icon': Icon
+  },
+  activated () {
+    this.checkEventFileInfo()
   },
   data () {
     return {
@@ -87,9 +110,37 @@ export default {
       set (val) {
         this.$store.commit('setEventSearchStr', val)
       }
+    },
+    eventFilePath() {
+      return this.$store.state.event.eventFilePath
+    },
+    eventFileSize() {
+      return this.$store.state.event.eventFileSize
+    },
+    eventFileOversized() {
+      return this.$store.state.event.eventFileOversized
     }
   },
   methods: {
+    checkEventFileInfo () {
+      eventFileInfo()
+        .then(response => {
+          let eventFileInfo = response.data.file_info
+          let eventFilePath = eventFileInfo.path
+          let eventFileSizeThreshold = eventFileInfo.threshold
+          let eventFileSize = eventFileInfo.size
+          let eventFileOversized = eventFileInfo.oversized
+          if (eventFileOversized) {
+            this.$bus.$emit('msg.info', `Database size has exceeded ${eventFileSizeThreshold}, please clear it as soon!`)
+          }
+          this.$store.commit('setEventFilePath', eventFilePath)
+          this.$store.commit('setEventFileSizeThreshold', eventFileSizeThreshold)
+          this.$store.commit('setEventFileSize', eventFileSize)
+          this.$store.commit('setEventFileOversized', eventFileOversized)
+        }).catch(error => {
+          this.$bus.$emit('msg.error', `Get event file info error: ${error.data.message}`)
+        })
+    },
     clearAllEvents () {
       this.isShowClearDialog = false
       this.$store.dispatch('clearEvents')

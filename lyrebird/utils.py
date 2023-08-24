@@ -29,6 +29,20 @@ def convert_size(size_bytes):
     return "%s %s" % (s, size_name[i])
 
 
+def convert_size_to_byte(size_str: str):
+    size_str = size_str.strip().upper()
+    match = re.match(r'^(\d+\.?\d*)\s*([KMGTPEZY]?[B])$', size_str)
+    if not match:
+        logger.warning(f'Invalid size string: {size_str}')
+        return
+    size = float(match.group(1))
+    unit = match.group(2)
+    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+    i = size_name.index(unit)
+    size_bytes = int(size * (1024 ** i))
+    return size_bytes
+
+
 def convert_time(duration):
     if duration < 1:
         return str(round(duration * 1000)) + 'ms'
