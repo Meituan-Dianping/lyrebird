@@ -13,95 +13,93 @@
         />
       </div>
 
-      <div>
-        <v-card v-if="extensionList.length" flat>
-          <v-tabs
-            hide-slider
-            fixed-tabs
-            active-class="active-tab"
-            class="extension-tabs"
-            :value="focusPanel"
-            @change="onClickTab"
-          >
-            <v-tab class="rounded rounded-r-0" key="activated">Activated</v-tab>
-            <v-tab class="rounded rounded-l-0" key="deactivated">Deactivated</v-tab>
-          </v-tabs>
-        </v-card>
-        <v-divider class="border"></v-divider>
-        <v-card v-if="extensionList.length" class="extension-tab-content" flat>
-        <v-tabs-items :value="focusPanel">
-          <v-tab-item
-            v-for="extension_group in extensionList"
-            :key="extension_group.key"
-          >
-            <v-list class="extension-list">
-              <v-list-group
-                :value="true"
-                no-action
-                sub-group
-                class="group-head"
-                v-for="script_group in extension_group.script_group"
-                :key="script_group.category"
-              >
-                <template v-slot:activator>
-                  <v-list-item-content class="group-head-content">
-                    <v-list-item-title class=group-head-title>
-                      <v-icon
-                      class="list-grop-icon">
-                        mdi-folder-outline
-                      </v-icon> {{script_group.category}}
-                      <v-tooltip v-if="script_group.description" right z-index="2">
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-icon
-                            small
-                            class="info-icon"
-                            v-bind="attrs"
-                            v-on="on"
-                          >
-                            mdi-help-circle-outline
-                          </v-icon>
-                        </template>
-                        <span class="extension-group-tooltip">{{script_group.description}}</span>
-                      </v-tooltip>
-                    </v-list-item-title>
+      <v-card v-if="extensionList.length" flat>
+        <v-tabs
+          hide-slider
+          fixed-tabs
+          active-class="active-tab"
+          class="extension-tabs"
+          :value="focusPanel"
+          @change="onClickTab"
+        >
+          <v-tab class="rounded rounded-r-0" key="activated">Activated</v-tab>
+          <v-tab class="rounded rounded-l-0" key="deactivated">Deactivated</v-tab>
+        </v-tabs>
+      </v-card>
+      <v-divider class="border"></v-divider>
+      <v-card v-if="extensionList.length" class="extension-tab-content" flat>
+      <v-tabs-items :value="focusPanel">
+        <v-tab-item
+          v-for="extension_group in extensionList"
+          :key="extension_group.key"
+        >
+          <v-list class="extension-list">
+            <v-list-group
+              :value="true"
+              no-action
+              sub-group
+              class="group-head"
+              v-for="script_group in extension_group.script_group"
+              :key="script_group.category"
+            >
+              <template v-slot:activator>
+                <v-list-item-content class="group-head-content">
+                  <v-list-item-title class=group-head-title>
+                    <v-icon
+                    class="list-grop-icon">
+                      mdi-folder-outline
+                    </v-icon> {{script_group.category}}
+                    <v-tooltip v-if="script_group.description" right z-index="2">
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-icon
+                          small
+                          class="info-icon"
+                          v-bind="attrs"
+                          v-on="on"
+                        >
+                          mdi-help-circle-outline
+                        </v-icon>
+                      </template>
+                      <span class="extension-group-tooltip">{{script_group.description}}</span>
+                    </v-tooltip>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </template>
+              <template v-for="(extension, index) in script_group.scripts">
+                <v-list-item
+                  class="extension-card"
+                  active-class="active-extension-card"
+                  :key="extension.name"
+                  :input-value="isSelected(extension.name)"
+                  @click="onClickItem(extension.name)"
+                >
+                  <v-list-item-content class="extension-card-content">
+                    <v-list-item-title class="extension-card-title">{{extension.title}}</v-list-item-title>
+                    <v-list-item-subtitle class="extension-card-subtitle">{{extension.name}}</v-list-item-subtitle>
                   </v-list-item-content>
-                </template>
-                <template v-for="(extension, index) in script_group.scripts">
-                  <v-list-item
-                    class="extension-card"
-                    active-class="active-extension-card"
-                    :key="extension.name"
-                    :input-value="isSelected(extension.name)"
-                    @click="onClickItem(extension.name)"
-                  >
-                    <v-list-item-content class="extension-card-content">
-                      <v-list-item-title class="extension-card-title">{{extension.title}}</v-list-item-title>
-                      <v-list-item-subtitle class="extension-card-subtitle">{{extension.name}}</v-list-item-subtitle>
-                    </v-list-item-content>
-                    <v-list-item-action class="extension-card-action">
-                      <v-switch
-                        inset
-                        dense
-                        class="extension-switch"
-                        v-model="extension.activated"
-                        @change="changeStatus(extension)"
-                      ></v-switch>
-                    </v-list-item-action>
-                  </v-list-item>
-                  <v-divider 
-                  :key="index"
-                  v-if="index !== script_group.scripts.length-1"
-                  class="extension-card-divider border">
-                  </v-divider>
-                </template>
-              </v-list-group>
-            </v-list>
-          </v-tab-item>
-        </v-tabs-items>
-        </v-card>
-        <div v-else class="extension-empty">
-          <p class="empty-text">No Scripts</p>
-        </div>
+                  <v-list-item-action class="extension-card-action">
+                    <v-switch
+                      inset
+                      dense
+                      class="extension-switch"
+                      v-model="extension.activated"
+                      @change="changeStatus(extension)"
+                    ></v-switch>
+                  </v-list-item-action>
+                </v-list-item>
+                <v-divider 
+                :key="index"
+                v-if="index !== script_group.scripts.length-1"
+                class="extension-card-divider border">
+                </v-divider>
+              </template>
+            </v-list-group>
+          </v-list>
+        </v-tab-item>
+      </v-tabs-items>
+      </v-card>
+      <div v-else class="extension-empty">
+        <p class="empty-text">No Scripts</p>
       </div>
     </div>
 </template>
@@ -110,7 +108,7 @@
 export default {
   data () {
     return {
-      refreshEventListTimer: null
+      refreshCheckerListTimer: null
     }
   },
   computed: {
@@ -134,11 +132,11 @@ export default {
       if (newValue === null) {
         newValue = ''
       }
-      clearTimeout(this.refreshEventListTimer)
-      this.refreshEventListTimer = setTimeout(() => {
+      clearTimeout(this.refreshCheckerListTimer)
+      this.refreshCheckerListTimer = setTimeout(() => {
         if (newValue.trim() !== oldValue.trim()) {
           this.$store.dispatch('loadCheckers')
-          clearTimeout(this.refreshEventListTimer)
+          clearTimeout(this.refreshCheckerListTimer)
         }
       }, 500)
     }
