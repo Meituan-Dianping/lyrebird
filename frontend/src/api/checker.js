@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const addSearchStr = (url, options) => {
   if (options.searchStr && options.searchStr.trim()) {
-    var searchStr = options.searchStr.trim().split(/\s+/).join('+')
+    var searchStr = options.searchStr.trim()
     url += '/search?q=' + encodeURIComponent(searchStr)
   }
   return url
