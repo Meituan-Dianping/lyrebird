@@ -4,9 +4,9 @@ import { bus } from '@/eventbus'
 export default {
   state: {
     checkers: [],
-    focusChecker: '',
+    focusChecker: null,
     focusCheckerDetail: null,
-    focusCheckerPanel: 'activated',
+    focusCheckerPanel: 0,
     checkerSearchStr: ''
   },
   mutations: {
@@ -41,9 +41,9 @@ export default {
         .catch(error => console.log(error))
     },
     saveCheckerDetail ({ state }) {
-      api.saveCheckerDetail(state.focusChecker, state.focusCheckerDetail)
+      api.saveCheckerDetail(state.focusChecker.name, state.focusCheckerDetail)
         .then(_ => {
-          bus.$emit('msg.success', 'Checker ' + state.focusChecker + ' saved!')
+          bus.$emit('msg.success', 'Checker ' + state.focusChecker.name + ' saved!')
         })
         .catch(error => {
           bus.$emit('msg.error', 'Save checker failed: ' + error.data.message)

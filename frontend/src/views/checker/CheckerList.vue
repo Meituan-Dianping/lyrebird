@@ -71,7 +71,7 @@
                 active-class="active-extension-card"
                 :key="extension.name"
                 :input-value="isSelected(extension.name)"
-                @click="onClickItem(extension.name)"
+                @click="onClickItem(extension)"
               >
                 <v-list-item-content class="extension-card-content">
                   <v-list-item-title class="extension-card-title">{{extension.title}}</v-list-item-title>
@@ -106,6 +106,15 @@
 
 <script>
 export default {
+  activated () {
+    // 0-activated, 1-deactivated
+    const focusChecker = this.$store.state.checker.focusChecker
+    if (focusChecker && !focusChecker.activated) {
+      this.$store.commit('setFocusCheckerPanel', 1)
+    } else {
+      this.$store.commit('setFocusCheckerPanel', 0)
+    }
+  },
   data () {
     return {
       refreshCheckerListTimer: null
@@ -142,9 +151,9 @@ export default {
     }
   },
   methods: {
-    onClickItem(name) {
-      this.$store.commit('setFocusChecker', name)
-      this.$store.dispatch('loadCheckerDetail', name)
+    onClickItem(extension) {
+      this.$store.commit('setFocusChecker', extension)
+      this.$store.dispatch('loadCheckerDetail', extension.name)
     },
     onClickTab(name) {
       this.$store.commit('setFocusCheckerPanel', name)
@@ -153,7 +162,7 @@ export default {
       this.$store.dispatch('updateCheckerStatus', extension)
     },
     isSelected(name) {
-      return name === this.$store.state.checker.focusChecker
+      return this.$store.state.checker.focusChecker && name === this.$store.state.checker.focusChecker.name
     }
   }
 }
