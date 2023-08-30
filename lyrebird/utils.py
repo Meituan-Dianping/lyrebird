@@ -283,6 +283,9 @@ def get_query_array(url):
         return query_array
 
     for k_v in query_string.split('&'):
+        if not k_v:
+            continue
+
         k_v_item = k_v.split('=')
         if len(k_v_item) >= 2:
             query_array.extend(k_v_item[:2])
