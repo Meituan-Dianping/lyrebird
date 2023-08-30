@@ -269,13 +269,21 @@ def render(data, enable_tojson=True):
 
 
 def get_query_array(url):
-    # query string to array
-    # like a=1&b=2 ==> [a, 1, b, 2]
+    # query string to array, example:
+    # a=1&b=2 ==> ['a', '1', 'b', '2']
+    # a=&b=2 ==> ['a', '', 'b', '2']
+    # a&b=2 ==> ['a', '', 'b', '2']
     query_array = []
     qs_index = url.find('?')
-    if qs_index >= 0:
-        query_string = url[qs_index+1:]
-        query_array = re.split('\\&|\\=', query_string)
+    if qs_index < 0:
+        return query_array
+
+    query_string = url[qs_index+1:]
+    for q in query_string.split('&'):
+        if '=' in q:
+            query_array.extend(q.split('='))
+        else:
+            query_array.extend([q, ''])
     return query_array
 
 
