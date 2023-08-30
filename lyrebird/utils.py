@@ -279,11 +279,15 @@ def get_query_array(url):
         return query_array
 
     query_string = url[qs_index+1:]
-    for q in query_string.split('&'):
-        if '=' in q:
-            query_array.extend(q.split('='))
+    if not query_string:
+        return query_array
+
+    for k_v in query_string.split('&'):
+        k_v_item = k_v.split('=')
+        if len(k_v_item) >= 2:
+            query_array.extend(k_v_item[:2])
         else:
-            query_array.extend([q, ''])
+            query_array.extend([k_v, ''])
     return query_array
 
 
