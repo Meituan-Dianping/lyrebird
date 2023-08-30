@@ -9,26 +9,6 @@ def test_case_insenstive_dict():
     assert test_dict.get('content-type') == 'LBTests'
 
 
-# def get_query_array(url):
-#     # query string to array, example:
-#     # a=1&b=2 ==> ['a', '1', 'b', '2']
-#     # a=&b=2 ==> ['a', '', 'b', '2']
-#     # a&b=2 ==> ['a', '', 'b', '2']
-#     query_array = []
-#     qs_index = url.find('?')
-#     if qs_index < 0:
-#         return query_array
-
-#     query_string = url[qs_index+1:]
-#     for k_v in query_string.split('&'):
-#         k_v_item = k_v.split('=')
-#         if len(k_v_item) >= 2:
-#             query_array.extend(k_v_item[:2])
-#         else:
-#             query_array.extend([k_v, ''])
-#     return query_array
-
-
 def test_get_query_array():
     url_no_query = 'http://www.meituan.com'
     url_no_query_with_question_mark = 'http://www.meituan.com?'
