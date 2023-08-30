@@ -1,5 +1,5 @@
 <template>
-  <div v-if="focusChecker.length > 0">
+  <div v-if="focusChecker">
     <code-editor :language="codeType" v-model="checkerDetail" class="checker-detail"></code-editor>
     <div class="save-btn" v-if="focusChecker">
       <v-tooltip top>

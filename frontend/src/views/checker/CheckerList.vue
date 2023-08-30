@@ -1,5 +1,18 @@
 <template>
   <div>
+    <div class="checker-search">
+      <v-text-field
+        outlined
+        dense
+        prepend-inner-icon="mdi-magnify"
+        height=26
+        v-model="checkerSearchStr"
+        class="checker-search-text"
+        label="Search Extension Name"
+        clearable
+      />
+    </div>
+
     <v-card v-if="extensionList.length" flat>
       <v-tabs
         hide-slider
@@ -58,7 +71,7 @@
                 active-class="active-extension-card"
                 :key="extension.name"
                 :input-value="isSelected(extension.name)"
-                @click="onClickItem(extension.name)"
+                @click="onClickItem(extension)"
               >
                 <v-list-item-content class="extension-card-content">
                   <v-list-item-title class="extension-card-title">{{extension.title}}</v-list-item-title>
@@ -93,18 +106,54 @@
 
 <script>
 export default {
+  activated () {
+    // 0-activated, 1-deactivated
+    const focusChecker = this.$store.state.checker.focusChecker
+    if (focusChecker && !focusChecker.activated) {
+      this.$store.commit('setFocusCheckerPanel', 1)
+    } else {
+      this.$store.commit('setFocusCheckerPanel', 0)
+    }
+  },
+  data () {
+    return {
+      refreshCheckerListTimer: null
+    }
+  },
   computed: {
     extensionList() {
       return this.$store.state.checker.checkers
     },
     focusPanel() {
       return this.$store.state.checker.focusCheckerPanel
+    },
+    checkerSearchStr: {
+      get() {
+        return this.$store.state.checker.checkerSearchStr
+      },
+      set (val) {
+        this.$store.commit('setCheckerSearchStr', val)
+      }
+    }
+  },
+  watch: {
+    checkerSearchStr (newValue, oldValue) {
+      if (newValue === null) {
+        newValue = ''
+      }
+      clearTimeout(this.refreshCheckerListTimer)
+      this.refreshCheckerListTimer = setTimeout(() => {
+        if (newValue.trim() !== oldValue.trim()) {
+          this.$store.dispatch('loadCheckers')
+          clearTimeout(this.refreshCheckerListTimer)
+        }
+      }, 500)
     }
   },
   methods: {
-    onClickItem(name) {
-      this.$store.commit('setFocusChecker', name)
-      this.$store.dispatch('loadCheckerDetail', name)
+    onClickItem(extension) {
+      this.$store.commit('setFocusChecker', extension)
+      this.$store.dispatch('loadCheckerDetail', extension.name)
     },
     onClickTab(name) {
       this.$store.commit('setFocusCheckerPanel', name)
@@ -113,20 +162,55 @@ export default {
       this.$store.dispatch('updateCheckerStatus', extension)
     },
     isSelected(name) {
-      return name === this.$store.state.checker.focusChecker
+      return this.$store.state.checker.focusChecker && name === this.$store.state.checker.focusChecker.name
     }
   }
 }
 </script>
 
 <style>
+.checker-search {
+  min-width: 265px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-bottom: 0px;
+  padding-top: 12px;
+}
+.checker-search .v-text-field--outlined {
+  border-radius: 4px 4px 4px 4px !important;
+}
+.checker-search .v-icon {
+  font-size: 16px !important;
+}
+.checker-search .v-input__prepend-inner {
+  margin-top: 3px !important;
+}
+.checker-search .v-input__append-inner {
+  margin-top: 2px !important;
+}
+.checker-search .v-input__slot {
+  min-height: 26px !important;
+  height: 26px !important;
+}
+.checker-search-text {
+  min-height: 26px !important;
+  height: 26px !important;
+  font-size: 14px !important;
+  font-weight: 400;
+  line-height: 14px !important;
+}
+.checker-search-text .v-label{
+  font-size: 14px !important;
+  top: 5px !important;
+}
 .extension-tab-content {
   overflow-y: auto;
-  height: calc(100vh - 44px - 40px - 53px - 28px - 12px)
+  height: calc(100vh - 44px - 40px - 38px - 57px - 28px - 12px)
   /* total:100vh
   header: 44px
   title: 40px
-  tabs: 53px
+  search: 38px
+  tabs: 57px
   editor
   margin-bottom: 12px
   footer: 28px
@@ -136,7 +220,7 @@ export default {
   padding-left: 12px;
   padding-right: 12px;
   padding-bottom: 15px;
-  padding-top: 12px;
+  padding-top: 16px;
 }
 .active-tab {
   background-color: #eeeef9;
@@ -194,7 +278,7 @@ export default {
   color: #5E5BC9 !important;
 }
 .extension-card-content {
-  width: calc(100vh - 850px) !important;
+  width: 0px !important;
 }
 .extension-card-title {
   font-weight: 400;

@@ -46,10 +46,11 @@ class LyrebirdDatabaseServer(ThreadServer):
         # Check whether the current database is broken
         personal_config = application._cm.personal_config
         if str(self.database_uri) in personal_config["event.broken_database_path_list"]:
-            self.database_uri.unlink()
+            if self.database_uri.exists():
+                self.database_uri.unlink()
+                logger.warning(f"The broken DB has been deleted: {self.database_uri}")
             personal_config["event.broken_database_path_list"].remove(str(self.database_uri))
             application._cm.update_personal_config(personal_config)
-            logger.warning(f"The broken DB has been deleted: {self.database_uri}")
 
         init_engine_success = self.init_engine()
         if not init_engine_success:

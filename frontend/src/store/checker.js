@@ -4,16 +4,14 @@ import { bus } from '@/eventbus'
 export default {
   state: {
     checkers: [],
-    focusChecker: '',
+    focusChecker: null,
     focusCheckerDetail: null,
-    focusCheckerPanel: 'activated'
+    focusCheckerPanel: 0,
+    checkerSearchStr: ''
   },
   mutations: {
     setCheckers (state, checkers) {
       state.checkers = checkers
-      if (state.checkers.length) {
-        state.focusCheckerPanel = state.checkers[0].key
-      }
     },
     setFocusChecker (state, focusChecker) {
       state.focusChecker = focusChecker
@@ -23,11 +21,14 @@ export default {
     },
     setFocusCheckerDetail (state, focusCheckerDetail) {
       state.focusCheckerDetail = focusCheckerDetail
+    },
+    setCheckerSearchStr (state, checkerSearchStr) {
+      state.checkerSearchStr = checkerSearchStr
     }
   },
   actions: {
-    loadCheckers ({ commit }) {
-      api.getCheckers()
+    loadCheckers ({ state, commit }) {
+      api.getCheckers({searchStr: state.checkerSearchStr})
         .then(response => {
           commit('setCheckers', response.data.data)
         })
@@ -40,9 +41,9 @@ export default {
         .catch(error => console.log(error))
     },
     saveCheckerDetail ({ state }) {
-      api.saveCheckerDetail(state.focusChecker, state.focusCheckerDetail)
+      api.saveCheckerDetail(state.focusChecker.name, state.focusCheckerDetail)
         .then(_ => {
-          bus.$emit('msg.success', 'Checker ' + state.focusChecker + ' saved!')
+          bus.$emit('msg.success', 'Checker ' + state.focusChecker.name + ' saved!')
         })
         .catch(error => {
           bus.$emit('msg.error', 'Save checker failed: ' + error.data.message)
