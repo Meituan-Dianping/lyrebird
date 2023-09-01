@@ -34,7 +34,7 @@ export default {
     setSelectedFlows (state, selectedFlows) {
       state.selectedFlows = selectedFlows
     },
-    cleaerSelectedFlows (state) {
+    clearSelectedFlows (state) {
       state.selectedFlows = []
     },
     addSelectedFlow (state, flow) {
@@ -159,18 +159,20 @@ export default {
       api.deleteAllFlow()
         .then(response => { 
           commit('clearSelectedId')
-          commit('cleaerSelectedFlows')
+          commit('clearSelectedFlows')
         }).catch(error => {
           bus.$emit('msg.error', 'Clear flow error: ' + error.data.message)
           return
         })
       bus.$emit('msg.success', 'Clear Inspector success!')
     },
-    saveSelectedFlow ({ state, dispatch }) {
+    saveSelectedFlow ({ state, commit, dispatch }) {
       api.saveSelectedFlow(state.selectedIds)
         .then(response => {
-          dispatch('loadDataMap')
           bus.$emit('msg.success', state.selectedIds.length + ' flow saved!')
+          dispatch('loadDataMap')
+          commit('clearSelectedFlows')
+          commit('clearSelectedId')
         })
         .catch(error => {
           bus.$emit('msg.error', 'Save flow error: ' + error.data.message)
@@ -187,7 +189,7 @@ export default {
             commit('clearFocusedFlowDetail')
           }
           commit('clearSelectedId')
-          commit('cleaerSelectedFlows')
+          commit('clearSelectedFlows')
           bus.$emit('msg.success', selectedIdLength + ' flow deleted!')
         })
         .catch(error => {
