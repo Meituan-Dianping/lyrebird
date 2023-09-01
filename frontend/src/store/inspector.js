@@ -34,6 +34,9 @@ export default {
     setSelectedFlows (state, selectedFlows) {
       state.selectedFlows = selectedFlows
     },
+    removeSelectedFlowsByIndex (state, index) {
+      state.selectedFlows.splice(index, 1)
+    },
     clearSelectedFlows (state) {
       state.selectedFlows = []
     },
@@ -130,12 +133,6 @@ export default {
     loadFlowList ({ state, commit }) {
       api.searchFlowList(state.selectedFlowFilter)
         .then(response => {
-          // selected
-          for (const flow of response.data) {
-            if (state.selectedIds.includes(flow.id)) {
-              flow['_checked'] = true
-            }
-          }
           // highlight
           for (const flow of response.data) {
             if (flow.id === (state.focusedFlow && state.focusedFlow.id)) {
