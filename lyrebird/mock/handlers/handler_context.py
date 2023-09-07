@@ -11,6 +11,7 @@ from lyrebird.mock.blueprints.apis.bandwidth import config
 from urllib.parse import urlparse, unquote
 from .http_data_helper import DataHelper
 from .http_header_helper import HeadersHelper
+from .proxy_handler import proxy_handler
 
 
 logger = get_logger()
@@ -28,6 +29,7 @@ class HandlerContext:
         self.id = str(uuid.uuid4())
         self.request = request
         self.response = None
+        self.cookies = request.cookies
         self.client_req_time = None
         self.client_resp_time = None
         self.server_req_time = None
@@ -184,7 +186,10 @@ class HandlerContext:
 
             _data = DataHelper.flow2origin(self.flow['request'], chain=self.request_chain)
         else:
-            _data = self.request.data or self.request.form or None
+            try:
+                _data = self.request.data or self.request.form or None
+            except:
+                _data = DataHelper.flow2origin(self.flow['request'])
         return _data
 
     def get_request_headers(self):
@@ -200,6 +205,12 @@ class HandlerContext:
                 continue
             headers[name] = value
         return headers
+    
+    def get_request_cookies(self):
+        try:
+            return self.request.cookies
+        except:
+            return self.cookies
 
     def get_response_generator(self):
         if self.is_response_edited:
@@ -298,6 +309,13 @@ class HandlerContext:
 
         parsed_url = self._get_parse_url_dict(url)
         self.flow['request'].update(parsed_url)
+
+        # Diff Mode proxy request
+        if context.application.is_diff_mode == context.MockMode.MULTIPLE and self.response_source == 'mock':
+            proxy_handler.handle(self)
+            if self.is_proxiable:
+                self.update_response_headers_code2flow(output_key='proxy_response')
+                self.update_response_data2flow(output_key='proxy_response')
 
         # Import decoder for decoding the requested content
         decode_flow = {}

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, Response
 
 from ..handlers.mock_handler import MockHandler
-from ..handlers.proxy_handler import ProxyHandler
+from ..handlers.proxy_handler import proxy_handler
 from ..handlers.duplicate_header_key_handler import DuplicateHeaderKeyHandler
 from ..handlers.path_not_found_handler import RequestPathNotFound
 from ..handlers.handler_context import HandlerContext
@@ -12,7 +12,6 @@ from lyrebird import log
 
 logger = log.get_logger()
 mock_handler = MockHandler()
-proxy_handler = ProxyHandler()
 path_not_found_handler = RequestPathNotFound()
 flow_editor_handler = FlowEditorHandler()
 
@@ -64,13 +63,6 @@ def index(path=''):
         path_not_found_handler.handle(req_context)
         req_context.update_client_resp_time()
         resp = req_context.response
-
-
-    if context.application.is_diff_mode == context.MockMode.MULTIPLE and req_context.response_source == 'mock':
-        proxy_handler.handle(req_context)
-        if req_context.is_proxiable:
-            req_context.update_response_headers_code2flow(output_key='proxy_response')
-            req_context.update_response_data2flow(output_key='proxy_response')
 
     DuplicateHeaderKeyHandler.set_origin_header(resp.headers, req_context.flow['response']['headers'])
 

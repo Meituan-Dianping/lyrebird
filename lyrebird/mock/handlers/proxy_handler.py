@@ -53,7 +53,7 @@ class ProxyHandler:
                 origin_url, 
                 headers=headers, 
                 data=data, 
-                cookies=handler_context.request.cookies, 
+                cookies=handler_context.get_request_cookies(), 
                 stream=True, 
                 verify=False, 
                 allow_redirects=False)
@@ -88,9 +88,16 @@ class ProxyHandler:
         if r.status_code == 204:
             handler_context.response = Response(None, status=r.status_code, headers=resp_headers)
             return
+        
+        try:
+            gen = stream_with_context(r.iter_content(chunk_size=handler_context.response_chunk_size))
+        except:
+            gen = r.iter_content(chunk_size=handler_context.response_chunk_size)
 
         # After huangyuanzhen test, we use 2048byte buffer :D
         handler_context.response = Response(
-            stream_with_context(r.iter_content(chunk_size=handler_context.response_chunk_size)),
+            gen,
             status=r.status_code,
             headers=resp_headers)
+
+proxy_handler = ProxyHandler()
