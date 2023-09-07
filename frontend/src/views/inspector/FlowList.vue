@@ -353,24 +353,43 @@ export default {
     refreshFlowList () {
       let displayFlowList = []
       let searchStr = typeof(this.searchStr) === 'string' ? this.searchStr.trim() : ''
+
+      // Search
       if(!searchStr){
         displayFlowList = this.originFlowList
+      } else {
+        // Split searchStr by one or more (spaces, |)
+        let searchStrList = searchStr.split(/\|+/)
+        for(const idx in searchStrList){
+          searchStrList[idx] = searchStrList[idx].trim()
+          searchStrList[idx] = searchStrList[idx].split(/\s+/)
+        }
+        for (const flow of this.originFlowList) {
+          this.isMatch(flow.request.url, searchStrList) ? displayFlowList.push(flow) : null
+        }
       }
-      // Split searchStr by one or more (spaces, |)
-      let searchStrList = searchStr.split(/\|+/)
-      for(const idx in searchStrList){
-        searchStrList[idx] = searchStrList[idx].trim()
-        searchStrList[idx] = searchStrList[idx].split(/\s+/)
-      }
-      for (const flow of this.originFlowList) {
-        this.isMatch(flow.request.url, searchStrList) ? displayFlowList.push(flow) : null
-      }
+
+      // Page
       this.displayFlowCount = displayFlowList.length
       this.pageCount = Math.max(Math.ceil(this.displayFlowCount / this.pageSize), 1)
       this.currentPage = this.pageCount && (this.currentPage > this.pageCount) ? this.pageCount : this.currentPage
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
       this.flowList = displayFlowList.slice(startIndex, endIndex)
+
+      // Select
+      let displayFlowSelectedIdSet = new Set()
+      for (const flow of this.flowList) {
+        if (this.$store.state.inspector.selectedIds.includes(flow.id)) {
+          flow['_checked'] = true
+          displayFlowSelectedIdSet.add(flow.id)
+        }
+      }
+      for (const i in this.selectedFlows) {
+        if (!displayFlowSelectedIdSet.has(this.selectedFlows[i].id)) {
+          this.$store.commit('removeSelectedFlowsByIndex', i)
+        }
+      }
     },
     getRequestEditors (row) {
       let displayRowAction = []
