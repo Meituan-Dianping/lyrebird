@@ -31,7 +31,7 @@ class Flow(Resource):
                 # Import decoder for decoding the requested content
                 display_item = {}
                 if is_origin:
-                    display_item.update(item)
+                    display_item = deepcopy(item)
                 else:
                     application.encoders_decoders.decoder_handler(item, output=display_item)
                 if not no_decode:
