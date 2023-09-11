@@ -35,7 +35,6 @@ class Flow(Resource):
                 else:
                     application.encoders_decoders.decoder_handler(item, output=display_item)
                 if not no_decode:
-                    display_item['request'] = deepcopy(display_item['request'])
                     for key in ('url', 'path', 'query'):
                         url_decode(display_item['request'], key)
                 return application.make_ok_response(data=display_item)
