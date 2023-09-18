@@ -99,5 +99,3 @@ class ProxyHandler:
             gen,
             status=r.status_code,
             headers=resp_headers)
-
-proxy_handler = ProxyHandler()

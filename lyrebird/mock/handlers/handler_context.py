@@ -11,7 +11,7 @@ from lyrebird.mock.blueprints.apis.bandwidth import config
 from urllib.parse import urlparse, unquote
 from .http_data_helper import DataHelper
 from .http_header_helper import HeadersHelper
-from .proxy_handler import proxy_handler
+from ..blueprints.core import proxy_handler
 
 
 logger = get_logger()
