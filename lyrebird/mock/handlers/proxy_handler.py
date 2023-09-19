@@ -22,7 +22,7 @@ class ProxyHandler:
 
     """
 
-    def handle(self, handler_context):
+    def handle(self, handler_context, in_request_handler=True):
 
         request = handler_context.flow['request']
 
@@ -42,7 +42,7 @@ class ProxyHandler:
             DuplicateRequest().handle(handler_context)
             return
 
-        data = handler_context.get_request_body()
+        data = handler_context.get_request_body(in_request_handler)
 
         method = request['method']
         headers = handler_context.get_request_headers()
@@ -53,7 +53,7 @@ class ProxyHandler:
                 origin_url, 
                 headers=headers, 
                 data=data, 
-                cookies=handler_context.get_request_cookies(), 
+                cookies=handler_context.get_request_cookies(in_request_handler), 
                 stream=True, 
                 verify=False, 
                 allow_redirects=False)
@@ -89,9 +89,9 @@ class ProxyHandler:
             handler_context.response = Response(None, status=r.status_code, headers=resp_headers)
             return
         
-        try:
+        if in_request_handler:
             gen = stream_with_context(r.iter_content(chunk_size=handler_context.response_chunk_size))
-        except:
+        else:
             gen = r.iter_content(chunk_size=handler_context.response_chunk_size)
 
         # After huangyuanzhen test, we use 2048byte buffer :D

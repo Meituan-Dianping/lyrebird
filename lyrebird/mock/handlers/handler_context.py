@@ -180,16 +180,16 @@ class HandlerContext:
     def set_response_source_proxy(self):
         self.response_source = 'proxy'
 
-    def get_request_body(self):
+    def get_request_body(self, in_request_handler=True):
         if self.is_request_edited:
             # TODO Repeated calls, remove it
             self.flow['request']['headers'] = HeadersHelper.flow2origin(self.flow['request'], chain=self.request_chain)
 
             _data = DataHelper.flow2origin(self.flow['request'], chain=self.request_chain)
         else:
-            try:
+            if in_request_handler:
                 _data = self.request.data or self.request.form or None
-            except:
+            else:
                 _data = DataHelper.flow2origin(self.flow['request'])
         return _data
 
@@ -207,10 +207,10 @@ class HandlerContext:
             headers[name] = value
         return headers
     
-    def get_request_cookies(self):
-        try:
+    def get_request_cookies(self, in_request_handler=True):
+        if in_request_handler:
             return self.request.cookies
-        except:
+        else:
             return self.cookies
 
     def get_response_generator(self):
@@ -313,7 +313,7 @@ class HandlerContext:
 
         # Diff Mode proxy request
         if context.application.is_diff_mode == context.MockMode.MULTIPLE and self.response_source == 'mock':
-            proxy_handler.handle(self)
+            proxy_handler.handle(self, in_request_handler=False)
             if self.is_proxiable:
                 self.update_response_headers_code2flow(output_key='proxy_response')
                 self.update_response_data2flow(output_key='proxy_response')
