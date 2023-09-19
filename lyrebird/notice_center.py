@@ -6,12 +6,14 @@ from pathlib import Path
 from lyrebird import log
 from lyrebird import application
 from lyrebird.mock import context
+from copy import deepcopy
 
 logger = log.get_logger()
 
 class NoticeCenter():
 
     def __init__(self):
+        self.checker_switch = application.config.get('autoissue.checker.switch', {})
         self.HISTORY_NOTICE = None
         self.notice_hashmap = {}
         self.notice_list = []
@@ -69,14 +71,22 @@ class NoticeCenter():
                     logger.error('Load history notice fail!')
                     traceback.print_exc()
 
-    def new_notice(self, msg):
+    def new_notice(self, msg_origin):
         """
 
         display new notice
-        msg: message dict
+        msg_origin: message dict
 
 
         """
+        msg = deepcopy(msg_origin)
+        alert = True
+        # if notice need to be issued automatically, no alert
+        sender_file = msg.get('sender', {}).get('file', '')
+        if sender_file in self.checker_switch:
+            msg['title'] = f"[AutoIssue] {msg.get('title')}"
+            alert = False
+        
         unique_key = msg.get('title')
         if self.notice_hashmap.get(unique_key):
             self.notice_hashmap[unique_key]['noticeList'].append(msg)
@@ -86,7 +96,7 @@ class NoticeCenter():
             self.notice_hashmap.update(
                 {
                     unique_key: {
-                        'alert': True,
+                        'alert': alert,
                         'noticeList': [msg]
                     }
                 }
