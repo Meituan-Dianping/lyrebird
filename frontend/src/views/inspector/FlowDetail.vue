@@ -1,43 +1,82 @@
 <template>
-  <div v-if="flowDetail">
-    <Row type="flex" justify="center" align="middle">
-      <Col span="1">
-        <Button icon="ios-arrow-dropright-circle" type="text" size="small" @click="dismiss"></Button>
-      </Col>
-      <Col span="23" class="small-tab">
-        <Tabs :value="currentTab" :animated="false" size="small" @on-click="switchTab">
-          <TabPane label="Request" name="req"></TabPane>
-          <TabPane label="RequestBody" name="req-body"></TabPane>
-          <TabPane label="Response" name="resp"></TabPane>
-          <TabPane label="ResponseBody" name="resp-body"></TabPane>
-          <TabPane v-if="showProxyResponse" label="ResponseBodyDiff" name="proxy-resp-diff" />
-        </Tabs>
-      </Col>
-    </Row>
-    <Row style="background:#ffffff;margin-left:10px;" v-if="isDiffEditor" >
-      <Col span="12">Mock Response</Col>
-      <Col span="12">Proxy Response</Col>
-    </Row>
-    
-    <code-editor v-if="flowDetail && !isDiffEditor" :language="codeType" :content="codeContent" class="flow-detail"></code-editor>
-    <code-diff-editor v-if="flowDetail && isDiffEditor" :content="codeContent" :diffContent="diffContent" :language="codeType" class="flow-detail"></code-diff-editor>
+  <div>
+    <v-container class="pa-0 data-list-button-bar">
+      <v-row no-gutters >
+        <v-tabs
+          v-model="currentTab"
+          center-active
+          active-class="flow-detail-active-tab"
+          background-color="shading"
+          color="accent"
+          height="29"
+          show-arrows="never"
+          slider-color="primary"
+        >
+          <v-btn icon plain title='Close' class="mx-2 flow-detail-close-button">
+            <v-icon
+              color="context"
+              @click="dismiss"
+              size="14px"
+            >mdi-chevron-right-circle</v-icon>
+          </v-btn>
+
+          <v-tab append href="#req" class="flow-detail-tab">Request</v-tab>
+          <v-tab append href="#req-body" class="flow-detail-tab">RequestBody</v-tab>
+          <v-tab append href="#resp" class="flow-detail-tab">Response</v-tab>
+          <v-tab append href="#resp-body" class="flow-detail-tab">ResponseBody</v-tab>
+          <v-tab v-if="showProxyResponse" key="proxy-resp-diff">ResponseBodyDiff</v-tab>
+          <v-spacer />
+
+          <JsonpathInfo :jsonpath="jsonPath"></JsonpathInfo>
+        </v-tabs>
+      </v-row>
+    </v-container>
+
+    <span v-if="flowDetail">
+      <Row style="background:#ffffff;margin-left:10px;" v-if="isDiffEditor" >
+        <Col span="12">Mock Response</Col>
+        <Col span="12">Proxy Response</Col>
+      </Row>
+      <CodeDiffEditor 
+        v-if="isDiffEditor"
+        :content="codeContent"
+        :diffContent="diffContent"
+        :language="codeType"
+        class="flow-detail"
+      />
+      <CodeEditor
+        v-else
+        class="flow-detail"
+        :language="codeType"
+        :content="codeContent"
+        v-on:on-jsonpath-change="onJsonPathChange"
+      />
+    </span>
+    <div v-else class="flow-detail-empty">
+      <v-icon large>mdi-package-variant-closed</v-icon>
+      <p >No Selected flow</p>
+    </div>
+
   </div>
 </template>
 
 <script>
 import CodeEditor from '@/components/CodeEditor.vue'
 import CodeDiffEditor from '@/components/CodeDiffEditor.vue'
+import JsonpathInfo from '@/views/inspector/JsonpathInfo.vue'
 
 export default {
   name: 'flowDetail',
   components: {
     CodeEditor,
     CodeDiffEditor,
+    JsonpathInfo
   },
   data () {
     return {
       codeType: 'json',
-      currentTab: 'req'
+      currentTab: 'req',
+      jsonPath: null
     }
   },
   computed: {
@@ -78,15 +117,18 @@ export default {
       return this.currentTab === 'proxy-resp-diff'
     },
     showProxyResponse () {
-      if (!this.flowDetail.hasOwnProperty('proxy_response') && this.currentTab == 'proxy-resp-diff') {
-        this.currentTab = 'resp-body'
+      const isShow = this.flowDetail && this.flowDetail.hasOwnProperty('proxy_response')
+      if (!isShow && this.currentTab == 'proxy-resp-diff') {
+          this.currentTab = 'resp-body'
       }
-      return this.flowDetail.hasOwnProperty('proxy_response')
+      return isShow
     },
   },
   methods: {
     dismiss () {
+      this.$store.commit('setInspectorSplit', 1)
       this.$store.commit('setFocusedFlowDetail', null)
+      this.jsonPath = null
     },
     switchTab (name) {
       this.currentTab = name
@@ -140,6 +182,9 @@ export default {
         codeContent = this.parseTextData(response.data)
       }
       return codeContent
+    },
+    onJsonPathChange (payload) {
+      this.jsonPath = payload.jsonPath
     }
   }
 }
@@ -148,6 +193,20 @@ export default {
 <style lang="css">
 .small-tab > .ivu-tabs > .ivu-tabs-bar {
   margin-bottom: 0;
+}
+.flow-detail-tabs {
+  border-bottom: 1px solid rgba(0,0,0,.12);
+}
+.flow-detail-close-button {
+  height: 29px !important;
+}
+.flow-detail-tab {
+  font-size: 12px;
+  padding: 0px 12px;
+  min-width: 0px;
+}
+.flow-detail-active-tab {
+  font-weight: bold;
 }
 .flow-detail {
   height: calc(100vh - 44px - 40px - 38px - 33px - 28px - 12px);
@@ -159,5 +218,21 @@ export default {
     footer 28px
     margin-bottom: 12px
     */
+}
+.flow-detail-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.button-bar-line {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.v-slide-group__content {
+  transform: none !important;
 }
 </style>

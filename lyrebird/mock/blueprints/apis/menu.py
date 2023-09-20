@@ -51,7 +51,8 @@ class Menu(Resource):
                 'icon': plugin.manifest.icon,
                 'params': {
                     'src': f'/plugins/{plugin_id}',
-                    'name': plugin_id
+                    'name': plugin_id,
+                    'version': plugin.version
                 }
             })
         # When there is no actived menu, the first one is displayed by default

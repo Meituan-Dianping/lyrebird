@@ -19,6 +19,7 @@
         fixed-tabs
         active-class="active-tab"
         class="extension-tabs"
+        height="26"
         :value="focusPanel"
         @change="onClickTab"
       >
@@ -226,19 +227,6 @@ export default {
   background-color: #eeeef9;
   border: 1px solid #5F5CCA;
 }
-.v-tab {
-  text-transform: none;
-  font-weight: 600;
-  font-size: 14px;
-  font-family: PingFangSC-Regular;
-}
-.v-tab:not(.v-tab--active) {
-  border:1px solid #D9DADE;
-  color: #C3C4D4 !important;
-}
-.v-tabs-bar {
-  height: 26px;
-}
 .extension-list {
   padding-top: 0px;
 }
@@ -317,6 +305,19 @@ export default {
 }
 .extension-card-divider {
   margin-left: 36px;
+}
+</style>
+
+<style scoped>
+.v-tab {
+  text-transform: none;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: PingFangSC-Regular;
+}
+.v-tab:not(.v-tab--active) {
+  border:1px solid #D9DADE;
+  color: #C3C4D4 !important;
 }
 </style>
 

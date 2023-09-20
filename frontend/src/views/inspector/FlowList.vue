@@ -21,37 +21,32 @@
 
       <template v-slot:item.source="{ item }">
 
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <span v-bind="attrs" v-on="on" class="flow-list-item-source">
-              <v-chip label small
-                v-if="item.status === 'kill'"
-                class="flow-list-item-tag"
-                color="#fff1f0"
-                text-color="#f5222d"
-              >kill</v-chip>
-              <v-chip label small
-                v-else-if="item.response.mock === 'mock'"
-                class="flow-list-item-tag"
-                color="primaryBrightest"
-                text-color="primary"
-              >mock</v-chip>
-              <v-chip label small
-                v-else-if="item.response.mock === 'proxy'"
-                color="border"
-                class="flow-list-item-tag"
-                text-color="accent"
-              >proxy</v-chip>
-              <v-chip label small
-                v-else
-                class="flow-list-item-tag"
-                color="border"
-                text-color="content"
-              >pending</v-chip>
-            </span>
-          </template>
-          <span>{{getSourceTooltipContent(item)}}</span>
-        </v-tooltip>
+        <span class="flow-list-item-source">
+          <v-chip label small
+            v-if="item.status === 'kill'"
+            class="flow-list-item-tag"
+            color="#fff1f0"
+            text-color="#f5222d"
+          >kill</v-chip>
+          <v-chip label small
+            v-else-if="item.response.mock === 'mock'"
+            class="flow-list-item-tag"
+            color="primaryBrightest"
+            text-color="primary"
+          >mock</v-chip>
+          <v-chip label small
+            v-else-if="item.response.mock === 'proxy'"
+            color="border"
+            class="flow-list-item-tag"
+            text-color="accent"
+          >proxy</v-chip>
+          <v-chip label small
+            v-else
+            class="flow-list-item-tag"
+            color="border"
+            text-color="content"
+          >pending</v-chip>
+        </span>
 
         <v-tooltip bottom v-if="item.proxy_response">
           <template v-slot:activator="{ on, attrs }">
@@ -176,7 +171,7 @@
 
     <v-row class="inspector-tabel-pagination-row">
       <v-spacer />
-      <v-col class="inspector-tabel-pagination-col">
+      <v-col class="pa-0 pt-2">
         <v-pagination
           v-model="currentPage"
           :length="pageCount"
@@ -296,7 +291,7 @@ export default {
       this.$store.dispatch('loadFlowList')
     },
     onTableResize () {
-      const height = window.innerHeight - 44 - 40 - 12 - 26 - 7 - 1 - 8 - 12 - 32 - 12 - 12 - 28
+      const height = window.innerHeight - 44 - 40 - 12 - 26 - 7 - 1 - 8 - 32 - 12 - 12 - 28
       /* reset table height
       Header 44px
       Title 40px
@@ -304,9 +299,8 @@ export default {
       buttonbar 26px
       buttombar margin-bottom 7
       divider 1
-      margin-top 8px
       tabel
-      margin-top 12px
+      margin-top 8px
       pagination 32px
       padding 12px
       margin-bottom 12px
@@ -473,7 +467,7 @@ export default {
 }
 .inspector-tabel-pagination-row {
   margin: 0 !important;
-  padding: 0 in !important;
+  padding: 0 !important;
 }
 .inspector-tabel-pagination-row .v-pagination {
   justify-content: right;
@@ -498,23 +492,10 @@ export default {
   box-shadow: none !important;
   background-color: #F9F8FA !important;
 }
-.inspector-tabel-pagination-col {
-  padding: 12px 0px 0px;
-}
 </style>
 
 <style scoped>
 .flow-list {
-  /* height: calc(100vh - 44px - 40px - 38px - 8px - 28px - 12px); */
-  /* total:100vh
-  header: 44px
-  title: 40px
-  buttonBar: 38px
-  margin-top: 8px
-  table
-  margin-bottom: 12px
-  footer: 28px
-    */
   width: 100%;
   overflow-y: auto;
 }
