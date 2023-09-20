@@ -7,7 +7,6 @@ import signal
 import socket
 import threading
 import traceback
-import imp
 from pathlib import Path
 
 from packaging.version import parse as vparse
@@ -197,17 +196,6 @@ def run(args: argparse.Namespace):
 
     # Mock mush init after other servers
     application.server['mock'] = LyrebirdMockServer()
-
-    conf_autoissue = application.config.get('autoissue', False)
-    if conf_autoissue:
-        bugit_workspace = application.config.get('bugit.workspace', '')
-        bugit_default_template = application.config.get('bugit.default_template', '')
-        template_path = Path(bugit_workspace + bugit_default_template)
-        if bugit_workspace and bugit_default_template and template_path.exists():
-            template = imp.load_source(Path(template_path).stem, str(template_path))
-            application.server['issue'] = template.AutoIssueServer()
-        else:
-            logger.error(f'Init Auto Issue Server Failed. Template path is configured incorrectly: {template_path}') 
 
     # handle progress message
     application.process_status_listener()
