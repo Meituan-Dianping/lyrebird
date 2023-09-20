@@ -13,7 +13,7 @@ logger = log.get_logger()
 class NoticeCenter():
 
     def __init__(self):
-        self.checker_switch = application.config.get('autoissue.checker.switch', {})
+        self.checker_switch = application.config.get('plugin.bugit.autoissue.checker_switch', {})
         self.HISTORY_NOTICE = None
         self.notice_hashmap = {}
         self.notice_list = []
