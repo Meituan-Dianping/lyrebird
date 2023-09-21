@@ -65,13 +65,6 @@ def index(path=''):
         req_context.update_client_resp_time()
         resp = req_context.response
 
-
-    if context.application.is_diff_mode == context.MockMode.MULTIPLE and req_context.response_source == 'mock':
-        proxy_handler.handle(req_context)
-        if req_context.is_proxiable:
-            req_context.update_response_headers_code2flow(output_key='proxy_response')
-            req_context.update_response_data2flow(output_key='proxy_response')
-
     DuplicateHeaderKeyHandler.set_origin_header(resp.headers, req_context.flow['response']['headers'])
 
     context.emit('action', 'add flow log')
