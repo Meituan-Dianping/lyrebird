@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="code-editor" style="width:100%;height:100%;padding:12px"></div>
+    <div id="code-editor" style="width:100%;height:100%;padding:12px 0px;"></div>
   </div>
 </template>
 
