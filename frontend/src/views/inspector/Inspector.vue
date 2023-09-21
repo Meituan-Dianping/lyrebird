@@ -7,14 +7,13 @@
 
     <v-divider class="border"/>
 
-    <div class="inspector-realtime-split mt-2">
+    <div class="inspector-realtime-split">
       <Split v-model="split" min="0px" max="0px">
         <div slot="left">
           <FlowList class="inspector-realtime-left"></FlowList>
         </div>
         <div slot="right">
-          <FlowDetail v-if="focusedFlowDetail" class="inspector-realtime-right"></FlowDetail>
-          <div v-else class="flow-detail-empty">No selected flow</div>
+          <FlowDetail class="inspector-realtime-right"></FlowDetail>
         </div>
       </Split>
     </div>
@@ -32,12 +31,15 @@ export default {
     FlowList,
     FlowDetail
   },
-  data () {
-    return {
-      split: 1
-    }
-  },
   computed: {
+    split: {
+      get() {
+        return this.$store.state.inspector.inspectorSplit
+      },
+      set(val) {
+        this.$store.commit('setInspectorSplit', val)
+      }
+    },
     focusedFlowDetail () {
       return this.$store.state.inspector.focusedFlowDetail
     },
@@ -68,24 +70,18 @@ export default {
   margin-left: 5px;
 }
 .inspector-realtime-split {
-  height: calc(100vh - 44px - 40px - 38px - 28px - 12px - 12px - 12px);
+  height: calc(100vh - 44px - 40px - 38px - 4px - 12px - 12px - 28px);
   /* total:100vh
   header: 44px
   title: 40px
-  buttonBar: 38px
-  margin-top: 12px
+  padding: 12px
+  buttonBar: 26px
+  margin-top: 4px
   split
-  margin-bottom: 12px
+  padding: 12px
   margin-bottom: 12px
   footer: 28px
     */
-  width: calc(100vw - 5px - 68px - 12px - 12px - 12px);
-}
-.flow-detail-empty {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
+  width: calc(100vw - 5px - 68px - 12px - 12px - 3px);
 }
 </style>

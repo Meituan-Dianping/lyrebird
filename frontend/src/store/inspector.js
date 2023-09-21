@@ -6,6 +6,7 @@ export default {
   state: {
     activatedGroup: {},
     searchStr: '',
+    inspectorSplit: 1,
     selectedFlows: [],
     selectedIds: [],
     focusedFlow: null,
@@ -24,6 +25,9 @@ export default {
     },
     setSearchStr (state, val) {
       state.searchStr = val
+    },
+    setInspectorSplit (state, val) {
+      state.inspectorSplit = val
     },
     setSelectedId (state, val) {
       state.selectedIds = val

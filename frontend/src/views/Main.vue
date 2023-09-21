@@ -16,7 +16,7 @@
       floating
       expand-on-hover
       height="calc(100vh - 44px - 28px)"
-      class="background mt-11 side-navgation"
+      class="background mt-11 side-navgation elevation-2"
     >
       <v-list nav dense>
         <v-list-item-group v-model="activeMenuItemIndex" active-class="v-item--active">
@@ -35,8 +35,11 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-main class="ma-3">
-      <v-toolbar-title class="mb-2 page-title">{{ activeMenuItemName }}</v-toolbar-title>
+    <v-main class="ma-3 pl-14">
+      <v-toolbar-title class="mb-2 page-title">
+        {{ activeMenuItemName }}
+        <span class="page-version content--text">{{ activeMenuItemVersion }}</span>
+      </v-toolbar-title>
       <keep-alive exclude="datamanager">
         <!-- Cache children component exclude datamanager . Because v-treeview component has memory leak if it in the keep-alive tag -->
         <router-view class="router-container background" />
@@ -134,6 +137,18 @@ export default {
         return this.$store.state.activeMenuItem.title
       }
     },
+    activeMenuItemVersion() {
+      if (!this.$store.state.activeMenuItem) {
+        return ''
+      }
+      if (!this.$store.state.activeMenuItem.params) {
+        return ''
+      }
+      if (!this.$store.state.activeMenuItem.params.version) {
+        return ''
+      }
+      return `v${this.$store.state.activeMenuItem.params.version}`
+    }
   },
   methods: {
     menuItemTitle(menuItem) {
@@ -218,6 +233,10 @@ export default {
   font-size: 16px;
   color: #000520;
   line-height: 20px;
+  height: 20px;
+}
+.page-version {
+  font-size: 12px;
 }
 .router-container {
   height: calc(100vh - 44px - 40px - 28px - 12px);
@@ -228,9 +247,6 @@ export default {
     margin-bottom: 12px
     footer: 28px
     */
-}
-.ivu-split-trigger-con {
-  z-index: 2;
 }
 .v-item--active {
   background-color: #5a57c4 10%;
@@ -247,9 +263,6 @@ export default {
 .v-list-active {
   background-color: #eeeef9;
   color: #5f5cca !important;
-}
-.v-list-item:not(.v-list-item--active):not(.v-list-item--disabled) {
-  color: #9b9cb7 !important;
 }
 </style>
 
@@ -319,6 +332,10 @@ export default {
   border: 1px #d9dade solid;
 }
 .v-btn {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.v-tab {
   text-transform: none;
   letter-spacing: 0;
 }
