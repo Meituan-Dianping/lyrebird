@@ -2,7 +2,8 @@
   <v-menu
     v-if="jsonpath"
     :close-on-content-click="false"
-    offset-y open-on-hover
+    offset-y
+    open-on-hover
   >
     <template v-slot:activator="{ on, attrs }">
 

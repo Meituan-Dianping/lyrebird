@@ -24,10 +24,10 @@
           <v-tab append href="#req-body" class="flow-detail-tab">RequestBody</v-tab>
           <v-tab append href="#resp" class="flow-detail-tab">Response</v-tab>
           <v-tab append href="#resp-body" class="flow-detail-tab">ResponseBody</v-tab>
-          <v-tab v-if="showProxyResponse" key="proxy-resp-diff">ResponseBodyDiff</v-tab>
+          <v-tab v-if="showProxyResponse" append href="#proxy-resp-diff" class="flow-detail-tab">ResponseBodyDiff</v-tab>
           <v-spacer />
 
-          <JsonpathInfo :jsonpath="jsonPath"></JsonpathInfo>
+          <JsonpathInfo :jsonpath="jsonPath" />
         </v-tabs>
       </v-row>
     </v-container>
@@ -54,7 +54,7 @@
     </span>
     <div v-else class="flow-detail-empty">
       <v-icon large>mdi-package-variant-closed</v-icon>
-      <p >No Selected flow</p>
+      <p>No Selected flow</p>
     </div>
 
   </div>
@@ -225,12 +225,6 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-}
-.button-bar-line {
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .v-slide-group__content {
   transform: none !important;
