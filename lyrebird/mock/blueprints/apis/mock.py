@@ -155,6 +155,9 @@ class ActivatedMockGroup(Resource):
             logger.warning('DeprecationWarning: Deactivate with no action parameter is deprecated soon,\
                 use /mock/<string:group_id>/deactivate instead')
             context.application.data_manager.deactivate()
+
+        # emit frontend
+        context.application.socket_io.emit('activatedGroupUpdate')
         return context.make_ok_response()
 
 
