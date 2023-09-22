@@ -214,7 +214,7 @@ export default {
           value: 'method',
           sortable: false,
           filterable: false,
-          width: 50
+          width: 60
         },
         {
           text: 'Status',
