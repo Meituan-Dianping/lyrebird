@@ -3,10 +3,10 @@ from . import cache
 from .dm import DataManager
 from .dm.file_data_adapter import data_adapter
 from flask_socketio import SocketIO
+from importlib import machinery
 from pathlib import Path
 import codecs
 import json
-import imp
 import os
 from lyrebird import application as app
 from lyrebird.log import get_logger
@@ -97,7 +97,8 @@ class Application:
         if path.exists() and path.is_file():
             logger.warning(f'Loading custom data-adapter from {str(path)} .')
             try:
-                adapter_module = imp.load_source(path.stem, str(path))
+                loader = machinery.SourceFileLoader(path.stem, str(path))
+                adapter_module = loader.load_module()
                 adapter_cls = adapter_module.data_adapter
             except Exception:
                 logger.error(f'Loading custom data-adapter from {str(path)} failed!\n{traceback.format_exc()}')

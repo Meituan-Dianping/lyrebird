@@ -1,7 +1,7 @@
-import imp
 import codecs
 import shutil
 from pathlib import Path
+from importlib import machinery
 import lyrebird
 from lyrebird import log
 from lyrebird import application
@@ -253,7 +253,8 @@ class Checker:
 
     def _load_checker(self):
         try:
-            self._module = imp.load_source(self.name, self.path)
+            loader = machinery.SourceFileLoader(self.name, self.path)
+            self._module = loader.load_module()
         except Exception as e:
             self.update = False
             raise CheckerIllegal(e)

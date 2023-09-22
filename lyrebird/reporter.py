@@ -2,7 +2,7 @@ from lyrebird import application
 from lyrebird.log import get_logger
 from pathlib import Path
 from copy import deepcopy
-import imp
+from importlib import machinery
 import traceback
 import datetime
 
@@ -35,7 +35,8 @@ class Reporter:
                 logger.warning(f'Skip report script: is not a python file, {report_script_file}')
                 continue
             try:
-                _script_module = imp.load_source('reporter_script', str(report_script_file))
+                loader = machinery.SourceFileLoader('reporter_script', str(report_script_file))
+                _script_module = loader.load_module()
             except Exception:
                 logger.warning(
                     f'Skip report script: load script failed, {report_script_file}\n{traceback.format_exc()}')
