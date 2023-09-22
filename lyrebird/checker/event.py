@@ -34,7 +34,7 @@ class CheckerEventHandler:
         stack = inspect.stack()
         script_path = stack[2].filename
         script_name = script_path[script_path.rfind('/') + 1:]
-        if script_name in application.config.get('plugin.bugit.autoissue.checker_switch', {}):
+        if script_name in application.config.get('event.notice.autoissue.checker', []):
             notice['title'] = f"【Extension】{notice.get('title')}"
             notice['alert'] = False
 
