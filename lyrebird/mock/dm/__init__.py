@@ -351,6 +351,9 @@ class DataManager:
         self._check_activated_data_rules_contains_request_data()
         self._adapter._after_activate(**kwargs)
 
+        # emit frontend
+        context.application.socket_io.emit('activatedGroupUpdate')
+
     def _check_activated_data_rules_contains_request_data(self):
         self.is_activated_data_rules_contains_request_data = False
         for _data_id in self.activated_data:
