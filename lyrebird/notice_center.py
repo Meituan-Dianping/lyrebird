@@ -78,6 +78,7 @@ class NoticeCenter():
 
         """
         unique_key = msg.get('title')
+        alert = msg.get('alert', True)
         if self.notice_hashmap.get(unique_key):
             self.notice_hashmap[unique_key]['noticeList'].append(msg)
             if self.notice_hashmap[unique_key].get('alert'):
@@ -86,7 +87,7 @@ class NoticeCenter():
             self.notice_hashmap.update(
                 {
                     unique_key: {
-                        'alert': True,
+                        'alert': alert,
                         'noticeList': [msg]
                     }
                 }
