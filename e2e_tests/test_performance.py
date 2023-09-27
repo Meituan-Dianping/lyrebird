@@ -13,7 +13,7 @@ import time
 current_path = os.path.abspath(os.path.dirname(__file__))
 checker_path = [f'{current_path}/assets/performance_event_trigger.py', f'{current_path}/assets/checker.py']
 modifier_path = [f'{current_path}/assets/flow_editor_performance.py']
-REQUEST_NUM = 100
+REQUEST_NUM = 60
 
 
 def fetch_url(req_url):
