@@ -46,6 +46,7 @@ class MockServer:
         self.port = 5000
         self.api_status = f'http://127.0.0.1:{self.port}/status'
         self.api_post = f'http://127.0.0.1:{self.port}/e2e_serve'
+        self.api_performance = f'http://127.0.0.1:{self.port}/performance'
 
     def start(self):
         self.mock_server_process = subprocess.Popen(
@@ -78,6 +79,8 @@ class Lyrebird:
         self.api_status = f'http://127.0.0.1:{self.port}/api/status'
         self.uri_mock = f'http://127.0.0.1:{self.port}/mock/'
         self.uri_extra_mock = f'http://127.0.0.1:{self.extra_mock_port}/'
+        self.api_flows = f'http://127.0.0.1:{self.port}/api/flow'
+        self.patch_config_url = f'http://127.0.0.1:{self.port}/api/conf'
 
     def _find_free_port(self):
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
