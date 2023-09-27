@@ -2,7 +2,6 @@ from flask import Flask, request
 import hashlib
 import sys
 import time
-from lyrebird import application
 
 app = Flask(__name__)
 CORE_TIME = 0.3
