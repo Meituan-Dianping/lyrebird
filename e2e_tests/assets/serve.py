@@ -4,7 +4,7 @@ import sys
 import time
 
 app = Flask(__name__)
-CORE_TIME = 0.3
+CORE_TIME = 0.6
 
 
 @app.route("/e2e_serve", methods=["POST"])
