@@ -4,6 +4,6 @@ import time
 TITLE = 'test_encoder_decoder'
 CHECKER_TIME = 0.5
 
-@event('test')
-def test_decoder(flow):
+@event('flow')
+def test_checker(flow):
     time.sleep(CHECKER_TIME)

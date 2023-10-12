@@ -22,8 +22,8 @@ def status():
     return "OK"
 
 
-@app.route("/performance", methods=["GET"])
-def performance():
+@app.route("/long_time_service", methods=["GET"])
+def long_time_service():
     time.sleep(CORE_TIME)
     return "OK"
 
