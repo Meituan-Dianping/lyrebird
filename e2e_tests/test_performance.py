@@ -6,8 +6,8 @@ import time
 
 
 current_path = os.path.abspath(os.path.dirname(__file__))
-checker_path = [f'{current_path}/assets/checker.py']
-modifier_path = [f'{current_path}/assets/flow_editor.py']
+checker_path = f'{current_path}/assets/checker.py'
+modifier_path = f'{current_path}/assets/flow_editor.py'
 REQUEST_NUM = 60
 AVU_DURATION = 2
 ALL_DURATION = 15
@@ -42,7 +42,7 @@ def test_performance(lyrebird, mock_server):
 
 
 def test_performance_with_checker(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=checker_path)
+    lyrebird_with_args.start(checker_path=[checker_path])
     start_time = time.time()
     send_request(lyrebird_with_args.uri_mock + mock_server.api_long_time_service)
     end_time = time.time()
@@ -56,7 +56,7 @@ def test_performance_with_checker(lyrebird_with_args, mock_server):
 
 
 def test_performance_with_modifier(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=modifier_path)
+    lyrebird_with_args.start(checker_path=[modifier_path])
     start_time = time.time()
     send_request(lyrebird_with_args.uri_mock + mock_server.api_long_time_service)
     end_time = time.time()
@@ -70,7 +70,7 @@ def test_performance_with_modifier(lyrebird_with_args, mock_server):
 
 
 def test_performance_with_checker_and_modifier(lyrebird_with_args, mock_server):
-    lyrebird_with_args.start(checker_path=checker_path+modifier_path)
+    lyrebird_with_args.start(checker_path=[checker_path, modifier_path])
     start_time = time.time()
     send_request(lyrebird_with_args.uri_mock + mock_server.api_long_time_service)
     end_time = time.time()
