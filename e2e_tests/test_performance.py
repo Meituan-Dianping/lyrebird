@@ -1,7 +1,6 @@
 import os
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from .assets.serve import CORE_TIME
 import time
 
 
