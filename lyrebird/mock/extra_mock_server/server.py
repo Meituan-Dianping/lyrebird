@@ -111,12 +111,12 @@ async def req_handler(request: web.Request):
         return web.Response(status=500, text=f'{e.__class__.__name__}')
 
 
-def init_app(config):
+def init_app(config, log_queue):
     global lb_config
     lb_config = config
 
     global logger
-    log.init(config)
+    log.init(config, log_queue)
     logger = log.get_logger()
 
     app = web.Application()
@@ -125,8 +125,8 @@ def init_app(config):
     return app
 
 
-async def _run_app(config):
-    app = init_app(config)
+async def _run_app(config, log_queue):
+    app = init_app(config, log_queue)
 
     port = config.get('extra.mock.port')
     port = port if port else 9999
@@ -193,9 +193,9 @@ def publish_init_status(queue, status):
     })
 
 
-def serve(queue, config, *args, **kwargs):
+def serve(queue, config, log_queue, *args, **kwargs):
     loop = asyncio.new_event_loop()
-    main_task = loop.create_task(_run_app(config))
+    main_task = loop.create_task(_run_app(config, log_queue))
 
     try:
         asyncio.set_event_loop(loop)

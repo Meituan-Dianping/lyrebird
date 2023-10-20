@@ -7,6 +7,7 @@ import requests
 import time
 from lyrebird.base_server import ProcessServer
 from lyrebird.mitm.mitm_installer import init_mitm
+from ..log import queue as logger_queue
 
 """
 HTTP proxy server
@@ -104,9 +105,9 @@ class LyrebirdProxyServer(ProcessServer):
             }
         })
 
-    def run(self, queue, config, *args, **kwargs):
+    def run(self, queue, config, log_queue, *args, **kwargs):
         # Init logger
-        log.init(config)
+        log.init(config, log_queue)
         logger = log.get_logger()
         mitm_path = kwargs.get('mitm_path')
         self.start_mitmdump(queue, config, logger, mitm_path)

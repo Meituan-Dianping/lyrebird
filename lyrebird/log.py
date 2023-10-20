@@ -1,13 +1,15 @@
 import logging
+import signal
+from multiprocessing import Queue, Process, Lock, current_process
 from logging.handlers import TimedRotatingFileHandler
 from colorama import Fore, Style, Back
 from collections import namedtuple
 from pathlib import Path
+import os
 
 DEFAULT_LOG_PATH = '~/.lyrebird/lyrebird.log'
-
 LOGGER_INITED = False
-
+log_process_lock = Lock()
 
 Color = namedtuple('Color', ['fore', 'style', 'back'])
 
@@ -19,6 +21,10 @@ COLORS = dict(
     INFO=Color(fore=Fore.WHITE, style=Style.NORMAL, back=Back.RESET),
     DEBUG=Color(fore=Fore.GREEN, style=Style.NORMAL, back=Back.RESET)
 )
+
+queue = Queue()
+
+process = None
 
 
 def colorit(message, levelname):
@@ -65,14 +71,37 @@ def make_file_handler(_log_path=None):
     return file_handler
 
 
-def init(config):
-    global LOGGER_INITED
-    if LOGGER_INITED:
-        return
+def init(config, log_queue = queue):
 
+    
     if not config:
         config = {}
 
+    logging.addLevelName(60, 'NOTICE')
+
+    verbose = config.get('verbose', 0)
+    if verbose == 0:
+        logger_level = logging.ERROR
+    elif verbose == 1:
+        logger_level = logging.INFO
+    elif verbose >= 2:
+        logger_level = logging.DEBUG
+
+    queue_handler = logging.handlers.QueueHandler(log_queue)
+
+    for _logger_name in ['lyrebird', 'socketio', 'engineio', 'mock', 'werkzeug', 'flask']:
+        _logger = logging.getLogger(_logger_name)
+        _logger.addHandler(queue_handler)
+        _logger.setLevel(logger_level)
+
+    # start_logger(config)
+
+
+def log_consumer(queue, config):
+
+    if not log_process_lock.acquire(timeout=10):
+        return
+    
     logging.addLevelName(60, 'NOTICE')
 
     stream_handler = make_stream_handler()
@@ -97,9 +126,31 @@ def init(config):
         _logger = logging.getLogger(_logger_name)
         _logger.addHandler(file_handler)
         _logger.setLevel(logger_level)
+    while True:
+        try:
+            log = queue.get()
+            logger = logging.getLogger(log.name)
+            logger.handle(log)
+        except KeyboardInterrupt:
+            log_process_lock.release()
+            break
 
-    LOGGER_INITED = True
+
+def start_logger(config, queue):
+    global process
+    process = Process(target=log_consumer, args=(queue, config, ), daemon=True)
+    process.start()
+
+# def start_logger(config, pool):
+#     global process
+#     process = pool
+#     pool.apply_async(log_consumer, args=(queue, config, ))
 
 
-def get_logger() -> logging.Logger:
+def stop_logger():
+    global process
+    process.terminate()
+    process.join()
+
+def get_logger():
     return logging.getLogger('lyrebird')

@@ -99,6 +99,7 @@ def main():
     application._cm.config['verbose'] = args.verbose
     application._cm.config['log'] = args.log
     log.init(application._cm.config)
+    log.start_logger(application._cm.config, log.queue)
 
     # Add exception hook
     def process_excepthook(exc_type, exc_value, tb):
