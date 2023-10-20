@@ -25,6 +25,7 @@ from lyrebird.plugins import PluginManager
 from lyrebird.mitm.proxy_server import LyrebirdProxyServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.base_server import MultiProcessServerMessageDispatcher
+from lyrebird.log import LogServer
 from lyrebird import utils
 
 
@@ -98,8 +99,9 @@ def main():
     # init logger for main process
     application._cm.config['verbose'] = args.verbose
     application._cm.config['log'] = args.log
-    log.init(application._cm.config)
-    log.start_logger(application._cm.config, log.queue)
+    application.server['log'] = LogServer()
+    application.start_log_server()
+    log.init(application._cm.config, application.server['log'].queue)
 
     # Add exception hook
     def process_excepthook(exc_type, exc_value, tb):
@@ -202,7 +204,7 @@ def run(args: argparse.Namespace):
     application.process_status_listener()
 
     # Start server without mock server, mock server must start after all blueprint is done
-    application.start_server_without_mock()
+    application.start_server_without_mock_and_log()
 
     # int statistics reporter
     application.reporter = reporter.Reporter()

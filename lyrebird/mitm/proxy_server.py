@@ -7,8 +7,6 @@ import requests
 import time
 from lyrebird.base_server import ProcessServer
 from lyrebird.mitm.mitm_installer import init_mitm
-from ..log import queue as logger_queue
-
 """
 HTTP proxy server
 Default port 4272

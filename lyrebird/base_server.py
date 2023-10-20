@@ -5,7 +5,7 @@ Base threading server class
 from threading import Thread
 from multiprocessing import Process, Queue
 from lyrebird import application
-from .log import queue
+
 
 service_msg_queue = Queue()
 
@@ -50,8 +50,9 @@ class ProcessServer:
 
         global service_msg_queue
         config = application.config.raw()
+        logger_queue = application.server['log'].queue
         self.server_process = Process(group=None, target=self.run,
-                                      args=[service_msg_queue, config, queue, self.args],
+                                      args=[service_msg_queue, config, logger_queue, self.args],
                                       kwargs=self.kwargs)
         self.server_process.start()
         self.running = True

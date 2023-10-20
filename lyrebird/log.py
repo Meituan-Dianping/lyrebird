@@ -1,11 +1,10 @@
 import logging
-import signal
-from multiprocessing import Queue, Process, Lock, current_process
+from .base_server import ProcessServer
+from multiprocessing import Queue, Lock
 from logging.handlers import TimedRotatingFileHandler
 from colorama import Fore, Style, Back
 from collections import namedtuple
 from pathlib import Path
-import os
 
 DEFAULT_LOG_PATH = '~/.lyrebird/lyrebird.log'
 LOGGER_INITED = False
@@ -21,8 +20,6 @@ COLORS = dict(
     INFO=Color(fore=Fore.WHITE, style=Style.NORMAL, back=Back.RESET),
     DEBUG=Color(fore=Fore.GREEN, style=Style.NORMAL, back=Back.RESET)
 )
-
-queue = Queue()
 
 process = None
 
@@ -71,8 +68,9 @@ def make_file_handler(_log_path=None):
     return file_handler
 
 
-def init(config, log_queue = queue):
-
+def init(config, log_queue):
+    if LOGGER_INITED:
+        return
     
     if not config:
         config = {}
@@ -93,8 +91,8 @@ def init(config, log_queue = queue):
         _logger = logging.getLogger(_logger_name)
         _logger.addHandler(queue_handler)
         _logger.setLevel(logger_level)
-
-    # start_logger(config)
+    
+    LOGGER_INITED = True
 
 
 def log_consumer(queue, config):
@@ -136,21 +134,49 @@ def log_consumer(queue, config):
             break
 
 
-def start_logger(config, queue):
-    global process
-    process = Process(target=log_consumer, args=(queue, config, ), daemon=True)
-    process.start()
+class LogServer(ProcessServer):
 
-# def start_logger(config, pool):
-#     global process
-#     process = pool
-#     pool.apply_async(log_consumer, args=(queue, config, ))
+    def __init__(self):
+        super().__init__()
+        self.queue = Queue()
 
+    def run(self, queue, config, log_queue, *args, **kwargs):
+        if not log_process_lock.acquire(timeout=10):
+            return
+        
+        logging.addLevelName(60, 'NOTICE')
 
-def stop_logger():
-    global process
-    process.terminate()
-    process.join()
+        stream_handler = make_stream_handler()
+
+        log_path = config.get('log')
+        file_handler = make_file_handler(log_path)
+
+        verbose = config.get('verbose', 0)
+        if verbose == 0:
+            logger_level = logging.ERROR
+        elif verbose == 1:
+            logger_level = logging.INFO
+        elif verbose >= 2:
+            logger_level = logging.DEBUG
+
+        lyrebird_logger = logging.getLogger('lyrebird')
+        lyrebird_logger.addHandler(stream_handler)
+        lyrebird_logger.addHandler(file_handler)
+        lyrebird_logger.setLevel(logger_level)
+
+        for _logger_name in ['socketio', 'engineio', 'mock', 'werkzeug', 'flask']:
+            _logger = logging.getLogger(_logger_name)
+            _logger.addHandler(file_handler)
+            _logger.setLevel(logger_level)
+        while True:
+            try:
+                log = log_queue.get()
+                logger = logging.getLogger(log.name)
+                logger.handle(log)
+            except KeyboardInterrupt:
+                log_process_lock.release()
+                break        
+
 
 def get_logger():
     return logging.getLogger('lyrebird')
