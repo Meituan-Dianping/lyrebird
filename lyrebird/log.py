@@ -68,12 +68,16 @@ def make_file_handler(_log_path=None):
     return file_handler
 
 
-def init(config, log_queue):
+def init(config, log_queue = None):
+    global LOGGER_INITED
     if LOGGER_INITED:
         return
     
     if not config:
         config = {}
+    
+    if not log_queue:
+        log_queue = Queue()
 
     logging.addLevelName(60, 'NOTICE')
 

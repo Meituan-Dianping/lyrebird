@@ -111,7 +111,7 @@ async def req_handler(request: web.Request):
         return web.Response(status=500, text=f'{e.__class__.__name__}')
 
 
-def init_app(config, log_queue):
+def init_app(config, log_queue = None):
     global lb_config
     lb_config = config
 
