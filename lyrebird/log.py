@@ -8,7 +8,6 @@ from pathlib import Path
 import os
 DEFAULT_LOG_PATH = '~/.lyrebird/lyrebird.log'
 LOGGER_INITED = False
-log_process_lock = Lock()
 
 Color = namedtuple('Color', ['fore', 'style', 'back'])
 
@@ -77,7 +76,8 @@ def init(config, log_queue = None):
         config = {}
     
     if not log_queue:
-        log_queue = Queue()
+        log_server = LogServer()
+        log_queue = log_server.queue
 
     logging.addLevelName(60, 'NOTICE')
 
@@ -101,13 +101,20 @@ def init(config, log_queue = None):
 
 class LogServer(ProcessServer):
 
+    _instance = None
+
     def __init__(self):
         super().__init__()
         self.queue = Queue()
+        self.log_process_lock = Lock()
+    
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
 
     def run(self, msg_queue, config, log_queue, *args, **kwargs):
-        global log_process_lock
-        if not log_process_lock.acquire(timeout=10):
+        if not self.log_process_lock.acquire(timeout=10):
             return
         
         logging.addLevelName(60, 'NOTICE')
@@ -134,13 +141,14 @@ class LogServer(ProcessServer):
             _logger = logging.getLogger(_logger_name)
             _logger.addHandler(file_handler)
             _logger.setLevel(logger_level)
+
         while True:
             try:
                 log = log_queue.get()
                 logger = logging.getLogger(log.name)
                 logger.handle(log)
             except KeyboardInterrupt:
-                log_process_lock.release()
+                self.log_process_lock.release()
                 break        
 
 
