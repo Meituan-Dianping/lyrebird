@@ -13,6 +13,7 @@ from lyrebird.mock.extra_mock_server.lyrebird_proxy_protocol import LyrebirdProx
 from lyrebird import log
 
 logger = None
+logger_queue = None
 lb_config = {}
 
 
@@ -116,7 +117,7 @@ def init_app(config):
     lb_config = config
 
     global logger
-    log.init(config)
+    log.init(config, logger_queue)
     logger = log.get_logger()
 
     app = web.Application()
@@ -193,7 +194,9 @@ def publish_init_status(queue, status):
     })
 
 
-def serve(queue, config, *args, **kwargs):
+def serve(msg_queue, config, log_queue, *args, **kwargs):
+    global logger_queue
+    logger_queue = log_queue
     loop = asyncio.new_event_loop()
     main_task = loop.create_task(_run_app(config))
 
@@ -201,7 +204,7 @@ def serve(queue, config, *args, **kwargs):
         asyncio.set_event_loop(loop)
         loop.run_until_complete(main_task)
     except KeyboardInterrupt:
-        publish_init_status(queue, 'ERROR')
+        publish_init_status(msg_queue, 'ERROR')
     finally:
         _cancel_tasks({main_task}, loop)
         _cancel_tasks(asyncio.all_tasks(loop), loop)

@@ -52,15 +52,19 @@ labels = None
 encoders_decoders = None
 
 
-def start_server_without_mock():
+def start_server_without_mock_and_log():
     for name in server:
-        if name == 'mock':
+        if name == 'mock' or name == 'log':
             continue
         server[name].start()
 
 
 def start_mock_server():
     server['mock'].start()
+
+
+def start_log_server():
+    server['log'].start()
 
 
 def start_server():
