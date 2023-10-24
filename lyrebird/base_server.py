@@ -56,7 +56,8 @@ class ProcessServer:
         logger_queue = application.server['log'].queue
         self.server_process = Process(group=None, target=self.run,
                                       args=[service_msg_queue, config, logger_queue, self.args],
-                                      kwargs=self.kwargs)
+                                      kwargs=self.kwargs,
+                                      daemon=True)
         self.server_process.start()
         self.running = True
 
