@@ -244,12 +244,19 @@ class ConfigManager():
         self.write_personal_config()
 
     def read_personal_config(self):
-        with codecs.open(self.personal_conf_file, 'r', 'utf-8') as f:
-            return json.load(f)
+        try:
+            with codecs.open(self.personal_conf_file, 'r', 'utf-8') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            logger.error(f'Failed to parse personal config file {self.personal_conf_file}!')
+            return personal_config_template
 
     def write_personal_config(self):
-        with codecs.open(self.personal_conf_file, 'w', 'utf-8') as f:
-            f.write(json.dumps(self.personal_config, indent=4, ensure_ascii=False))
+        try:
+            with codecs.open(self.personal_conf_file, 'w', 'utf-8') as f:
+                f.write(json.dumps(self.personal_config, indent=4, ensure_ascii=False))
+        except Exception as e:
+            logger.error(f'Failed to write personal config: {e}')
 
 
 class Config:
