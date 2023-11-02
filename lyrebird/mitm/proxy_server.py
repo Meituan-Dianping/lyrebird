@@ -7,7 +7,6 @@ import requests
 import time
 from lyrebird.base_server import ProcessServer
 from lyrebird.mitm.mitm_installer import init_mitm
-
 """
 HTTP proxy server
 Default port 4272
@@ -104,12 +103,12 @@ class LyrebirdProxyServer(ProcessServer):
             }
         })
 
-    def run(self, queue, config, *args, **kwargs):
+    def run(self, msg_queue, config, log_queue, *args, **kwargs):
         # Init logger
-        log.init(config)
+        log.init(config, log_queue)
         logger = log.get_logger()
         mitm_path = kwargs.get('mitm_path')
-        self.start_mitmdump(queue, config, logger, mitm_path)
+        self.start_mitmdump(msg_queue, config, logger, mitm_path)
 
 
 class UnsupportedPlatform(Exception):

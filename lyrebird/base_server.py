@@ -6,6 +6,7 @@ from threading import Thread
 from multiprocessing import Process, Queue
 from lyrebird import application
 
+
 service_msg_queue = Queue()
 
 
@@ -18,9 +19,9 @@ class ProcessServer:
         self.args = []
         self.kwargs = {}
 
-    def run(self, queue, config, *args, **kwargs):
+    def run(self, msg_queue, config, log_queue, *args, **kwargs):
         '''
-        queue
+        msg_queue
         message queue for process server and main process
 
         #1. Send event to main process,
@@ -40,6 +41,9 @@ class ProcessServer:
 
         config
         lyrebird config dict
+
+        log_queue
+        send log msg to logger process
         '''
         pass
 
@@ -49,8 +53,9 @@ class ProcessServer:
 
         global service_msg_queue
         config = application.config.raw()
+        logger_queue = application.server['log'].queue
         self.server_process = Process(group=None, target=self.run,
-                                      args=[service_msg_queue, config, self.args],
+                                      args=[service_msg_queue, config, logger_queue, self.args],
                                       kwargs=self.kwargs,
                                       daemon=True)
         self.server_process.start()
