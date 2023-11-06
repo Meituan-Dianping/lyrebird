@@ -56,6 +56,7 @@ class HandlerContext:
         self.is_proxiable = True
         self.response_chunk_size = 2048
         self._parse_request()
+        self.request_raw_data = None
 
     def _parse_request(self):
         # Read stream
@@ -187,7 +188,9 @@ class HandlerContext:
 
             _data = DataHelper.flow2origin(self.flow['request'], chain=self.request_chain)
         else:
-            if in_request_handler:
+            if self.request_raw_data:
+                _data = self.request_raw_data
+            elif in_request_handler:
                 _data = self.request.data or self.request.form or None
             else:
                 _data = DataHelper.flow2origin(self.flow['request'])
