@@ -92,6 +92,3 @@ class MockHandler:
             'mock_id': hit_data['id']
         })
         MockDataHelper.read_mock_data(handler_context)
-        # Keep the original request body and use it in diff_mode
-        if context.application.is_diff_mode == context.MockMode.MULTIPLE and handler_context.response_source == 'mock':
-            handler_context.request_raw_data = handler_context.request.data
