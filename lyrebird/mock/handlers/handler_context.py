@@ -189,6 +189,9 @@ class HandlerContext:
         else:
             if in_request_handler:
                 _data = self.request.data or self.request.form or None
+            # When origin_request is not saved, the original data cannot be obtained when diff-mode is enabled.
+            elif self.flow.get('origin_request', {}).get('data'):
+                _data = self.flow.get('origin_request', {}).get('data')
             else:
                 _data = DataHelper.flow2origin(self.flow['request'])
         return _data
