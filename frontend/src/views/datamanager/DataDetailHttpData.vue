@@ -184,6 +184,7 @@ export default {
       Object.assign(newReq, JSON.parse(this.editorCache.req))
       newReq['data'] = this.editorCache.reqData
       newData['request'] = newReq
+      newData['request']['headers']['internal_flow'] = 'datamanager'
       // Add response
       const newResp = {}
       Object.assign(newResp, JSON.parse(this.editorCache.resp))

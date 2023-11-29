@@ -114,6 +114,8 @@ class MockData(Resource):
         data = request.json
         # Import encoder for encoding the requested content
         application.encoders_decoders.encoder_handler(data)
+        if 'internal_flow' in data['request']['headers']:
+            del data['request']['headers']['internal_flow']
         context.application.data_manager.update_data(data_id, data)
         context.application.data_manager.reactive()
         return context.make_ok_response()
