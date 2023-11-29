@@ -212,7 +212,8 @@ export default {
       this.editorCache.info = JSON.stringify({
         id: val.id,
         name: val.name,
-        rule: val.rule
+        rule: val.rule,
+        apiDiffConfig: val.apiDiffConfig
       })
       this.editorCache.req = JSON.stringify({
         url: val.request.url,
