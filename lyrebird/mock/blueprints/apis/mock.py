@@ -114,6 +114,8 @@ class MockData(Resource):
         data = request.json
         # Import encoder for encoding the requested content
         application.encoders_decoders.encoder_handler(data)
+        if 'lyrebirdInternalFlow' in data:
+            del data['lyrebirdInternalFlow']
         context.application.data_manager.update_data(data_id, data)
         context.application.data_manager.reactive()
         return context.make_ok_response()
