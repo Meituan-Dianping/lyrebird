@@ -91,4 +91,5 @@ class MockHandler:
             'group_id': activated_group['id'],
             'mock_id': hit_data['id']
         })
+        handler_context.flow['apiDiffConfig'] = hit_data.get('apiDiffConfig')
         MockDataHelper.read_mock_data(handler_context)
