@@ -184,12 +184,13 @@ export default {
       Object.assign(newReq, JSON.parse(this.editorCache.req))
       newReq['data'] = this.editorCache.reqData
       newData['request'] = newReq
-      newData['request']['headers']['lyrebirdInternalFlow'] = 'datamanager'
       // Add response
       const newResp = {}
       Object.assign(newResp, JSON.parse(this.editorCache.resp))
       newResp['data'] = this.editorCache.respData
       newData['response'] = newResp
+      // Add Flag
+      newData['lyrebirdInternalFlow'] = 'datamanager'
 
       this.$store.commit('setIsReloadTreeWhenUpdate', this.dataDetail.name !== newData.name)
 
