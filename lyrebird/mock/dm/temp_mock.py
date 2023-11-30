@@ -1,5 +1,6 @@
 import uuid
 import traceback
+from datetime import datetime
 from urllib.parse import urlparse
 from collections import OrderedDict
 
@@ -127,6 +128,9 @@ class TempMock:
             name = host
         else:
             name = url[0:100]
+
+        time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        name = f'{time_now}  {name}'
 
         return name
 

@@ -185,7 +185,7 @@ def test_add(data_manager):
     parsed_url_path = parsed_url.path
 
     _new_data = data_manager.temp_mock_tree.activated_data.get(new_data_id)
-    assert parsed_url_path == _new_data['name']
+    assert parsed_url_path in _new_data['name']
     assert f'(?=.*{parsed_url_path}\?)' == _new_data['rule']['request.url']
 
 
@@ -213,7 +213,7 @@ def test_add_data_request_url_no_params(data_manager):
     parsed_url_path = parsed_url.path
 
     _new_data = data_manager.temp_mock_tree.activated_data.get(new_data_id)
-    assert parsed_url_path == _new_data['name']
+    assert parsed_url_path in _new_data['name']
 
     assert f'(?=.*{parsed_url_path}$)' == _new_data['rule']['request.url']
 
@@ -241,7 +241,7 @@ def test_add_data_request_url_no_path(data_manager):
     parsed_url_hostname = parsed_url.hostname
 
     _new_data = data_manager.temp_mock_tree.activated_data.get(new_data_id)
-    assert parsed_url_hostname == _new_data['name']
+    assert parsed_url_hostname in _new_data['name']
 
     assert f'(?=.*{parsed_url_hostname}$)' == _new_data['rule']['request.url']
 
@@ -267,7 +267,7 @@ def test_add_data_request_url_illegal(data_manager):
     assert new_data_id in data_manager.temp_mock_tree.activated_data
 
     _new_data = data_manager.temp_mock_tree.activated_data.get(new_data_id)
-    assert url_illegal == _new_data['name']
+    assert url_illegal in _new_data['name']
 
     assert f'(?=.*{url_illegal})' == _new_data['rule']['request.url']
 
