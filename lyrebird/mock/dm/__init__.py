@@ -13,6 +13,7 @@ from lyrebird.log import get_logger
 from lyrebird.application import config
 from lyrebird.mock import context
 from lyrebird.mock.dm.match import MatchRules
+from lyrebird.mock.dm.temp_mock import TempMock
 from lyrebird.config import CONFIG_TREE_SHOW_CONFIG
 
 PROP_FILE_NAME = '.lyrebird_prop'
@@ -30,8 +31,7 @@ class DataManager:
         self.is_activated_data_rules_contains_request_data = False
         self.LEVEL_SUPER_ACTIVATED = 3
         self.clipboard = None
-        self.save_to_group_id = None
-        self.tmp_group = {'id': 'tmp_group', 'type': 'group', 'name': 'tmp-group', 'label': [], 'children': []}
+
         self.snapshot_import_cache = {}
         self.SNAPSHOT_SUFFIX = '.lb'
         self.COPY_NODE_NAME_SUFFIX = ' - copy'
@@ -49,6 +49,9 @@ class DataManager:
 
         self.DELETE_STEP = 100
         self.is_deleting_lock = False
+
+        # init temp mock
+        self.temp_mock_tree = TempMock()
 
     @property
     def snapshot_workspace(self):
@@ -392,6 +395,22 @@ class DataManager:
                     id_list.extend(self._collect_data_in_node(child))
         return id_list
 
+    def _collect_node(self, node, target_type=None):
+        id_list = []
+        if self.is_data_virtual_node(node):
+            return []
+
+        node_type = node.get('type')
+        if not target_type or node_type in target_type:
+            id_list.append(node['id'])
+
+        if node_type == 'group':
+            if 'children' in node:
+                for child in node['children']:
+                    id_list.extend(self._collect_node(child, target_type=target_type))
+
+        return id_list
+
     def deactivate(self):
         """
         Clear activated data
@@ -407,6 +426,21 @@ class DataManager:
     def reactive(self):
         for _group_id in self.activated_group:
             self.activate(_group_id)
+
+    def get_matched_data_multiple_source(self, flow):
+        matched_data = self.temp_mock_tree.get_matched_data(flow)
+        if matched_data:
+            return {
+                'data': matched_data,
+                'parent': self.temp_mock_tree.root
+            }
+
+        matched_data = self.get_matched_data(flow)
+        if matched_data:
+            return {
+                'data': matched_data,
+                'parent': list(self.activated_group.values())[0]
+            }
 
     def get_matched_data(self, flow):
         """
@@ -510,7 +544,7 @@ class DataManager:
             _data_name = data['name'] if data.get('name') else self._adapter._get_data_name(data)
             _data_rule = data['rule'] if data.get('rule') else self._adapter._get_data_rule(data['request'])
             if 'data' in data['request']:
-                data['request']['data'] = self._flow_data_2_str(data['request']['data'])
+                data['request']['data'] = utils.flow_data_2_str(data['request']['data'])
         else:
             _data_name = data.get('name')
             _data_rule = {'request.url': '(?=.*YOUR-REQUEST-PATH)(?=.*PARAMS)'}
@@ -521,7 +555,7 @@ class DataManager:
             data['response'] = dict(raw_data['response'])
 
             if 'data' in data['response']:
-                data['response']['data'] = self._flow_data_2_str(data['response']['data'])
+                data['response']['data'] = utils.flow_data_2_str(data['response']['data'])
         else:
             data['response'] = {}
 
@@ -555,14 +589,11 @@ class DataManager:
             raise UnsupportedType
 
         parent_node = None
-        if parent_id == 'tmp_group':
-            parent_node = self.tmp_group
-        elif parent_id:
-            parent_node = self.id_map.get(parent_id)
-            if not parent_node:
-                raise IDNotFound(parent_id)
-            if parent_node['type'] != 'group':
-                raise OnlyGroupCanContainAnyOtherObject
+        parent_node = self.id_map.get(parent_id)
+        if not parent_node:
+            raise IDNotFound(parent_id)
+        if parent_node['type'] != 'group':
+            raise OnlyGroupCanContainAnyOtherObject
 
         data = self._make_data(raw_data, **kwargs)
         data['parent_id'] = parent_id
@@ -588,19 +619,6 @@ class DataManager:
             self._adapter._add_group(data_node)
 
         return _data_id
-
-    def _flow_str_2_data(self, data_str):
-        if not isinstance(data_str, str):
-            return data_str
-        try:
-            return json.loads(data_str)
-        except Exception:
-            return data_str
-
-    def _flow_data_2_str(self, data):
-        if isinstance(data, str):
-            return data
-        return json.dumps(data, ensure_ascii=False)
 
     def add_group(self, data):
         ignore_key = self.add_group_ignore_keys | self.unsave_keys
@@ -900,18 +918,17 @@ class DataManager:
     # -----
 
     def save_data(self, data):
-        if len(self.activated_group) > 0:
-            # TODO use self.save_to_group_id
-            target_group_id = list(self.activated_group.keys())[0]
-            self.add_data(target_group_id, data)
-        else:
-            self.add_data('tmp_group', data)
+        if len(self.activated_group) == 0:
+            raise ActivateGroupNotFound
+
+        target_group_id = list(self.activated_group.keys())[0]
+        self.add_data(target_group_id, data)
 
     # -----
     # Editor
     # -----
 
-    def update_group(self, _id, data, save=True):
+    def update_group(self, _id, data, save=True, **kwargs):
         node = self.id_map.get(_id)
         if not node:
             raise IDNotFound(_id)
@@ -930,7 +947,7 @@ class DataManager:
         elif 'label' in data and isinstance(data['label'], list):
             data['label'].sort(key=lambda x:x.get('name', '').lower())
 
-        message = self._adapter._update_group(data) if save else None
+        message = self._adapter._update_group(data, **kwargs) if save else None
 
         # Update node
         # 1. Add new key into node
@@ -1121,6 +1138,9 @@ class DataManager:
 
         context.emit('datamanagerUpdate')
 
+    def update_by_query(self, query, data):
+        return self.update_group(data.get('id'), data, query=query)
+
 
 # -----------------
 # Exceptions
@@ -1129,6 +1149,9 @@ class DataManager:
 class DumpPropError(Exception):
     pass
 
+
+class ActivateGroupNotFound(Exception):
+    pass
 
 
 class RootNotSet(Exception):

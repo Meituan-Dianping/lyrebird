@@ -1,9 +1,28 @@
 <template>
   <div class="small-tab">
-    <tabs v-model="currentTab" :animated="false" size="small">
-      <tab-pane label="Information" name="info" />
-      <tab-pane label="Settings" name="json" />
-    </tabs>
+
+    <v-container class="pa-0 data-list-button-bar">
+      <v-row no-gutters >
+        <v-tabs
+          v-model="currentTab"
+          center-active
+          active-class="flow-detail-active-tab"
+          background-color="shading"
+          color="accent"
+          height="29"
+          show-arrows="never"
+          slider-color="primary"
+        >
+
+          <v-tab append href="#info" class="flow-detail-tab">Information</v-tab>
+          <v-tab append href="#json" class="flow-detail-tab">Settings</v-tab>
+          <v-spacer />
+
+          <JsonpathInfo :jsonpath="jsonPath" />
+        </v-tabs>
+      </v-row>
+    </v-container>
+
     <div>
       <CodeEditor
         class="data-detail"
@@ -12,6 +31,7 @@
         v-on:on-jsonpath-change="onJsonPathChange"
       ></CodeEditor>
     </div>
+
     <div class="save-btn" v-if="dataDetail">
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
@@ -40,13 +60,13 @@
 <script>
 import DataDetailInfo from '@/views/datamanager/DataDetailInfo.vue'
 import CodeEditor from '@/components/CodeEditor.vue'
-import Icon from 'vue-svg-icon/Icon.vue'
+import JsonpathInfo from '@/views/inspector/JsonpathInfo.vue'
 
 export default {
   components: {
     DataDetailInfo,
     CodeEditor,
-    'svg-icon': Icon
+    JsonpathInfo
   },
   data () {
     return {

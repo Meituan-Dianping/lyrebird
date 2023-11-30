@@ -42,6 +42,11 @@
             <Option v-for="item in infoValue.allItem" :value="item.value" :key="item.value">{{ item.value }}</Option>
           </Select>
         </span>
+        <span v-else-if="inputValueType === 'select'">
+          <Select v-model="infoValue.value" size="small">
+            <Option v-for="item in infoValue.items" :value="item.value" :key="item.value" class="data-detail-info-select-option">{{ item.label }}</Option>
+          </Select>
+        </span>
         <span v-else-if="inputValueType === 'longList'">
           <div class="row no-gutters mb-1" v-for="listItem in longListValue">
             <div class="col-5">
@@ -85,7 +90,14 @@
 
             <v-menu offset-y open-on-hover :close-on-content-click="false">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn plain icon small v-bind="attrs" v-on="on">
+                <v-btn
+                  plain
+                  icon
+                  small
+                  v-show="infoValue.info"
+                  v-bind="attrs"
+                  v-on="on"
+                >
                   <v-icon small size="18px" color="content">mdi-information-outline</v-icon>
                 </v-btn>
               </template>
@@ -164,7 +176,7 @@ import LabelDropdown from '@/components/LabelDropdown.vue'
 import VueQr from 'vue-qr'
 
 export default {
-  props: ['infoKey', 'editable', 'deletable'],
+  props: ['infoKey', 'editable', 'deletable', 'custom'],
   components: {
     svgIcon,
     LabelDropdown,
@@ -202,7 +214,11 @@ export default {
       }
     },
     infoValue () {
-      return this.$store.state.dataManager.groupDetail[this.infoKey]
+      const value = this.$store.state.dataManager.groupDetail[this.infoKey]
+      if (value) {
+        return value
+      }
+      return this.$store.state.dataManager.groupDetail['触发MCD']['tab'][this.infoKey]
     },
     longListValue () {
       if (this.isLongListShowAll) {
@@ -231,6 +247,8 @@ export default {
         return 'category'
       } else if (this.infoKey === 'super_by') {
         return 'longList'
+      } else if (this.infoValue && this.infoValue.hasOwnProperty('items') && this.infoValue.hasOwnProperty('value')) {
+        return 'select'
       } else if (this.infoValue && this.infoValue.hasOwnProperty('value') && this.infoValue.hasOwnProperty('info') ) {
         return 'stringObject'
       } else if (this.infoValue && this.infoValue.hasOwnProperty('link') && this.infoValue.hasOwnProperty('value') ) {

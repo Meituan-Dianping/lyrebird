@@ -23,7 +23,8 @@
       <span>
         <div class="status-point" v-show="isGroupActivated"/>
         <span :class="nameClass">
-          <span v-if="data.parent_id">{{data.name}}</span>
+          <span v-if="data.id === 'tmp_group'">{{data.name}}</span>
+          <span v-else-if="data.parent_id">{{data.name}}</span>
           <v-icon v-else small color="accent">mdi-home</v-icon>
         </span>
         <span v-if="data.label && isLabelDisplay">
@@ -35,7 +36,7 @@
 
       <v-spacer/>
 
-      <span v-show="isMouseOver && !isSelectableStatus">
+      <span v-show="isMouseOver && isAllowedActionType && !isSelectableStatus">
 
         <v-btn
           v-show="data.type==='group'"
@@ -60,7 +61,7 @@
           icon
           @click="changeMenuStatus"
           class="mr-1"
-          v-show="data.type !== 'config'"
+          v-show="editable"
         >
           <v-icon
             size="12px" 
@@ -79,7 +80,7 @@
 import { getGroupChildren } from '@/api'
 
 export default {
-  props: ['data', 'selected'],
+  props: ['data', 'selected', 'editable', 'deletable'],
   data () {
     return {
       isMouseOver: false,
@@ -126,6 +127,9 @@ export default {
     iconColor () {
       return this.data.link ? 'text--secondary' : 'accent'
     },
+    isAllowedActionType () {
+      return this.data.type !== 'config'
+    },
     isSelectableStatus () {
       return this.$store.state.dataManager.isSelectableStatus
     },
@@ -136,7 +140,7 @@ export default {
       return this.$store.state.dataManager.focusNodeInfo && this.data.id === this.$store.state.dataManager.focusNodeInfo.id
     },
     isNodeDeletable () {
-      return this.$store.state.dataManager.treeUndeletableId.indexOf(this.data.id) === -1
+      return this.deletable && this.$store.state.dataManager.treeUndeletableId.indexOf(this.data.id) === -1
     },
     isNodeOpen () {
       return this.$store.state.dataManager.groupListOpenNode.indexOf(this.data.id) > -1
@@ -201,6 +205,9 @@ export default {
         })
     },
     onTreeNodeClick () {
+      if (!this.editable) {
+        return
+      }
       this.$store.commit('setFocusNodeInfo', this.data)
       if (this.data.type === 'group') {
         this.$store.dispatch('loadGroupDetail', this.data)

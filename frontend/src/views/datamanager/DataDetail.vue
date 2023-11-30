@@ -1,7 +1,7 @@
 <template>
   <div>
     <Row class="button-bar">
-      <Col span="15" class="button-bar-line">
+      <Col class="button-bar-line">
         <span v-for="(value, index) in nodeParents" :key="value.id">
           <v-icon v-if="!value.parent_id" small color="accent" @click="showNode(value)">mdi-home</v-icon>
           <a v-else @click="showNode(value)">{{value.name}}</a>
@@ -9,9 +9,6 @@
             mdi-chevron-right
           </v-icon>
         </span>
-      </Col>
-      <Col span="8" offset="1" align="right" class="button-bar-line">
-        <JsonPathBar/>
       </Col>
     </Row>
     <component v-if="nodeInfo.type" :is="getComponentByType(nodeInfo)" />
@@ -24,7 +21,6 @@ import DataDetailHttpData from '@/views/datamanager/DataDetailHttpData.vue'
 import DataDetailPlainJSON from '@/views/datamanager/DataDetailPlainJSON.vue'
 import DataDetailPlainConfig from '@/views/datamanager/DataDetailPlainConfig.vue'
 import DataDetailFolder from '@/views/datamanager/DataDetailFolder.vue'
-import JsonPathBar from '@/views/datamanager/JsonPathBar.vue'
 import { getGroupDetail } from '@/api'
 
 export default {
@@ -32,8 +28,7 @@ export default {
     DataDetailPlainConfig,
     DataDetailPlainJSON,
     DataDetailHttpData,
-    DataDetailFolder,
-    JsonPathBar
+    DataDetailFolder
   },
   computed: {
     groupDetail () {

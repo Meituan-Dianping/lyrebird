@@ -650,6 +650,49 @@ def test_activate_groups(data_manager):
     assert len(flow_B_mock_data) == 1
 
 
+def test_activate_multiple_only_store(data_manager):
+    flow_a = {
+        'request': {
+            'url': 'http://somehost/api/search'
+        }
+    }
+    data_manager.activate('groupA-UUID')
+    flow_mock_info = data_manager.get_matched_data_multiple_source(flow_a)
+    assert len(flow_mock_info['data']) == 1
+
+
+def test_activate_multiple_all(data_manager):
+    temp_mock_data_id = data_manager.temp_mock_tree.add_data({
+        'request': {
+            'url': 'http://hostname.com/pathA/pathB?param=1'
+        },
+        'response': {}
+    })
+
+    data_manager.activate('groupA-UUID')
+
+    flow_mock_by_stored_data = {
+        'request': {
+            'url': 'http://somehost/api/search'
+        }
+    }
+
+    flow_mock_info = data_manager.get_matched_data_multiple_source(flow_mock_by_stored_data)
+    assert len(flow_mock_info['data']) == 1
+    assert flow_mock_info['data'][0]['id'] == 'dataA-UUID'
+    assert flow_mock_info['parent']['id'] == 'groupA-UUID'
+
+    flow_mock_by_temp = {
+        'request': {
+            'url': 'http://hostname.com/pathA/pathB?param=1'
+        }
+    }
+    flow_mock_info = data_manager.get_matched_data_multiple_source(flow_mock_by_temp)
+    assert len(flow_mock_info['data']) == 1
+    assert flow_mock_info['data'][0]['id'] == temp_mock_data_id
+    assert flow_mock_info['parent']['id'] == 'tmp_group'
+
+
 def test_activate_groups_with_extra_info(data_manager):
     flow_A = {
         'request': {
@@ -926,6 +969,21 @@ def test_update_group_change_value(data_manager):
     assert data_manager.id_map[update_group_id]['name'] == new_group_name
 
 
+def test_update_by_query(data_manager):
+    query = {
+        'tab': 'PIPELINE',
+        'key': 'value'
+    }
+    new_group_name = 'groupA-new-name'
+    update_group_id = 'groupA-UUID'
+
+    update_data = deepcopy(data_manager.id_map[update_group_id])
+    update_data['name'] = new_group_name
+    data_manager.update_by_query(query, update_data)
+
+    assert data_manager.id_map[update_group_id]['name'] == new_group_name
+
+
 def test_update_group_key_add_and_delete(data_manager):
     new_group_key = 'groupA-new-info'
     new_group_value = 'groupA-new-value'
@@ -955,6 +1013,36 @@ def test_update_data(data_manager):
 
     assert data_manager.id_map[update_data_id]['name'] == new_data_name
     assert data_manager.get(update_data_id)['name'] == new_data_name
+
+
+def test_save_data(data_manager):
+    data = {
+        'id': 'some_id',
+        'size': 100,
+        'duration': 0.5,
+        'start_time': '',
+        'client_address': '',
+        'request': {
+            'url': 'http://hostname.com/pathA/pathB?param=1',
+            'headers': {}
+        },
+        'response': {
+            'headers': {},
+            'data': {},
+            'code': 200
+        }
+    }
+
+    group_a = data_manager.id_map.get('groupA-UUID')
+    origin_child_ids = set([c['id'] for c in group_a['children']])
+
+    data_manager.activate('groupA-UUID')
+    data_manager.save_data(data)
+
+    new_child_ids = set([c['id'] for c in group_a['children']])
+
+    assert origin_child_ids < new_child_ids
+    assert len(new_child_ids) - len(origin_child_ids) == 1
 
 
 def test_delete(data_manager):

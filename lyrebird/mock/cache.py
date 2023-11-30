@@ -28,6 +28,12 @@ class ListCache:
     def items(self):
         return list(self._cache)
 
+    def get(self, id_):
+        for item in list(self._cache):
+            if item['id'] != id_:
+                continue
+            return item
+
     def clear(self):
         self._cache.clear()
     

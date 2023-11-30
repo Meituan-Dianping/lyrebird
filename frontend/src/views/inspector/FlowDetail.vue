@@ -21,9 +21,9 @@
           </v-btn>
 
           <v-tab append href="#req" class="flow-detail-tab">Request</v-tab>
-          <v-tab append href="#req-body" class="flow-detail-tab">RequestBody</v-tab>
+          <v-tab append href="#reqData" class="flow-detail-tab">RequestBody</v-tab>
           <v-tab append href="#resp" class="flow-detail-tab">Response</v-tab>
-          <v-tab append href="#resp-body" class="flow-detail-tab">ResponseBody</v-tab>
+          <v-tab append href="#respData" class="flow-detail-tab">ResponseBody</v-tab>
           <v-tab v-if="showProxyResponse" append href="#proxy-resp-diff" class="flow-detail-tab">ResponseBodyDiff</v-tab>
           <v-spacer />
 
@@ -39,16 +39,16 @@
       </Row>
       <CodeDiffEditor 
         v-if="isDiffEditor"
-        :content="codeContent"
+        :content="editorCache"
         :diffContent="diffContent"
-        :language="codeType"
+        :language="currentTabContentType"
         class="flow-detail"
       />
       <CodeEditor
         v-else
         class="flow-detail"
-        :language="codeType"
-        :content="codeContent"
+        :language="currentTabContentType"
+        v-model="editorContent"
         v-on:on-jsonpath-change="onJsonPathChange"
       />
     </span>
@@ -57,7 +57,27 @@
       <p>No Selected flow</p>
     </div>
 
-  </div>
+    <div v-show="flowDetail" class="save-btn">
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            fab
+            dark
+            color="primary"
+            class="save-btn-detail"
+            @click="TemporaryMock"
+          >
+            M
+          </v-btn>
+        </template>
+        <span>Save (⌘+s)</span>
+      </v-tooltip>
+    </div>
+
+</div>
 </template>
 
 <script>
@@ -74,44 +94,49 @@ export default {
   },
   data () {
     return {
+      editorCache: {
+        id: null,
+        req: null,
+        reqData: null,
+        resp: null,
+        respData: null
+      },
+      editorCacheLanguage: {
+        req: 'json',
+        reqData: null,
+        resp: 'json',
+        respData: null
+      },
       codeType: 'json',
       currentTab: 'req',
-      jsonPath: null
+      jsonPath: null,
     }
+  },
+  mounted () {
+    this.setDataDetailEditorCache(this.flowDetail)
   },
   computed: {
     flowDetail () {
       return this.$store.state.inspector.focusedFlowDetail
     },
-    codeContent () {
-      let codeContent = ''
-      if (this.currentTab === 'req') {
-        codeContent = JSON.stringify(this.flowDetail.request, null, 4)
-        this.codeType = 'json'
-      } else if (this.currentTab === 'req-body') {
-        if (this.flowDetail.request.data) {
-          codeContent = this.parseJsonData(this.flowDetail.request.data)
-          this.codeType = 'json'
-        } else {
-          codeContent = ''
-          this.codeType = 'text'
+    editorContent: {
+      get () {
+        const content = this.editorCache[this.currentTab]
+        if (!content) {
+          return ''
         }
-      } else if (this.currentTab === 'resp') {
-        const respInfo = {
-          code: this.flowDetail.response.code,
-          headers: this.flowDetail.response.headers
-        }
-        codeContent = JSON.stringify(respInfo, null, 4)
-        this.codeType = 'json'
-      } else if (this.currentTab === 'resp-body') {
-        codeContent = this.parseResponseByContentType(this.flowDetail.response)
-      } else if (this.currentTab === 'proxy-resp-diff') {
-        codeContent = this.parseResponseByContentType(this.flowDetail.response)
-      } else { }
-      return codeContent
+        return content
+      },
+      set (val) {
+        this.editorCache[this.currentTab] = val
+      }
+    },
+    currentTabContentType () {
+      const content = this.editorCacheLanguage[this.currentTab]
+      return content ? content : 'json'
     },
     diffContent () {
-      return this.parseResponseByContentType(this.flowDetail.proxy_response)
+      return this.getParsedContentAndType(this.flowDetail.proxy_response)
     },
     isDiffEditor () {
       return this.currentTab === 'proxy-resp-diff'
@@ -119,9 +144,14 @@ export default {
     showProxyResponse () {
       const isShow = this.flowDetail && this.flowDetail.hasOwnProperty('proxy_response')
       if (!isShow && this.currentTab == 'proxy-resp-diff') {
-          this.currentTab = 'resp-body'
+        this.currentTab = 'respData'
       }
       return isShow
+    },
+  },
+  watch: {
+    flowDetail (val) {
+      this.setDataDetailEditorCache(val)
     },
   },
   methods: {
@@ -133,12 +163,32 @@ export default {
     switchTab (name) {
       this.currentTab = name
     },
-    parseNullData (data) {
-      this.codeType = 'text'
+    setDataDetailEditorCache (val) {
+      if (val === null || Object.keys(val).length === 0) {
+        return
+      }
+      this.editorCache.id = val.id
+      this.editorCache.req = JSON.stringify({
+        url: val.request.url,
+        headers: val.request.headers,
+        method: val.request.method
+      })
+      let reqContentInfo = this.getParsedContentAndType(val.request)
+      this.editorCache.reqData = reqContentInfo.content
+      this.editorCacheLanguage.reqData = reqContentInfo.language
+
+      this.editorCache.resp = JSON.stringify({
+        code: val.response.code,
+        headers: val.response.headers
+      })
+      let respContentInfo = this.getParsedContentAndType(val.response)
+      this.editorCache.respData = respContentInfo.content
+      this.editorCacheLanguage.respData = respContentInfo.language
+    },
+    parseNullData (_) {
       return ''
     },
     parseJsonData (data) {
-      this.codeType = 'json'
       if (typeof data === 'object') {
         return JSON.stringify(data, null, 4)
       } else {
@@ -146,18 +196,15 @@ export default {
       }
     },
     parseHtmlData (data) {
-      this.codeType = 'html'
       return data
     },
     parseXmlData (data) {
-      this.codeType = 'xml'
       return data
     },
     parseTextData (data) {
-      this.codeType = 'text'
       return data
     },
-    parseResponseByContentType (response) {
+    getParsedContentAndType (response) {
       let contentType = null
       for (const headerKey in response.headers) {
         if (headerKey.toLowerCase() == 'content-type') {
@@ -165,27 +212,49 @@ export default {
           break
         }
       }
-      let codeContent = ''
-      if (response.data === undefined || response.data === null) {
-        codeContent = this.parseNullData(response.data)
-      } else if (contentType) {
-        if (contentType.includes('html')) {
-          codeContent = this.parseHtmlData(response.data)
-        } else if (contentType.includes('xml')) {
-          codeContent = this.parseXmlData(response.data)
-        } else if (contentType.includes('json')) {
-          codeContent = this.parseJsonData(response.data)
-        } else {
-          codeContent = this.parseTextData(response.data)
-        }
+
+      let contentInfo = { content: '', language: '' }
+
+      if (!contentType) {
+        contentInfo.language = 'json'
+      } else if (response.data === undefined || response.data === null) {
+        contentInfo.content = this.parseNullData(response.data)
+        contentInfo.language = 'text'
+      } else if (contentType.includes('json')) {
+        contentInfo.content = this.parseJsonData(response.data)
+        contentInfo.language = 'json'
+      } else if (contentType.includes('html')) {
+        contentInfo.content = this.parseHtmlData(response.data)
+        contentInfo.language = 'html'
+      } else if (contentType.includes('xml')) {
+        contentInfo.content = this.parseXmlData(response.data)
+        contentInfo.language = 'xml'
       } else {
-        codeContent = this.parseTextData(response.data)
+        contentInfo.content = this.parseTextData(response.data)
+        contentInfo.language = 'text'
       }
-      return codeContent
+      return contentInfo
     },
     onJsonPathChange (payload) {
       this.jsonPath = payload.jsonPath
-    }
+    },
+    TemporaryMock () {
+      const newData = {}
+      // Add request
+      const newReq = {}
+      Object.assign(newReq, JSON.parse(this.editorCache.req))
+      newReq['data'] = this.editorCache.reqData
+      newData['request'] = newReq
+      // Add response
+      const newResp = {}
+      Object.assign(newResp, JSON.parse(this.editorCache.resp))
+      newResp['data'] = this.editorCache.respData
+      newData['response'] = newResp
+
+      newData.id = this.editorCache.id
+
+      this.$store.dispatch('temporaryMock', newData)
+    },
   }
 }
 </script>

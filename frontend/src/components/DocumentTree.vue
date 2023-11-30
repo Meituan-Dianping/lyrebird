@@ -23,7 +23,7 @@
           :options="{threshold: 0.5}"
           transition="fade-transition"
         >
-          <DocumentTreeNode :data="item" :selected="selected"/>
+          <DocumentTreeNode :data="item" :selected="selected" :editable="editable" :deletable="deletable"/>
         </v-lazy>
       </template>
     </v-treeview>
@@ -37,7 +37,16 @@ export default {
   components: {
     DocumentTreeNode
   },
-  props: ['treeData', 'searchStr'],
+  props: {
+    'treeData': Array,
+    'searchStr': String,
+    'editable': {
+      default: true
+    },
+    'deletable': {
+      default: true
+    }
+  },
   data() {
     return {
       searchRefreshDataListTimer: null,
