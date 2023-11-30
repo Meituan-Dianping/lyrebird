@@ -1,6 +1,7 @@
 import re
 import traceback
 from lyrebird.log import get_logger
+from lyrebird.utils import HookedDict
 
 logger = get_logger()
 
@@ -28,6 +29,8 @@ class FunctionExecutor:
     @staticmethod
     def get_matched_sorted_handler(func_list, flow):
         matched_func = []
+        if not isinstance(flow, HookedDict):
+            flow = HookedDict(flow)
         for func in func_list:
             rules = func['rules']
             if not rules or FunctionExecutor._is_req_match_rule(rules, flow):
