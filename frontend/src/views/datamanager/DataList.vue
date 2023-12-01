@@ -45,11 +45,6 @@ export default {
     DuplicateDialog,
     DeleteDialog,
   },
-  props: {
-    editable: {
-      default: true
-    }
-  },
   computed: {
     treeData () {
       return this.$store.state.dataManager.groupList

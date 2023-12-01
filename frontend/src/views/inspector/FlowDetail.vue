@@ -253,7 +253,7 @@ export default {
 
       newData.id = this.editorCache.id
 
-      this.$store.dispatch('temporaryMock', newData)
+      this.$store.dispatch('createTempMockData', newData)
     },
   }
 }

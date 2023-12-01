@@ -1,5 +1,5 @@
 <template>
-  <div class="document-tree">
+  <div class="temp-mock-tree">
 
     <v-treeview
       :items="temporaryMockDataList"
@@ -64,12 +64,6 @@ export default {
   props: {
     'treeData': Array,
     'searchStr': String,
-    'editable': {
-      default: true
-    },
-    'deletable': {
-      default: true
-    }
   },
   data() {
     return {
@@ -120,23 +114,16 @@ export default {
       this.openNode = this.rootOpen ? [] : ['tmp_group']
     },
     deleteData (payload) {
-      this.$store.dispatch('notTemporaryMock', payload)
+      this.$store.dispatch('deleteTempMockData', payload)
     }
   }
 }
 </script>
 
 <style>
-.document-tree .v-treeview--dense .v-treeview-node__root{
+.temp-mock-tree .v-treeview--dense .v-treeview-node__root{
   min-height: 32px;
   padding: 0px;
   margin-left: -28px;
-}
-.toggle-icon-status {
-  transform:rotate(-90deg);
-  /* animation-name: loading-icon-rotate;
-  animation-duration: 800ms;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite; */
 }
 </style>

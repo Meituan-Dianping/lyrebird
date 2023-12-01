@@ -161,26 +161,6 @@ def test_add(data_manager):
 
     assert new_data_id in data_manager.temp_mock_tree.activated_data
 
-
-def test_add(data_manager):
-    data = {
-        'request': {
-            'url': 'http://hostname.com/pathA/pathB?param=1'
-        },
-        'response': {}
-    }
-    new_data_id = data_manager.temp_mock_tree.add_data(data)
-    assert new_data_id
-
-    found_new_data = False
-    for child in data_manager.temp_mock_tree.root['children']:
-        if child['id'] == new_data_id:
-            found_new_data = True
-            break
-    assert found_new_data
-
-    assert new_data_id in data_manager.temp_mock_tree.activated_data
-
     parsed_url = urlparse(data['request']['url'])
     parsed_url_path = parsed_url.path
 
@@ -189,7 +169,6 @@ def test_add(data_manager):
     assert f'(?=.*{parsed_url_path}\?)' == _new_data['rule']['request.url']
 
 
-# new
 def test_add_data_request_url_no_params(data_manager):
     data = {
         'request': {

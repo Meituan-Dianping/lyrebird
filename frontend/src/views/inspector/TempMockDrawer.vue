@@ -31,7 +31,7 @@ export default {
     DataListButtonBar
   },
   activated () {
-    this.$store.dispatch('loadTempGroup')
+    this.$store.dispatch('loadTempMockData')
   },
   data() {
     return {

@@ -285,10 +285,6 @@ export default {
 }
 .toggle-icon-status {
   transform:rotate(-90deg);
-  /* animation-name: loading-icon-rotate;
-  animation-duration: 800ms;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite; */
 }
 .loading-icon {
   animation-name: loading-icon-rotate;

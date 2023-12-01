@@ -176,7 +176,7 @@ import LabelDropdown from '@/components/LabelDropdown.vue'
 import VueQr from 'vue-qr'
 
 export default {
-  props: ['infoKey', 'editable', 'deletable', 'custom'],
+  props: ['infoKey', 'editable', 'deletable'],
   components: {
     svgIcon,
     LabelDropdown,
@@ -215,10 +215,6 @@ export default {
     },
     infoValue () {
       const value = this.$store.state.dataManager.groupDetail[this.infoKey]
-      if (value) {
-        return value
-      }
-      return this.$store.state.dataManager.groupDetail['触发MCD']['tab'][this.infoKey]
     },
     longListValue () {
       if (this.isLongListShowAll) {
