@@ -308,7 +308,7 @@ export default {
     },
     sendGroupDetail ({ state }, payload) {
       bus.$emit('msg.loading', `Sending ${payload.tab} ...`)
-      let ids = state.isSelectableStatus ? state.selectedLeaf : [state.groupDetail.id] // ? selectedLeaf
+      let ids = state.isSelectableStatus ? state.selectedLeaf : [state.groupDetail.id]
       api.updateByQuery(ids, state.groupDetail, payload.tab)
         .then(response => {
           bus.$emit('msg.destroy')
@@ -355,37 +355,6 @@ export default {
       } else {
         bus.$emit('msg.error', 'Create data ' + dataName + ' error: ' + 'Data name is required!')
       }
-    },
-
-    // Temp mock
-    loadTempGroup ({ state, commit }) {
-      api.getGroupDetail(state.tempGroupId)
-        .then(response => {
-          commit('setTemporaryMockDataList', [response.data.data])
-        })
-        .catch(error => {
-          bus.$emit('msg.error', 'Load error: ' + error.data.message)
-        })
-    },
-    temporaryMock ({ dispatch }, payload ) {
-      api.createData('tmp_group', payload)
-        .then(_ => {
-          dispatch('loadTempGroup')
-          bus.$emit('msg.success', 'Temporary mock!')
-        })
-        .catch(error => {
-          bus.$emit('msg.error', 'Temporary mock error: ' + error.data.message)
-        })
-    },
-    notTemporaryMock ({ dispatch }, payload) {
-      api.deleteByQuery([payload.id], 'tmp_group')
-        .then(_ => {
-          dispatch('loadTempGroup')
-          bus.$emit('msg.success', 'Not temporary mock!')
-        })
-        .catch(error => {
-          bus.$emit('msg.error', 'Not temporary mock error: ' + error.data.message)
-        })
     },
     loadDataDetail ({ commit, dispatch }, payload) {
       api.getDataDetail(payload.id)
@@ -514,6 +483,36 @@ export default {
         })
         .catch(error => {
           bus.$emit('msg.error', 'Delete error: ' + error.data.message)
+        })
+    },
+    // Temp mock
+    loadTempGroup ({ state, commit }) {
+      api.getGroupDetail(state.tempGroupId)
+        .then(response => {
+          commit('setTemporaryMockDataList', [response.data.data])
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load error: ' + error.data.message)
+        })
+    },
+    temporaryMock ({ dispatch }, payload ) {
+      api.createData('tmp_group', payload)
+        .then(_ => {
+          dispatch('loadTempGroup')
+          bus.$emit('msg.success', 'Temporary mock!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Temporary mock error: ' + error.data.message)
+        })
+    },
+    notTemporaryMock ({ dispatch }, payload) {
+      api.deleteByQuery([payload.id], 'tmp_group')
+        .then(_ => {
+          dispatch('loadTempGroup')
+          bus.$emit('msg.success', 'Not temporary mock!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Not temporary mock error: ' + error.data.message)
         })
     }
   }

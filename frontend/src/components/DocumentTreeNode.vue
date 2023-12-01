@@ -23,8 +23,7 @@
       <span>
         <div class="status-point" v-show="isGroupActivated"/>
         <span :class="nameClass">
-          <span v-if="data.id === 'tmp_group'">{{data.name}}</span>
-          <span v-else-if="data.parent_id">{{data.name}}</span>
+          <span v-if="data.parent_id">{{data.name}}</span>
           <v-icon v-else small color="accent">mdi-home</v-icon>
         </span>
         <span v-if="data.label && isLabelDisplay">
@@ -36,7 +35,7 @@
 
       <v-spacer/>
 
-      <span v-show="isMouseOver && isAllowedActionType && !isSelectableStatus">
+      <span v-show="isMouseOver && !isSelectableStatus">
 
         <v-btn
           v-show="data.type==='group'"
@@ -61,7 +60,7 @@
           icon
           @click="changeMenuStatus"
           class="mr-1"
-          v-show="editable"
+          v-show="isNodeEditable"
         >
           <v-icon
             size="12px" 
@@ -127,9 +126,6 @@ export default {
     iconColor () {
       return this.data.link ? 'text--secondary' : 'accent'
     },
-    isAllowedActionType () {
-      return this.data.type !== 'config'
-    },
     isSelectableStatus () {
       return this.$store.state.dataManager.isSelectableStatus
     },
@@ -141,6 +137,9 @@ export default {
     },
     isNodeDeletable () {
       return this.deletable && this.$store.state.dataManager.treeUndeletableId.indexOf(this.data.id) === -1
+    },
+    isNodeEditable () {
+      return this.editable && this.data.type !== 'config'
     },
     isNodeOpen () {
       return this.$store.state.dataManager.groupListOpenNode.indexOf(this.data.id) > -1
