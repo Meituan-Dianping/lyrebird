@@ -23,7 +23,7 @@
           <v-tab append href="#req" class="flow-detail-tab">Request</v-tab>
           <v-tab append href="#reqData" class="flow-detail-tab">RequestBody</v-tab>
           <v-tab append href="#resp" class="flow-detail-tab">Response</v-tab>
-          <v-tab append href="#respData" class="flow-detail-tab">ResponseBody</v-tab>
+          <v-tab append href="#respData" class="flow-detail-tab">ResponseData</v-tab>
           <v-tab v-if="showProxyResponse" append href="#proxy-resp-diff" class="flow-detail-tab">ResponseBodyDiff</v-tab>
           <v-spacer />
 
@@ -58,23 +58,15 @@
     </div>
 
     <div v-show="flowDetail" class="save-btn">
-      <v-tooltip top>
-        <template v-slot:activator="{ on, attrs }">
-
-          <v-btn
-            v-bind="attrs"
-            v-on="on"
-            fab
-            dark
-            color="primary"
-            class="save-btn-detail"
-            @click="TemporaryMock"
-          >
-            M
-          </v-btn>
-        </template>
-        <span>Save (⌘+s)</span>
-      </v-tooltip>
+      <v-btn
+        fab
+        dark
+        color="primary"
+        class="save-btn-detail"
+        @click="TemporaryMock"
+      >
+        M
+      </v-btn>
     </div>
 
 </div>
