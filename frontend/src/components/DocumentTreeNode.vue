@@ -60,7 +60,7 @@
           icon
           @click="changeMenuStatus"
           class="mr-1"
-          v-show="data.type !== 'config'"
+          v-show="isNodeEditable"
         >
           <v-icon
             size="12px" 
@@ -79,7 +79,7 @@
 import { getGroupChildren } from '@/api'
 
 export default {
-  props: ['data', 'selected'],
+  props: ['data', 'selected', 'editable', 'deletable'],
   data () {
     return {
       isMouseOver: false,
@@ -136,7 +136,10 @@ export default {
       return this.$store.state.dataManager.focusNodeInfo && this.data.id === this.$store.state.dataManager.focusNodeInfo.id
     },
     isNodeDeletable () {
-      return this.$store.state.dataManager.treeUndeletableId.indexOf(this.data.id) === -1
+      return this.deletable && this.$store.state.dataManager.treeUndeletableId.indexOf(this.data.id) === -1
+    },
+    isNodeEditable () {
+      return this.editable && this.data.type !== 'config'
     },
     isNodeOpen () {
       return this.$store.state.dataManager.groupListOpenNode.indexOf(this.data.id) > -1
@@ -201,6 +204,9 @@ export default {
         })
     },
     onTreeNodeClick () {
+      if (!this.editable) {
+        return
+      }
       this.$store.commit('setFocusNodeInfo', this.data)
       if (this.data.type === 'group') {
         this.$store.dispatch('loadGroupDetail', this.data)
@@ -279,10 +285,6 @@ export default {
 }
 .toggle-icon-status {
   transform:rotate(-90deg);
-  /* animation-name: loading-icon-rotate;
-  animation-duration: 800ms;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite; */
 }
 .loading-icon {
   animation-name: loading-icon-rotate;

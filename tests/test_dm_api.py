@@ -87,6 +87,12 @@ def test_group_get_with_group_id(client):
     assert resp.json['code'] == 1000
 
 
+def test_group_get_with_tmp_group(client):
+    group_id = 'tmp_group'
+    resp = client.get(f'/api/group/{group_id}')
+    assert resp.json['code'] == 1000
+
+
 def test_group_get_children(client):
     group_id = 'groupA-UUID'
     resp = client.get(f'/api/group/{group_id}?childrenOnly=true')
@@ -122,9 +128,44 @@ def test_group_put(client):
     assert resp.json['code'] == 1000
 
 
+
+def test_group_put_with_query(client):
+    resp = client.put('/api/group', json={
+        'query': {
+            'tab': 'PIPELINE'
+        },
+        'data': {
+            'id': 'groupA-UUID',
+            'name': 'groupA-UUID-new',
+            'parent_id': 'root'
+        },
+        
+    })
+    assert resp.json['code'] == 1000
+
+
 def test_group_delete_with_group_id(client):
     group_id = 'groupA-UUID'
     resp = client.delete(f'/api/group/{group_id}')
+    assert resp.json['code'] == 1000
+
+
+def test_group_delete_by_query(client):
+    resp = client.delete(f'/api/group', json={
+        'query': {
+            'id': ['groupA-UUID']
+        }
+    })
+    assert resp.json['code'] == 1000
+
+
+def test_group_delete_with_tmp_group(client):
+    resp = client.delete(f'/api/group', json={
+        'query': {
+            'id': ['groupA-UUID']
+        },
+        'parent_id': 'tmp_group'
+    })
     assert resp.json['code'] == 1000
 
 
@@ -175,6 +216,29 @@ def test_data_post(client):
                     'url': 'http://unittest.com/api/detail'
                 }
             }
+    })
+    assert resp.json['code'] == 1000
+
+
+def test_data_post_with_tmp_group(client):
+    resp = client.post('/api/data', json={
+        'parent_id': 'tmp_group',
+        'data': {
+            'id': 'some_id',
+            'size': 100,
+            'duration': 0.5,
+            'start_time': '',
+            'client_address': '',
+            'request': {
+                'url': 'http://hostname.com/pathA/pathB?param=1',
+                'headers': {}
+            },
+            'response': {
+                'headers': {},
+                'data': {},
+                'code': 200
+            }
+        }
     })
     assert resp.json['code'] == 1000
 

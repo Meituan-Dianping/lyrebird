@@ -67,7 +67,7 @@ class FileDataAdapter:
     def _add_group(self, data, **kwargs):
         self._save_prop()
 
-    def _update_group(self, data):
+    def _update_group(self, data, **kwargs):
         id_ = data['id']
         node = self.context.id_map.get(id_)
 

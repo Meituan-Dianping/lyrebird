@@ -5,9 +5,8 @@ import { bus } from '@/eventbus'
 export default {
   state: {
     title: 'Mock Data',
-    searchStr: '',
+    treeSearchStr: '',
     groupList: [],
-    jsonPath: null,
     conflictInfo: null,
     isLoadConflictInfo: false,
     groupListOpenNode: [],
@@ -41,20 +40,19 @@ export default {
     uneditableKey: ['id', 'rule', 'super_by'],
     stickyTopKey: ['id', 'rule', 'super_id', 'name', 'label', 'super_by'],
     displayCopyKey: ['id'],
-    treeUndeletableId: []
+    treeUndeletableId: [],
+    temporaryMockDataList: [],
+    tempGroupId: 'tmp_group',
   },
   mutations: {
     setTitle (state, title) {
       state.title = title
     },
-    setSearchStr (state, searchStr) {
-      state.searchStr = searchStr
+    setTreeSearchStr (state, treeSearchStr) {
+      state.treeSearchStr = treeSearchStr
     },
     setGroupList (state, groupList) {
       state.groupList = groupList
-    },
-    setJsonPath (state, jsonPath) {
-      state.jsonPath = jsonPath
     },
     setConflictInfo (state, conflictInfo) {
       state.conflictInfo = conflictInfo
@@ -189,7 +187,10 @@ export default {
     },
     concatTreeUndeletableId (state, treeUndeletableId) {
       state.treeUndeletableId = state.treeUndeletableId.concat(treeUndeletableId)
-    }
+    },
+    setTemporaryMockDataList (state, val) {
+      state.temporaryMockDataList = val
+    },
   },
   actions: {
     loadDataMap ({ state, commit }) {
@@ -295,7 +296,7 @@ export default {
           }
           dispatch('loadGroupDetail', payload)
           bus.$emit('msg.destroy')
-          if (response.data.message) {
+          if (response.data.message && response.data.message.length > 0) {
             bus.$emit('msg.info', response.data.message)
           } else {
             bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
@@ -303,6 +304,22 @@ export default {
         })
         .catch(error => {
           bus.$emit('msg.error', 'Group ' + payload.name + ' update error: ' + error.data.message)
+        })
+    },
+    sendGroupDetail ({ state }, payload) {
+      bus.$emit('msg.loading', `Sending ${payload.tab} ...`)
+      let ids = state.isSelectableStatus ? state.selectedLeaf : [state.groupDetail.id]
+      api.updateByQuery(ids, state.groupDetail, payload.tab)
+        .then(response => {
+          bus.$emit('msg.destroy')
+          if (response.data.message && response.data.message.length > 0) {
+            bus.$emit('msg.info', response.data.message)
+          } else {
+            bus.$emit('msg.success', `Group ${payload.tab} send success!`)
+          }
+        })
+        .catch(error => {
+          bus.$emit('msg.error', `Group ${payload.tab} send error: ${error.data.message}`)
         })
     },
     deleteGroup ({ state, commit, dispatch }, payload) {
@@ -466,6 +483,36 @@ export default {
         })
         .catch(error => {
           bus.$emit('msg.error', 'Delete error: ' + error.data.message)
+        })
+    },
+    // Temp mock
+    loadTempMockData ({ state, commit }) {
+      api.getGroupDetail(state.tempGroupId)
+        .then(response => {
+          commit('setTemporaryMockDataList', [response.data.data])
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load Temporary mock data error: ' + error.data.message)
+        })
+    },
+    createTempMockData ({ state, dispatch }, payload ) {
+      api.createData(state.tempGroupId, payload)
+        .then(_ => {
+          dispatch('loadTempMockData')
+          bus.$emit('msg.success', 'Save temporary mock data success!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Save temporary mock error: ' + error.data.message)
+        })
+    },
+    deleteTempMockData ({ state, dispatch }, payload) {
+      api.deleteByQuery([payload.id], state.tempGroupId)
+        .then(_ => {
+          dispatch('loadTempMockData')
+          bus.$emit('msg.success', `Delete temporary mock data ${payload.name} success!`)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Delete temporary mock data error: ' + error.data.message)
         })
     }
   }

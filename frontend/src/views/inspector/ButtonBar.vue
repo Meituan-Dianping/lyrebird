@@ -29,7 +29,6 @@
         <span>Clear</span>
       </v-tooltip>
 
-
       <b class="pr-1 pl-3">Mock Group</b>
 
       <v-chip
@@ -103,7 +102,6 @@
         />
       </div>
 
-
       <v-menu
         left
         bottom
@@ -163,48 +161,18 @@
       </v-menu>
     </div>
 
-    <MockDataSelector ref="searchModal" :showRoot="false">
-      <template #selected>
-        <div v-if="activatedGroups">
-          <label style="padding-right:5px">Activated Mock Group</label>
-          <Tag v-for="group in activatedGroups" :key="group.id">{{group.name}}</Tag>
-        </div>
-      </template>
-      <template #searchItem="{ searchResult }">
-        <Row type="flex" align="middle" class="search-row" @click.native="onActivateClick(searchResult)">
-          <Col span="22">
-            <p class="search-item">
-              <b class="search-item-title">{{searchResult.name}}</b>
-              <span class="search-item-path">{{searchResult.abs_parent_path}}</span>
-            </p>
-          </Col>
-          <Col span="2" align="right">
-            <Icon
-              type="ios-play"
-              color="#19be6b"
-              size="22"
-              class="search-item-btn"
-            />
-          </Col>
-        </Row>
-      </template>
-    </MockDataSelector>
+    <TempMockDrawer ref="treeDrawer"/>
+
   </div>
 </template>
 
 <script>
-import MockDataSelector from '@/components/SearchModal.vue'
-import Icon from 'vue-svg-icon/Icon.vue'
+import TempMockDrawer from '@/views/inspector/TempMockDrawer.vue'
 
 export default {
   name: 'buttonBar',
   components: {
-    MockDataSelector,
-    'svg-icon': Icon
-  },
-  data () {
-    return {
-    }
+    TempMockDrawer
   },
   computed: {
     diffMode: {
@@ -288,7 +256,7 @@ export default {
   },
   methods: {
     showMockDataSelector () {
-      this.$refs.searchModal.toggal()
+      this.$refs.treeDrawer.toggal()
     },
     changeFlowFilter () {
       this.$store.dispatch('loadFlowList')
@@ -377,6 +345,8 @@ export default {
 }
 .inspector-search .v-input__slot {
   padding-right: 4px !important;
+  min-height: 26px !important;
+  height: 26px !important;
 }
 .inspector-search .v-icon {
   font-size: 14px !important;
@@ -387,18 +357,16 @@ export default {
 }
 .flow-filter-select {
   width: 120px;
-  min-height: 26px !important;
-  height: 26px !important;
   font-size: 14px;
   font-weight: 400;
   line-height: 14px;
 }
-.flow-filter .v-text-field--outlined, .v-text-field--solo {
-  border-radius: 4px 0px 0px 4px !important;
-}
-.inspector-button-bar .v-input__slot {
+.flow-filter-select .v-input__slot {
   min-height: 26px !important;
   height: 26px !important;
+}
+.flow-filter .v-text-field--outlined, .v-text-field--solo {
+  border-radius: 4px 0px 0px 4px !important;
 }
 .flow-filter .v-select__selections{
   min-height: 26px !important;

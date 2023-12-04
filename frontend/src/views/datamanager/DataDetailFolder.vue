@@ -1,19 +1,31 @@
 <template>
   <div class="small-tab">
-    <tabs v-model="currentTab" :animated="false" size="small">
-      <tab-pane label="Information" name="information">
+    <v-tabs
+      v-model="currentTab"
+      center-active
+      active-class="flow-detail-active-tab"
+      background-color="shading"
+      color="accent"
+      height="29"
+      show-arrows="never"
+      slider-color="primary"
+    >
+      <v-tab append class="flow-detail-tab" v-for="(tab, index) in tabItems" :href="'#'+tab.id" :key="index">
+        {{ tab.label }}
+      </v-tab>
+
+      <v-tab-item value="info">
         <div class="data-detail">
           <div class="data-detail-content">
-            <div v-for="(value, key) in groupInfoStickyTop" :key="key">
+            <div v-for="key in groupInfoStickyTop" :key="key">
               <DataDetailInfo
                 :infoKey="key"
                 :editable="!uneditableKey.includes(key)"
                 :deletable="!undeletableKey.includes(key)"
               />
             </div>
-            <div v-for="(value, key) in groupInfoNormal" :key="key">
+            <div v-for="key in groupInfoNormal" :key="key">
               <DataDetailInfo
-                :infoValue="value"
                 :infoKey="key"
                 :editable="!uneditableKey.includes(key)"
                 :deletable="!undeletableKey.includes(key)"
@@ -34,13 +46,14 @@
             </Row>
           </div>
         </div>
-      </tab-pane>
-      <tab-pane label="Conflict" name="conflict">
+      </v-tab-item>
+
+      <v-tab-item value="conflict">
         <div class="data-detail">
           <Row type="flex" justify="end" style="padding-top:10px">
             <Col span="18" style="padding:0px 5px 0px 10px">
               <p v-if="conflictInfo">
-                <Icon type="md-information-circle" />Group
+                Group
                 <b>{{conflictCheckNode.name}}</b>
                 has {{conflictInfo.length}} conflicts
               </p>
@@ -62,11 +75,25 @@
           </Row>
           <DataDetailConflict :information="conflictInfo" />
         </div>
-      </tab-pane>
-    </tabs>
+      </v-tab-item>
 
-    <div class="save-btn" v-if="groupInfo">
-      <v-tooltip top>
+      <v-tab-item v-for="(tab, index) in customTabInfo" :value="tab.id" :key="index">
+        <div class="data-detail">
+          <div class="data-detail-content">
+            <div v-for="(value, key) in tab.content" :key="key">
+              <DataDetailInfo
+                :infoKey="key"
+                :editable="!uneditableKey.includes(key)"
+                :deletable="!undeletableKey.includes(key)"
+              />
+            </div>
+          </div>
+        </div>
+      </v-tab-item>
+    </v-tabs>
+
+    <div class="save-btn" v-show="groupInfo">
+      <v-tooltip top v-if="currentTab === 'info'">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             v-bind="attrs"
@@ -86,6 +113,27 @@
         </template>
         <span>Save (⌘+s)</span>
       </v-tooltip>
+
+      <v-tooltip top v-else-if="currentTab !== 'conflict'">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            fab
+            dark
+            color="primary"
+            class="save-btn-detail"
+            @click="sendCustomTagInfo"
+          >
+            <v-icon
+            class="save-btn-icon"
+            dark>
+              mdi-send
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>Send</span>
+      </v-tooltip>
     </div>
   </div>
 </template>
@@ -93,13 +141,11 @@
 <script>
 import DataDetailConflict from '@/views/datamanager/DataDetailConflict.vue'
 import DataDetailInfo from "@/views/datamanager/DataDetailInfo.vue"
-import Icon from 'vue-svg-icon/Icon.vue'
 
 export default {
   components: {
     DataDetailConflict,
     DataDetailInfo,
-    Icon
   },
   data () {
     return {
@@ -128,25 +174,61 @@ export default {
     groupInfo () {
       return this.$store.state.dataManager.groupDetail
     },
-    groupInfoStickyTop () {
-      const groupInfo = this.$store.state.dataManager.groupDetail
-      let stickyTopInfo = {}
-      for (const key in groupInfo) {
-        if (this.stickyTopKey.includes(key)) {
-          stickyTopInfo[key] = groupInfo[key]
+    tabItems () {
+      let tabs = [
+        {id: 'info', label: 'Information'},
+        {id: 'conflict', label: 'Conflict'}
+      ]
+      for (const customTab of this.customTabInfo) {
+        tabs.push({
+          id: customTab.id,
+          label: customTab.id
+        })
+      }
+      return tabs
+    },
+    customTabInfo () {
+      let info = {}
+      for (const key in this.groupInfo) {
+        const value = this.groupInfo[key]
+        if (typeof(value) === 'object' && value.hasOwnProperty('tab')) {
+          if (!info.hasOwnProperty(value.tab)) {
+            info[value.tab] = {}
+          }
+          info[value.tab][key] = value
         }
       }
-      return stickyTopInfo
+      let arr = []
+      for (const key in info) {
+        arr.push({
+          id: key,
+          content: info[key]
+        })
+      }
+      return arr
+    },
+    groupInfoStickyTop () {
+      let keys = []
+      for (const key of this.stickyTopKey) {
+        if (this.groupInfo.hasOwnProperty(key)) {
+          keys.push(key)
+        }
+      }
+      return keys
     },
     groupInfoNormal () {
-      const groupInfo = this.$store.state.dataManager.groupDetail
-      let notStickyTopInfo = {}
-      for (const key in groupInfo) {
-        if (!this.stickyTopKey.includes(key) && !this.undisplayedKey.includes(key) && key.substring(0, 1) !== '_') {
-          notStickyTopInfo[key] = groupInfo[key]
+      let keys = []
+      for (const key in this.groupInfo) {
+        if (
+          !this.stickyTopKey.includes(key) && 
+          !this.undisplayedKey.includes(key) && 
+          key.substring(0, 1) !== '_' &&
+          !this.groupInfo[key].hasOwnProperty('tab')
+        ) {
+          keys.push(key)
         }
       }
-      return notStickyTopInfo
+      return keys
     },
     conflictInfo () {
       return this.$store.state.dataManager.conflictInfo
@@ -185,6 +267,11 @@ export default {
       } else {
         this.$store.dispatch('saveGroupDetail', this.groupInfo)
       }
+    },
+    sendCustomTagInfo () {
+      this.$store.dispatch('sendGroupDetail', {
+        tab: this.currentTab
+      })
     },
     getConflictInfo () {
       this.conflictCheckNode = this.nodeInfo

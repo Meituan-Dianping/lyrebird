@@ -270,6 +270,11 @@ export default {
 .side-navgation {
   z-index: 4;
 }
+.ivu-split-trigger-con {
+  /* vuetify drawer z-index is 4 */
+  /* iview drawer z-index is 4 */
+  z-index: 3; 
+}
 .ivu-split-pane {
   overflow: hidden;
 }

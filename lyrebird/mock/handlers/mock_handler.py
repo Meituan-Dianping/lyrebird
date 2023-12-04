@@ -1,6 +1,6 @@
 from pathlib import Path
+from lyrebird import utils
 from lyrebird.mock.dm.jsonpath import jsonpath
-import json
 from lyrebird.mock import context
 from lyrebird.log import get_logger
 from .mock_data_helper import MockDataHelper
@@ -34,15 +34,17 @@ class MockHandler:
         return True
 
     def handle(self, handler_context):
-        hit_datas = context.application.data_manager.get_matched_data(handler_context.flow)
+        hit_datas_info = context.application.data_manager.get_matched_data_multiple_source(handler_context.flow)
+        if not hit_datas_info:
+            return
+
+        hit_datas = hit_datas_info['data']
         if len(hit_datas) <= 0:
             return
 
         # TODO rules of hitting multiple mock data
         hit_data = hit_datas[0]
-
-        activated_groups = context.application.data_manager.activated_group
-        activated_group = list(activated_groups.values())[0]
+        activated_group = hit_datas_info['parent']
 
         is_ssr = MockHandler.is_handle_ssr(handler_context)
         if is_ssr:
@@ -56,9 +58,9 @@ class MockHandler:
 
             resp_jsonpath = config.get(CONFIG_MOCK_REQUEST_SSR_MOCK_DATA_JSONPATH)
             if resp_jsonpath:
-                request_data_update[resp_key] = context.application.data_manager._flow_str_2_data(request_data_update[resp_key])
+                request_data_update[resp_key] = utils.flow_str_2_data(request_data_update[resp_key])
                 target_response_data = jsonpath.search(request_data_update[resp_key], resp_jsonpath, find_one=True)
-                request_data_update[resp_key] = context.application.data_manager._flow_data_2_str(target_response_data)
+                request_data_update[resp_key] = utils.flow_data_2_str(target_response_data)
 
             if 'data' not in handler_context.flow['request']:
                 handler_context.flow['request']['data'] = {}

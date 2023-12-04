@@ -1,12 +1,31 @@
 <template>
-  <div class="small-tab">
-    <tabs v-model="currentTab" @on-click="onTabClick" :animated="false" size="small">
-      <tab-pane label="Information" name="info" />
-      <tab-pane label="Request" name="req" />
-      <tab-pane label="RequestData" name="reqData" />
-      <tab-pane label="Response" name="resp" />
-      <tab-pane label="ResponseData" name="respData" />
-    </tabs>
+  <div>
+
+    <v-container class="pa-0 data-list-button-bar">
+      <v-row no-gutters >
+        <v-tabs
+          v-model="currentTab"
+          center-active
+          active-class="flow-detail-active-tab"
+          background-color="shading"
+          color="accent"
+          height="29"
+          show-arrows="never"
+          slider-color="primary"
+        >
+
+          <v-tab append href="#info" class="flow-detail-tab">Information</v-tab>
+          <v-tab append href="#req" class="flow-detail-tab">Request</v-tab>
+          <v-tab append href="#reqData" class="flow-detail-tab">RequestBody</v-tab>
+          <v-tab append href="#resp" class="flow-detail-tab">Response</v-tab>
+          <v-tab append href="#respData" class="flow-detail-tab">ResponseData</v-tab>
+          <v-spacer />
+
+          <JsonpathInfo :jsonpath="jsonPath" />
+        </v-tabs>
+      </v-row>
+    </v-container>
+
     <div>
       <CodeEditor
         v-if="!isShowCodeDiffEditor"
@@ -21,6 +40,7 @@
         :content="editorContent"
         :diffContent="editorDiffContent" />
     </div>
+
     <div
       class="show-diff-btn"
       v-if="this.currentTab==='respData' && !this.isEditorContentEquals"
@@ -44,6 +64,7 @@
         <span v-else>Hide the diff</span>
       </v-tooltip>
     </div>
+
     <div class="save-btn" v-if="dataDetail">
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
@@ -67,14 +88,15 @@
         <span>Save (⌘+s)</span>
       </v-tooltip>
     </div>
+
   </div>
 </template>
 
 <script>
 import DataDetailInfo from '@/views/datamanager/DataDetailInfo.vue'
 import CodeEditor from '@/components/CodeEditor.vue'
-import Icon from 'vue-svg-icon/Icon.vue'
 import CodeDiffEditor from '@/components/CodeDiffEditor.vue'
+import JsonpathInfo from '@/views/inspector/JsonpathInfo.vue'
 import { render } from '@/api'
 
 export default {
@@ -82,7 +104,7 @@ export default {
     DataDetailInfo,
     CodeEditor,
     CodeDiffEditor,
-    'svg-icon': Icon
+    JsonpathInfo
   },
   data () {
     return {
@@ -96,7 +118,8 @@ export default {
       diffButtonStatus: 'show',
       isEditorContentEquals: true,
       isTreeNodeClicked: false,
-      renderedRespData: ''
+      renderedRespData: '',
+      jsonPath: null,
     }
   },
   mounted () {
@@ -197,7 +220,7 @@ export default {
       this.$store.dispatch('saveDataDetail', newData)
     },
     onJsonPathChange (payload) {
-      this.$store.commit('setJsonPath', payload.jsonPath)
+      this.jsonPath = payload.jsonPath
     },
     onKeyDown (event) {
       if (event.code !== "KeyS" || !event.metaKey) {
@@ -281,9 +304,6 @@ export default {
 </script>
 
 <style scoped>
-.small-tab > .ivu-tabs > .ivu-tabs-bar {
-  margin-bottom: 0;
-}
 .show-diff-btn {
   color: #fff;
   font-size: 0.6rem;

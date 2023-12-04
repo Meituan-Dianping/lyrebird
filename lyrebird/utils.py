@@ -1,5 +1,6 @@
 import re
 import os
+import json
 import math
 import time
 import socket
@@ -313,6 +314,21 @@ def url_decode_for_list_or_dict(decode_obj, decode_key):
     elif isinstance(decode_obj[decode_key], dict):
         for key, _ in decode_obj[decode_key].items():
             url_decode(decode_obj[decode_key], key)
+
+
+def flow_str_2_data(data_str):
+    if not isinstance(data_str, str):
+        return data_str
+    try:
+        return json.loads(data_str)
+    except Exception:
+        return data_str
+
+
+def flow_data_2_str(data):
+    if isinstance(data, str):
+        return data
+    return json.dumps(data, ensure_ascii=False)
 
 
 class CaseInsensitiveDict(dict):
