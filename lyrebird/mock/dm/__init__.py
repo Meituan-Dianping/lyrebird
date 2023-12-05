@@ -992,10 +992,10 @@ class DataManager:
         if not tree:
             return
         for node in tree:
-            if node['id'] == id:
-                return node
             if node['id'] not in self.open_nodes:
                 continue
+            if node['id'] == id:
+                return node
             result = self.get_target_node(node.get('children', []), id)
             if result is not None:
                 return result                
