@@ -214,7 +214,7 @@ export default {
       }
     },
     infoValue () {
-      const value = this.$store.state.dataManager.groupDetail[this.infoKey]
+      return this.$store.state.dataManager.groupDetail[this.infoKey]
     },
     longListValue () {
       if (this.isLongListShowAll) {
