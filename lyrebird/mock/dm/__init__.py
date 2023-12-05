@@ -1031,7 +1031,7 @@ class DataManager:
             if tree_target_node:
                 tree_target_node['name'] = data['name']
                 self.update_node_when_name_changed(tree_target_node, _id, data['name'], node['name'])
-                node['name'] = data['name']
+            node['name'] = data['name']
         self._adapter._update_data(data)
         self._adapter._update_group(node)
         return tree_target_node or node
