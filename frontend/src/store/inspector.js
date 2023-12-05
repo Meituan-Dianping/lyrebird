@@ -171,7 +171,6 @@ export default {
       api.saveSelectedFlow(state.selectedIds)
         .then(response => {
           bus.$emit('msg.success', state.selectedIds.length + ' flow saved!')
-          dispatch('loadDataMap')
           commit('clearSelectedFlows')
           commit('clearSelectedId')
         })

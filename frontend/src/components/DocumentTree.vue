@@ -15,6 +15,7 @@
       hoverable
 
       :open="groupListOpenNode"
+      item-key="id"
 
       style="padding-left:0px"
     >
@@ -145,6 +146,7 @@ export default {
     resetGroupListOpenNode (payload) {
       for (const node of this.$store.state.dataManager.groupListOpenNode) {
         this.$store.commit('deleteGroupListOpenNode', node.id)
+        this.$store.dispatch('saveTreeViewOpenNodes', this.$store.state.dataManager.groupListOpenNode)
       }
       for (const parent of payload.parent) {
         this.$store.commit('addGroupListOpenNode', parent.id)

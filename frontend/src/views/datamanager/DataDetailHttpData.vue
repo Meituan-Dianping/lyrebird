@@ -215,8 +215,6 @@ export default {
       // Add Flag
       newData['lyrebirdInternalFlow'] = 'datamanager'
 
-      this.$store.commit('setIsReloadTreeWhenUpdate', this.dataDetail.name !== newData.name)
-
       this.$store.dispatch('saveDataDetail', newData)
     },
     onJsonPathChange (payload) {

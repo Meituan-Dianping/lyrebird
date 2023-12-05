@@ -47,7 +47,7 @@ export default {
   },
   computed: {
     treeData () {
-      return this.$store.state.dataManager.groupList
+      return this.$store.state.dataManager.treeData
     },
     spinShow () {
       return this.$store.state.dataManager.isLoading

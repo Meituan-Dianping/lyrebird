@@ -31,9 +31,6 @@ export default {
     DataDetailFolder
   },
   computed: {
-    groupDetail () {
-      return this.$store.state.dataManager.groupDetail
-    },
     nodeInfo () {
       return this.$store.state.dataManager.focusNodeInfo
     },

@@ -40,7 +40,7 @@ export default {
   },
   computed: {
     treeData () {
-      return this.$store.state.dataManager.groupList
+      return this.$store.state.dataManager.treeData
     },
     temporaryMockDataList () {
       return this.$store.state.dataManager.temporaryMockDataList

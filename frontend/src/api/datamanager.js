@@ -188,3 +188,33 @@ export const deleteByQuery = (ids, parentId) => {
   })
 }
 
+export const saveTreeView = (tree) => { 
+  return axios({
+    url: '/api/tree',
+    method: 'POST',
+    data: { tree }
+  })
+}
+
+export const getTreeView = () => { 
+  return axios({
+    url: '/api/tree',
+    method: 'GET'
+  })
+}
+
+export const saveTreeViewOpenNodes = (openNodes) => { 
+  return axios({
+    url: '/api/tree/open-nodes',
+    method: 'POST',
+    data: { openNodes }
+  })
+}
+
+export const getTreeViewOpenNodes = () => { 
+  return axios({
+    url: '/api/tree/open-nodes',
+    method: 'GET'
+  })
+}
+
