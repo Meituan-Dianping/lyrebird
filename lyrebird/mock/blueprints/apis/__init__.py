@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from flask_restful import Api
 from .common import Status, WorkMode, Manifest, DiffMode, Render
 from .flow import Flow, FlowList
-from .mock import MockData, MockGroup, ActivatedMockGroup, MockGroupByName, MockDataLabel
+from .mock import MockData, MockGroup, ActivatedMockGroup, MockGroupByName, MockDataLabel, TreeView, OpenNodes
 from .config import Conf
 from .menu import Menu
 from .notice import Notice
@@ -44,6 +44,8 @@ api_source.add_resource(Cut, '/cut/<string:_id>')
 api_source.add_resource(Copy, '/copy/<string:_id>')
 api_source.add_resource(Paste, '/paste/<string:_id>')
 api_source.add_resource(Duplicate, '/duplicate/<string:_id>')
+api_source.add_resource(TreeView, '/tree')
+api_source.add_resource(OpenNodes, '/tree/open-nodes')
 api_source.add_resource(MockGroup, '/group', '/group/<string:group_id>', '/group/label/<string:label>')
 api_source.add_resource(MockData, '/data', '/data/<string:_id>')
 api_source.add_resource(SearchMockDataByName, '/search/group/name/', '/search/group/name/<string:search_str>')

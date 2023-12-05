@@ -208,9 +208,6 @@ export default {
       },
       set (val) {
         this.$store.commit('setGroupDetailItem', { key: this.infoKey, value: val })
-        if (this.infoKey === 'name') {
-          this.$store.commit('setIsReloadTreeWhenUpdate', true)
-        }
       }
     },
     infoValue () {

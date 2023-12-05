@@ -58,7 +58,7 @@
 
         <v-btn
           icon
-          @click="changeMenuStatus"
+          @click="changeMenuStatus(data, $event)"
           class="mr-1"
           v-show="isNodeEditable"
         >
@@ -174,18 +174,21 @@ export default {
       this.$store.commit('setDeleteDialogSource', 'single')
       this.$store.commit('setIsShownDeleteDialog', true)
     },
-    changeMenuStatus (e) {
+    changeMenuStatus (data, e) {
       e.preventDefault()
+      this.$store.commit('setFocusedLeaf', data)
       this.$store.commit('setIsShownNodeMenu', true)
       this.$store.commit('setShownNodeMenuPosition', {'x': e.clientX, 'y': e.clientY})
     },
     onToggleStatusChange () {
       if (this.isNodeOpen) {
         this.$store.commit('deleteGroupListOpenNode', this.data.id)
+        this.$store.dispatch('saveTreeViewOpenNodes', this.$store.state.dataManager.groupListOpenNode)
         return
       } 
       if (!this.isLoadTreeAsync) {
         this.$store.commit('addGroupListOpenNode', this.data.id)
+        this.$store.dispatch('saveTreeViewOpenNodes', this.$store.state.dataManager.groupListOpenNode)
         return
       }
       if (this.isLoading) {
@@ -198,6 +201,8 @@ export default {
           this.data.children = response.data.data
           this.isLoading = false
           this.$store.commit('addGroupListOpenNode', this.data.id)
+          this.$store.dispatch('saveTreeView', this.$store.state.dataManager.treeData)
+          this.$store.dispatch('saveTreeViewOpenNodes', this.$store.state.dataManager.groupListOpenNode)
         })
         .catch(error => {
           this.$bus.$emit('msg.error', 'Load group ' + this.data.name + ' children error: ' + error.data.message)
@@ -207,6 +212,9 @@ export default {
       if (!this.editable) {
         return
       }
+      this.$store.commit('setFocusedLeaf', this.data)
+      this.$store.dispatch('saveTreeViewOpenNodes', this.$store.state.dataManager.groupListOpenNode)
+      this.$store.dispatch('saveTreeView', this.$store.state.dataManager.treeData)
       this.$store.commit('setFocusNodeInfo', this.data)
       if (this.data.type === 'group') {
         this.$store.dispatch('loadGroupDetail', this.data)

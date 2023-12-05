@@ -64,8 +64,8 @@ export default {
     }
   },
   computed: {
-    groupList () {
-      return this.$store.state.dataManager.groupList
+    treeData () {
+      return this.$store.state.dataManager.treeData
     },
     isPreloadDataMap () {
       return this.$store.state.settings.preLoadFuncSet.has('loadDataMap')

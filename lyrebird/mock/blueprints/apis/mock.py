@@ -17,6 +17,24 @@ logger = log.get_logger()
 '''
 
 
+class TreeView(Resource):
+    def get(self):
+        return application.make_ok_response(data=context.application.data_manager.tree)
+
+    def post(self):
+        data = request.json.get('tree')
+        context.application.data_manager.tree = data
+        return context.make_ok_response()
+
+class OpenNodes(Resource):
+    def get(self):
+        return application.make_ok_response(data=context.application.data_manager.open_nodes)
+    
+    def post(self):
+        data = request.json.get('openNodes')
+        context.application.data_manager.open_nodes = data
+        return context.make_ok_response()
+
 class MockGroup(Resource):
     """
     mock数据组
@@ -62,6 +80,8 @@ class MockGroup(Resource):
         if application.config.get(CONFIG_TREE_LOAD_CHILDREN_ASYNC):
             # Although async, reload is needed
             data_map = context.application.data_manager.root_without_children()
+            context.application.data_manager.tree = [data_map]
+            context.application.data_manager.open_nodes = [data_map['id']]
             return application.make_ok_response(data=data_map)
 
         root = context.application.data_manager.root
