@@ -960,26 +960,31 @@ class DataManager:
 
         message = self._adapter._update_group(data, **kwargs) if save else None
 
-        tree_target_node = self.get_target_node(self.tree, _id)
         # Update node
         # 1. Add new key into node
         update_data = {k: data[k] for k in data if k not in self.update_group_ignore_keys}
         node.update(update_data)
-        tree_target_node.update(update_data)
 
         # 2. Remove deleted key in node
         delete_keys = [k for k in node if k not in data and k not in self.update_group_ignore_keys and k not in self.unsave_keys]
         for key in delete_keys:
             node.pop(key)
-            tree_target_node.pop(key)
 
         # 3. Update existed value
         # 3. Modify abs_parent_path、parent、children
         if old_name:
             self.update_node_when_name_changed(node, _id, data['name'], old_name)
-            self.update_node_when_name_changed(tree_target_node, _id, data['name'], old_name)
-        if not message.get('message', None):
-            message['message'] = tree_target_node
+
+        # 4. Update tree
+        tree_target_node = self.get_target_node(self.tree, _id)
+        if tree_target_node:
+            tree_target_node.update(update_data)
+            for key in delete_keys:
+                tree_target_node.pop(key)
+            if old_name:
+                self.update_node_when_name_changed(tree_target_node, _id, data['name'], old_name)
+            if not message.get('message', None):
+                message['message'] = tree_target_node
 
         return message
 
@@ -1023,9 +1028,10 @@ class DataManager:
         if 'name' in data and node['name'] != data['name']:
             self.update_node_when_name_changed(node, _id, data['name'], node['name'])
             tree_target_node = self.get_target_node(self.tree, _id)
-            tree_target_node['name'] = data['name']
-            self.update_node_when_name_changed(tree_target_node, _id, data['name'], node['name'])
-            node['name'] = data['name']
+            if tree_target_node:
+                tree_target_node['name'] = data['name']
+                self.update_node_when_name_changed(tree_target_node, _id, data['name'], node['name'])
+                node['name'] = data['name']
         self._adapter._update_data(data)
         self._adapter._update_group(node)
         return tree_target_node or node
