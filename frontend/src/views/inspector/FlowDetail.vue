@@ -161,9 +161,7 @@ export default {
       }
       this.editorCache.id = val.id
       this.editorCache.req = JSON.stringify({
-        url: val.request.url,
-        headers: val.request.headers,
-        method: val.request.method
+        ...val.request
       })
       let reqContentInfo = this.getParsedContentAndType(val.request)
       this.editorCache.reqData = reqContentInfo.content
