@@ -59,8 +59,8 @@ export default {
       }
     )
     this.editor.setModel({
-      original: monaco.editor.createModel(this.content, this.language),
-      modified: monaco.editor.createModel(this.diffContent, this.language)
+      original: monaco.editor.createModel(this.content.respData, this.language),
+      modified: monaco.editor.createModel(this.diffContent.content, this.language)
     })
   }
 };
