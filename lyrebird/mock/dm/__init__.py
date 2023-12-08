@@ -95,7 +95,7 @@ class DataManager:
         children = self._adapter._get_group_children(group_id)
         parent_node = self.id_map.get(group_id)
         if not parent_node:
-            raise IDNotFound(group_id)
+            logger.error('IDNotFound, id=' + group_id)
         self.handle_group_config(children, parent_node['id'])
 
         for child in children:
@@ -654,12 +654,11 @@ class DataManager:
         # Save prop
         self._adapter._add_group(new_group)
         # Update tree
-        parent_children = self._get_group_children(parent_node['id'])
-        tree_target_node = self.get_target_node(self.tree, parent_node['id'])
-        if not tree_target_node:
-            context.emit('datamanagerUpdate')
-        else:
-            tree_target_node['children'] = parent_children
+        if parent_node['id'] in self.open_nodes:
+            parent_children = self._get_group_children(parent_node['id'])
+            tree_target_node = self.get_target_node(self.tree, parent_node['id'])
+            if not tree_target_node:
+                tree_target_node['children'] = parent_children
         return group_id
 
     def add_group_by_path(self, path):
