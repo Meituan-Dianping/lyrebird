@@ -161,7 +161,7 @@ export default {
   },
   methods: {
     reload () {
-      this.$store.dispatch('loadEvents')
+      this.$store.dispatch('loadEvents', { page: this.$store.state.event.paginationIndex })
     },
     content2Obj (content) {
       return JSON.parse(content)
@@ -195,6 +195,7 @@ export default {
       this.$store.commit('setSelectedEventId', null)
       this.$store.commit('setEventDetail', '')
       this.$store.dispatch('loadEvents', { page: page - 1 })
+      this.$store.commit('setPaginationIndex', page - 1)
     },
     onAddEvent (row) {
       const eventObj = JSON.parse(row.content)
