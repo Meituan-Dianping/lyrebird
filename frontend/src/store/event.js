@@ -15,7 +15,8 @@ export default {
     eventFilePath: '',
     eventFileSizeThreshold: '',
     eventFileSize: '',
-    eventFileOversized: false
+    eventFileOversized: false,
+    paginationIndex: 0
   },
   mutations: {
     setChannelNames (state, channelNames) {
@@ -53,6 +54,9 @@ export default {
     },
     setEventFileOversized (state, val) {
       state.eventFileOversized = val
+    },
+    setPaginationIndex (state, val) {
+      state.paginationIndex = val
     }
   },
   actions: {
