@@ -90,6 +90,7 @@ export default {
       contextMenuLeft: 0,
       contextMenuTop: 0,
       refreshEventListTimer: null,
+      showPoptip: false,
     }
   },
   computed: {
@@ -124,10 +125,88 @@ export default {
           key: 'channel',
           slot: 'channel',
           width: 80,
-          filters: filters,
-          filteredValue: this.$store.state.event.channelFilters,
-          filterRemote (value) {
-            this.$store.dispatch('updateChannelFilters', value)
+          renderHeader: (h, params) => {
+            return h('div', [
+              'Channel',
+              h('Poptip', {
+                props: {
+                  placement: 'bottom',
+                  value: this.showPoptip
+                },
+                on: {
+                  'on-popper-show': () => {
+                  },
+                  input: (value) => {
+                    this.showPoptip = value;
+                }
+                },
+              }, [
+                h('Button', {
+                  props: {
+                    shape: 'circle',
+                    type: 'text',
+                    size: 'small',
+                    icon: 'ios-funnel',
+                  },
+                  style: {
+                    width: '12px',
+                    height: '12px',
+                    'font-size': '10px',
+                    'margin-bottom': '5px',
+                    'margin-left': '2px'
+                  }
+                }),
+                h('template', { slot: 'content' }, [
+                  h('div', [
+                    h('CheckboxGroup', {
+                      props: {
+                        value: this.$store.state.event.channelFilters
+                      },
+                      on: {
+                        'on-change': (value) => {
+                          this.$store.commit('setChannelFilters', value)
+                        }
+                      }
+                    }, this.channelNames.map(channelName => {
+                      return h('div', [
+                        h('Checkbox', {
+                          props: {
+                            label: channelName
+                          }
+                        }, channelName)
+                      ])
+                    })),
+                    h('div', { style: { borderTop: '1px solid #ccc', margin: '5px 0' } }),
+                    h('Button', {
+                      props: {
+                        type: 'text',
+                        size: 'small'
+                      },
+                      style: {
+                        marginRight: '10px'
+                      },
+                      on: {
+                        click: () => {
+                          this.showPoptip = false;
+                          this.$store.dispatch('updateChannelFilters', this.$store.state.event.channelFilters)
+                        }
+                      }
+                    }, 'Confirm'),
+                    h('Button', {
+                      props: {
+                        type: 'text',
+                        size: 'small'
+                      },
+                      on: {
+                        click: () => {
+                          this.$store.dispatch('updateChannelFilters', [])
+                        }
+                      }
+                    }, 'Reset')
+                  ])
+                ])
+              ])
+            ])
           }
         },
         {
@@ -293,4 +372,13 @@ export default {
 .row-contextmenu {
   position: absolute;
 }
+.ivu-btn:focus {
+  outline: none !important;
+  border-color: transparent !important;
+}
+/* .ivu-btn-circle.ivu-btn-icon-onlys.ivu-btn-small {
+  width: 20px !important;
+  height: 20px;
+  font-size: 12px
+} */
 </style>
