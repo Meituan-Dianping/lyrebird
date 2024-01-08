@@ -125,7 +125,7 @@ export default {
           key: 'channel',
           slot: 'channel',
           width: 80,
-          renderHeader: (h, params) => {
+          renderHeader: (h) => {
             return h('div', [
               'Channel',
               h('Poptip', {
