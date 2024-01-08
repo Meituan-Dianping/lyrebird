@@ -134,12 +134,8 @@ export default {
                   value: this.showPoptip
                 },
                 on: {
-                  'on-popper-show': () => {
-                  },
-                  input: (value) => {
-                    this.showPoptip = value;
+                  input: (value) => { this.showPoptip = value }
                 }
-                },
               }, [
                 h('Button', {
                   props: {
@@ -148,20 +144,18 @@ export default {
                     size: 'small',
                     icon: 'ios-funnel',
                   },
+                  class: 'no-shadow',
                   style: {
-                    width: '12px',
-                    height: '12px',
-                    'font-size': '10px',
-                    'margin-bottom': '5px',
-                    'margin-left': '2px'
+                    width: '13px',
+                    height: '13px',
+                    'font-size': '11px',
+                    margin: '0px 0px 5px 3px'
                   }
                 }),
                 h('template', { slot: 'content' }, [
                   h('div', [
                     h('CheckboxGroup', {
-                      props: {
-                        value: this.$store.state.event.channelFilters
-                      },
+                      props: { value: this.$store.state.event.channelFilters },
                       on: {
                         'on-change': (value) => {
                           this.$store.commit('setChannelFilters', value)
@@ -170,9 +164,7 @@ export default {
                     }, this.channelNames.map(channelName => {
                       return h('div', [
                         h('Checkbox', {
-                          props: {
-                            label: channelName
-                          }
+                          props: { label: channelName }
                         }, channelName)
                       ])
                     })),
@@ -182,15 +174,13 @@ export default {
                         type: 'text',
                         size: 'small'
                       },
-                      style: {
-                        marginRight: '10px'
-                      },
                       on: {
                         click: () => {
                           this.showPoptip = false;
                           this.$store.dispatch('updateChannelFilters', this.$store.state.event.channelFilters)
                         }
-                      }
+                      },
+                      style: { margin: '0px 9px 2px 2px' }
                     }, 'Confirm'),
                     h('Button', {
                       props: {
@@ -198,10 +188,9 @@ export default {
                         size: 'small'
                       },
                       on: {
-                        click: () => {
-                          this.$store.dispatch('updateChannelFilters', [])
-                        }
-                      }
+                        click: () => { this.$store.dispatch('updateChannelFilters', []) }
+                      },
+                      style: { marginBottom: '2px' }
                     }, 'Reset')
                   ])
                 ])
@@ -372,13 +361,10 @@ export default {
 .row-contextmenu {
   position: absolute;
 }
-.ivu-btn:focus {
-  outline: none !important;
-  border-color: transparent !important;
+.no-shadow:focus {
+  box-shadow: none !important;
 }
-/* .ivu-btn-circle.ivu-btn-icon-onlys.ivu-btn-small {
-  width: 20px !important;
-  height: 20px;
-  font-size: 12px
-} */
+.ivu-poptip-body {
+  padding: 5px 16px;
+}
 </style>
