@@ -55,6 +55,8 @@ def make_file_handler(_log_path=None):
     # Set default value
     if not _log_path:
         _log_path = DEFAULT_LOG_PATH
+    if not os.path.exists(os.path.dirname(_log_path)):
+        _log_path = DEFAULT_LOG_PATH
 
     # Add pid and thread name in log file
     file_formater = logging.Formatter(
@@ -141,6 +143,9 @@ class LogServer(ProcessServer):
             _logger = logging.getLogger(_logger_name)
             _logger.addHandler(file_handler)
             _logger.setLevel(logger_level)
+        
+        if not os.path.exists(os.path.dirname(log_path)):
+            lyrebird_logger.warning(f'Illegal log path: {log_path}, log file path have changed to the default path: {DEFAULT_LOG_PATH}')
 
         while True:
             try:
