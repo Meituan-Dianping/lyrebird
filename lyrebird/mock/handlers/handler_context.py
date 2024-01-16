@@ -240,7 +240,9 @@ class HandlerContext:
                     self.server_resp_time = time.time()
                     yield _resp_data[ i * size : (i+1) * size ]
             finally:
-                self.update_client_resp_time()
+                def request_post_handler():
+                    self.update_client_resp_time()
+                application.server['task'].add_task('request_post', request_post_handler)
         return generator
 
     def _generator_stream(self):
@@ -259,11 +261,13 @@ class HandlerContext:
                     self.server_resp_time = time.time()
                     yield item
             finally:
-                self.response.data = b''.join(buffer)
-                DataHelper.origin2flow(self.response, output=self.flow['response'], chain=self.response_chain)
+                def request_post_handler():
+                    self.response.data = b''.join(buffer)
+                    DataHelper.origin2flow(self.response, output=self.flow['response'], chain=self.response_chain)
 
-                self.update_client_resp_time()
-                upstream.close()
+                    self.update_client_resp_time()
+                    upstream.close()
+                application.server['task'].add_task('request_post', request_post_handler)
         return generator
 
     def update_response_headers_code2flow(self, output_key='response'):
