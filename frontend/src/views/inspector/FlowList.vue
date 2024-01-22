@@ -258,7 +258,7 @@ export default {
     this.refreshTimer = setInterval(() => {
         if(this.lastRefreshTime == this.refreshGapTime){
           this.reload()
-          this.lastRefreshTime = 0;
+          this.lastRefreshTime = 1;
           this.refreshGapTime = this.refreshGapTime << 1
           if(this.refreshGapTime > this.refreshMaxGapTime){
             this.refreshGapTime = this.refreshMaxGapTime
