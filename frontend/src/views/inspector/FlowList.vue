@@ -198,6 +198,10 @@ export default {
       },
       flowList: [],
       refreshFlowListTimer: null,
+      refreshTimer: null,
+      refreshGapTime: 1,
+      refreshMaxGapTime: 3600,
+      lastRefreshTime: 0,
       displayFlowCount: 0,
       pageSize: 50,
       pageCount: 0,
@@ -250,10 +254,22 @@ export default {
     }
   },
   created () {
-    this.$io.on('action', this.reload)
+    this.$io.on('action', this.resetRefreshGapTime)
+    this.refreshTimer = setInterval(() => {
+        if(this.lastRefreshTime == this.refreshGapTime){
+          this.reload()
+          this.lastRefreshTime = 1;
+          this.refreshGapTime = this.refreshGapTime << 1
+          if(this.refreshGapTime > this.refreshMaxGapTime){
+            this.refreshGapTime = this.refreshMaxGapTime
+          }
+        }
+        this.lastRefreshTime += 1
+      }, 1000)
   },
   destroyed () {
-    this.$io.removeListener('action', this.reload)
+    this.$io.removeListener('action', this.resetRefreshGapTime)
+    clearInterval(this.refreshTimer)
   },
   computed: {
     originFlowList () {
@@ -289,6 +305,10 @@ export default {
   methods: {
     reload () {
       this.$store.dispatch('loadFlowList')
+    },
+    resetRefreshGapTime () {
+      this.refreshGapTime = 1
+      this.lastRefreshTime = 1
     },
     onTableResize () {
       const height = window.innerHeight - 44 - 40 - 12 - 26 - 7 - 1 - 8 - 32 - 12 - 12 - 28

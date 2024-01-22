@@ -134,7 +134,7 @@ SocketIO emit interval
 Because of iview table has render preformance problem
 We need to limit render time
 """
-EMIT_INTERVAL = 0.3
+EMIT_INTERVAL = 1
 last_emit_time = {}
 
 application = Application()
