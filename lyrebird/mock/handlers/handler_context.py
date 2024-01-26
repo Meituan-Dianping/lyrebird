@@ -56,6 +56,7 @@ class HandlerContext:
         self.is_proxiable = True
         self.response_chunk_size = 2048
         self._parse_request()
+        self.request_origin_data = None
 
     def _parse_request(self):
         # Read stream
@@ -109,6 +110,7 @@ class HandlerContext:
             self.flow['origin_request'] = {
                 'data': origin_data
             }
+            self.request_origin_data = self.request.data
 
         context.application.cache.add(self.flow)
 
@@ -190,8 +192,8 @@ class HandlerContext:
             if in_request_handler:
                 _data = self.request.data or self.request.form or None
             # When origin_request is not saved, the original data cannot be obtained when diff-mode is enabled.
-            elif self.flow.get('origin_request', {}).get('data'):
-                _data = self.flow.get('origin_request', {}).get('data')
+            elif self.request_origin_data:
+                _data = self.request_origin_data
             else:
                 _data = DataHelper.flow2origin(self.flow['request'])
         return _data
