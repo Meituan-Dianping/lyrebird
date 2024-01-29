@@ -2,6 +2,7 @@ import uuid
 import time
 import ipaddress
 import json
+import copy
 
 from .. import context
 from lyrebird import utils
@@ -55,8 +56,8 @@ class HandlerContext:
         self.response_source = ''
         self.is_proxiable = True
         self.response_chunk_size = 2048
-        self._parse_request()
         self.request_origin_data = None
+        self._parse_request()
 
     def _parse_request(self):
         # Read stream
@@ -110,7 +111,7 @@ class HandlerContext:
             self.flow['origin_request'] = {
                 'data': origin_data
             }
-            self.request_origin_data = self.request.data
+            self.request_origin_data = copy.deepcopy(self.request.data)
 
         context.application.cache.add(self.flow)
 
