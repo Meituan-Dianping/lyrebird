@@ -184,7 +184,7 @@ class HandlerContext:
         self.response_source = 'proxy'
 
     def get_request_body(self, in_request_handler=True):
-        if self.is_request_edited:
+        if self.is_request_edited and not self.flow.get('keep_origin_request_body', False):
             # TODO Repeated calls, remove it
             self.flow['request']['headers'] = HeadersHelper.flow2origin(self.flow['request'], chain=self.request_chain)
 
@@ -197,6 +197,8 @@ class HandlerContext:
                 _data = self.request_origin_data
             else:
                 _data = DataHelper.flow2origin(self.flow['request'])
+            if self.is_request_edited:
+                logger.info(f'requestBody uses the original data. Please make sure that the modifier does not modify the requestBody in request: {self.flow["request"]["url"]}')
         return _data
 
     def get_request_headers(self):
