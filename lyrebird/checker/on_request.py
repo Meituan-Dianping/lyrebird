@@ -16,14 +16,14 @@ class OnRequestHandler:
                 'func': origin_func,
                 'rules': rules,
                 'rank': rank if isinstance(rank, (int, float)) else 0,
-                'is_modifiy': modifiy_request_body
+                'modifiy_request_body': modifiy_request_body
             })
             return origin_func
         return func
 
     @staticmethod
     def register(func_info):
-        func_info['func'] = OnRequestHandler.modifiy_request_body_decorator(func_info['func'], func_info['is_modifiy'])
+        func_info['func'] = OnRequestHandler.modifiy_request_body_decorator(func_info['func'], func_info['modifiy_request_body'])
         application.on_request.append(func_info)
 
     @staticmethod
