@@ -7,21 +7,23 @@ class OnRequestHandler:
 
     def __call__(self, rules=None, rank=0, modifiy_request_body=True, *args, **kw):
         def func(origin_func):
+
             func_type = checker.TYPE_ON_REQUEST
             if not checker.scripts_tmp_storage.get(func_type):
                 checker.scripts_tmp_storage[func_type] = []
-            origin_func = self.modifiy_request_body_decorator(origin_func, modifiy_request_body)
             checker.scripts_tmp_storage[func_type].append({
                 'name': origin_func.__name__,
                 'func': origin_func,
                 'rules': rules,
-                'rank': rank if isinstance(rank, (int, float)) else 0
+                'rank': rank if isinstance(rank, (int, float)) else 0,
+                'is_modifiy': modifiy_request_body
             })
             return origin_func
         return func
 
     @staticmethod
     def register(func_info):
+        func_info['func'] = OnRequestHandler.modifiy_request_body_decorator(func_info['func'], func_info['is_modifiy'])
         application.on_request.append(func_info)
 
     @staticmethod

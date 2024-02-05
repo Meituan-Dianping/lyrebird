@@ -1,6 +1,10 @@
 from lyrebird.base_server import StaticServer
 from . import plugin_loader
 from lyrebird import application
+from lyrebird.checker.on_request import OnRequestHandler
+from lyrebird.checker.on_response import OnResponseHandler
+from lyrebird.checker.on_request_upstream import OnRequestUpstreamHandler
+from lyrebird.checker.on_response_upstream import OnResponseUpstreamHandler
 from flask import Blueprint, send_file, request
 from lyrebird.log import get_logger
 from types import FunctionType
@@ -84,16 +88,17 @@ class PluginManager(StaticServer):
 
             # Subscribe handler on request
             for handler in plugin.manifest.on_request:
-                application.on_request.append({
+                OnRequestHandler.register({
                     'name': handler[0],
                     'func': handler[1],
                     'rules': handler[2] if len(handler) > 2 else None,
-                    'rank': handler[3] if len(handler) > 3 and isinstance(handler[3], (int, float)) else 0
+                    'rank': handler[3] if len(handler) > 3 and isinstance(handler[3], (int, float)) else 0,
+                    'is_modifiy': handler[4] if len(handler) > 4 else True
                 })
 
             # Subscribe handler on response
             for handler in plugin.manifest.on_response:
-                application.on_response.append({
+                OnResponseHandler.register({
                     'name': handler[0],
                     'func': handler[1],
                     'rules': handler[2] if len(handler) > 2 else None,
@@ -102,7 +107,7 @@ class PluginManager(StaticServer):
 
             # Subscribe handler on proxy request
             for handler in plugin.manifest.on_request_upstream:
-                application.on_request_upstream.append({
+                OnRequestUpstreamHandler.register({
                     'name': handler[0],
                     'func': handler[1],
                     'rules': handler[2] if len(handler) > 2 else None,
@@ -111,7 +116,7 @@ class PluginManager(StaticServer):
 
             # Subscribe handler on proxy response
             for handler in plugin.manifest.on_response_upstream:
-                application.on_response_upstream.append({
+                OnResponseUpstreamHandler.register({
                     'name': handler[0],
                     'func': handler[1],
                     'rules': handler[2] if len(handler) > 2 else None,
