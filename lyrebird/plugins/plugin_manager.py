@@ -33,8 +33,10 @@ class PluginManager(StaticServer):
         self.setup_plugins()
 
     def setup_plugins(self):
+        application.config['extension.plugin.enable'] = []
         # TODO register plugins pb
         for p_name, plugin in self.plugins.items():
+            application.config['extension.plugin.enable'].append(p_name)
             view_static_folder_name = plugin.manifest.view[0]
             view_entry_file = plugin.manifest.view[1]
             plugin_static_folder = f"{plugin.location}/{view_static_folder_name}"
