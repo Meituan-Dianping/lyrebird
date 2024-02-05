@@ -111,7 +111,8 @@ class PluginManager(StaticServer):
                     'name': handler[0],
                     'func': handler[1],
                     'rules': handler[2] if len(handler) > 2 else None,
-                    'rank': handler[3] if len(handler) > 3 and isinstance(handler[3], (int, float)) else 0
+                    'rank': handler[3] if len(handler) > 3 and isinstance(handler[3], (int, float)) else 0,
+                    'modifiy_request_body': handler[4] if len(handler) > 4 else True
                 })
 
             # Subscribe handler on proxy response
