@@ -328,7 +328,7 @@ class Checker:
 
 class DecoratorUtils:
     @staticmethod
-    def modifiy_request_body_decorator(func, modifiy_request_body):
+    def modify_request_body_decorator(func, modify_request_body):
         # When the request modifier modifies only headers or urls, 
         # ensure that the Origin request body switch is still in effect after the request modifier is triggered
         @functools.wraps(func)
@@ -337,9 +337,9 @@ class DecoratorUtils:
             if isinstance(args, (list, tuple)) and len(args) > 0 and isinstance(args[0], dict):
                 if 'keep_origin_request_body' in args[0]:
                     # When multiple request modifiers are triggered, the original request data is not used as long as one modifies the requestBody
-                    args[0]['keep_origin_request_body'] = args[0]['keep_origin_request_body'] and not modifiy_request_body
+                    args[0]['keep_origin_request_body'] = args[0]['keep_origin_request_body'] and not modify_request_body
                 else:
-                    args[0]['keep_origin_request_body'] = not modifiy_request_body
+                    args[0]['keep_origin_request_body'] = not modify_request_body
             return result
         return wrapper
 
