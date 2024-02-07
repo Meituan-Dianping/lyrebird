@@ -101,7 +101,7 @@ class MenuItem:
         self.src = src
 
     def json(self):
-        return {'id': self.id, 'type': self.type, 'src': self.src}
+        return vars(self)
 
 
 class ImageMenuItem(MenuItem):
@@ -123,6 +123,18 @@ class LinkMenuItem(MenuItem):
     src: link
     """
     pass
+
+
+class InputMenuItem(MenuItem):
+    """
+    src: link
+    title: text
+    default_value: text
+    """
+    def __init__(self, src, title, default_value):
+        super().__init__(src)
+        self.title = title
+        self.default_value = default_value
 
 
 class Selector:
