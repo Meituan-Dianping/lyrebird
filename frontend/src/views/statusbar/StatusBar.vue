@@ -88,8 +88,7 @@ export default {
       processMessage: '',
       processState: '',
       isShowProcessing: false,
-      isShowFinish: false,
-      htmlContent: '<div class="text-menu-item">123</div>'
+      isShowFinish: false
     }
   },
   created () {
@@ -176,7 +175,6 @@ export default {
       }
     },
     sendInputMsg(obj, msg){
-      console.log(msg)
       makeRequest(obj.src, 'POST', msg)
         .then(response => {
           this.$bus.$emit('msg.success', `${obj.title}:${msg == '' ? '空' : msg} 操作成功`)
