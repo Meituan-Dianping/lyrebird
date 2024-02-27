@@ -259,6 +259,7 @@ export default {
       this.$refs.treeDrawer.toggal()
     },
     changeFlowFilter () {
+      this.$store.commit('clearFocusedFlowDetail')
       this.$store.dispatch('loadFlowList')
     },
     clearAllFlow () {
