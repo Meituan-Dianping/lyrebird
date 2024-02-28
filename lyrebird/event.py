@@ -4,7 +4,6 @@ Event bus
 Worked as a backgrund thread
 Run events handler and background task worker
 """
-from queue import Queue
 from concurrent.futures import ThreadPoolExecutor
 import traceback
 import inspect
@@ -39,7 +38,7 @@ class EventServer(ThreadServer):
 
     def __init__(self):
         super().__init__()
-        self.event_queue = Queue()
+        self.event_queue = application.sync_manager.get_queue()
         self.state = {}
         self.pubsub_channels = {}
         # channel name is 'any'. Linstening on all channel
@@ -80,6 +79,8 @@ class EventServer(ThreadServer):
         while self.running:
             try:
                 e = self.event_queue.get()
+                if e is None:
+                    break
                 # Deep copy event for async event system
                 e = copy.deepcopy(e)
                 callback_fn_list = self.pubsub_channels.get(e.channel)
@@ -93,8 +94,8 @@ class EventServer(ThreadServer):
                 traceback.print_exc()
 
     def stop(self):
-        super().stop()
         self.publish('system', {'name': 'event.stop'})
+        super().stop()
 
     def _check_message_format(self, message):
         """
@@ -120,6 +121,8 @@ class EventServer(ThreadServer):
         if state is true, message will be kept as state
 
         """
+        if not self.running:
+            return
         # Make event id
         event_id = str(uuid.uuid4())
 
