@@ -364,7 +364,7 @@ export default {
       this.$store.dispatch('focusFlow', flow)
       // flowList is a stack structure where new data is added to the header, 
       // so a negative index is used here to ensure consistency when the data changes
-      this.focusedFlowIdx = item.index - this.displayFlowList.length
+      this.focusedFlowIdx = item.index + (this.currentPage-1)*this.pageSize - this.displayFlowList.length
     },
     keyboardSelctFlow (event) {
       if(!this.focusedFlowDetail)
@@ -381,12 +381,12 @@ export default {
       let currentIdx = this.displayFlowList.length + this.focusedFlowIdx
       if(currentIdx <= 0)
         return
-      if(currentIdx < (this.currentPage-1)*this.pageSize){
+      if(currentIdx <= (this.currentPage-1)*this.pageSize){
         this.currentPage -= 1
         this.refreshFlowList()
       }
       this.focusedFlowIdx -= 1
-      this.$store.dispatch('focusFlow', this.displayFlowList[currentIdx-1])
+      this.$store.dispatch('focusFlow', this.displayFlowList[currentIdx-1]) 
     },
     keyboardDownSelectFlow () {
       let currentIdx = this.displayFlowList.length + this.focusedFlowIdx
