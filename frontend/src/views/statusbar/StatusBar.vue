@@ -44,6 +44,15 @@
                   <a @click="onClick(item.src.api)">{{item.src.text}}</a>
                 </p>
               </span>
+              <div v-else-if="item.type=='InputMenuItem'">
+                <span class="input-menu-title">{{item.title+":"}}</span>
+                <v-text-field
+                 hide-details="false" 
+                 class="input-menu-box" 
+                 :value = "item.default_value"
+                 @change="sendInputMsg(item, $event)"
+                ></v-text-field>
+              </div>
               <div v-else class="text-menu-item">{{item.src}}</div>
           </div>
         </div>
@@ -164,6 +173,15 @@ export default {
         this.isShowProcessing = false
         this.isShowFinish = false
       }
+    },
+    sendInputMsg(obj, msg){
+      makeRequest(obj.src, 'POST', msg)
+        .then(response => {
+          this.$bus.$emit('msg.success', `${obj.title}:${msg == '' ? '空' : msg} 操作成功`)
+        })
+        .catch(error => {
+          this.$bus.$emit('msg.error', `${obj.title}:${msg == '' ? '空' : msg} 操作失败`)
+        })
     }
   }
 }
@@ -187,5 +205,16 @@ export default {
 }
 .link-menu-item:hover {
   background-color: #f8f8f9;
+}
+
+.input-menu-title {
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.input-menu-box {
+  padding: 0px;
+  margin-top: 0px;
+  border-bottom: 0.5px solid black;
 }
 </style>
