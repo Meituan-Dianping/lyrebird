@@ -174,7 +174,7 @@ class LogServer(ProcessServer):
         super().stop()
         self.log_process_lock = None
         self.queue = None
-        # logging.shutdown()
+        logging.shutdown()
         for _logger_name in ['lyrebird', 'socketio', 'engineio', 'mock', 'werkzeug', 'flask']:
             logger = logging.getLogger(_logger_name)
             for handler in logger.handlers[:]:

@@ -55,8 +55,6 @@ encoders_decoders = None
 
 
 def start_server_without_mock_and_log():
-    import os
-    print(f'PID:{os.getpid()}')
     for name in server:
         if name == 'mock' or name == 'log':
             continue
@@ -105,7 +103,6 @@ class SyncManager():
 
     def get_queue(self):
         queue = self.manager.Queue()
-        # queue = Queue()
         self.async_objs['manager_queues'].append(queue)
         return queue
 
@@ -131,7 +128,6 @@ class SyncManager():
             del q
         for q in self.async_objs['manager_queues']:
             q._close()
-            # q.join()
             del q
         for ns in self.async_objs['namespace']:
             del ns
@@ -141,7 +137,8 @@ class SyncManager():
         self.manager.join()
         self.manager = None
         self.async_objs = None
-        
+
+
 sync_manager = {}
 sync_namespace = {}
 

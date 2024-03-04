@@ -93,23 +93,6 @@ def main():
 
     Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
-    import redis
-    from redis.exceptions import ConnectionError
-
-    def check_redis(host='localhost', port=6379):
-        client = redis.Redis(host=host, port=port)
-        try:
-            client.ping()
-            return True
-        except ConnectionError:
-            return False
-
-    # 使用
-    if check_redis():
-        print("Redis服务正在运行")
-    else:
-        print("Redis服务未运行")
-
     custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else None
     application._cm = ConfigManager(conf_path_list=args.config, custom_conf=custom_conf)
 
