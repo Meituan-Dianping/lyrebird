@@ -73,6 +73,42 @@ def test_mock_api_with_query(client, clear):
     assert cache_list._cache[0]['request']['url'] == f'?url={url}'
 
 
+def test_mock_api_put(client, clear):
+    url = '/mock/http://www.bing.com'
+    origin_json = {
+        'name': 'Lyrebird'
+    }
+    origin_body = json.dumps(origin_json)
+    headers = {'Content-Type': 'application/json'}
+
+    client.put(url, headers=headers, data=origin_body)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['request']['data']
+    assert origin_json == flow_body
+
+
+def test_mock_api_patch(client, clear):
+    url = '/mock/http://www.bing.com'
+    origin_json = {
+        'name': 'Lyrebird'
+    }
+    origin_body = json.dumps(origin_json)
+    headers = {'Content-Type': 'application/json'}
+
+    client.patch(url, headers=headers, data=origin_body)
+
+    cache_list = context.application.cache
+    assert len(cache_list._cache) == 1
+
+    flow = cache_list._cache[0]
+    flow_body = flow['request']['data']
+    assert origin_json == flow_body
+
+
 def test_mock_content_type_json(client, clear):
     url = '/mock/http://www.bing.com'
     origin_json = {
@@ -223,6 +259,7 @@ def test_mock_content_type_form_keep_origin_request(client, clear, keep_origin_d
     flow_body = flow['origin_request']['data']
 
     assert origin_data == flow_body
+
 
 def test_mock_content_type_default_keep_origin_request(client, clear, keep_origin_data):
     url = '/mock/http://www.bing.com'

@@ -161,6 +161,7 @@ export default {
         .then(response => { 
           commit('clearSelectedId')
           commit('clearSelectedFlows')
+          commit('clearFocusedFlowDetail')
         }).catch(error => {
           bus.$emit('msg.error', 'Clear flow error: ' + error.data.message)
           return

@@ -55,6 +55,8 @@ encoders_decoders = None
 
 
 def start_server_without_mock_and_log():
+    import os
+    print(f'PID:{os.getpid()}')
     for name in server:
         if name == 'mock' or name == 'log':
             continue

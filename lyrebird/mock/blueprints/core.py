@@ -20,8 +20,8 @@ flow_editor_handler = FlowEditorHandler()
 core = Blueprint('mock', __name__, url_prefix='/mock')
 
 
-@core.route('/', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
-@core.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'])
+@core.route('/', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'])
+@core.route('/<path:path>', methods=['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'])
 def index(path=''):
     logger.info(f'<Core> On request {request.url}')
 
