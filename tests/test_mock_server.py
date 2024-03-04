@@ -32,7 +32,7 @@ MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
 
 @pytest.fixture
 def client():
-    # application.config = conf
+    application.sync_manager = application.SyncManager()
     application._cm = MockConfigManager(config=conf)
     application.server['event'] = EventServer()
     application.reporter = reporter.Reporter()

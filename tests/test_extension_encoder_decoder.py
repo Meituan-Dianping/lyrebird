@@ -45,7 +45,6 @@ def checker_init(tmp_path, tmpdir):
     }
 
     # init file dir
-
     encoder_decoder_file = tmp_path / FILENAME
     encoder_decoder_file.write_text(CONTENT)
 
@@ -68,6 +67,7 @@ def checker_server(checker_init, tmp_path):
 
 @pytest.fixture
 def event_server():
+    application.sync_manager = application.SyncManager()
     server = EventServer()
     application.server['event'] = server
     yield server

@@ -49,6 +49,7 @@ def checker_server(checker_init, tmp_path):
 
 @pytest.fixture
 def event_server():
+    application.sync_manager = application.SyncManager()
     server = EventServer()
     application.server['event'] = server
     yield server

@@ -37,12 +37,15 @@ def event_server():
         'ip': '127.0.0.1',
         'mock.port': 9090
     }
+    application.sync_manager = application.SyncManager()
     application._cm = MockConfigManager(config=_conf)
     server = EventServer()
     server.start()
     application.server['event'] = server
     yield server
     server.stop()
+    application.sync_manager.broadcast_to_queues(None)
+    server.terminate()
 
 
 @pytest.fixture
