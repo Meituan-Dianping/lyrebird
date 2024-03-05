@@ -53,7 +53,7 @@ def make_stream_handler():
 
 def make_file_handler(_log_path=None):
     # Set default value
-    if not _log_path:
+    if not check_path(_log_path):
         _log_path = DEFAULT_LOG_PATH
 
     # Add pid and thread name in log file
@@ -65,6 +65,16 @@ def make_file_handler(_log_path=None):
     file_handler = TimedRotatingFileHandler(log_file, backupCount=1, encoding='utf-8', when='midnight')
     file_handler.setFormatter(file_formater)
     return file_handler
+
+
+def check_path(path):
+    if not path:
+        return False
+    if not os.path.exists(os.path.dirname(path)):
+        return False
+    if os.path.isdir(path) or path.split('.')[-1] != 'log':
+        return False
+    return True
 
 
 def init(config, log_queue = None):
@@ -141,6 +151,9 @@ class LogServer(ProcessServer):
             _logger = logging.getLogger(_logger_name)
             _logger.addHandler(file_handler)
             _logger.setLevel(logger_level)
+        
+        if log_path and not check_path(log_path):
+            lyrebird_logger.warning(f'Illegal log path: {log_path}, log file path have changed to the default path: {DEFAULT_LOG_PATH}')
 
         while True:
             try:

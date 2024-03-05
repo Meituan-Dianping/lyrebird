@@ -1,4 +1,5 @@
 from flask import Flask, redirect, url_for, request
+from flask_cors import CORS
 from . import context
 from .blueprints.apis import api
 from .blueprints.ui import ui
@@ -45,8 +46,7 @@ class LyrebirdMockServer(ThreadServer):
         self.debug = False
         self.port = 9090
         self._working_thread = None
-        self.app = Flask('MOCK')
-
+        self.app = self.create_app()
         # async_mode = threading / eventlet / gevent / gevent_uwsgi
         self.socket_io = SocketIO(self.app, async_mode='threading', logger=False, cors_allowed_origins='*')
 
@@ -86,6 +86,16 @@ class LyrebirdMockServer(ThreadServer):
                 pass
 
             return application.make_fail_response(f'Mock server error:\n {trace}')
+
+    def create_app(self):
+        app = Flask('MOCK')
+        cors_resources = application.config.get('mock.server.cors.resources')
+        if cors_resources and isinstance(cors_resources, dict):
+            try:
+                CORS(app, resources=cors_resources)
+            except Exception as e:
+                _logger.warning(f"An error occurred while setting CORS. The default mode does not support CORS. Error msg: {e}")
+        return app
 
     def run(self):
         server_ip = application.config.get('ip')

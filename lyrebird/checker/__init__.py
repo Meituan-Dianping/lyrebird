@@ -1,5 +1,6 @@
 import codecs
 import shutil
+import functools
 from pathlib import Path
 from importlib import machinery
 import lyrebird
@@ -323,6 +324,24 @@ class Checker:
 
     def json(self):
         return {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
+
+
+class DecoratorUtils:
+    @staticmethod
+    def modify_request_body_decorator(func, modify_request_body):
+        # When the request modifier modifies only headers or urls, 
+        # ensure that the Origin request body switch is still in effect after the request modifier is triggered
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            if isinstance(args, (list, tuple)) and len(args) > 0 and isinstance(args[0], dict):
+                if 'keep_origin_request_body' in args[0]:
+                    # When multiple request modifiers are triggered, the original request data is not used as long as one modifies the requestBody
+                    args[0]['keep_origin_request_body'] = args[0]['keep_origin_request_body'] and not modify_request_body
+                else:
+                    args[0]['keep_origin_request_body'] = not modify_request_body
+            return result
+        return wrapper
 
 class CheckerIllegal(Exception):
     pass

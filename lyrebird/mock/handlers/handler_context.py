@@ -2,6 +2,7 @@ import uuid
 import time
 import ipaddress
 import json
+import copy
 
 from .. import context
 from lyrebird import utils
@@ -55,6 +56,7 @@ class HandlerContext:
         self.response_source = ''
         self.is_proxiable = True
         self.response_chunk_size = 2048
+        self.request_origin_data = None
         self._parse_request()
 
     def _parse_request(self):
@@ -91,7 +93,7 @@ class HandlerContext:
         _request.update(request_info)
 
         # handle request data
-        if self.request.method in ['POST', 'PUT']:
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
             DataHelper.origin2flow(self.request, output=_request, chain=self.request_chain)
 
         if self.request.headers.get('Lyrebird-Client-Address'):
@@ -104,11 +106,12 @@ class HandlerContext:
 
         self.flow['request'] = _request
 
-        if self.request.method in ['POST', 'PUT'] and application.config.get('mock.request.keep_origin_data'):
+        if self.request.method in ['POST', 'PUT', 'PATCH'] and application.config.get('mock.request.keep_origin_data'):
             origin_data = DataHelper.origin2string(self.request)
             self.flow['origin_request'] = {
                 'data': origin_data
             }
+            self.request_origin_data = copy.deepcopy(self.request.data)
 
         context.application.cache.add(self.flow)
 
@@ -181,7 +184,7 @@ class HandlerContext:
         self.response_source = 'proxy'
 
     def get_request_body(self, in_request_handler=True):
-        if self.is_request_edited:
+        if self.is_request_edited and not self.flow.get('keep_origin_request_body', False):
             # TODO Repeated calls, remove it
             self.flow['request']['headers'] = HeadersHelper.flow2origin(self.flow['request'], chain=self.request_chain)
 
@@ -190,10 +193,10 @@ class HandlerContext:
             if in_request_handler:
                 _data = self.request.data or self.request.form or None
             # When origin_request is not saved, the original data cannot be obtained when diff-mode is enabled.
-            elif self.flow.get('origin_request', {}).get('data'):
-                _data = self.flow.get('origin_request', {}).get('data')
             else:
-                _data = DataHelper.flow2origin(self.flow['request'])
+                _data = self.request_origin_data
+            if self.is_request_edited:
+                logger.info(f'requestBody uses the original data. Please make sure that the modifier does not modify the requestBody in request: {self.flow["request"]["url"]}')
         return _data
 
     def get_request_headers(self):
@@ -240,7 +243,9 @@ class HandlerContext:
                     self.server_resp_time = time.time()
                     yield _resp_data[ i * size : (i+1) * size ]
             finally:
-                self.update_client_resp_time()
+                def request_post_handler():
+                    self.update_client_resp_time()
+                application.server['task'].add_task('request_post', request_post_handler)
         return generator
 
     def _generator_stream(self):
@@ -259,11 +264,13 @@ class HandlerContext:
                     self.server_resp_time = time.time()
                     yield item
             finally:
-                self.response.data = b''.join(buffer)
-                DataHelper.origin2flow(self.response, output=self.flow['response'], chain=self.response_chain)
+                def request_post_handler():
+                    self.response.data = b''.join(buffer)
+                    DataHelper.origin2flow(self.response, output=self.flow['response'], chain=self.response_chain)
 
-                self.update_client_resp_time()
-                upstream.close()
+                    self.update_client_resp_time()
+                    upstream.close()
+                application.server['task'].add_task('request_post', request_post_handler)
         return generator
 
     def update_response_headers_code2flow(self, output_key='response'):
