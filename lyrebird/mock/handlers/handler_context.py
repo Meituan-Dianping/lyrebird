@@ -93,7 +93,7 @@ class HandlerContext:
         _request.update(request_info)
 
         # handle request data
-        if self.request.method in ['POST', 'PUT']:
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
             DataHelper.origin2flow(self.request, output=_request, chain=self.request_chain)
 
         if self.request.headers.get('Lyrebird-Client-Address'):
@@ -106,7 +106,7 @@ class HandlerContext:
 
         self.flow['request'] = _request
 
-        if self.request.method in ['POST', 'PUT'] and application.config.get('mock.request.keep_origin_data'):
+        if self.request.method in ['POST', 'PUT', 'PATCH'] and application.config.get('mock.request.keep_origin_data'):
             origin_data = DataHelper.origin2string(self.request)
             self.flow['origin_request'] = {
                 'data': origin_data
@@ -171,7 +171,8 @@ class HandlerContext:
             path=self.request.path[len(self.MOCK_PATH_PREFIX):]
         )
 
-    def set_request_edited(self):
+    def set_request_edited(self, keep_origin_request_body=False):
+        self.flow['keep_origin_request_body'] = self.flow.get('keep_origin_request_body', False) and keep_origin_request_body
         self.is_request_edited = True
 
     def set_response_edited(self):
