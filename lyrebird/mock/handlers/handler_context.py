@@ -171,7 +171,8 @@ class HandlerContext:
             path=self.request.path[len(self.MOCK_PATH_PREFIX):]
         )
 
-    def set_request_edited(self):
+    def set_request_edited(self, keep_origin_request_body=False):
+        self.flow['keep_origin_request_body'] = self.flow.get('keep_origin_request_body', False) and keep_origin_request_body
         self.is_request_edited = True
 
     def set_response_edited(self):
