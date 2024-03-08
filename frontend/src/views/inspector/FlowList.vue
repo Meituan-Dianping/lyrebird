@@ -185,6 +185,7 @@
 
 <script>
 import { readablizeBytes, timestampToTime } from '@/utils'
+import { debounce } from 'lodash';
 
 export default {
   name: 'flowList',
@@ -197,6 +198,9 @@ export default {
         height: 0,
       },
       flowList: [],
+      displayFlowList: [],
+      focusedFlowIdx: null,
+      debouncedKeyboardSelectFlow: null,
       refreshFlowListTimer: null,
       refreshTimer: null,
       refreshGapTime: 1,
@@ -267,6 +271,15 @@ export default {
         this.lastRefreshTime += 1
       }, 1000)
   },
+  mounted () {
+    // The maximum number of clicks per second is limited to 4 times. 
+    // Too high click frequency may cause jumping if the refresh is not timely
+    this.debouncedKeyboardSelectFlow = debounce(this.keyboardSelctFlow, 250);
+    document.addEventListener('keydown', this.debouncedKeyboardSelectFlow);
+  },
+  beforeDestroy () {
+    document.removeEventListener('keydown', this.debouncedKeyboardSelectFlow);
+  },
   destroyed () {
     this.$io.removeListener('action', this.resetRefreshGapTime)
     clearInterval(this.refreshTimer)
@@ -277,6 +290,9 @@ export default {
     },
     searchStr () {
       return this.$store.state.inspector.searchStr
+    },
+    focusedFlowDetail () {
+      return this.$store.state.inspector.focusedFlowDetail
     },
     selectedFlows: {
       get () {
@@ -296,10 +312,15 @@ export default {
       clearTimeout(this.refreshFlowListTimer)
       this.refreshFlowListTimer = setTimeout(() => {
         if (newValue !== oldValue) {
+          this.focusedFlowDetail = null
           this.refreshFlowList()
           clearTimeout(this.refreshFlowListTimer)
         }
       }, 500)
+    },
+    focusedFlowDetail (newValue, oldValue) {
+      if(!newValue)
+        this.focusedFlowIdx = null
     }
   },
   methods: {
@@ -332,15 +353,51 @@ export default {
       }
     },
     getFlowTableItemClass(item) {
-      if (!this.$store.state.inspector.focusedFlowDetail) {
+      if (!this.focusedFlowDetail) {
         return ''
       }
-      if (item.id === this.$store.state.inspector.focusedFlowDetail.id) {
+      if (item.id === this.focusedFlowDetail.id) {
         return 'flow-list-item-focused'
       }
     },
-    selectFlow (flow) {
+    selectFlow (flow, item) {
       this.$store.dispatch('focusFlow', flow)
+      // flowList is a stack structure where new data is added to the header, 
+      // so a negative index is used here to ensure consistency when the data changes
+      this.focusedFlowIdx = item.index + (this.currentPage-1)*this.pageSize - this.displayFlowList.length
+    },
+    keyboardSelctFlow (event) {
+      if(!this.focusedFlowDetail)
+        return
+      if(this.focusedFlowIdx == null)
+        return
+      if(event.key == "ArrowUp") {
+        this.keyboardUpSelctFlow()
+      }else if(event.key == "ArrowDown") {
+        this.keyboardDownSelectFlow()
+      }
+    },
+    keyboardUpSelctFlow () {
+      let currentIdx = this.displayFlowList.length + this.focusedFlowIdx
+      if(currentIdx <= 0)
+        return
+      if(currentIdx <= (this.currentPage-1)*this.pageSize){
+        this.currentPage -= 1
+        this.refreshFlowList()
+      }
+      this.focusedFlowIdx -= 1
+      this.$store.dispatch('focusFlow', this.displayFlowList[currentIdx-1]) 
+    },
+    keyboardDownSelectFlow () {
+      let currentIdx = this.displayFlowList.length + this.focusedFlowIdx
+      if(currentIdx >= this.displayFlowList.length-1)
+        return
+      if(currentIdx >= this.currentPage*this.pageSize-1){
+        this.currentPage += 1
+        this.refreshFlowList()
+      }
+      this.focusedFlowIdx += 1
+      this.$store.dispatch('focusFlow', this.displayFlowList[currentIdx+1])
     },
     itemSelectChange (event) {
       let selectedIds = []
@@ -365,12 +422,12 @@ export default {
       return false
     },
     refreshFlowList () {
-      let displayFlowList = []
+      this.displayFlowList = []
       let searchStr = typeof(this.searchStr) === 'string' ? this.searchStr.trim() : ''
 
       // Search
       if(!searchStr){
-        displayFlowList = this.originFlowList
+        this.displayFlowList = this.originFlowList
       } else {
         // Split searchStr by one or more (spaces, |)
         let searchStrList = searchStr.split(/\|+/)
@@ -379,17 +436,17 @@ export default {
           searchStrList[idx] = searchStrList[idx].split(/\s+/)
         }
         for (const flow of this.originFlowList) {
-          this.isMatch(flow.request.url, searchStrList) ? displayFlowList.push(flow) : null
+          this.isMatch(flow.request.url, searchStrList) ? this.displayFlowList.push(flow) : null
         }
       }
 
       // Page
-      this.displayFlowCount = displayFlowList.length
+      this.displayFlowCount = this.displayFlowList.length
       this.pageCount = Math.max(Math.ceil(this.displayFlowCount / this.pageSize), 1)
       this.currentPage = this.pageCount && (this.currentPage > this.pageCount) ? this.pageCount : this.currentPage
       const startIndex = (this.currentPage - 1) * this.pageSize
       const endIndex = startIndex + this.pageSize
-      this.flowList = displayFlowList.slice(startIndex, endIndex)
+      this.flowList = this.displayFlowList.slice(startIndex, endIndex)
 
       // Select
       let displayFlowSelectedIdSet = new Set()
