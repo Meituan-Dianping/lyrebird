@@ -283,7 +283,7 @@ export default {
   beforeDestroy () {
     document.removeEventListener('keydown', this.debouncedKeyboardSelectFlow);
     if (this.resizeObserver) {
-      this.resizeObserver.disconnect(); // 断开观察器
+      this.resizeObserver.disconnect();
     }
   },
   destroyed () {
