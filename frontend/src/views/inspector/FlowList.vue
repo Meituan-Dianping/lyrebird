@@ -98,7 +98,7 @@
 
       <template v-slot:item.request="{ item }">
         <v-row class="my-0 ml-0 mr-1">
-          <span class="flow-list-item-url">
+          <span class="flow-list-item-url" :style="{maxWidth:urlMaxWidth+'px'}">
             <span>{{ item.request.scheme }}</span>
             <span v-if="item.request.scheme">://</span>
 
@@ -193,6 +193,8 @@ export default {
   },
   data () {
     return {
+      urlMaxWidth:0,
+      resizeObserver:null,
       tableSize: {
         width: 0,
         height: 0,
@@ -272,6 +274,7 @@ export default {
       }, 1000)
   },
   mounted () {
+    this.initResizeObserver();
     // The maximum number of clicks per second is limited to 4 times. 
     // Too high click frequency may cause jumping if the refresh is not timely
     this.debouncedKeyboardSelectFlow = debounce(this.keyboardSelctFlow, 250);
@@ -279,6 +282,9 @@ export default {
   },
   beforeDestroy () {
     document.removeEventListener('keydown', this.debouncedKeyboardSelectFlow);
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect(); // 断开观察器
+    }
   },
   destroyed () {
     this.$io.removeListener('action', this.resetRefreshGapTime)
@@ -330,6 +336,29 @@ export default {
     resetRefreshGapTime () {
       this.refreshGapTime = 1
       this.lastRefreshTime = 1
+    },
+    initResizeObserver() {
+      const tableWrapper = this.$el.querySelector('.v-data-table__wrapper');
+      if (tableWrapper) {
+        this.resizeObserver = new ResizeObserver(entries => {
+          for (let entry of entries) {
+            this.calculateUrlMaxWidth(entry.contentRect.width);
+          }
+        });
+        this.resizeObserver.observe(tableWrapper);
+      }
+    },
+    calculateUrlMaxWidth(tableWidth){
+      /*
+      source: 105px
+      method: 60px
+      status: 50px
+      start_time: 70px
+      duration: 70px
+      size: 70px
+      */
+      const otherColumnsWidth=105+60+50+70+70+70;
+      this.urlMaxWidth=tableWidth-otherColumnsWidth
     },
     onTableResize () {
       const height = window.innerHeight - 44 - 40 - 12 - 26 - 7 - 1 - 8 - 32 - 12 - 12 - 28
@@ -593,7 +622,6 @@ export default {
 .flow-list-item-url {
   display: inline-block;
   word-break: keep-all;
-  max-width: 900px;
   width: calc(100% - 100px);
   white-space: nowrap;
   overflow: hidden;
