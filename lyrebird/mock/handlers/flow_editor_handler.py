@@ -16,7 +16,7 @@ class FlowEditorHandler(FunctionExecutor):
             return
 
         self.script_executor(matched_funcs, handler_context.flow)
-        handler_context.set_request_edited()
+        handler_context.set_request_edited(handler_context.flow.get('keep_origin_request_body', False))
         handler_context.flow['request']['headers']['lyrebird_modified'] = 'modified'
 
     def on_request_upstream_handler(self, handler_context):
