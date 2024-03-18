@@ -340,16 +340,19 @@ export default {
     initResizeObserver() {
       const tableWrapper = this.$el.querySelector('.v-data-table__wrapper');
       if (tableWrapper) {
+        const debouncedCalculateUrlMaxWidth = debounce((width) => {
+          this.calculateUrlMaxWidth(width);
+        }, 250);
         this.resizeObserver = new ResizeObserver(entries => {
           for (let entry of entries) {
-            this.calculateUrlMaxWidth(entry.contentRect.width);
+            debouncedCalculateUrlMaxWidth(entry.contentRect.width);
           }
         });
         this.resizeObserver.observe(tableWrapper);
       }
     },
     calculateUrlMaxWidth(tableWidth){
-      /*
+      /* widths of fixed columns
       source: 105px
       method: 60px
       status: 50px
