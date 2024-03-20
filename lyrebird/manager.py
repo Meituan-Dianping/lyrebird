@@ -96,6 +96,8 @@ def main():
     custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else None
     application._cm = ConfigManager(conf_path_list=args.config, custom_conf=custom_conf)
 
+    application.sync_manager = application.SyncManager()
+
     # init logger for main process
     application._cm.config['verbose'] = args.verbose
     application._cm.config['log'] = args.log
@@ -243,7 +245,9 @@ def run(args: argparse.Namespace):
         reporter.stop()
         application.stop_server()
         threading.Event().set()
-        logger.warning('!!!Ctrl-C pressed. Lyrebird stop!!!')
+        application.terminate_server()
+        print('!!!Ctrl-C pressed. Lyrebird stop!!!')
+        application.sync_manager.destory()
         os._exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)

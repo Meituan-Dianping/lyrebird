@@ -27,6 +27,7 @@ def event_server(tmpdir):
         'mock.port': 9090
     }
     _personal_conf = personal_config_template
+    application.sync_manager = application.SyncManager()
     application._cm = MockConfigManager(config=_conf, personal_config=_personal_conf, ROOT=Path(tmpdir), root=Path(tmpdir))
     lyrebird.mock.context.application.socket_io = FakeSocketio()
     server = EventServer()
@@ -34,6 +35,7 @@ def event_server(tmpdir):
     application.server['event'] = server
     yield server
     server.stop()
+    application.sync_manager.destory()
 
 
 @pytest.fixture

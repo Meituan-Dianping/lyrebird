@@ -340,10 +340,21 @@ class CaseInsensitiveDict(dict):
     <key: 'abc'> & <key: 'ABC'> will be treated as the same key, only one exists in this dict.
     '''
 
-    def __init__(self, raw_dict):
+    def __init__(self, raw_dict=None):
         self.__key_map = {}
-        for k, v in raw_dict.items():
-            self.__setitem__(k, v)
+        if raw_dict:
+            for k, v in raw_dict.items():
+                self.__setitem__(k, v)
+    
+    def __getstate__(self):
+        return {
+            'key_map': self.__key_map,
+            'data': dict(self)
+        }
+
+    def __setstate__(self, state):
+        self.__key_map = state['key_map']
+        self.update(state['data'])
 
     def __get_real_key(self, key):
         return self.__key_map.get(key.lower(), key)
@@ -401,6 +412,9 @@ class CaseInsensitiveDict(dict):
             for k, v in kwargs.items():
                 self.__setitem__(k, v)
 
+    def __reduce__(self):
+        return (self.__class__, (dict(self),))
+
 
 class HookedDict(dict):
     '''
@@ -424,6 +438,9 @@ class HookedDict(dict):
             else:
                 __v = HookedDict(__v)
         return super(HookedDict, self).__setitem__(__k, __v)
+
+    def __reduce__(self):
+        return (self.__class__, (dict(self),))
 
 
 class TargetMatch:

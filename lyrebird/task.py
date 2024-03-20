@@ -36,13 +36,13 @@ class BackgroundTaskServer(ThreadServer):
     def __init__(self):
         super().__init__()
         self.tasks = []
-        self.cmds = Queue()
+        self.cmds = application.sync_manager.get_queue()
         self.executor = ThreadPoolExecutor(thread_name_prefix='bg-')
 
     def run(self):
         while self.running:
             cmd = self.cmds.get()
-            if cmd == 'stop':
+            if cmd is None or cmd == 'stop':
                 break
             elif cmd == 'clear':
                 dead_tasks = []

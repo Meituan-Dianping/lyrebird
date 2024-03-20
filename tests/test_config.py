@@ -23,9 +23,10 @@ conf = {
 @pytest.fixture
 def cm():
     cm = config.ConfigManager()
+    application._cm = cm
+    application.sync_manager = application.SyncManager()
     application.server['task'] = BackgroundTaskServer()
     application.reporter = reporter.Reporter()
-    reporter.start()
     yield cm
 
 

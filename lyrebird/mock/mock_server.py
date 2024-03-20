@@ -112,9 +112,13 @@ class LyrebirdMockServer(ThreadServer):
         停止服务
 
         """
+        # pass
         super().stop()
+    
+    def terminate(self):
+        super().terminate()
         try:
             self.socket_io.stop()
-        except Exception:
+        except Exception as e:
             pass
-        _logger.warning('CoreServer shutdown')
+        print('CoreServer shutdown')

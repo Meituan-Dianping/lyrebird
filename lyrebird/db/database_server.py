@@ -3,7 +3,6 @@ import math
 import datetime
 import traceback
 import time
-from queue import Queue
 from pathlib import Path
 from lyrebird import application
 from lyrebird import log
@@ -58,7 +57,7 @@ class LyrebirdDatabaseServer(ThreadServer):
             logger.warning("Restarting will delete the broken database by default, historical events in inspector-pro will be lost, please be careful.")
 
         # init queue
-        self.storage_queue = Queue()
+        self.storage_queue = application.sync_manager.get_queue()
 
         # subscribe all channel
         application.server['event'].subscribe('any', self.event_receiver)
@@ -151,6 +150,8 @@ class LyrebirdDatabaseServer(ThreadServer):
         while self.running:
             try:
                 event = self.storage_queue.get()
+                if event is None:
+                    break
                 session.add(event)
                 session.commit()
                 context.emit('db_action', 'add event log')

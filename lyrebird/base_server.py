@@ -3,11 +3,11 @@ Base threading server class
 """
 
 from threading import Thread
-from multiprocessing import Process, Queue
+from multiprocessing import Process
 from lyrebird import application
 
 
-service_msg_queue = Queue()
+service_msg_queue = None
 
 
 class ProcessServer:
@@ -52,6 +52,8 @@ class ProcessServer:
             return
 
         global service_msg_queue
+        if service_msg_queue is None:
+            service_msg_queue = application.sync_manager.get_multiprocessing_queue()
         config = application.config.raw()
         logger_queue = application.server['log'].queue
         self.server_process = Process(group=None, target=self.run,
@@ -62,6 +64,9 @@ class ProcessServer:
         self.running = True
 
     def stop(self):
+        self.running = False
+    
+    def terminate(self):
         if self.server_process:
             self.server_process.terminate()
             self.server_process = None
@@ -84,6 +89,9 @@ class ThreadServer:
     def stop(self):
         self.running = False
         # TODO terminate self.server_thread
+    
+    def terminate(self):
+        pass
 
     def run(self):
         """
@@ -100,16 +108,23 @@ class StaticServer:
     def stop(self):
         pass
 
+    def terminate(self):
+        pass
+
 
 class MultiProcessServerMessageDispatcher(ThreadServer):
 
     def run(self):
         global service_msg_queue
+        if service_msg_queue is None:
+            service_msg_queue = application.sync_manager.get_multiprocessing_queue()
         emit = application.server['mock'].socket_io.emit
         publish = application.server['event'].publish
 
-        while True:
+        while self.running:
             msg = service_msg_queue.get()
+            if msg is None:
+                break
             type = msg.get('type')
             if type == 'event':
                 channel = msg.get('channel')
