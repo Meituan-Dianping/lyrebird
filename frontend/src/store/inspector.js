@@ -99,11 +99,10 @@ export default {
           bus.$emit('msg.error', 'Load activate Group error: ' + error.data.message)
         })
     },
-    activateGroup ({ dispatch }, payload) {
+    activateGroup ({ }, payload) {
       bus.$emit('msg.loading', `Activating group ${payload.name} ...`)
       api.activateGroup(payload.id, payload.info)
-        .then(response => {
-          dispatch('loadActivatedGroup')
+        .then(_ => {
           bus.$emit('msg.destroy')
           bus.$emit('msg.success', 'Group ' + payload.name + ' activated!')
         })
@@ -111,10 +110,9 @@ export default {
           bus.$emit('msg.error', 'Activate group ' + payload.name + ' error: ' + error.data.message)
         })
     },
-    deactivateGroup ({ dispatch }) {
+    deactivateGroup ({ }) {
       api.deactivateGroup()
-        .then(response => {
-          dispatch('loadActivatedGroup')
+        .then(_ => {
           bus.$emit('msg.success', 'Deactivate all groups!')
         })
         .catch(error => {
