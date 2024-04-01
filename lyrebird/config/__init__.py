@@ -100,10 +100,10 @@ class ConfigManager():
         if forbidden_modify_fields:
             raise ConfigException(f'Config field cannot be modified: {forbidden_modify_fields}')
 
-        self.add_config(update_conf, type='api_patch', apply_now=True)
+        update_level = self.config.get('config.update_config.level', 1)
 
         logger.debug(f'Need update config fields: {update_conf}')
-        self.config.update(update_conf)
+        self.add_config(update_conf, type='api_patch', level=update_level, apply_now=True)
         logger.debug(f'Update done. config: {self.config}')
 
         application.server['event'].publish('config_update', {'config_update' : {'data': update_conf}})
