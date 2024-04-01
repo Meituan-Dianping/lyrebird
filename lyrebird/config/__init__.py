@@ -99,7 +99,7 @@ class ConfigManager():
         forbidden_modify_fields = self.contains_forbidden_modify_field(update_conf)
         if forbidden_modify_fields:
             raise ConfigException(f'Config field cannot be modified: {forbidden_modify_fields}')
- 
+
         update_level = self.config.get('config.update_config.level', 1)
 
         logger.debug(f'Need update config fields: {update_conf}')
