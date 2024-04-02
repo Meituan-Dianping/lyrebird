@@ -184,11 +184,11 @@ class ConfigManager():
                 continue
             CONFIG_FUNC_MAP[key].add(value)
 
-    def remove_config(self, config, type='', apply_now=False):
+    def remove_config(self, config=None, type='', apply_now=False):
         remove_config = None
         for c in self.config_list[::-1]:
-            if c.type == type and config == c.config:
-                remove_config = c #version to delete
+            if c.type == type and (config is None or config == c.config):
+                remove_config = c
                 break
 
         if remove_config is None:
@@ -265,14 +265,26 @@ class Config:
         self.type = ''
         self.config = config
         self.level = level
-        self.previous_config = self._get_previuos_config(current_config)
+        self.previous_config = self._get_previuos_config(current_config, level)
 
-    def _get_previuos_config(self, current_config):
+    def _get_previuos_config(self, current_config, level):
+        if not current_config:
+            return {}
         previous_config = {}
         for key in self.config.keys():
-            previous_config[key] = deepcopy(current_config.get(key))
+            self._get_previous_config_generator(key, self.config, current_config, previous_config, level)
         return previous_config
+    
+    def _get_previous_config_generator(self, key, config, current_config, previous_config, level):
+        if current_config is None or current_config.get(key) is None:
+           return
+        if level == 1 and current_config.get(key) != None:
+            previous_config[key] = deepcopy(current_config.get(key))
 
+        elif isinstance(config[key], dict):
+            previous_config[key] = {}
+            for key_child in list(config[key].keys()):
+                self._get_previous_config_generator(key_child, config[key], current_config.get(key), previous_config[key], level-1)
 
 class ConfigException(Exception):
     pass
