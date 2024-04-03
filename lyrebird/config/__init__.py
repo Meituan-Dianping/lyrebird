@@ -197,7 +197,7 @@ class ConfigManager():
 
         self.unmerge_config(self.config, remove_config.config, level=remove_config.level, apply_now=apply_now)
 
-        self.merge_config(self.config, remove_config.previous_config, level=1, apply_now=apply_now)
+        self.merge_config(self.config, remove_config.previous_config, level=remove_config.level, apply_now=apply_now)
 
         # todo handle the config added after remove_config
 
@@ -260,7 +260,7 @@ class ConfigManager():
 
 
 class Config:
-    def __init__(self, config, level, current_config):
+    def __init__(self, config, level=1, current_config={}):
         self.rank = 0
         self.type = ''
         self.config = config
