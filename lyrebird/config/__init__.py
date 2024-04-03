@@ -276,15 +276,16 @@ class Config:
         return previous_config
     
     def _get_previous_config_generator(self, key, config, current_config, previous_config, level):
-        if current_config is None or current_config.get(key) is None:
+        if not current_config or key not in current_config:
            return
-        if level == 1 and current_config.get(key) != None:
+
+        if level != 1 and isinstance(config[key], dict):
+            previous_config[key] = {}
+            for key_child in config[key].keys():
+                self._get_previous_config_generator(key_child, config[key], current_config.get(key), previous_config[key], level-1)
+        else:
             previous_config[key] = deepcopy(current_config.get(key))
 
-        elif isinstance(config[key], dict):
-            previous_config[key] = {}
-            for key_child in list(config[key].keys()):
-                self._get_previous_config_generator(key_child, config[key], current_config.get(key), previous_config[key], level-1)
 
 class ConfigException(Exception):
     pass
