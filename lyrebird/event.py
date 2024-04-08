@@ -50,6 +50,7 @@ class EventServer(ThreadServer):
         """
 
         """
+        event_start_time = time.time()
 
         # Check
         func_sig = inspect.signature(callback_fn)
@@ -75,6 +76,21 @@ class EventServer(ThreadServer):
             callback_fn(*callback_args, **callback_kwargs)
         except Exception:
             logger.error(f'Event callback function [{callback_fn.__name__}] error. {traceback.format_exc()}')
+        finally:
+            event_end_time = time.time()
+            event_duration = (event_end_time - event_start_time) * 1000
+            trace_info = {
+                'channel': event.channel,
+                'callback_fn': callback_fn.__name__,
+                'callback_args': str(callback_args),
+                'callback_kwargs': str(callback_kwargs)
+            }
+            self.publish('lyrebird_metrics', {
+                'sender': 'EventServer',
+                'action': 'broadcast_handler',
+                'duration': event_duration,
+                'trace_info': str(trace_info)
+            })
 
     def run(self):
         while self.running:
