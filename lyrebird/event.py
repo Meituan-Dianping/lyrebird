@@ -79,18 +79,19 @@ class EventServer(ThreadServer):
         finally:
             event_end_time = time.time()
             event_duration = (event_end_time - event_start_time) * 1000
-            trace_info = {
-                'channel': event.channel,
-                'callback_fn': callback_fn.__name__,
-                'callback_args': str(callback_args),
-                'callback_kwargs': str(callback_kwargs)
-            }
-            self.publish('lyrebird_metrics', {
-                'sender': 'EventServer',
-                'action': 'broadcast_handler',
-                'duration': event_duration,
-                'trace_info': str(trace_info)
-            })
+            if event.channel != 'lyrebird_metrics':
+                trace_info = {
+                    'channel': event.channel,
+                    'callback_fn': callback_fn.__name__,
+                    'callback_args': str(callback_args),
+                    'callback_kwargs': str(callback_kwargs)
+                }
+                self.publish('lyrebird_metrics', {
+                    'sender': 'EventServer',
+                    'action': 'broadcast_handler',
+                    'duration': event_duration,
+                    'trace_info': str(trace_info)
+                })
 
     def run(self):
         while self.running:
