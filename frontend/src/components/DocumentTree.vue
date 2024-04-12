@@ -74,7 +74,9 @@ export default {
           'isShowMessage': false,
           val
         })
-        this.$store.dispatch('loadDataMap')
+        if (this.$store.state.dataManager.isCurrentVersionV1) { 
+          this.$store.dispatch('loadDataMap')
+        }
       }
     },
     groupListOpenNode: {
@@ -92,6 +94,9 @@ export default {
       set (val) {
         this.$store.commit('setSelectedLeaf', val)
       }
+    },
+    isCurrentVersionV1 () { 
+      return this.$store.state.dataManager.isCurrentVersionV1
     }
   },
   watch: {

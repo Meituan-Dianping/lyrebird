@@ -129,7 +129,9 @@ export default {
             }
           ]
         }
-      ]
+      ],
+      dataListToDelete: [],
+      groupListToDelete: []
     }
   },
   computed: {
@@ -156,12 +158,22 @@ export default {
   },
   methods: {
     onTreeNodeDelete () {
-      const deleteItemId = []
-      for (const item of this.deleteItem) {
-        deleteItemId.push(item.id)
+      if (this.$store.state.dataManager.deleteDialogSource === 'single') {
+        this.$store.dispatch('deleteGroup', this.deleteNode[0])
+      } else { 
+        for (const item of this.deleteItem) {
+          this.groupListToDelete.push(item.id)
+          if (!item.type === 'group') {
+            this.dataListToDelete.push(item.id)
+          }
+        }
+        let payload = {
+          'data': this.dataListToDelete,
+          'groups': this.groupListToDelete
+        }
+        this.$store.dispatch('deleteByQuery', payload)
+        this.$store.commit('setIsSelectableStatus', false)
       }
-      this.$store.dispatch('deleteByQuery', deleteItemId)
-      this.$store.commit('setIsSelectableStatus', false)
       this.isShown = false
     },
     getDeleteItem () {

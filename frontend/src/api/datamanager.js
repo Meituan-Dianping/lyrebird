@@ -14,6 +14,15 @@ export const getGroupMap = (options) => {
   })
 }
 
+// V2 getGroupMap
+export const getMockDataByOpenNodes = (options) => { 
+  return axios({
+    url: '/api/search/group?search_str=',
+    method: 'POST',
+    data: { 'open_nodes': options.openNodes, 'reset': options.reset }
+  })
+}
+
 export const getGroupDetail = (groupId) => {
   return axios({
     url: '/api/group/' + groupId
@@ -176,10 +185,22 @@ export const getSnapShotDetail = (id) => {
   })
 }
 
-export const deleteByQuery = (ids, parentId) => {
+export const deleteTempMockDataByQuery = (ids, parentId) => {
   const query = {
     id: ids,
     'parent_id': parentId
+  }
+  return axios({
+    url: '/api/group',
+    method: 'DELETE',
+    data: { query }
+  })
+}
+
+export const deleteByQuery = (dataIds, groupIds) => {
+  const query = {
+    'data': dataIds,
+    'groups': groupIds
   }
   return axios({
     url: '/api/group',

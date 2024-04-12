@@ -31,6 +31,7 @@ class DataManager:
         self.is_activated_data_rules_contains_request_data = False
         self.LEVEL_SUPER_ACTIVATED = 3
         self.clipboard = None
+        self._adapter = None
 
         self.snapshot_import_cache = {}
         self.SNAPSHOT_SUFFIX = '.lb'
@@ -91,11 +92,28 @@ class DataManager:
         self.add_parent()
         self.add_super_by()
 
+    def get_open_nodes(self):
+        return self.open_nodes
+
+    def add_open_node(self, id):
+        if id not in self.open_nodes:
+            self.open_nodes.append(id)
+
+    def save_open_nodes(self, data):
+        self.open_nodes = list(set(data))
+
+    def get_tree(self):
+        return self.tree
+    
+    def save_tree(self, data):
+        self.root = data
+
     def _get_group_children(self, group_id):
         children = self._adapter._get_group_children(group_id)
         parent_node = self.id_map.get(group_id)
         if not parent_node:
             logger.error('IDNotFound, id=' + group_id)
+            return []
         self.handle_group_config(children, parent_node['id'])
 
         for child in children:
@@ -231,6 +249,12 @@ class DataManager:
             })
         self.unsave_keys.add('super_by')
 
+    def get_group(self, _id):
+        return self.get(_id)
+    
+    def get_data(self, _id):
+        return self.get(_id)
+
     def get(self, _id):
         """
         Get mock group or data by id
@@ -260,6 +284,7 @@ class DataManager:
             return self._adapter._load_data(_id)
         elif node.get('type') == 'config':
             data = self._adapter._load_data(_id)
+            data.pop('type', None)
             data.pop('name', None)
             return data
         else:
@@ -424,11 +449,11 @@ class DataManager:
 
         self.activated_data = OrderedDict()
         self.activated_group = {}
-        self._check_activated_data_rules_contains_request_data()
 
     def reactive(self):
         for _group_id in self.activated_group:
             self.activate(_group_id)
+            context.application.socket_io.emit('activatedGroupUpdate')
 
     def get_matched_data_multiple_source(self, flow):
         matched_data = self.temp_mock_tree.get_matched_data(flow)
@@ -544,7 +569,7 @@ class DataManager:
             # TODO remove it with inspector frontend
             data['request'] = dict(raw_data['request'])
 
-            _data_name = data['name'] if data.get('name') else self._adapter._get_data_name(data)
+            _data_name = data['name'] if data.get('name') else self._get_data_name(data)
             _data_rule = data['rule'] if data.get('rule') else self._adapter._get_data_rule(data['request'])
             if 'data' in data['request']:
                 data['request']['data'] = utils.flow_data_2_str(data['request']['data'])
@@ -568,6 +593,28 @@ class DataManager:
 
         data['name'] = _data_name
         data['rule'] = _data_rule
+
+    def _get_data_name(self, data):
+        name = 'New Data'
+        request = data.get('request')
+        if not request:
+            return name
+
+        url = request.get('url')
+        if not url:
+            return name
+
+        parsed_url = urlparse(url)
+        hostname = parsed_url.hostname
+        path = parsed_url.path
+        if path:
+            name = path
+        elif hostname:
+            name = hostname
+        else:
+            name = url[0:100]
+
+        return name
 
     def _make_data_json(self, raw_data, data):
         if 'json' not in data:
@@ -658,6 +705,7 @@ class DataManager:
             parent_children = self._get_group_children(parent_node['id'])
             tree_target_node = self.get_target_node(self.tree, parent_node['id'])
             if not tree_target_node:
+                tree_target_node = {}
                 tree_target_node['children'] = parent_children
         return group_id
 
@@ -1150,7 +1198,6 @@ class DataManager:
             return
         parent['children'].remove(target_node)
 
-
     # batch action
     def delete_by_query(self, query):
         all_id_list = query.get('id') or []
@@ -1207,6 +1254,224 @@ class DataManager:
 
     def update_by_query(self, query, data):
         return self.update_group(data.get('id'), data, query=query)
+
+
+class DataManagerV2(DataManager):
+    def __init__(self):
+        super().__init__()
+        self.activate_config = {}
+
+    def reload(self, reset=False, open_nodes=[]):
+        if reset:
+            self.reset()
+        if not open_nodes:
+            if not self.open_nodes:
+                open_nodes = [self._adapter.root_id]
+            else:
+                open_nodes = self.open_nodes
+        self._adapter._reload(open_nodes)
+
+        if not self.open_nodes:
+            self.open_nodes = [self._adapter.root_id]
+        self.reactive()
+        return self.root
+
+    def set_root(self, uri):
+        self._adapter._set_root(uri)
+        if self._adapter.root_id:
+            self.open_nodes = [self._adapter.root_id]
+
+    def reset(self):
+        self.open_nodes = [self._adapter.root_id]
+        self.deactivate()
+
+    def get_open_nodes(self):
+        return self.open_nodes
+
+    def add_open_node(self, id):
+        if id not in self.open_nodes:
+            self.open_nodes.append(id)
+
+    def save_open_nodes(self, data):
+        self.open_nodes = list(set(data))
+
+    def get_tree(self):
+        return self.tree
+
+    def _get_group_children(self, group_id):
+        result = self._adapter._get_group_children(group_id)
+        self.add_open_node(group_id)
+        return result
+    
+    def get_group(self, _id):
+        return self._adapter._load_group(_id)
+
+    def get_data(self, _id):
+        return self._adapter._load_data(_id)
+    
+    def add_group(self, data):
+        return self._adapter._add_group(data)
+    
+    def update_group(self, _id, data, save=True, **kwargs):
+        if not data:
+            raise ValueError("No data to update")
+        data['id'] = _id
+        result = self._adapter._update_group(data, **kwargs)
+        if _id in self.activated_group:
+            self.reactive()
+        return result if save else None
+    
+    def delete(self, _id):
+        return self._adapter._delete(_id)
+    
+    def delete_by_query(self, query):
+        data_id_list = query.get('data', [])
+        group_id_list = query.get('groups', [])
+        all_id_list = data_id_list + group_id_list
+        context.application.socket_io.emit('statusBarProcess', {
+            'message': 'DataManager deleting...',
+            'state': 'process'
+        })
+        self._adapter._batch_delete(query)
+        context.application.socket_io.emit('statusBarProcess', {
+            'message': f'DataManager delete finish! ({len(all_id_list)}/{len(all_id_list)})',
+            'state': 'finish'
+        })
+        # Remove from activated_group
+        for id_ in all_id_list:
+            if id_ in self.activated_data.keys():
+                self.activated_data.pop(id_)
+            if id_ in self.activated_group:
+                self.activated_group.pop(id_)
+            if id_ in self.open_nodes:
+                self.open_nodes.remove(id_)
+
+    def update_data(self, _id, data):
+        self._adapter._update_data(_id, data)
+
+    def add_data(self, parent_id, raw_data, **kwargs):
+        if not isinstance(raw_data, dict):
+            raise DataObjectShouldBeADict
+
+        if not raw_data.get('type'):
+            raw_data['type'] = 'data'
+        if raw_data['type'] not in self.supported_data_type:
+            raise UnsupportedType
+        data = self._make_data(raw_data, **kwargs)
+        _data_id = data['id']
+        output_path = (kwargs['output'] / _data_id) if kwargs.get('output') else None
+        self._adapter._add_data(data, path=output_path, type='data', parent_id=parent_id)
+        return _data_id
+
+    """
+    Search API
+    """
+    def search(self, search_str, sender=None):
+        return self._adapter._search(search_str, sender)
+
+    """
+    activate/deavtivate
+    """
+    def activate(self, search_id, **kwargs):
+        """
+        Activite data by id
+        """
+        activate_info = self._adapter._activate(search_id)
+        config = activate_info.get('config', {}).get('json', {})
+        flows = activate_info.get('flows', [])
+        group_info = activate_info.get('groupInfo', [])
+        logger.info(f'Activate {len(flows)} flows ,load config {activate_info.get("config", {}).get("id")}')
+
+        # Only one group could be activated and reactived
+        # Deactivate all activated group before activate
+        self.deactivate()
+        data_map = {}
+        for flow in flows:
+            data_map[flow['id']] = flow
+        self.activated_data.update(data_map)
+        self.activated_group[search_id] = activate_info.get('groupInfo')
+        # Apply config
+        if config:
+            try:
+                self.activate_config = json.loads(config)
+            except Exception as e:
+                logger.error('Failed to parse the config, the config did not take effect!')
+            application._cm.add_config(self.activate_config, type='dm', level=-1, apply_now=True)
+        # TODO:After activate
+        self._check_activated_data_rules_contains_request_data()
+        self._adapter._after_activate(activated_group = group_info, activated_data = self.activated_data, **kwargs)
+
+    def deactivate(self):
+        """
+        Clear activated data
+        """
+        if self.activate_config:
+            application._cm.remove_config(self.activate_config, type='dm', apply_now=True)
+        self.activate_config = {}
+        self.activated_data = OrderedDict()
+        self.activated_group = {}
+        self._check_activated_data_rules_contains_request_data()
+
+    """
+    cut/copy/paste
+    """
+    def cut(self, _id):
+        self.clipboard = {
+            'type': 'cut',
+            'id': _id,
+        }
+
+    def copy(self, _id):
+        self.clipboard = {
+            'type': 'copy',
+            'id': _id,
+        }
+
+    def paste(self, parent_id, **kwargs):
+        if not self.clipboard:
+            raise NoneClipbord
+        self.clipboard['parent_id'] = parent_id
+        result = self._adapter._paste(self.clipboard, **kwargs)
+        self._adapter._reload(self.open_nodes)
+        return result
+    
+    def duplicate(self, _id, **kwargs):
+        return {
+            'message': 'The duplicate function has been deprecated！',
+            'id': None
+        }
+    
+    def export_from_remote(self, node_id):
+        snapshot_path = self._get_snapshot_path() 
+        result = self._adapter._get_node_prop(node_id) # 导出节点信息
+        if result is None:
+            raise ValueError
+        self._write_file(snapshot_path/PROP_FILE_NAME, result.get('prop'))
+        data_list = self._adapter._load_data_by_query({'id': result.get('childDataIds')})
+        for mock_data in data_list:
+            self._write_file(snapshot_path/mock_data['id'], mock_data)
+
+        filename = utils.compress_tar(snapshot_path, snapshot_path, suffix=self.SNAPSHOT_SUFFIX)
+        self._remove_file([snapshot_path])
+        return filename
+    
+    # -----
+    # Conflict checker
+    # -----
+
+    def check_conflict(self, _id):
+        data_array = self._adapter._read_data(_id)
+        return self.check_conflict_data(data_array)
+    
+    def _get_abs_parent_path(self, node, path='/'):
+        return self._adapter._get_abs_parent_path(node)
+    
+    # -----
+    # Record API
+    # -----
+    def save_data(self, data):
+        super().save_data(data)
+        self.reload()
 
 
 # -----------------

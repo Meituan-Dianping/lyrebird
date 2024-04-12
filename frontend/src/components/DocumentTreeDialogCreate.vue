@@ -63,7 +63,8 @@ export default {
       createTypeItems: [
         { value: 'group', text: 'Group' },
         { value: 'data', text: 'Data (HTTP)' },
-        { value: 'json', text: 'Data (JSON)' }
+        { value: 'json', text: 'Data (JSON)' },
+        { value: 'config', text: 'Data (CONFIG)' }
       ]
     }
   },
@@ -85,6 +86,11 @@ export default {
       },
       set (val) {
         this.$store.commit('setCreateType', val)
+        if (val == 'config') {
+          this.createName = '.Settings'
+        } else { 
+          this.createName = null
+        }
       }
     }
   },

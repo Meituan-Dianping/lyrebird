@@ -22,7 +22,7 @@
 
       <span>
         <div class="status-point" v-show="isGroupActivated"/>
-        <span :class="nameClass">
+        <span :class="[nameClass, { 'highlight': isHighlight }]">
           <span v-if="data.parent_id">{{data.name}}</span>
           <v-icon v-else small color="accent">mdi-home</v-icon>
         </span>
@@ -152,6 +152,15 @@ export default {
     },
     isLabelDisplay () {
       return this.$store.state.dataManager.isLabelDisplay
+    },
+    isHighlight () { 
+      if (this.data.id == this.$store.state.dataManager.treeSearchStr) { 
+        return true;
+      }
+      if (this.$store.state.dataManager.treeSearchStr != '' && this.data.name.includes(this.$store.state.dataManager.treeSearchStr)) { 
+        return true
+      }
+      return false
     }
   },
   watch: {
@@ -186,7 +195,7 @@ export default {
         this.$store.dispatch('saveTreeViewOpenNodes', this.$store.state.dataManager.groupListOpenNode)
         return
       } 
-      if (!this.isLoadTreeAsync) {
+      if (!this.isLoadTreeAsync && this.$store.state.dataManager.isCurrentVersionV1) {
         this.$store.commit('addGroupListOpenNode', this.data.id)
         this.$store.dispatch('saveTreeViewOpenNodes', this.$store.state.dataManager.groupListOpenNode)
         return
@@ -334,6 +343,9 @@ export default {
     opacity: 1;
     box-shadow: 0 0px 10px #19be6b, 0 1px 10px #19be6b inset;
   }
+}
+.highlight {
+  background-color: #FFEE58;
 }
 </style>
 

@@ -32,6 +32,8 @@
         v-model="treeSearchStr"
         flat
         hide-details
+        @keydown="searchGroup"
+        @click:append="searchGroup"
       ></v-text-field>
 
       <span v-show="editable">
@@ -134,6 +136,7 @@
 
 <script>
 import LabelDropdown from '@/components/LabelDropdown.vue'
+import { searchGroupByName} from '@/api'
 
 export default {
   components: {
@@ -153,7 +156,7 @@ export default {
     },
     treeSearchStr: {
       get () {
-        this.$store.state.dataManager.treeSearchStr
+        return this.$store.state.dataManager.treeSearchStr
       },
       set (val) {
         this.$store.commit('setTreeSearchStr', val)
@@ -210,6 +213,17 @@ export default {
     },
     selectedLeaf () {
       return this.$store.state.dataManager.selectedLeaf
+    },
+    isCurrentVersionV1 () { 
+      return this.$store.state.dataManager.isCurrentVersionV1
+    },
+    isLoading: { 
+      get () { 
+        return this.$store.state.dataManager.isLoading
+      },
+      set (val) {
+        this.$store.commit('setIsLoading', val)
+      }
     }
   },
   methods: {
@@ -238,6 +252,34 @@ export default {
     },
     reloadMockData () {
       this.$store.dispatch('loadDataMap')
+    },
+    searchGroup (event) {
+      if (event.keyCode !== 13 || event.shiftKey) {
+        return
+      }
+      if (this.isCurrentVersionV1) {
+        searchGroupByName(this.searchStr).then(response => {
+          this.searchResults = response.data.data
+        })
+      } else { 
+        this.isLoading = true
+        if (!this.treeSearchStr) { 
+          this.isLoading = false
+          return
+        }
+        searchGroupByName(this.treeSearchStr).then(response => {
+          this.isLoading = false
+          if (response.data.data.nodeMap == null) { 
+            this.$bus.$emit('msg.error', 'No related nodes found!')
+          }
+          this.$store.commit('setGroupListOpenNode', response.data.data.openNodes)
+          this.$store.commit('setTreeData', [response.data.data.nodeMap])
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Search group error: ' + error.data.message)
+          this.isLoading = false
+        })
+      }
     }
   }
 }

@@ -16,7 +16,8 @@ conf = {
         'scheme': 'MKScheme',
         'host': 'MKOriginHost',
         'port': 'MKOriginPort'
-    }
+    },
+    'datamanager.v2.enable': False
 }
 
 

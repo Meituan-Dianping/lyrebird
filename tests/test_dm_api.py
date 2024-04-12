@@ -66,7 +66,8 @@ def root(tmpdir):
 def client(root, tmpdir):
     _conf = {
         'ip': '127.0.0.1',
-        'mock.port': 9090
+        'mock.port': 9090,
+        'mock.data': 'data'
     }
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
@@ -172,7 +173,7 @@ def test_group_delete_with_tmp_group(client):
 def test_group_delete_with_query(client):
     resp = client.delete('/api/group', json={
         'query': {
-            'id': ['groupA-UUID']
+            'groups': ['groupA-UUID']
         }
     })
     assert resp.json['code'] == 1000
