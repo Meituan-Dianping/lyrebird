@@ -26,11 +26,16 @@ from lyrebird.mitm.proxy_server import LyrebirdProxyServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.base_server import MultiProcessServerMessageDispatcher
 from lyrebird.log import LogServer
+from lyrebird.utils import RedisManager, RedisDict
+from lyrebird.compatibility import compat_check
 from lyrebird import utils
-
+import builtins
 
 logger = log.get_logger()
-
+ori_print = builtins.print
+def new_print(*args, **kwargs):
+    logger.info(' '.join(map(str, args)))
+    
 
 def main():
     """
@@ -79,6 +84,10 @@ def main():
     parser.add_argument('--database', dest='database', help='Set a database path. Default is "~/.lyrebird/lyrebird.db"')
     parser.add_argument('--es', dest='extra_string', action='append', nargs=2, help='Set a custom config')
     parser.add_argument('--no-mitm', dest='no_mitm', action='store_true', help='Start without mitmproxy on 4272')
+    parser.add_argument('--enable-multiprocess', dest='enable_multiprocess', action='store_true', help='change event based on multithread to multiprocess(reply on redis)')
+    parser.add_argument('--redis-port', dest='redis_port', type=int, help='specifies the redis service port currently in use, defalut is 6379')
+    parser.add_argument('--redis-ip', dest='redis_ip', help='specifies the redis service ip currently in use, defalut is localhost')
+    parser.add_argument('--redis-db', dest='redis_db', help='specifies the redis service db currently in use, defalut is 0')
 
     subparser = parser.add_subparsers(dest='sub_command')
 
@@ -87,14 +96,30 @@ def main():
 
     args = parser.parse_args()
 
+    compat_check()
+
     if args.version:
         print(version.LYREBIRD)
         return
 
     Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
-    custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else None
+    custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else {}
+
+    # Parameters set directly through the redis command have a higher priority than those set through --es
+    logger.warning(args)
+    if args.redis_ip:
+        custom_conf['redis_ip'] = args.redis_ip
+    if args.redis_port:
+        custom_conf['redis_port'] = args.redis_port
+    if args.redis_db:
+        custom_conf['redis_db'] = args.redis_db
+    if args.enable_multiprocess:
+        custom_conf['enable_multiprocess'] = True
+
     application._cm = ConfigManager(conf_path_list=args.config, custom_conf=custom_conf)
+
+    application.sync_manager = application.SyncManager()
 
     # init logger for main process
     application._cm.config['verbose'] = args.verbose
@@ -105,12 +130,12 @@ def main():
 
     # Add exception hook
     def process_excepthook(exc_type, exc_value, tb):
-        logger.error(traceback.format_tb(tb))
+        print(traceback.format_tb(tb))
     sys.excepthook = process_excepthook
 
     def thread_excepthook(args):
-        logger.error(f'Thread except {args}')
-        logger.error("".join(traceback.format_tb(args[2])))
+        print(f'Thread except {args}')
+        print("".join(traceback.format_tb(args[2])))
     # add threading excepthook after python3.8
     if hasattr(threading, 'excepthook'):
         threading.excepthook = thread_excepthook
@@ -168,7 +193,8 @@ def run(args: argparse.Namespace):
 
     # show current config contents
     print_lyrebird_info()
-    config_str = json.dumps(application._cm.config, ensure_ascii=False, indent=4)
+    config_dict = application._cm.config.raw() if isinstance(application._cm.config, RedisDict) else application._cm.config
+    config_str = json.dumps(config_dict, ensure_ascii=False, indent=4)
     logger.warning(f'Lyrebird start with config:\n{config_str}')
 
     # Main server
@@ -200,6 +226,9 @@ def run(args: argparse.Namespace):
     # Mock mush init after other servers
     application.server['mock'] = LyrebirdMockServer()
 
+    # int statistics reporter
+    # application.server['reporter'] = reporter.Reporter()
+
     # handle progress message
     application.process_status_listener()
 
@@ -229,6 +258,9 @@ def run(args: argparse.Namespace):
     if args.script:
         application.server['checker'].load_scripts(args.script)
 
+    if application.config.get('enable_multiprocess', False):
+        application.server['event'].async_start()
+
     # Start server without mock server, mock server must start after all blueprint is done
     application.start_mock_server()
 
@@ -243,7 +275,9 @@ def run(args: argparse.Namespace):
         reporter.stop()
         application.stop_server()
         threading.Event().set()
-        logger.warning('!!!Ctrl-C pressed. Lyrebird stop!!!')
+        application.terminate_server()
+        print('!!!Ctrl-C pressed. Lyrebird stop!!!')
+        application.sync_manager.destory()
         os._exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)

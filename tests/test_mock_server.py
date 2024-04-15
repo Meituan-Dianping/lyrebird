@@ -1,10 +1,8 @@
 from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.mock import context
-from lyrebird.task import BackgroundTaskServer
-from lyrebird.event import EventServer
 from lyrebird import application
-from lyrebird import reporter
+from .utils import FakeEvnetServer, FakeReportor, FakeBackgroundTaskServer
 
 import json
 import pytest
@@ -32,15 +30,16 @@ MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
 
 @pytest.fixture
 def client():
-    # application.config = conf
     application._cm = MockConfigManager(config=conf)
-    application.server['event'] = EventServer()
-    application.reporter = reporter.Reporter()
-    application.server['task'] = BackgroundTaskServer()
+    application.server['event'] = FakeEvnetServer()
+    application.reporter = FakeReportor()
+    application.server['task'] = FakeBackgroundTaskServer()
     application.encoders_decoders = EncoderDecoder()
     server = LyrebirdMockServer()
-    client = server.app.test_client()
-    yield client
+    server.app.testing = True
+    with server.app.test_client() as client:
+        yield client
+    server.terminate()
 
 
 @pytest.fixture

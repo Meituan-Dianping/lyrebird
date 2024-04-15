@@ -21,8 +21,9 @@ def client():
     application._cm = ConfigManager()
     application._cm.config = _conf
     server = LyrebirdMockServer()
-    client = server.app.test_client()
-    yield client
+    with server.app.test_client() as client:
+        yield client
+    server.terminate()
 
 def test_render_api_without_json(client):
     resp = client.put('/api/render')

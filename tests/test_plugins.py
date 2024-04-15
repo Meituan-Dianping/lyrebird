@@ -1,5 +1,5 @@
 import pytest
-from lyrebird.event import EventServer
+from .utils import FakeEvnetServer
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird import application
 from lyrebird.plugins import PluginManager
@@ -121,13 +121,13 @@ def mock_server():
     server = LyrebirdMockServer()
     application.server['mock'] = server
     yield server
+    server.terminate()
+    del server
 
 
 @pytest.fixture
 def event_server():
-    server = EventServer()
-    application.server['event'] = server
-    yield server
+    application.server['event'] = FakeEvnetServer()
 
 
 @pytest.fixture

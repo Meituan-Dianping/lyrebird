@@ -1,6 +1,5 @@
 import pytest
 from copy import deepcopy
-from lyrebird.event import EventServer
 from lyrebird import application
 from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
@@ -45,7 +44,6 @@ def checker_init(tmp_path, tmpdir):
     }
 
     # init file dir
-
     encoder_decoder_file = tmp_path / FILENAME
     encoder_decoder_file.write_text(CONTENT)
 
@@ -66,26 +64,19 @@ def checker_server(checker_init, tmp_path):
     server.stop()
 
 
-@pytest.fixture
-def event_server():
-    server = EventServer()
-    application.server['event'] = server
-    yield server
-
-
-def test_encoder_handler_match_and_no_output(event_server, checker_server):
+def test_encoder_handler_match_and_no_output(checker_server):
     flow = deepcopy(FLOW_DATA_MATCH)
     application.encoders_decoders.encoder_handler(flow)
     assert flow['request']['data'] == 'encode'
 
 
-def test_encoder_handler_not_match_and_no_output(event_server, checker_server):
+def test_encoder_handler_not_match_and_no_output(checker_server):
     flow = deepcopy(FLOW_DATA_NO_MATCH)
     application.encoders_decoders.encoder_handler(flow)
     assert flow['request']['data'] == ''
 
 
-def test_encoder_handler_match_and_exist_output(event_server, checker_server):
+def test_encoder_handler_match_and_exist_output(checker_server):
     flow = deepcopy(FLOW_DATA_MATCH)
     output = {}
     application.encoders_decoders.encoder_handler(flow, output)
@@ -95,7 +86,7 @@ def test_encoder_handler_match_and_exist_output(event_server, checker_server):
     assert flow['request']['data'] == ''
 
 
-def test_encoder_handler_not_match_and_exist_output(event_server, checker_server):
+def test_encoder_handler_not_match_and_exist_output(checker_server):
     flow = deepcopy(FLOW_DATA_NO_MATCH)
     output = {}
     application.encoders_decoders.encoder_handler(flow, output)
@@ -105,19 +96,19 @@ def test_encoder_handler_not_match_and_exist_output(event_server, checker_server
     assert flow['request']['data'] == ''
 
 
-def test_decoder_handler_match_and_no_output(event_server, checker_server):
+def test_decoder_handler_match_and_no_output(checker_server):
     flow = deepcopy(FLOW_DATA_MATCH)
     application.encoders_decoders.decoder_handler(flow)
     assert flow['request']['data'] == 'decode'
 
 
-def test_decoder_handler_not_match_and_no_output(event_server, checker_server):
+def test_decoder_handler_not_match_and_no_output(checker_server):
     flow = deepcopy(FLOW_DATA_NO_MATCH)
     application.encoders_decoders.decoder_handler(flow)
     assert flow['request']['data'] == ''
 
 
-def test_decoder_handler_match_and_exist_output(event_server, checker_server):
+def test_decoder_handler_match_and_exist_output(checker_server):
     flow = deepcopy(FLOW_DATA_MATCH)
     output = {}
     application.encoders_decoders.decoder_handler(flow, output)
@@ -127,7 +118,7 @@ def test_decoder_handler_match_and_exist_output(event_server, checker_server):
     assert flow['request']['data'] == ''
 
 
-def test_decoder_handler_not_match_and_exist_output(event_server, checker_server):
+def test_decoder_handler_not_match_and_exist_output(checker_server):
     flow = deepcopy(FLOW_DATA_NO_MATCH)
     output = {}
     application.encoders_decoders.decoder_handler(flow, output)

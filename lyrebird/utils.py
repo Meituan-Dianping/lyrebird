@@ -3,6 +3,9 @@ import os
 import json
 import math
 import time
+import uuid
+import redis
+import pickle
 import socket
 import tarfile
 import requests
@@ -19,6 +22,7 @@ from lyrebird.application import config
 
 logger = get_logger()
 
+REDIS_EXPIRE_TIME = 60*60*24
 
 def convert_size(size_bytes):
     if size_bytes == 0:
@@ -340,10 +344,21 @@ class CaseInsensitiveDict(dict):
     <key: 'abc'> & <key: 'ABC'> will be treated as the same key, only one exists in this dict.
     '''
 
-    def __init__(self, raw_dict):
+    def __init__(self, raw_dict=None):
         self.__key_map = {}
-        for k, v in raw_dict.items():
-            self.__setitem__(k, v)
+        if raw_dict:
+            for k, v in raw_dict.items():
+                self.__setitem__(k, v)
+    
+    def __getstate__(self):
+        return {
+            'key_map': self.__key_map,
+            'data': dict(self)
+        }
+
+    def __setstate__(self, state):
+        self.__key_map = state['key_map']
+        self.update(state['data'])
 
     def __get_real_key(self, key):
         return self.__key_map.get(key.lower(), key)
@@ -401,6 +416,9 @@ class CaseInsensitiveDict(dict):
             for k, v in kwargs.items():
                 self.__setitem__(k, v)
 
+    def __reduce__(self):
+        return (self.__class__, (dict(self),))
+
 
 class HookedDict(dict):
     '''
@@ -424,6 +442,9 @@ class HookedDict(dict):
             else:
                 __v = HookedDict(__v)
         return super(HookedDict, self).__setitem__(__k, __v)
+
+    def __reduce__(self):
+        return (self.__class__, (dict(self),))
 
 
 class TargetMatch:
@@ -479,3 +500,130 @@ class JSONFormat:
             elif isinstance(prop_obj, datetime.datetime):
                 prop_collection[prop] = prop_obj.timestamp()
         return prop_collection
+
+
+class RedisManager:
+
+    redis_dicts = set()
+
+    @staticmethod
+    def put(obj):
+        RedisManager.redis_dicts.add(obj)
+
+    @staticmethod
+    def destory():
+        for i in RedisManager.redis_dicts:
+            i.destory()
+        RedisManager.redis_dicts.clear()
+
+    @staticmethod
+    def serialize():
+        return pickle.dumps(RedisManager.redis_dicts)
+
+    @staticmethod
+    def deserialize(data):
+        RedisManager.redis_dicts = pickle.loads(data)
+
+
+class RedisData:
+
+    host = 'localhost'
+    port = 6379
+    db = 0
+
+    def __init__(self, host=None, port=None, db=None, param_uuid=None):
+        if not host:
+            host = RedisData.host
+        if not port:
+            port = RedisData.port
+        if not db:
+            db = RedisData.db
+        self.port = port
+        self.host = host
+        self.db = db
+        if not param_uuid:
+            self.uuid = str(uuid.uuid4())
+        else:
+            self.uuid = param_uuid
+        self.redis = redis.Redis(host=self.host, port=self.port, db=self.db)
+        RedisManager.put(self)
+
+    def destory(self):
+        self.redis.delete(self.uuid)
+        self.redis.close()
+
+
+    def __getstate__(self):
+        return pickle.dumps({
+            'uuid':self.uuid,
+            'port':self.port,
+            'host':self.host,
+            'db':self.db
+            })
+
+    def __setstate__(self, state):
+        data = pickle.loads(state)
+        self.port = data['port']
+        self.host = data['host']
+        self.db = data['db']
+        self.uuid = data['uuid']
+        self.redis = redis.Redis(host=self.host, port=self.port, db=self.db)
+
+
+class RedisDict(RedisData):
+
+    def __init__(self, host=None, port=None, db=None, param_uuid=None, data={}):
+        super().__init__(host, port, db, param_uuid)
+        for k in data.keys():
+            self[k] = data[k]
+
+    def __getitem__(self, key):
+        value = self.redis.hget(self.uuid, key)
+        if value is None:
+            raise KeyError(key)
+        return json.loads(value.decode())
+
+    def __setitem__(self, key, value):
+        self.redis.hset(self.uuid, key, json.dumps(value, ensure_ascii=False))
+        self.redis.expire(self.uuid, REDIS_EXPIRE_TIME)
+
+    def __delitem__(self, key):
+        if not self.redis.hexists(self.uuid, key):
+            raise KeyError(key)
+        self.redis.hdel(self.uuid, key)
+        self.redis.expire(self.uuid, REDIS_EXPIRE_TIME)
+
+    def __contains__(self, key):
+        return self.redis.hexists(self.uuid, key)
+
+    def keys(self):
+        return [key.decode() for key in self.redis.hkeys(self.uuid)]
+
+    def values(self):
+        return [json.loads(value.decode()) for value in self.redis.hgetall(self.uuid).values()]
+
+    def items(self):
+        return [(key.decode(), json.loads(value.decode())) for key, value in self.redis.hgetall(self.uuid).items()]
+
+    def get(self, key, default=None):
+        value = self.redis.hget(self.uuid, key)
+        if value is None:
+            return default
+        return json.loads(value.decode())
+
+    def update(self, data):
+        for key, value in data.items():
+            self[key] = value
+        self.redis.expire(self.uuid, REDIS_EXPIRE_TIME)
+    
+    def clear(self):
+        self.redis.delete(self.uuid)
+
+    def raw(self):
+        return {key.decode(): json.loads(value.decode()) for key, value in self.redis.hgetall(self.uuid).items()}
+
+    def __len__(self):
+        return len(self.redis.hkeys(self.uuid))
+
+    def __repr__(self):
+        return repr(dict(self.items()))

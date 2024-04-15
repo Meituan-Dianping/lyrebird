@@ -103,7 +103,9 @@ class LyrebirdProxyServer(ProcessServer):
             }
         })
 
-    def run(self, msg_queue, config, log_queue, *args, **kwargs):
+    def run(self, async_obj, config, *args, **kwargs):
+        log_queue = async_obj['logger_queue']
+        msg_queue = async_obj['msg_queue']
         # Init logger
         log.init(config, log_queue)
         logger = log.get_logger()

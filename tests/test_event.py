@@ -1,12 +1,11 @@
 import time
 import pytest
 import lyrebird
+from .utils import FakeSocketio, FakeBackgroundTaskServer
 from typing import NamedTuple
 from lyrebird import application
-from lyrebird import reporter
 from lyrebird.event import EventServer
 from lyrebird import CustomEventReceiver
-from lyrebird.task import BackgroundTaskServer
 
 
 MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
@@ -19,13 +18,6 @@ class CallbackTester:
 
     def callback(self, msg):
         self.history.append(msg)
-
-
-class FakeSocketio:
-
-    def emit(self, event, *args, **kwargs): {
-        print(f'Send event {event} args={args} kw={kwargs}')
-    }
 
 
 @pytest.fixture
@@ -46,23 +38,23 @@ def event_server():
     lyrebird.application.server['event'] = server
     yield server
     server.stop()
+    application.sync_manager.broadcast_to_queues(None)
+    server.terminate()
 
 
 @pytest.fixture
 def task_server():
-    lyrebird.application.reporter = reporter.Reporter()
-    server = BackgroundTaskServer()
-    server.start()
+    server = FakeBackgroundTaskServer()
     lyrebird.application.server['task'] = server
     yield server
-    server.stop()
+    del lyrebird.application.server['task']
 
 
 def test_event(callback_tester, event_server, task_server):
 
     cb_tester = CallbackTester()
 
-    event_server.subscribe('Test', cb_tester.callback)
+    event_server.subscribe({'channel':'Test', 'func':cb_tester.callback})
 
     assert event_server.pubsub_channels.get('Test')
 
@@ -82,7 +74,7 @@ def test_event_default_information(callback_tester, event_server, task_server):
 
     cb_tester = CallbackTester()
 
-    event_server.subscribe('Test', cb_tester.callback)
+    event_server.subscribe({'channel':'Test', 'func':cb_tester.callback})
 
     assert event_server.pubsub_channels.get('Test')
 
@@ -101,7 +93,7 @@ def test_event_default_information_with_sender(callback_tester, event_server, ta
 
     cb_tester = CallbackTester()
 
-    event_server.subscribe('Test', cb_tester.callback)
+    event_server.subscribe({'channel':'Test', 'func':cb_tester.callback})
 
     assert event_server.pubsub_channels.get('Test')
 
