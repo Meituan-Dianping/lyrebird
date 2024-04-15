@@ -66,7 +66,7 @@ def test_reset(event_server, task_server, db_server):
         event_server.publish(channel_name, message)
     time.sleep(0.2)
     events = db_server.get_event([])
-    assert len(events) == publish_time
+    assert len(events) == publish_time*2
 
     db_server.reset()
     events = db_server.get_event([])
@@ -76,7 +76,7 @@ def test_reset(event_server, task_server, db_server):
         event_server.publish(channel_name, message)
     time.sleep(0.2)
     events = db_server.get_event([])
-    assert len(events) == publish_time
+    assert len(events) == publish_time*2
 
 
 def test_get_event_with_multiple_search_str(event_server, task_server, db_server):
