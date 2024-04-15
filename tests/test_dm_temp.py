@@ -1,13 +1,10 @@
-import re
 import json
 import pytest
 import codecs
-import tarfile
 import lyrebird
-from pathlib import Path
-from copy import deepcopy
 from typing import NamedTuple
 from urllib.parse import urlparse
+from .utils import FakeSocketio
 from lyrebird.mock import dm
 from lyrebird.mock.dm.file_data_adapter import data_adapter
 from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
@@ -69,12 +66,6 @@ prop = {
 
 MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
 
-class FakeSocketio:
-
-    def emit(self, event, *args, **kwargs): {
-        print(f'Send event {event} args={args} kw={kwargs}')
-    }
-
 
 @pytest.fixture
 def root(tmpdir):
@@ -113,7 +104,8 @@ def data_manager(root, tmpdir):
         }
     }
     _dm.temp_mock_tree.add_data(data)
-    return _dm
+
+    yield _dm
 
 
 def test_get(data_manager):

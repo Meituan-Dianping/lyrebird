@@ -25,8 +25,8 @@ def client():
     application._cm = ConfigManager()
     application._cm.config = copy.deepcopy(conf)
     server = LyrebirdMockServer()
-    client = server.app.test_client()
-    yield client
+    with server.app.test_client() as client:
+        yield client
 
 
 def test_patch_conf_api_with_no_param(client):

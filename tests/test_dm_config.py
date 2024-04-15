@@ -4,6 +4,7 @@ import codecs
 import json
 from copy import deepcopy
 import lyrebird
+from .utils import FakeSocketio, FakeEvnetServer
 from lyrebird.mock import dm
 from lyrebird.event import EventServer
 from lyrebird.config import ConfigManager
@@ -69,13 +70,6 @@ prop = {
 }
 
 
-class FakeSocketio:
-
-    def emit(self, event, *args, **kwargs): {
-        print(f'Send event {event} args={args} kw={kwargs}')
-    }
-
-
 @pytest.fixture
 def root(tmpdir):
     with codecs.open(tmpdir / 'dataA-UUID', 'w') as f:
@@ -96,8 +90,8 @@ def data_manager(root, tmpdir):
     _dm.snapshot_workspace = tmpdir
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)
-    return _dm
-
+    yield _dm
+    del _dm
 
 
 CHECKER_A_FILENAME = 'checker_a.py'
@@ -134,13 +128,14 @@ def checker_server(checker_init, tmp_path):
     application.server['checker'] = server
     yield server
     server.stop()
+    del server
 
 
 @pytest.fixture
 def event_server():
-    server = EventServer()
-    application.server['event'] = server
-    yield server
+    application.server['event'] = FakeEvnetServer()
+    yield None
+    del application.server['event']
 
 
 def test_mock_data_upgrade_2_14_to_2_15(data_manager):

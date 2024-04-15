@@ -1,7 +1,9 @@
 import pytest
+from .utils import FakeSocketio
 from lyrebird.event import EventServer
 from lyrebird import application
 from lyrebird.checker import LyrebirdCheckerServer
+from lyrebird.mock import context
 
 CHECKER_A_FILENAME = "checker_a.py"
 CHECKER_B_FILENAME = "checker_b.py"
@@ -35,7 +37,8 @@ def checker_init(tmp_path, tmpdir):
     # mock config
     application._cm = type('MockedContentManager', (), {'config': config, 'root':tmpdir, 'ROOT':tmpdir})()
 
-    return application.checkers
+    yield application.checkers
+
 
 @pytest.fixture
 def checker_server(checker_init, tmp_path):
@@ -49,9 +52,11 @@ def checker_server(checker_init, tmp_path):
 
 @pytest.fixture
 def event_server():
+    context.application.socket_io = FakeSocketio()
     server = EventServer()
     application.server['event'] = server
     yield server
+    server.stop()
 
 
 def test_rank_valid(event_server, checker_server):
