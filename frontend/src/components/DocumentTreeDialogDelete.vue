@@ -214,6 +214,7 @@ export default {
       const allNodeLeaf = []
       for (const node of allNode) {
         if (this.$store.state.dataManager.selectedLeaf.indexOf(node.id) > -1) {
+          this.$store.dispatch('getParentAbsPath', node)
           allNodeLeaf.push(node)
         }
       }

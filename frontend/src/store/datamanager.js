@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import * as api from '../api'
 import { bus } from '@/eventbus'
+import jsonpath from 'jsonpath'
 
 export default {
   state: {
@@ -346,6 +347,7 @@ export default {
           }
           state.focusedLeaf.name = payload.name
           commit('setFocusNodeInfo', response.data.message)
+          dispatch('getParentAbsPath', response.data.message)
           dispatch('loadGroupDetail', payload)
           bus.$emit('msg.success', 'Group ' + payload.name + ' update!')
         })
@@ -407,6 +409,7 @@ export default {
       api.getDataDetail(payload.id)
         .then(response => {
           commit('setDataDetail', response.data.data)
+          dispatch('getParentAbsPath', response.data.data)
         })
         .catch(error => {
           bus.$emit('msg.error', 'Load data ' + payload.name + ' error: ' + error.data.message)
@@ -566,6 +569,24 @@ export default {
         .catch(error => {
           bus.$emit('msg.error', 'Delete temporary mock data error: ' + error.data.message)
         })
+    },
+    getParentAbsPath ({ state }, data) {
+      const paths = jsonpath.paths(state.treeData, `$..[?(@.id=='${data.id}')]`)
+      let namePath = '';
+      let obj = state.treeData;
+      if (paths.length == 0) { 
+        return
+      }
+      for (let i = 1; i < paths[0].length; i++) {
+        obj = obj[paths[0][i]];
+        if (obj.name) {
+          namePath += obj.name;
+          if (i < paths[0].length - 1) {
+            namePath += '/';
+          }
+        }
+      }
+      data.abs_parent_path = namePath
     },
     getIsCurrentVersionV1 ({ state, commit }) {
       api.getConfig().then(response => {

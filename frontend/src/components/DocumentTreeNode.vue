@@ -225,6 +225,7 @@ export default {
       this.$store.dispatch('saveTreeViewOpenNodes', this.$store.state.dataManager.groupListOpenNode)
       this.$store.dispatch('saveTreeView', this.$store.state.dataManager.treeData)
       this.$store.commit('setFocusNodeInfo', this.data)
+      this.$store.dispatch('getParentAbsPath', this.data)
       if (this.data.type === 'group') {
         this.$store.dispatch('loadGroupDetail', this.data)
       } else if (this.data.type === 'data') {
