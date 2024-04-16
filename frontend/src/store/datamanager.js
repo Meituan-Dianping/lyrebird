@@ -70,19 +70,16 @@ export default {
     },
     setGroupListOpenNode (state, groupListOpenNode) {
       state.groupListOpenNode = groupListOpenNode
-      localStorage.setItem('groupListOpenNode', JSON.stringify(groupListOpenNode))
     },
     addGroupListOpenNode (state, groupId) {
       if (!state.groupListOpenNode.includes(groupId)) {
         state.groupListOpenNode.push(groupId);
-        localStorage.setItem('groupListOpenNode', JSON.stringify(state.groupListOpenNode))
       }
     },
     deleteGroupListOpenNode (state, groupId) {
       let openNodeSet = new Set(state.groupListOpenNode)
       openNodeSet.delete(groupId)
       state.groupListOpenNode = Array.from(openNodeSet)
-      localStorage.setItem('groupListOpenNode', JSON.stringify(state.groupListOpenNode))
     },
     setSelectedNode (state, selectedNode) {
       state.selectedNode = selectedNode
@@ -324,11 +321,14 @@ export default {
           bus.$emit('msg.error', 'Data ' + payload.name + ' update error: ' + error.data.message)
         })
     },
-    createGroup ({ dispatch }, { groupName, parentId }) {
+    createGroup ({ state, dispatch }, { groupName, parentId }) {
       if (groupName) {
         api.createGroup(groupName, parentId)
           .then(response => {
             dispatch('getTreeView')
+            if (!state.isCurrentVersionV1) { 
+              dispatch('loadDataMap')
+            }
             bus.$emit('msg.success', 'Group ' + groupName + ' created!')
           })
           .catch(error => {
@@ -573,6 +573,7 @@ export default {
     getParentAbsPath ({ state }, data) {
       const paths = jsonpath.paths(state.treeData, `$..[?(@.id=='${data.id}')]`)
       let namePath = '';
+      let namePathList = []
       let obj = state.treeData;
       if (paths.length == 0) { 
         return
@@ -581,12 +582,14 @@ export default {
         obj = obj[paths[0][i]];
         if (obj.name) {
           namePath += obj.name;
+          namePathList.push(obj.name)
           if (i < paths[0].length - 1) {
             namePath += '/';
           }
         }
       }
       data.abs_parent_path = namePath
+      data.abs_parent_path_list = namePathList
     },
     getIsCurrentVersionV1 ({ state, commit }) {
       api.getConfig().then(response => {

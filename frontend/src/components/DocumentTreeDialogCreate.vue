@@ -103,6 +103,10 @@ export default {
           parentId: this.nodeInfo.id
         })
       } else {
+        if (this.createType === 'config' && !this.checkIfConfigCanBeCreated(this.nodeInfo)) {
+          this.$bus.$emit('msg.error', 'Only one .Settings can be created!')
+          return
+        }
         this.$store.dispatch('createData', {
           type: this.createType,
           dataName: this.createName,
@@ -115,6 +119,15 @@ export default {
     onCancel () {
       this.createName = ''
       this.shown = false
+      this.$store.commit('setCreateType', 'group')
+    },
+    checkIfConfigCanBeCreated (nodeInfo) { 
+      for (const node of nodeInfo.children) {
+        if (node.type === 'config') { 
+          return false
+        }
+      }
+      return true
     }
   }
 }

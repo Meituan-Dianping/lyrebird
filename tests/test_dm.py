@@ -1078,31 +1078,6 @@ def test_copy_and_paste(data_manager):
     assert new_group['id'] != 'groupA-UUID'
     assert new_group['name'] == 'groupA - copy'
 
-
-# Deprecated, remove later
-def test_duplicate_group(data_manager):
-    return
-    group_f = data_manager.id_map.get('groupF-UUID')
-    origin_group_f_children_count = len(group_f['children'])
-
-    data_manager.duplicate('groupI-UUID')
-    assert len(group_f['children']) == origin_group_f_children_count + 1
-    children_name_list = [i['name'] for i in group_f['children']]
-    assert 'groupI - copy' in children_name_list
-
-
-# Deprecated, remove later
-def test_duplicate_data(data_manager):
-    return
-    group_i = data_manager.id_map.get('groupI-UUID')
-    origin_group_i_children_count = len(group_i['children'])
-
-    data_manager.duplicate('dataD-UUID')
-    assert len(group_i['children']) == origin_group_i_children_count + 1
-    children_name_list = [i['name'] for i in group_i['children']]
-    assert 'dataD - copy' in children_name_list
-
-
 def test_prop_writer():
     prop_writer = dm.file_data_adapter.PropWriter()
     prop_str = prop_writer.parse(
@@ -1205,7 +1180,6 @@ def test_export_from_local(data_manager, tmpdir):
         return node
 
     group_id, filename = data_manager.export_from_local(snapshot)
-    print('group_id='+group_id)
     children = data_manager.get(group_id)['children']
     assert group_id in data_manager.id_map
     assert len(children) == len(snapshot['events'])

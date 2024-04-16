@@ -2,7 +2,15 @@
   <div>
     <Row class="button-bar">
       <Col class="button-bar-line">
-        <span v-if="!isCurrentVersionV1">{{ nodeInfo.abs_parent_path }}</span>
+        <span v-if="!isCurrentVersionV1" small color="accent">
+          <span v-for="(value, index) in nodeParents" :key="value.id">
+            <v-icon v-if="index == 0" small color="accent" >mdi-home</v-icon>
+            <a v-else >{{value}}</a>
+            <v-icon small v-show="index !== nodeParents.length-1">
+              mdi-chevron-right
+            </v-icon>
+          </span>
+        </span>
         <span v-else v-for="(value, index) in nodeParents" :key="value.id">
           <v-icon v-if="!value.parent_id" small color="accent" @click="showNode(value)">mdi-home</v-icon>
           <a v-else @click="showNode(value)">{{value.name}}</a>
@@ -36,7 +44,11 @@ export default {
       return this.$store.state.dataManager.focusNodeInfo
     },
     nodeParents () {
-      return this.$store.state.dataManager.focusNodeInfo.parent
+      if (this.$store.state.dataManager.isCurrentVersionV1) {
+        return this.$store.state.dataManager.focusNodeInfo.parent
+      } else { 
+        return this.$store.state.dataManager.focusNodeInfo.abs_parent_path_list
+      }
     },
     isCurrentVersionV1 () { 
       return this.$store.state.dataManager.isCurrentVersionV1

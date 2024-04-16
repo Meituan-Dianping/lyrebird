@@ -23,7 +23,7 @@
 
       <v-text-field
         class="data-list-button-bar-search shading"
-        placeholder="Search name/id"
+        placeholder="Input name/ID and press Enter to search"
         prepend-inner-icon="mdi-magnify"
         filled
         dense
