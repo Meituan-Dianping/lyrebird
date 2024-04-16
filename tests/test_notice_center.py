@@ -32,7 +32,6 @@ def notice_center(tmpdir):
 @pytest.fixture
 def event_server():
     application.server['event'] = FakeEvnetServer()
-    yield None
 
 
 def test_new_notice(event_server, notice_center):

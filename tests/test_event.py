@@ -45,7 +45,6 @@ def task_server():
     server = FakeBackgroundTaskServer()
     lyrebird.application.server['task'] = server
     yield server
-    del lyrebird.application.server['task']
 
 
 def test_event(callback_tester, event_server, task_server):
