@@ -66,10 +66,13 @@ class ConfigManager():
             self.update_conf_custom(custom_conf)
 
         if self.config.get('enable_multiprocess', False) and compat_redis():
-            self.config = RedisDict(data=self.config,
-                                    host=self.config.get('redis_host', '127.0.0.1'),
-                                    port=self.config.get('redis_port', 6379),
-                                    db=self.config.get('redis_db', 0))
+            try:
+                self.config = RedisDict(data=self.config,
+                                        host=self.config.get('redis_host', '127.0.0.1'),
+                                        port=self.config.get('redis_port', 6379),
+                                        db=self.config.get('redis_db', 0))
+            except Exception as e:
+                logger.error(f'Start enable multiprocess failed, Redis connection error')
 
         self.initialize_personal_config()
 
