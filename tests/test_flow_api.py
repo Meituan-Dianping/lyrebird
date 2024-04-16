@@ -107,10 +107,13 @@ def get_server():
     return server
 
 
-with get_server().app.test_client() as init_client:
-    context.application.cache._cache.clear()
-    for url in REQUEST_URL:
-        init_client.get(url)
+@pytest.fixture(scope='module', autouse=True)
+def setup_and_teardown_environment():
+    with get_server().app.test_client() as init_client:
+        context.application.cache._cache.clear()
+        for url in REQUEST_URL:
+            init_client.get(url)
+    yield
 
 
 @pytest.fixture
@@ -133,8 +136,8 @@ def checker_server(tmp_path, tmpdir):
 @pytest.fixture
 def client(checker_server):
     server = get_server()
-    client = server.app.test_client()
-    yield client
+    with server.app.test_client() as client:
+        yield client
 
 
 def test_flow_list_with_get(client):

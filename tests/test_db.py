@@ -1,23 +1,16 @@
 import time
 import pytest
+from .utils import FakeSocketio, FakeBackgroundTaskServer
 from pathlib import Path
 from typing import NamedTuple
 import lyrebird
-from lyrebird import reporter, application
+from lyrebird import application
 from lyrebird.event import EventServer
-from lyrebird.task import BackgroundTaskServer
 from lyrebird.config import personal_config_template
 from lyrebird.db.database_server import LyrebirdDatabaseServer
 
 
 MockConfigManager = NamedTuple('MockConfigManager', [('config', dict), ('personal_config', dict), ('ROOT', object), ('root', object)])
-
-
-class FakeSocketio:
-
-    def emit(self, event, *args, **kwargs): {
-        print(f'Send event {event} args={args} kw={kwargs}')
-    }
 
 
 @pytest.fixture
@@ -38,12 +31,7 @@ def event_server(tmpdir):
 
 @pytest.fixture
 def task_server():
-    lyrebird.application.reporter = reporter.Reporter()
-    server = BackgroundTaskServer()
-    server.start()
-    lyrebird.application.server['task'] = server
-    yield server
-    server.stop()
+    lyrebird.application.server['task'] = FakeBackgroundTaskServer()
 
 
 @pytest.fixture

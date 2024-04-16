@@ -8,6 +8,7 @@ from pathlib import Path
 from copy import deepcopy
 from typing import NamedTuple
 from urllib.parse import urlparse
+from .utils import FakeSocketio
 from lyrebird.mock import dm
 from lyrebird.mock.dm.file_data_adapter import data_adapter
 from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
@@ -326,13 +327,6 @@ snapshot = {
 
 MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
 
-class FakeSocketio:
-
-    def emit(self, event, *args, **kwargs): {
-        print(f'Send event {event} args={args} kw={kwargs}')
-    }
-
-
 @pytest.fixture
 def root(tmpdir):
     with codecs.open(tmpdir / 'dataA-UUID', 'w') as f:
@@ -373,7 +367,7 @@ def data_manager(root, tmpdir):
     _dm.snapshot_workspace = tmpdir
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)
-    return _dm
+    yield _dm
 
 
 def test_load_from_path(root):

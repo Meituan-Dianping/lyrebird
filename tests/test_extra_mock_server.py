@@ -12,7 +12,7 @@ config = {
     }}
 
 
-async def test_proxy_args_in_path(aiohttp_client, loop):
+async def test_proxy_args_in_path(aiohttp_client):
     app = init_app(config)
     client = await aiohttp_client(app)
     resp = await client.get('/http://www.bing.com')
@@ -21,7 +21,7 @@ async def test_proxy_args_in_path(aiohttp_client, loop):
     assert 'bing' in text
 
 
-async def test_proxy_args_in_headers(aiohttp_client, loop):
+async def test_proxy_args_in_headers(aiohttp_client):
     app = init_app(config)
     client = await aiohttp_client(app)
     resp = await client.get('/http://www.bing.com', headers={
@@ -33,7 +33,7 @@ async def test_proxy_args_in_headers(aiohttp_client, loop):
     assert 'bing' in text
 
 
-async def test_proxy_args_in_query_v1(aiohttp_client, loop):
+async def test_proxy_args_in_query_v1(aiohttp_client):
     app = init_app(config)
     client = await aiohttp_client(app)
     resp = await client.get('/?proxy=http%3A//www.bing.com')
@@ -42,7 +42,7 @@ async def test_proxy_args_in_query_v1(aiohttp_client, loop):
     assert 'bing' in text
 
 
-async def test_proxy_args_in_query_v2(aiohttp_client, loop):
+async def test_proxy_args_in_query_v2(aiohttp_client):
     app = init_app(config)
     client = await aiohttp_client(app)
     resp = await client.get('/?proxyscheme=http&proxyhost=www.bing.com')
