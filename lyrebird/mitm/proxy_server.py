@@ -81,7 +81,7 @@ class LyrebirdProxyServer(ProcessServer):
         mitmenv['PROXY_PORT'] = str(mock_port)
         mitmenv['PROXY_FILTERS'] = json.dumps(config.get('proxy.filters', []))
         logger.info('HTTP proxy server starting...')
-        subprocess.Popen(f'{str(mitmdump_path)} {" ".join(mitm_arguments)}', shell=True, env=mitmenv)
+        subprocess.Popen([str(mitmdump_path)]+mitm_arguments, env=mitmenv)
         is_mitm_start = self.wait_for_mitm_start(config, logger)
         if is_mitm_start:
             self.publish_init_status(queue, 'READY')

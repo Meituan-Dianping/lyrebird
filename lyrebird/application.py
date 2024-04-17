@@ -54,8 +54,6 @@ encoders_decoders = None
 
 
 def start_server_without_mock_and_log():
-    import os
-    print(f'PID:{os.getpid()}')
     for name in server:
         if name == 'mock' or name == 'log':
             continue
@@ -221,6 +219,8 @@ def status_listener(event):
     module_status = system.get('status')
     if module_status == 'READY':
         status_checkpoints[module] = True
+    else:
+        status_checkpoints[module] = False
 
     is_all_status_checkpoints_ok = reduce(lambda x, y: x and y, status_checkpoints.values())
     if is_all_status_checkpoints_ok:

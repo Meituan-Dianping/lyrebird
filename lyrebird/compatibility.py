@@ -1,8 +1,7 @@
-from lyrebird import application, log
+from lyrebird import log
 import importlib.util
 import platform
 import sys
-import inspect
 from multiprocessing.managers import Namespace
 
 logger = log.get_logger()
@@ -31,6 +30,7 @@ def jit(*args, **kwargs):
 PYTHON_MIN_VERSION = (3, 8, 0)
 PYTHON_MAX_VERSION = (3, 11, float('inf'))
 
+
 def import_compat_util(module_name:str, module_content:list):
     module_spec = importlib.util.spec_from_loader(module_name, loader=None, origin='string', is_package=False)
     module_obj = importlib.util.module_from_spec(module_spec)
@@ -39,21 +39,7 @@ def import_compat_util(module_name:str, module_content:list):
     sys.modules[module_name] = module_obj
 
 
-def compat_check():
-    return compat_python_version()
-
-
-def compat_numba():
-    try:
-        import numba
-    except Exception as e:
-        logger.error(f'numba import failed. Please check that the library is installed correctly in your python environment')
-        import_compat_util('numba', [decorator_compat_code])
-        return False
-    return True
-
-
-def compat_redis():
+def compat_redis_check():
     try:
         import redis
     except Exception as e:
@@ -62,7 +48,7 @@ def compat_redis():
     return True
 
 
-def compat_python_version():
+def compat_python_version_check():
     version = platform.python_version_tuple()
     major = int(version[0])
     minor = int(version[1])
@@ -76,13 +62,13 @@ def compat_python_version():
         )
         logger.error(msg)
         return False
-    if major > PYTHON_MIN_VERSION[0] or \
-    (major == PYTHON_MIN_VERSION[0] and minor > PYTHON_MIN_VERSION[1]) or \
-    (major == PYTHON_MIN_VERSION[0] and minor == PYTHON_MIN_VERSION[1] and minor_minor > PYTHON_MIN_VERSION[2]):
+    if major > PYTHON_MAX_VERSION[0] or \
+    (major == PYTHON_MAX_VERSION[0] and minor > PYTHON_MAX_VERSION[1]) or \
+    (major == PYTHON_MAX_VERSION[0] and minor == PYTHON_MAX_VERSION[1] and minor_minor > PYTHON_MAX_VERSION[2]):
         msg = (
             'python version is too high, Lyrebird is not supported,'
             'the current Lyrebird support version is '
-            f'{PYTHON_MIN_VERSION[0]}.{PYTHON_MIN_VERSION[1]}.{"x" if isinstance(PYTHON_MIN_VERSION[2], float) else PYTHON_MIN_VERSION[2]}.'
+            f'{PYTHON_MAX_VERSION[0]}.{PYTHON_MAX_VERSION[1]}.{"x" if isinstance(PYTHON_MAX_VERSION[2], float) else PYTHON_MAX_VERSION[2]}.'
         )
         logger.warning(msg)
     return True

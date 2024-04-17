@@ -118,17 +118,15 @@ class LogServer(ProcessServer):
     def __init__(self):
         super().__init__()
         self.queue = application.sync_manager.get_multiprocessing_queue()
-        self.log_process_lock = application.sync_manager.get_lock()
     
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def run(self, msg_queue, config, log_queue, *args, **kwargs):
-        if not self.log_process_lock.acquire(timeout=10):
-            return
-        
+    def run(self, async_obj, config, *args, **kwargs):
+        log_queue = async_obj['logger_queue']
+
         logging.addLevelName(60, 'NOTICE')
 
         stream_handler = make_stream_handler()
@@ -167,12 +165,10 @@ class LogServer(ProcessServer):
                 logger = logging.getLogger(log.name)
                 logger.handle(log)
             except KeyboardInterrupt:
-                self.log_process_lock.release()
                 break
     
     def stop(self):
         super().stop()
-        self.log_process_lock = None
         self.queue = None
         logging.shutdown()
         for _logger_name in ['lyrebird', 'socketio', 'engineio', 'mock', 'werkzeug', 'flask']:

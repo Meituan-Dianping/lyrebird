@@ -96,6 +96,7 @@ class ProcessServer:
     def terminate(self):
         if self.server_process:
             self.server_process.terminate()
+            self.server_process.join()
             self.server_process = None
 
 

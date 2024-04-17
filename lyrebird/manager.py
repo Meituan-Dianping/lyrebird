@@ -26,8 +26,8 @@ from lyrebird.mitm.proxy_server import LyrebirdProxyServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.base_server import MultiProcessServerMessageDispatcher
 from lyrebird.log import LogServer
-from lyrebird.utils import RedisManager, RedisDict
-from lyrebird.compatibility import compat_check
+from lyrebird.utils import RedisDict
+from lyrebird.compatibility import compat_redis_check, compat_python_version_check
 from lyrebird import utils
 import builtins
 
@@ -96,26 +96,29 @@ def main():
 
     args = parser.parse_args()
 
-    compat_check()
-
     if args.version:
         print(version.LYREBIRD)
         return
+
+    compat_python_version_check()
+    import sys
+    print(sys.executable)
 
     Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
     custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else {}
 
     # Parameters set directly through the redis command have a higher priority than those set through --es
-    logger.warning(args)
     if args.redis_ip:
         custom_conf['redis_ip'] = args.redis_ip
     if args.redis_port:
         custom_conf['redis_port'] = args.redis_port
     if args.redis_db:
         custom_conf['redis_db'] = args.redis_db
-    if args.enable_multiprocess:
+    if args.enable_multiprocess and compat_redis_check():
         custom_conf['enable_multiprocess'] = True
+    else:
+        custom_conf['enable_multiprocess'] = False
 
     application._cm = ConfigManager(conf_path_list=args.config, custom_conf=custom_conf)
 
@@ -227,17 +230,15 @@ def run(args: argparse.Namespace):
     application.server['mock'] = LyrebirdMockServer()
 
     # int statistics reporter
-    # application.server['reporter'] = reporter.Reporter()
+    application.server['reporter'] = reporter.Reporter()
+    application.reporter = application.server['reporter']
 
     # handle progress message
     application.process_status_listener()
 
     # Start server without mock server, mock server must start after all blueprint is done
     application.start_server_without_mock_and_log()
-
-    # int statistics reporter
-    application.reporter = reporter.Reporter()
-    reporter.start()
+    
     # activate notice center
     application.notice = NoticeCenter()
 
@@ -269,10 +270,9 @@ def run(args: argparse.Namespace):
 
     # main process is ready, publish system event
     application.status_ready()
-
+    
     # stop event handler
     def signal_handler(signum, frame):
-        reporter.stop()
         application.stop_server()
         threading.Event().set()
         application.terminate_server()
