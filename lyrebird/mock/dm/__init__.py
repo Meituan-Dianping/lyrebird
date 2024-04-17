@@ -449,6 +449,7 @@ class DataManager:
 
         self.activated_data = OrderedDict()
         self.activated_group = {}
+        self._check_activated_data_rules_contains_request_data()
 
     def reactive(self):
         for _group_id in self.activated_group:
@@ -936,6 +937,7 @@ class DataManager:
                 )
         return conflict_rules
 
+    # TODO: delete
     def _get_abs_parent_path(self, node, path='/'):
         parent_node = self._get_node_parent(node)
         if parent_node is None:
@@ -1285,19 +1287,6 @@ class DataManagerV2(DataManager):
         self.open_nodes = [self._adapter.root_id]
         self.deactivate()
 
-    def get_open_nodes(self):
-        return self.open_nodes
-
-    def add_open_node(self, id):
-        if id not in self.open_nodes:
-            self.open_nodes.append(id)
-
-    def save_open_nodes(self, data):
-        self.open_nodes = list(set(data))
-
-    def get_tree(self):
-        return self.tree
-
     def _get_group_children(self, group_id):
         result = self._adapter._get_group_children(group_id)
         self.add_open_node(group_id)
@@ -1462,10 +1451,7 @@ class DataManagerV2(DataManager):
     def check_conflict(self, _id):
         data_array = self._adapter._read_data(_id)
         return self.check_conflict_data(data_array)
-    
-    def _get_abs_parent_path(self, node, path='/'):
-        return self._adapter._get_abs_parent_path(node)
-    
+
     # -----
     # Record API
     # -----

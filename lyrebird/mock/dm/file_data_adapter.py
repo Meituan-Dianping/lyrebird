@@ -347,6 +347,7 @@ class FileDataAdapter:
             new_name = _node['name'] + self.COPY_NODE_NAME_SUFFIX
             _group_id = self._copy_node(_parent_node, _node, paste_info, name=new_name, origin_name=_node['name'], **kwargs)
         elif type == 'import':
+            _node = paste_info.get('node', {})
             _group_id = self._copy_node(_parent_node, _node, paste_info, **kwargs)
         return _group_id
     

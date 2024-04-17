@@ -6,7 +6,7 @@ from .utils import FakeSocketio
 from typing import NamedTuple
 from lyrebird import application
 from lyrebird.mock import context
-from lyrebird.mock.dm import DataManager
+from lyrebird.mock.dm import DataManagerV2
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.mock.dm.file_data_adapter import data_adapter
 from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
@@ -69,7 +69,7 @@ def client(root, tmpdir):
     application.encoders_decoders = EncoderDecoder()
 
     server = LyrebirdMockServer()
-    _dm = DataManager()
+    _dm = DataManagerV2()
     context.application.data_manager = _dm
     _dm.snapshot_workspace = tmpdir
     _dm.set_adapter(data_adapter)
