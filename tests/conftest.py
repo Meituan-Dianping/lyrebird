@@ -10,7 +10,6 @@ def setup_and_teardown_environment():
     bak_server = {}
     for server in SERVER_NAMES:
         bak_server[server] = application.server.get(server)
-    bak_sync_manager = application.sync_manager
     bak_reporter = application.reporter
     bak_cm = application._cm
     bak_config = application.config
@@ -29,7 +28,6 @@ def setup_and_teardown_environment():
             del application.server[server]
         elif bak_server[server] is not None:
             application.server[server] = bak_server[server]
-    application.sync_manager = bak_sync_manager
     application.reporter = bak_reporter
     application._cm = bak_cm
     application.config = bak_config

@@ -134,7 +134,6 @@ def checker_server(checker_init, tmp_path):
 def event_server():
     application.server['event'] = FakeEvnetServer()
     yield None
-    del application.server['event']
 
 
 def test_mock_data_upgrade_2_14_to_2_15(data_manager):
