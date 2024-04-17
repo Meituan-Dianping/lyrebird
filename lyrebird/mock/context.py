@@ -118,7 +118,7 @@ class Application:
                 return adapter_module.data_adapter
             except Exception:
                 logger.error(f'Loading custom data-adapter from {str(path)} failed!\n{traceback.format_exc()}')
-        return None
+                raise DataManagerInitException
 
     def _get_data_manager(self, version):
         if version == 'mock.data.v2':

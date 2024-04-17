@@ -6,7 +6,8 @@ from flask import request
 
 class SearchMockData(Resource):
 
-    def getV1(self, search_str=None):
+    # adapt to V1
+    def _getV1(self, search_str=None):
         _matched_group = []
 
         def _add_group(_group):
@@ -53,7 +54,7 @@ class SearchMockData(Resource):
             data = context.application.data_manager.search(search_str, sender)
             return application.make_ok_response(data=data)
         else:
-            return self.getV1(search_str)
+            return self._getV1(search_str)
 
     def post(self):
         #search_by_open_nodes
