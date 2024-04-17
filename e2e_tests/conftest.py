@@ -104,9 +104,9 @@ class Lyrebird:
     def stop(self):
         if self.lyrebird_process:
             try:
-                os.killpg(self.lyrebird_process.pid, signal.SIGTERM)
+                os.killpg(self.lyrebird_process.pid, signal.SIGINT)
             except PermissionError:
-                os.kill(self.lyrebird_process.pid, signal.SIGTERM)
+                os.kill(self.lyrebird_process.pid, signal.SIGINT)
             _wait_exception(requests.get, args=[self.api_status])
             self.lyrebird_process = None
 
