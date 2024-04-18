@@ -1368,7 +1368,9 @@ class DataManagerV2(DataManager):
         activate_info = self._adapter._activate(search_id)
         config = activate_info.get('config', {}).get('json', {})
         flows = activate_info.get('flows', [])
-        group_info = activate_info.get('groupInfo', [])
+        group_info = activate_info.get('groupInfo', {})
+        # TODO: 兼容V1，增加children字段
+        group_info['children'] = self._adapter._get_group_children(group_info.get('id'))
         logger.info(f'Activate {len(flows)} flows ,load config {activate_info.get("config", {}).get("id")}')
 
         # Only one group could be activated and reactived
@@ -1378,7 +1380,7 @@ class DataManagerV2(DataManager):
         for flow in flows:
             data_map[flow['id']] = flow
         self.activated_data.update(data_map)
-        self.activated_group[search_id] = activate_info.get('groupInfo')
+        self.activated_group[search_id] = group_info
         # Apply config
         if config:
             try:
