@@ -85,7 +85,7 @@ class FileDataAdapter:
         if not parent_node:
             logger.error('IDNotFound, id=' + id_)
             return []
-        children = parent_node.get('children')
+        children = parent_node.get('children', [])
         for child in children:
             # update id_map
             if child['id'] not in self.context.id_map:
