@@ -214,7 +214,6 @@ class EventServer(ThreadServer):
             callback_kwargs['event_id'] = event.id
         # Execute callback function
         try:
-            # if EventServer.async_starting and is_process and isinstance(callback_fn, types.FunctionType) and event.channel in application.config.get('event.multiprocess_channel', []):
             if EventServer.async_starting and is_process and isinstance(callback_fn, types.FunctionType) and event.channel in multiprocess_channel_list:
                 process_queue.put((
                     func_info.get('origin'),
