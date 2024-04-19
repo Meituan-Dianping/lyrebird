@@ -196,6 +196,9 @@ class EventServer(ThreadServer):
         if len(func_parameters) < 1 or func_parameters[0].default != inspect._empty:
             logger.error(f'Event callback function [{callback_fn.__name__}] need a argument for receiving event object')
             return
+        
+        # get enable multiprocess channel list
+        multiprocess_channel_list = application.config.get('event.multiprocess.channels', [])
 
         # Append event content to args
         callback_args = []
@@ -212,7 +215,7 @@ class EventServer(ThreadServer):
         # Execute callback function
         try:
             # if EventServer.async_starting and is_process and isinstance(callback_fn, types.FunctionType) and event.channel in application.config.get('event.multiprocess_channel', []):
-            if EventServer.async_starting and is_process and isinstance(callback_fn, types.FunctionType) and event.channel in ('flow', 'page', 'flow.request', 'urlscheme.page'):
+            if EventServer.async_starting and is_process and isinstance(callback_fn, types.FunctionType) and event.channel in multiprocess_channel_list:
                 process_queue.put((
                     func_info.get('origin'),
                     func_info.get('name'),
