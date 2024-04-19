@@ -181,8 +181,8 @@ export default {
     loadAllStatusList() {
       this.$store.dispatch('loadAllStatusList')
     },
-    loadDataMap() {
-      this.$store.dispatch('loadDataMap')
+    loadDataMap (reset = false) {
+      this.$store.dispatch('loadDataMap', { reset : reset })
     },
     successMessage(msg) {
       this.$Message.success({
