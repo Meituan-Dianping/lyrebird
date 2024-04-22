@@ -1,6 +1,7 @@
 import webbrowser
 
 import multiprocessing
+from queue import Queue
 from flask import jsonify
 from functools import reduce
 
@@ -103,6 +104,10 @@ class SyncManager():
     def get_queue(self):
         queue = self.manager.Queue()
         self.async_objs['manager_queues'].append(queue)
+        return queue
+
+    def get_thread_queue(self):
+        queue = Queue()
         return queue
 
     def get_multiprocessing_queue(self):

@@ -97,6 +97,20 @@ def get_callback_func(func_ori, func_name):
         logger.error(f'The source type of method {func_name} is invalid, exception method source: {func_ori}')
 
 
+def callback_func_run_statistic(callback_fn, args, kwargs, report_info):
+    event_start_time = time.time()
+    callback_fn(*args, **kwargs)
+    event_end_time = time.time()
+    event_duration = (event_end_time - event_start_time) * 1000
+    if report_info['channel'] != 'lyrebird_metrics':
+        application.server['event'].publish('lyrebird_metrics', {
+            'sender': 'EventServer',
+            'action': 'broadcast_handler',
+            'duration': event_duration,
+            'trace_info': str(report_info['trace_info'])
+        })
+
+
 class CustomExecuteServer(ProcessServer):
     def __init__(self):
         super().__init__()
@@ -130,13 +144,12 @@ class CustomExecuteServer(ProcessServer):
                 msg = process_queue.get()
                 if not msg:
                     break
-                func_ori, func_name, callback_args, callback_kwargs = msg
+                func_ori, func_name, callback_args, callback_kwargs, info = msg
                 callback_fn = get_callback_func(func_ori, func_name)
-                self.event_thread_executor.submit(callback_fn, *callback_args, **callback_kwargs)
-                # callback_fn(*callback_args, **callback_kwargs)
+                self.event_thread_executor.submit(callback_func_run_statistic, callback_fn, callback_args, callback_kwargs, info)
             except Exception:
                 traceback.print_exc()
-    
+
     def start(self):
         plugins = application.server['plugin'].plugins
         plugins = [(p_name, plugin.location) for p_name, plugin in plugins.items()]
@@ -212,6 +225,15 @@ class EventServer(ThreadServer):
             callback_kwargs['channel'] = event.channel
         if 'event_id' in func_sig.parameters:
             callback_kwargs['event_id'] = event.id
+        # add report info
+        info = dict()
+        info['trace_info'] = {
+            'channel': event.channel,
+            'callback_fn': callback_fn.__name__,
+            'callback_args': str(callback_args),
+            'callback_kwargs': str(callback_kwargs)
+        }
+        info['channel'] = event.channel
         # Execute callback function
         try:
             if EventServer.async_starting and is_process and isinstance(callback_fn, types.FunctionType) and event.channel in multiprocess_channel_list:
@@ -219,10 +241,11 @@ class EventServer(ThreadServer):
                     func_info.get('origin'),
                     func_info.get('name'),
                     callback_args,
-                    callback_kwargs
+                    callback_kwargs,
+                    info
                 ))
             else:
-                callback_fn(*callback_args, **callback_kwargs)
+                callback_func_run_statistic(callback_fn, callback_args, callback_kwargs, info)
         except Exception:
             logger.error(f'Event callback function [{callback_fn.__name__}] error. {traceback.format_exc()}')
 
