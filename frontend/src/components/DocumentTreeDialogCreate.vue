@@ -63,7 +63,8 @@ export default {
       createTypeItems: [
         { value: 'group', text: 'Group' },
         { value: 'data', text: 'Data (HTTP)' },
-        { value: 'json', text: 'Data (JSON)' }
+        { value: 'json', text: 'Data (JSON)' },
+        { value: 'config', text: 'Data (CONFIG)' }
       ]
     }
   },
@@ -85,6 +86,11 @@ export default {
       },
       set (val) {
         this.$store.commit('setCreateType', val)
+        if (val == 'config') {
+          this.createName = '.Settings'
+        } else { 
+          this.createName = null
+        }
       }
     }
   },
@@ -97,6 +103,10 @@ export default {
           parentId: this.nodeInfo.id
         })
       } else {
+        if (this.createType === 'config' && !this.checkIfConfigCanBeCreated(this.nodeInfo)) {
+          this.$bus.$emit('msg.error', 'Only one .Settings can be created!')
+          return
+        }
         this.$store.dispatch('createData', {
           type: this.createType,
           dataName: this.createName,
@@ -109,6 +119,15 @@ export default {
     onCancel () {
       this.createName = ''
       this.shown = false
+      this.$store.commit('setCreateType', 'group')
+    },
+    checkIfConfigCanBeCreated (nodeInfo) { 
+      for (const node of nodeInfo.children) {
+        if (node.type === 'config') { 
+          return false
+        }
+      }
+      return true
     }
   }
 }

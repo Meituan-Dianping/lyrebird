@@ -1,6 +1,6 @@
 import pytest
-from lyrebird import config, application, reporter
-from lyrebird.task import BackgroundTaskServer
+from .utils import FakeEvnetServer
+from lyrebird import config, application
 from pathlib import Path
 import json
 import codecs
@@ -20,12 +20,12 @@ conf = {
     }
 }
 
+
 @pytest.fixture
 def cm():
     cm = config.ConfigManager()
-    application.server['task'] = BackgroundTaskServer()
-    application.reporter = reporter.Reporter()
-    reporter.start()
+    application._cm = cm
+    application.server['event'] = FakeEvnetServer()
     yield cm
 
 

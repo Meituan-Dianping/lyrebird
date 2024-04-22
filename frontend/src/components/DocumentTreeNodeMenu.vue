@@ -154,8 +154,10 @@ export default {
     },
     onTreeNodeCut () {
       this.$store.dispatch('cutGroupOrData', this.data)
-      let targetNode = this.findNode(this.$store.state.dataManager.treeData, this.data.parent_id)
-      targetNode.children = targetNode.children.filter(item => item.id != this.data.id)
+      if (this.$store.state.dataManager.isCurrentVersionV1) { 
+        let targetNode = this.findNode(this.$store.state.dataManager.treeData, this.data.parent_id)
+        targetNode.children = targetNode.children.filter(item => item.id != this.data.id)
+      }
     },
     onTreeNodeCopy () {
       this.$store.dispatch('copyGroupOrData', this.data)
@@ -164,6 +166,7 @@ export default {
       this.$store.dispatch('pasteGroupOrData', this.data)
     },
     onTreeNodeDuplicate () {
+      // Deprecated
       if (this.duplicateNodeChildrenCount >= this.shownDuplicateDialogCount) {
         this.$store.commit('setIsShownDuplicateDialog', true)
         return

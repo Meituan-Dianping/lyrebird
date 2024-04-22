@@ -1,11 +1,13 @@
 from flask_restful import Resource
 from lyrebird.mock import context
 from lyrebird import application
+from flask import request
 
 
-class SearchMockDataByName(Resource):
+class SearchMockData(Resource):
 
-    def get(self, search_str=None):
+    # adapt to V1
+    def _getV1(self, search_str=None):
         _matched_group = []
 
         def _add_group(_group):
@@ -40,3 +42,24 @@ class SearchMockDataByName(Resource):
                 if group.get('type') == 'group' and group.get('name'):
                     _add_group(group)
         return application.make_ok_response(data=_matched_group)
+
+    def get(self, search_str=None):
+        query = request.args
+        sender = None
+        if query and query.get('sender'):
+            sender = query.get('sender')
+        if query and query.get('search_str'):
+            search_str = query.get('search_str')
+        if application.config.get('datamanager.v2.enable'):
+            data = context.application.data_manager.search(search_str, sender)
+            return application.make_ok_response(data=data)
+        else:
+            return self._getV1(search_str)
+
+    def post(self):
+        #search_by_open_nodes
+        open_nodes = request.json.get('open_nodes', [])
+        reset = request.json.get('reset', False)
+        data = context.application.data_manager.reload(reset, open_nodes)
+        return application.make_ok_response(data=data)
+
