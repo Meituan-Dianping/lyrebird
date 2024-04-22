@@ -63,6 +63,9 @@ export default {
       durationMessage: 'for a long time',
     }
   },
+  created () { 
+    this.$store.dispatch('getIsCurrentVersionV1')
+  },
   computed: {
     treeData () {
       return this.$store.state.dataManager.treeData

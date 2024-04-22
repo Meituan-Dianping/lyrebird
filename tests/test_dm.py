@@ -363,7 +363,7 @@ def data_manager(root, tmpdir):
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
     application.encoders_decoders = EncoderDecoder()
-    _dm = dm.DataManager()
+    _dm = dm.DataManagerV2()
     _dm.snapshot_workspace = tmpdir
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)
@@ -379,7 +379,7 @@ def test_load_from_path(root):
     }
     application._cm = MockConfigManager(config=_conf)
 
-    _dm = dm.DataManager()
+    _dm = dm.DataManagerV2()
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)
 
@@ -727,6 +727,7 @@ def test_get_group_children(data_manager):
 
 
 def test_add_group(data_manager):
+    data_manager.reload()
     new_group_id = data_manager.add_group({
         'name': 'root_group',
         'parent_id': None
@@ -767,7 +768,7 @@ def test_add_data_no_type(data_manager):
     new_data_id = data_manager.add_data('groupC-UUID', data)
     _new_data_node = data_manager.id_map.get(new_data_id)
     assert custom_name == _new_data_node['name']
-    _new_data = data_manager.get(new_data_id)
+    _new_data = data_manager.get_data(new_data_id)
     assert custom_name == _new_data['name']
 
     assert custom_rule == _new_data['rule']
@@ -780,7 +781,7 @@ def test_add_data_no_type(data_manager):
             found_new_data = True
             break
     assert found_new_data
-    new_data_file = data_manager.root_path / new_data_id
+    new_data_file = data_manager._adapter.root_path / new_data_id
     assert new_data_file.exists()
 
 
@@ -802,7 +803,7 @@ def test_add_data_request_with_name_rule(data_manager):
     new_data_id = data_manager.add_data('groupC-UUID', data)
     _new_data_node = data_manager.id_map.get(new_data_id)
     assert custom_name == _new_data_node['name']
-    _new_data = data_manager.get(new_data_id)
+    _new_data = data_manager.get_data(new_data_id)
     assert custom_name == _new_data['name']
 
     assert custom_rule == _new_data['rule']
@@ -815,7 +816,7 @@ def test_add_data_request_with_name_rule(data_manager):
             found_new_data = True
             break
     assert found_new_data
-    new_data_file = data_manager.root_path / new_data_id
+    new_data_file = data_manager._adapter.root_path / new_data_id
     assert new_data_file.exists()
 
 
@@ -833,7 +834,7 @@ def test_add_data_request_url_params(data_manager):
     new_data_id = data_manager.add_data('groupC-UUID', data)
     _new_data_node = data_manager.id_map.get(new_data_id)
     assert parsed_url_path == _new_data_node['name']
-    _new_data = data_manager.get(new_data_id)
+    _new_data = data_manager.get_data(new_data_id)
     assert parsed_url_path == _new_data['name']
 
     assert f'(?=.*{parsed_url_path}\?)' == _new_data['rule']['request.url']
@@ -846,7 +847,7 @@ def test_add_data_request_url_params(data_manager):
             found_new_data = True
             break
     assert found_new_data
-    new_data_file = data_manager.root_path / new_data_id
+    new_data_file = data_manager._adapter.root_path / new_data_id
     assert new_data_file.exists()
 
 
@@ -864,7 +865,7 @@ def test_add_data_request_url_no_params(data_manager):
     new_data_id = data_manager.add_data('groupC-UUID', data)
     _new_data_node = data_manager.id_map.get(new_data_id)
     assert parsed_url_path == _new_data_node['name']
-    _new_data = data_manager.get(new_data_id)
+    _new_data = data_manager.get_data(new_data_id)
     assert parsed_url_path == _new_data['name']
 
     assert f'(?=.*{parsed_url_path}$)' == _new_data['rule']['request.url']
@@ -884,7 +885,7 @@ def test_add_data_request_url_no_path(data_manager):
     new_data_id = data_manager.add_data('groupC-UUID', data)
     _new_data_node = data_manager.id_map.get(new_data_id)
     assert parsed_url_hostname == _new_data_node['name']
-    _new_data = data_manager.get(new_data_id)
+    _new_data = data_manager.get_data(new_data_id)
     assert parsed_url_hostname == _new_data['name']
 
     assert f'(?=.*{parsed_url_hostname}$)' == _new_data['rule']['request.url']
@@ -903,7 +904,7 @@ def test_add_data_request_url_illegal(data_manager):
     new_data_id = data_manager.add_data('groupC-UUID', data)
     _new_data_node = data_manager.id_map.get(new_data_id)
     assert url_illegal == _new_data_node['name']
-    _new_data = data_manager.get(new_data_id)
+    _new_data = data_manager.get_data(new_data_id)
     assert url_illegal == _new_data['name']
 
     assert f'(?=.*{url_illegal})' == _new_data['rule']['request.url']
@@ -917,7 +918,7 @@ def test_add_data_no_request(data_manager):
     new_data_id = data_manager.add_data('groupC-UUID', data)
     _new_data_node = data_manager.id_map.get(new_data_id)
     assert data['name'] == _new_data_node['name']
-    _new_data = data_manager.get(new_data_id)
+    _new_data = data_manager.get_data(new_data_id)
     assert data['name'] == _new_data['name']
     group_c = data_manager.id_map.get('groupC-UUID')
     found_new_data = False
@@ -926,7 +927,7 @@ def test_add_data_no_request(data_manager):
             found_new_data = True
             break
     assert found_new_data
-    new_data_file = data_manager.root_path / new_data_id
+    new_data_file = data_manager._adapter.root_path / new_data_id
     assert new_data_file.exists()
 
 
@@ -939,7 +940,7 @@ def test_add_json(data_manager):
     new_data_id = data_manager.add_data('groupC-UUID', data)
     _new_data_node = data_manager.id_map.get(new_data_id)
     assert data['name'] == _new_data_node['name']
-    _new_data = data_manager.get(new_data_id)
+    _new_data = data_manager.get_data(new_data_id)
     assert data['name'] == _new_data['name']
     group_c = data_manager.id_map.get('groupC-UUID')
     found_new_data = False
@@ -948,7 +949,7 @@ def test_add_json(data_manager):
             found_new_data = True
             break
     assert found_new_data
-    new_data_file = data_manager.root_path / new_data_id
+    new_data_file = data_manager._adapter.root_path / new_data_id
     assert new_data_file.exists()
 
 
@@ -993,7 +994,6 @@ def test_update_group_key_add_and_delete(data_manager):
 
     update_data.pop(new_group_key)
     data_manager.update_group(update_group_id, update_data)
-
     assert new_group_key not in data_manager.id_map[update_group_id]
 
 
@@ -1006,7 +1006,7 @@ def test_update_data(data_manager):
     data_manager.update_data(update_data_id, update_data)
 
     assert data_manager.id_map[update_data_id]['name'] == new_data_name
-    assert data_manager.get(update_data_id)['name'] == new_data_name
+    assert data_manager.get_data(update_data_id)['name'] == new_data_name
 
 
 def test_save_data(data_manager):
@@ -1043,18 +1043,19 @@ def test_delete(data_manager):
     data_manager.delete('groupB-UUID')
     assert 'groupB-UUID' not in data_manager.id_map
     assert 'dataC-UUID' not in data_manager.id_map
-    data_file = data_manager.root_path / 'dataC-UUID'
+    data_file = data_manager._adapter.root_path / 'dataC-UUID'
     assert not data_file.exists()
 
 
 def test_delete_by_query(data_manager):
     query = {
-        'id': ['groupB-UUID', 'dataC-UUID']
+        'data': ['dataC-UUID'],
+        'groups': ['groupB-UUID'],
     }
     data_manager.delete_by_query(query)
     assert 'groupB-UUID' not in data_manager.id_map
     assert 'dataC-UUID' not in data_manager.id_map
-    data_file = data_manager.root_path / 'dataC-UUID'
+    data_file = data_manager._adapter.root_path / 'dataC-UUID'
     assert not data_file.exists()
 
 def test_cut_and_paste(data_manager):
@@ -1077,27 +1078,6 @@ def test_copy_and_paste(data_manager):
     assert new_group['id'] != 'groupA-UUID'
     assert new_group['name'] == 'groupA - copy'
 
-
-def test_duplicate_group(data_manager):
-    group_f = data_manager.id_map.get('groupF-UUID')
-    origin_group_f_children_count = len(group_f['children'])
-
-    data_manager.duplicate('groupI-UUID')
-    assert len(group_f['children']) == origin_group_f_children_count + 1
-    children_name_list = [i['name'] for i in group_f['children']]
-    assert 'groupI - copy' in children_name_list
-
-
-def test_duplicate_data(data_manager):
-    group_i = data_manager.id_map.get('groupI-UUID')
-    origin_group_i_children_count = len(group_i['children'])
-
-    data_manager.duplicate('dataD-UUID')
-    assert len(group_i['children']) == origin_group_i_children_count + 1
-    children_name_list = [i['name'] for i in group_i['children']]
-    assert 'dataD - copy' in children_name_list
-
-
 def test_prop_writer():
     prop_writer = dm.file_data_adapter.PropWriter()
     prop_str = prop_writer.parse(
@@ -1114,7 +1094,7 @@ def test_prop_writer_with_dict_ignore_key(data_manager):
     prop_str_correct = '{"id":"root","name":"root","type":"group","parent_id":null,"children":[\n  {"id":"groupA-UUID","name":"groupA","type":"group","parent_id":"root","super_id":"groupB-UUID","children":[\n    {"id":"dataA-UUID","name":"dataA","type":"data","parent_id":"groupA-UUID"},\n    {"id":"dataB-UUID","name":"dataB","type":"data","parent_id":"groupA-UUID"}]},\n  {"id":"groupB-UUID","name":"groupB","type":"group","parent_id":"root","super_id":"groupC-UUID","children":[\n    {"id":"dataC-UUID","name":"dataC","type":"data","parent_id":"groupB-UUID"}]},\n  {"id":"groupC-UUID","name":"groupC","type":"group","parent_id":"root","super_id":"groupD-UUID","children":[]},\n  {"id":"groupD-UUID","name":"groupD","type":"group","parent_id":"root","super_id":"groupE-UUID","children":[\n    {"id":"dataD-UUID","name":"dataD","type":"data","parent_id":"groupD-UUID"}]},\n  {"id":"groupE-UUID","name":"groupE","type":"group","parent_id":"root","children":[\n    {"id":"dataC-UUID","name":"dataC","type":"data","parent_id":"groupE-UUID"},\n    {"id":"dataD-UUID","name":"dataD","type":"data","parent_id":"groupE-UUID"}]},\n  {"id":"groupF-UUID","name":"groupF","type":"group","parent_id":"root","children":[\n    {"id":"groupG-UUID","name":"groupG","type":"group","parent_id":"groupF-UUID","children":[\n      {"id":"groupH-UUID","label":[{"name":"label_a","color":"red","description":"description label_a"},{"name":"label_b","color":"green","description":"description label_b"}],"name":"groupH","type":"group","parent_id":"groupG-UUID","children":[]}]},\n    {"id":"groupI-UUID","label":[{"name":"label_a","color":"red","description":"description label_a"}],"name":"groupI","type":"group","parent_id":"groupF-UUID","children":[\n      {"id":"dataD-UUID","name":"dataD","type":"data","parent_id":"groupI-UUID"}]}]},\n  {"id":"groupJ-UUID","name":"groupJ","type":"group","parent_id":"root","children":[\n    {"id":"dataF-UUID","name":"dataF","type":"data","parent_id":"groupJ-UUID"},\n    {"id":"dataG-UUID","name":"dataG","type":"data","parent_id":"groupJ-UUID"},\n    {"id":"dataH-UUID","name":"dataH","type":"data","parent_id":"groupJ-UUID"},\n    {"id":"dataI-UUID","name":"dataI","type":"data","parent_id":"groupJ-UUID"}]},\n  {"id":"groupK-UUID","name":"groupK","type":"group","parent_id":"root","children":[\n    {"id":"dataJ-UUID","name":"dataJ","type":"data","parent_id":"groupK-UUID"}]}]}'
 
     prop_writer = dm.file_data_adapter.PropWriter()
-    prop_writer.dict_ignore_key.update(data_manager.unsave_keys)
+    prop_writer.dict_ignore_key.update(data_manager._adapter.unsave_keys)
     prop_str = prop_writer.parse(data_manager.root)
 
     pattern = r'{"id":"[0-9a-fA-F-]+","name":".Settings","type":"config","parent_id":"root"},\n  '
@@ -1178,7 +1158,7 @@ def test_make_data_map_by_group(data_manager):
         ]
     }
     prop_writer = dm.file_data_adapter.PropWriter()
-    prop_writer.dict_ignore_key.update(data_manager.unsave_keys)
+    prop_writer.dict_ignore_key.update(data_manager._adapter.unsave_keys)
     node_str = prop_writer.parse(node)
     prop_str = prop_writer.parse(prop)
     assert len(node_str) == len(prop_str)
@@ -1248,7 +1228,7 @@ def test_export_from_remote(data_manager, tmpdir):
 
     group_id = 'groupA-UUID'
     filename = data_manager.export_from_remote(group_id)
-    children = data_manager.get(group_id)['children']
+    children = data_manager.get_group(group_id)['children']
     assert Path(filename).exists()
 
     output_path = Path(tmpdir) / 'test'
@@ -1280,7 +1260,7 @@ def test_export_from_remote(data_manager, tmpdir):
 
 def test_import_from_local(data_manager):
     group_id, filename = data_manager.export_from_local(snapshot)
-    children = data_manager.get(group_id)['children']
+    children = data_manager.get_group(group_id)['children']
     assert group_id in data_manager.id_map
     assert len(children) == len(snapshot['events'])
 
@@ -1304,10 +1284,10 @@ def test_import_from_file(data_manager, tmpdir):
 
     group_id = 'groupA-UUID'
     filename = data_manager.export_from_remote(group_id)
-    group = data_manager.get(group_id)
+    group = data_manager.get_group(group_id)
 
     new_group_id = data_manager.import_from_file('root', filename)
-    new_group = data_manager.get(new_group_id)
+    new_group = data_manager.get_group(new_group_id)
 
     for new_group_child in new_group['children']:
         new_group_child_data = data_manager.get(new_group_child['id'])

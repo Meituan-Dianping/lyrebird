@@ -16,23 +16,25 @@ logger = log.get_logger()
 
 '''
 
-
 class TreeView(Resource):
     def get(self):
-        return application.make_ok_response(data=context.application.data_manager.tree)
+        data = context.application.data_manager.get_tree()
+        return application.make_ok_response(data=data)
 
     def post(self):
         data = request.json.get('tree')
-        context.application.data_manager.tree = data
+        if not application.config.get('datamanager.v2.enable'):
+            context.application.data_manager.tree = data
         return context.make_ok_response()
 
 class OpenNodes(Resource):
     def get(self):
-        return application.make_ok_response(data=context.application.data_manager.open_nodes)
+        data = context.application.data_manager.get_open_nodes()
+        return application.make_ok_response(data=data)
     
     def post(self):
         data = request.json.get('openNodes')
-        context.application.data_manager.open_nodes = data
+        context.application.data_manager.save_open_nodes(data)
         return context.make_ok_response()
 
 class MockGroup(Resource):
@@ -41,25 +43,34 @@ class MockGroup(Resource):
     """
 
     def get(self, group_id=None, label=None):
+        query = request.args
         if group_id:
             if group_id == 'tmp_group':
+                _group = None
                 _group = context.application.data_manager.temp_mock_tree.get()
                 return application.make_ok_response(data=_group)
 
-            query = request.args
             if query and query.get('childrenOnly') == 'true':
                 children = context.application.data_manager._get_group_children(group_id) or []
                 return application.make_ok_response(data=children)
 
-            _group = context.application.data_manager.get(group_id)
+            _group = context.application.data_manager.get_group(group_id)
             if not _group:
                 return context.make_fail_response('Not found group')
 
             return application.make_ok_response(data=_group)
+        
+        if application.config.get('datamanager.v2.enable'):
+            reset = False
+            if query and query.get('reset') == 'true':
+                reset = True
+            context.application.data_manager.reload(reset)
+            root = context.application.data_manager.root
+            return application.make_ok_response(data=root)
 
         context.application.data_manager.reload()
 
-        if label:
+        if label and not application.config.get('datamanager.v2.enable'):
             # update mock data tree with label
             groups_set = set()
 
@@ -77,7 +88,7 @@ class MockGroup(Resource):
             data_map = context.application.data_manager.make_data_map_by_group(groups_set)
             return application.make_ok_response(data=data_map)
 
-        if application.config.get(CONFIG_TREE_LOAD_CHILDREN_ASYNC):
+        if application.config.get(CONFIG_TREE_LOAD_CHILDREN_ASYNC) and not application.config.get('datamanager.v2.enable'):
             # Although async, reload is needed
             data_map = context.application.data_manager.root_without_children()
             context.application.data_manager.tree = [data_map]
@@ -150,7 +161,7 @@ class MockData(Resource):
     """
 
     def get(self, _id):
-        data = context.application.data_manager.get(_id)
+        data = context.application.data_manager.get_data(_id)
         display_item = {}
         # Import decoder for decoding the requested content
         application.encoders_decoders.decoder_handler(data, output=display_item)
@@ -186,9 +197,13 @@ class MockData(Resource):
 class ActivatedMockGroup(Resource):
 
     def get(self):
-        return context.make_ok_response(
-            data=context.application.data_manager.activated_group
-        )
+        if request.path == '/api/mock/activated':
+            data = context.application.data_manager.activated_group
+        elif request.path == '/api/mock/activated/flow':
+            data = context.application.data_manager.activated_data
+        else:
+            data = {}
+        return context.make_ok_response(data=data)
 
     def put(self, group_id=None, action=None):
         if action == 'activate':
@@ -238,10 +253,20 @@ class MockDataLabel(Resource):
     """
 
     def get(self):
+        application.reporter.report({
+            'action': 'label.get'
+        })
+        if application.config.get('datamanager.v2.enable'):
+            return application.make_ok_response(labels={})
         application.labels.get_label(context.application.data_manager.root)
         return application.make_ok_response(labels=application.labels.label_map)
 
     def post(self):
+        application.reporter.report({
+            'action': 'label.post'
+        })
+        if application.config.get('datamanager.v2.enable'):
+            return application.make_fail_response('Label function has been deprecated.')
         label = request.json.get('label')
         required_key = ['name']
         missed_required_key = [key for key in required_key if not label.get(key)]
@@ -256,6 +281,11 @@ class MockDataLabel(Resource):
         return context.make_ok_response()
 
     def put(self):
+        application.reporter.report({
+            'action': 'label.put'
+        })
+        if application.config.get('datamanager.v2.enable'):
+            return application.make_fail_response('Label function has been deprecated.')
         label = request.json.get('label')
         label_id = label.get('id')
         if not label_id:
@@ -267,6 +297,11 @@ class MockDataLabel(Resource):
         return context.make_ok_response()
 
     def delete(self):
+        application.reporter.report({
+            'action': 'label.delete'
+        })
+        if application.config.get('datamanager.v2.enable'):
+            return application.make_fail_response('Label function has been deprecated.')
         label_id = request.json.get('id')
         if not label_id:
             return application.make_fail_response('Label id is required!')

@@ -117,7 +117,7 @@ class ConfigManager():
         self.add_config(update_conf, type='api_patch', level=update_level, apply_now=True)
         logger.debug(f'Update done. config: {self.config}')
 
-        application.server['event'].publish('config_update', {'config_update' : {'data': update_conf}})
+        application.server['event'].publish('config_update', {'config_update' : {'data': str(update_conf)}})
 
     def read_config(self):
         template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(self.config_root)))
