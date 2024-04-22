@@ -11,7 +11,7 @@ from .event import Event, EventExport, Channel, EventFileInfo
 from .conflict_check import ConflictCheck, ActivatedDataConflictCheck
 from .mock_editor import Cut, Copy, Paste, Duplicate
 from .qrcode import Qrcode
-from .search import SearchMockDataByName
+from .search import SearchMockData
 from .bandwidth import Bandwidth, BandwidthTemplates
 from .status_bar import StatusBar
 from .snapshot import SnapshotImport, SnapshotExport, Snapshot
@@ -48,10 +48,10 @@ api_source.add_resource(TreeView, '/tree')
 api_source.add_resource(OpenNodes, '/tree/open-nodes')
 api_source.add_resource(MockGroup, '/group', '/group/<string:group_id>', '/group/label/<string:label>')
 api_source.add_resource(MockData, '/data', '/data/<string:_id>')
-api_source.add_resource(SearchMockDataByName, '/search/group/name/', '/search/group/name/<string:search_str>')
+api_source.add_resource(SearchMockData, '/search/group', '/search/group/', '/search/group/name/', '/search/group/name/<string:search_str>')
 api_source.add_resource(ConflictCheck, '/conflict/id/<string:group_id>')
 api_source.add_resource(ActivatedDataConflictCheck, '/conflict/activated')
-api_source.add_resource(ActivatedMockGroup, '/mock/activated', '/mock/<string:group_id>/<string:action>')
+api_source.add_resource(ActivatedMockGroup, '/mock/activated', '/mock/activated/flow','/mock/<string:group_id>/<string:action>')
 api_source.add_resource(MockGroupByName, '/mock_by_name')
 api_source.add_resource(MockDataLabel, '/label')
 api_source.add_resource(Qrcode, '/qrcode')

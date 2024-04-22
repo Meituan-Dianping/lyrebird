@@ -2,9 +2,11 @@ import json
 import pytest
 import codecs
 import lyrebird
+from .utils import FakeSocketio
 from typing import NamedTuple
 from lyrebird import application
 from lyrebird.mock import context
+from lyrebird.mock.dm import DataManagerV2
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird.mock.dm.file_data_adapter import data_adapter
 from lyrebird.mock.handlers.encoder_decoder_handler import EncoderDecoder
@@ -46,13 +48,6 @@ prop = {
 MockConfigManager = NamedTuple('MockConfigManager', [('config', dict)])
 
 
-class FakeSocketio:
-
-    def emit(self, event, *args, **kwargs): {
-        print(f'Send event {event} args={args} kw={kwargs}')
-    }
-
-
 @pytest.fixture
 def root(tmpdir):
     with codecs.open(tmpdir / 'dataA-UUID', 'w') as f:
@@ -66,19 +61,22 @@ def root(tmpdir):
 def client(root, tmpdir):
     _conf = {
         'ip': '127.0.0.1',
-        'mock.port': 9090
+        'mock.port': 9090,
+        'mock.data': 'data'
     }
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
     application.encoders_decoders = EncoderDecoder()
 
     server = LyrebirdMockServer()
-    client = server.app.test_client()
-    _dm = context.application.data_manager
+    _dm = DataManagerV2()
+    context.application.data_manager = _dm
     _dm.snapshot_workspace = tmpdir
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)
-    yield client
+    with server.app.test_client() as client:
+        yield client
+    del server
 
 
 def test_group_get_with_group_id(client):
@@ -172,7 +170,7 @@ def test_group_delete_with_tmp_group(client):
 def test_group_delete_with_query(client):
     resp = client.delete('/api/group', json={
         'query': {
-            'id': ['groupA-UUID']
+            'groups': ['groupA-UUID']
         }
     })
     assert resp.json['code'] == 1000
