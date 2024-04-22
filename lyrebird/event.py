@@ -45,6 +45,7 @@ class EventServer(ThreadServer):
         # channel name is 'any'. Linstening on all channel
         self.any_channel = []
         self.broadcast_executor = ThreadPoolExecutor(thread_name_prefix='event-broadcast-')
+        self.only_report_channel = application.config.get('event.only_report_channel', [])
 
     def broadcast_handler(self, callback_fn, event, args, kwargs):
         """
@@ -163,7 +164,8 @@ class EventServer(ThreadServer):
         }
         message['sender'] = sender_dict
 
-        self.event_queue.put(Event(event_id, channel, message))
+        if not (channel not in self.pubsub_channels and channel in self.only_report_channel):
+            self.event_queue.put(Event(event_id, channel, message))
 
         # TODO Remove state and raw data
         if state:

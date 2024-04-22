@@ -41,7 +41,7 @@ def checker_init(tmp_path, tmpdir):
 
 
 @pytest.fixture
-def checker_server(checker_init, tmp_path):
+def checker_server(tmp_path):
     server = LyrebirdCheckerServer()
     server.start()
     server.SCRIPTS_DIR = tmp_path
@@ -51,7 +51,7 @@ def checker_server(checker_init, tmp_path):
 
 
 @pytest.fixture
-def event_server():
+def event_server(checker_init):
     context.application.socket_io = FakeSocketio()
     server = EventServer()
     application.server['event'] = server
