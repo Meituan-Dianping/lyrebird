@@ -245,7 +245,8 @@ class HandlerContext:
                     yield _resp_data[ i * size : (i+1) * size ]
             finally:
                 def request_post_handler():
-                    self.update_client_resp_time()
+                    self.request_post_processing()
+                self.update_client_resp_time()
                 application.server['task'].add_task('request_post', request_post_handler)
         return generator
 
@@ -266,11 +267,11 @@ class HandlerContext:
                     yield item
             finally:
                 def request_post_handler():
-                    self.response.data = b''.join(buffer)
-                    DataHelper.origin2flow(self.response, output=self.flow['response'], chain=self.response_chain)
-
-                    self.update_client_resp_time()
-                    upstream.close()
+                    self.request_post_processing()
+                self.response.data = b''.join(buffer)
+                DataHelper.origin2flow(self.response, output=self.flow['response'], chain=self.response_chain)
+                self.update_client_resp_time()
+                upstream.close()
                 application.server['task'].add_task('request_post', request_post_handler)
         return generator
 
@@ -313,14 +314,17 @@ class HandlerContext:
 
         self.flow['duration'] = self.server_resp_time - self.client_req_time
 
+        url = self.flow['request']['url']
+
+        parsed_url = self._get_parse_url_dict(url)
+        self.flow['request'].update(parsed_url)
+    
+    def request_post_processing(self):
         method = self.flow['request']['method']
         url = self.flow['request']['url']
         code = self.flow['response']['code']
         duration = utils.convert_time(self.flow['duration'])
         size = utils.convert_size(self.flow['size'])
-
-        parsed_url = self._get_parse_url_dict(url)
-        self.flow['request'].update(parsed_url)
 
         # Diff Mode proxy request
         if context.application.is_diff_mode == context.MockMode.MULTIPLE and self.response_source == 'mock':
