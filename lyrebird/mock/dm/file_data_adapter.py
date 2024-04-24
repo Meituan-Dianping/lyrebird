@@ -487,11 +487,7 @@ class FileDataAdapter:
         for node in node_list:
             node_in_map = self.context.id_map.get(node.get('id'))
             if node_in_map['type'] == 'config':
-                try:
-                    config = json.loads(node['json'])
-                    break
-                except Exception:
-                    logger.error(f'Load config {node["id"]} error! \n {traceback.format_exc()}')
+                config = node
         return {
             'config': config,
             'flows': node_list,

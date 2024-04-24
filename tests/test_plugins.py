@@ -1,5 +1,5 @@
 import pytest
-from .utils import FakeEvnetServer
+from .utils import FakeEvnetServer, FakeBackgroundTaskServer
 from lyrebird.mock.mock_server import LyrebirdMockServer
 from lyrebird import application
 from lyrebird.plugins import PluginManager
@@ -119,6 +119,7 @@ def mock_server():
     application._cm = ConfigManager()
     application._cm.config = copy.deepcopy(conf)
     server = LyrebirdMockServer()
+    application.server['task'] = FakeBackgroundTaskServer()
     application.server['mock'] = server
     yield server
     del server

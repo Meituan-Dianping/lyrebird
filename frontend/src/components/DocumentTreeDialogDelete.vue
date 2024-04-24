@@ -163,7 +163,7 @@ export default {
       } else { 
         for (const item of this.deleteItem) {
           this.groupListToDelete.push(item.id)
-          if (!item.type === 'group') {
+          if (item.type !== 'group') {
             this.dataListToDelete.push(item.id)
           }
         }
@@ -173,6 +173,8 @@ export default {
         }
         this.$store.dispatch('deleteByQuery', payload)
         this.$store.commit('setIsSelectableStatus', false)
+        this.dataListToDelete = []
+        this.groupListToDelete = []
       }
       this.isShown = false
     },
