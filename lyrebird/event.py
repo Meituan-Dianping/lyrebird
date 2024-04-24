@@ -189,7 +189,9 @@ class EventServer(ThreadServer):
         self.broadcast_executor = None
         self.process_executor = None
         self.publish_server = None
+        self.only_report_channel = None
         if not no_start:
+            self.only_report_channel = application.config.get('event.only_report_channel', [])
             self.process_executor_queue = application.sync_manager.get_multiprocessing_queue()
             self.event_queue = application.sync_manager.get_queue()
             self.broadcast_executor = ThreadPoolExecutor(thread_name_prefix='event-broadcast-')
@@ -248,22 +250,6 @@ class EventServer(ThreadServer):
                 callback_func_run_statistic(callback_fn, callback_args, callback_kwargs, info)
         except Exception:
             logger.error(f'Event callback function [{callback_fn.__name__}] error. {traceback.format_exc()}')
-        finally:
-            event_end_time = time.time()
-            event_duration = (event_end_time - event_start_time) * 1000
-            if event.channel != 'lyrebird_metrics':
-                trace_info = {
-                    'channel': event.channel,
-                    'callback_fn': callback_fn.__name__,
-                    'callback_args': str(callback_args),
-                    'callback_kwargs': str(callback_kwargs)
-                }
-                self.publish('lyrebird_metrics', {
-                    'sender': 'EventServer',
-                    'action': 'broadcast_handler',
-                    'duration': event_duration,
-                    'trace_info': str(trace_info)
-                })
 
     def run(self):
         while self.running:
@@ -290,7 +276,6 @@ class EventServer(ThreadServer):
         self.process_executor.async_obj['process_queue'] = self.process_executor_queue
         self.process_executor.async_obj['process_namespace'] = self.process_namespace
         self.process_executor.async_obj['publish_queue'] = self.publish_server.publish_msg_queue
-        # self.process_executor.async_obj['publish_queue'] = self.event_queue
         self.process_executor.async_obj['eventserver'] = EventServer
         self.process_executor.start()
         EventServer.async_starting = True
@@ -363,7 +348,9 @@ class EventServer(ThreadServer):
 
         """
         event_id, channel, message = EventServer.get_publish_message(channel, message, event_id)
-        self.event_queue.put(Event(event_id, channel, message))
+
+        if not (channel not in self.pubsub_channels and channel in self.only_report_channel):
+            self.event_queue.put(Event(event_id, channel, message))
 
         # TODO Remove state and raw data
         if state:

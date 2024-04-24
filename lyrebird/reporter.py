@@ -58,7 +58,6 @@ class Reporter(ProcessServer):
     def start(self):
         if not application.config.get('enable_multiprocess', False):
             return
-
         self.process_namespace = prepare_application_for_monkey_patch()
         self.async_obj['report_queue'] = self.report_queue
         self.async_obj['workspace'] = self.workspace
@@ -72,6 +71,8 @@ class Reporter(ProcessServer):
 
         monkey_patch_application(async_obj)
         scripts = self._read_reporter(workspace)
+
+        self.running = True
 
         while self.running:
             try:
