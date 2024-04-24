@@ -86,7 +86,8 @@ def data_manager(root):
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)
     context.application.data_manager = _dm
-    return _dm
+    yield _dm
+    del _dm
 
 
 @pytest.fixture
