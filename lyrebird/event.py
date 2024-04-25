@@ -98,6 +98,7 @@ def get_callback_func(func_ori, func_name):
 
 
 def callback_func_run_statistic(callback_fn, args, kwargs, report_info):
+    from lyrebird import application
     event_start_time = time.time()
     callback_fn(*args, **kwargs)
     event_end_time = time.time()
@@ -117,7 +118,7 @@ class CustomExecuteServer(ProcessServer):
         self.event_thread_executor = None
     
     def run(self, async_obj, config, *args, **kwargs):
-        self.event_thread_executor = ThreadPoolExecutor()
+        self.event_thread_executor = ThreadPoolExecutor(max_workers=async_obj['max_thread_workers'])
 
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
@@ -154,6 +155,7 @@ class CustomExecuteServer(ProcessServer):
         plugins = application.server['plugin'].plugins
         plugins = [(p_name, plugin.location) for p_name, plugin in plugins.items()]
         self.async_obj['plugins'] = plugins
+        self.async_obj['max_thread_workers'] = application.config.get('event.multiprocess.thread_max_worker', 1)
         super().start()
 
 
