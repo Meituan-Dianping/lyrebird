@@ -24,6 +24,27 @@ jobs:
         run: |
           python -m pytest tests --cov=lyrebird
 
+  unittest-arm64:
+    strategy:
+      matrix:
+        python-version: ["3.8.10", "3.9.13", "3.10.11", "3.11.9"]
+    runs-on: macos-latest
+    name: Python ${{ matrix.python-version }} tests
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install python dependencies
+        run: |
+          pip install pip -U
+          pip install -r requirements.txt.lock -U
+          pip install -r requirements.dev.txt -U
+      - name: Unit Test
+        run: |
+          python -m pytest tests --cov=lyrebird
+
   e2etest:
     runs-on: macos-13
     steps:
