@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-    runs-on: macos-latest
+    runs-on: macos-13
     name: Python ${{ matrix.python-version }} tests
     steps:
       - uses: actions/checkout@v2
@@ -25,7 +25,7 @@ jobs:
           python -m pytest tests --cov=lyrebird
 
   e2etest:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
