@@ -85,7 +85,7 @@ def data_manager(root, tmpdir):
     application._cm = ConfigManager()
     lyrebird.mock.context.application.socket_io = FakeSocketio()
     application.encoders_decoders = EncoderDecoder()
-    _dm = dm.DataManager()
+    _dm = dm.DataManagerV2()
     _dm.snapshot_workspace = tmpdir
     _dm.set_adapter(data_adapter)
     _dm.set_root(root)

@@ -41,7 +41,7 @@ class DataManager:
 
         self.add_group_ignore_keys = set(['id', 'type', 'children'])
         self.update_group_ignore_keys = set(['id', 'parent_id', 'type', 'children'])
-        self.supported_data_type = ['data', 'json', 'config']
+        self.supported_data_type = self.get_supported_data_type()
         self.virtual_node_data_type = set(['config']) # TODO Next is `super``
 
         self.virtual_base_config_id = None
@@ -68,6 +68,12 @@ class DataManager:
     @snapshot_workspace.setter
     def snapshot_workspace(self, workspace):
         self._snapshot_workspace = workspace
+
+    def get_supported_data_type(self):
+        supported_data_type = ['data', 'json']
+        if application.config.get(CONFIG_TREE_SHOW_CONFIG):
+            supported_data_type.append('config')
+        return supported_data_type
 
     def get_default_root(self):
         return {
@@ -1202,7 +1208,9 @@ class DataManager:
 
     # batch action
     def delete_by_query(self, query):
-        all_id_list = query.get('id') or []
+        node_delete_group_ids = query.get('data', [])
+        node_delete_data_ids = query.get('groups', [])
+        all_id_list = list(set(node_delete_group_ids + node_delete_data_ids))
 
         times = math.ceil(len(all_id_list) / self.DELETE_STEP)
         for index in range(times):
@@ -1215,9 +1223,6 @@ class DataManager:
                 'state': 'process'
             })
 
-            type_map = self._get_type_hashmap(id_list)
-            node_delete_group_ids = type_map['group'] + type_map['data'] + type_map['json'] + type_map['config']
-            node_delete_data_ids = type_map['data'] + type_map['json'] + type_map['config']
 
             for id_ in id_list:
                 # Delete from parent
@@ -1289,9 +1294,23 @@ class DataManagerV2(DataManager):
 
     def _get_group_children(self, group_id):
         result = self._adapter._get_group_children(group_id)
+        self.handle_group_config(result, group_id)
         self.add_open_node(group_id)
         return result
-    
+
+    def handle_group_config(self, node_list, node_id):
+        has_config_index = -1
+        for index, node in enumerate(node_list):
+            if node['type'] == 'config':
+                has_config_index = index
+                break
+
+        is_show_config = application.config.get(CONFIG_TREE_SHOW_CONFIG)
+        has_config = has_config_index != -1
+        if has_config and not is_show_config:
+            del node_list[has_config_index]
+            return
+
     def get_group(self, _id):
         return self._adapter._load_group(_id)
 
