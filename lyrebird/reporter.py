@@ -6,6 +6,7 @@ from importlib import machinery
 import traceback
 import datetime
 from lyrebird.base_server import ProcessServer
+from concurrent.futures import ThreadPoolExecutor
 from lyrebird import application
 from lyrebird.compatibility import prepare_application_for_monkey_patch, monkey_patch_application
 
@@ -72,6 +73,8 @@ class Reporter(ProcessServer):
         monkey_patch_application(async_obj)
         scripts = self._read_reporter(workspace)
 
+        self.thread_executor = ThreadPoolExecutor(max_workers=10)
+
         self.running = True
 
         while self.running:
@@ -82,7 +85,7 @@ class Reporter(ProcessServer):
                 new_data = deepcopy(data)
                 for script in scripts:
                     try:
-                        script(new_data)
+                        self.thread_executor.submit(script, new_data)
                     except Exception:
                         print(f'Send report failed:\n{traceback.format_exc()}')
             except Exception:
