@@ -80,7 +80,9 @@ class EventServer(ThreadServer):
         finally:
             event_end_time = time.time()
             event_duration = (event_end_time - event_start_time) * 1000
-            if event.channel != 'lyrebird_metrics':
+            # Report the operation of Event
+            # Prevent loop reporting, and only time-consuming event(more than 1ms) are reported
+            if event.channel != 'lyrebird_metrics' and event_duration > 1:
                 trace_info = {
                     'channel': event.channel,
                     'callback_fn': callback_fn.__name__,
