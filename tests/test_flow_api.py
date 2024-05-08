@@ -94,7 +94,8 @@ _conf = {
     'checker.workspace': '',
     'checker.switch': {
         FILENAME: True
-    }
+    },
+    'event.lyrebird_metrics_report': False
 }
 
 
