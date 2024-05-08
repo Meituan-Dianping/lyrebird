@@ -15,6 +15,7 @@ class Reporter:
     def __init__(self):
         self.scripts = []
         workspace = application.config.get('reporter.workspace')
+        self.lyrebird_metrics_report = application.config.get('event.lyrebird_metrics_report', True)
         if not workspace:
             logger.debug(f'reporter.workspace not set.')
         else:
@@ -50,6 +51,10 @@ class Reporter:
             self.scripts.append(_script_module.report)
 
     def report(self, data):
+        if not self.lyrebird_metrics_report:
+            if isinstance(data, dict) and data.get('channel') == 'lyrebird_metrics':
+                return
+
         task_manager = application.server.get('task')
 
         def send_report():
