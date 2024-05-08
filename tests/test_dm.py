@@ -358,7 +358,8 @@ def data_manager(root, tmpdir):
         'ip': '127.0.0.1',
         'mock.port': 9090,
         'config.value.tojsonKey': ['custom.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
-        'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"}
+        'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"},
+        'event.lyrebird_metrics_report': False
     }
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
@@ -375,7 +376,8 @@ def test_load_from_path(root):
         'ip': '127.0.0.1',
         'mock.port': 9090,
         'config.value.tojsonKey': ['custom.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
-        'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"}
+        'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"},
+        'event.lyrebird_metrics_report': False
     }
     application._cm = MockConfigManager(config=_conf)
 
