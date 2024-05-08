@@ -46,6 +46,7 @@ class EventServer(ThreadServer):
         self.any_channel = []
         self.broadcast_executor = ThreadPoolExecutor(thread_name_prefix='event-broadcast-')
         self.only_report_channel = application.config.get('event.only_report_channel', [])
+        self.lyrebird_metrics_report = application.config.get('event.lyrebird_metrics_report', True)
 
     def broadcast_handler(self, callback_fn, event, args, kwargs):
         """
@@ -78,11 +79,15 @@ class EventServer(ThreadServer):
         except Exception:
             logger.error(f'Event callback function [{callback_fn.__name__}] error. {traceback.format_exc()}')
         finally:
-            event_end_time = time.time()
-            event_duration = (event_end_time - event_start_time) * 1000
             # Report the operation of Event
             # Prevent loop reporting, and only time-consuming event(more than 1ms) are reported
-            if event.channel != 'lyrebird_metrics' and event_duration > 1:
+            if event.channel == 'lyrebird_metrics':
+                return
+            if not self.lyrebird_metrics_report:
+                return
+            event_end_time = time.time()
+            event_duration = (event_end_time - event_start_time) * 1000
+            if event_duration > 1:
                 trace_info = {
                     'channel': event.channel,
                     'callback_fn': callback_fn.__name__,
@@ -166,7 +171,7 @@ class EventServer(ThreadServer):
         }
         message['sender'] = sender_dict
 
-        if not (channel not in self.pubsub_channels and channel in self.only_report_channel):
+        if channel in self.pubsub_channels or channel not in self.only_report_channel:
             self.event_queue.put(Event(event_id, channel, message))
 
         # TODO Remove state and raw data
