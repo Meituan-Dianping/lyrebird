@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from collections import OrderedDict
 from lyrebird import utils, application
 from lyrebird.log import get_logger
+from lyrebird.utils import RedisDict
 from lyrebird.application import config
 from lyrebird.mock import context
 from lyrebird.mock.dm.match import MatchRules
@@ -56,6 +57,16 @@ class DataManager:
 
         self.tree = []
         self.open_nodes = []
+
+        if self.config.get('enable_multiprocess', False):
+            try:
+                self.async_activate_group = RedisDict(data=self.config,
+                                                        host=self.config.get('redis_host', '127.0.0.1'),
+                                                        port=self.config.get('redis_port', 6379),
+                                                        db=self.config.get('redis_db', 0))
+            except Exception as e:
+                self.config['enable_multiprocess'] = False
+                logger.error(f'Start enable multiprocess failed, Redis connection error')
 
     @property
     def snapshot_workspace(self):
@@ -388,6 +399,9 @@ class DataManager:
         self._check_activated_data_rules_contains_request_data()
         self._adapter._after_activate(**kwargs)
 
+        if application.config.get('enable_multiprocess', False):
+            application.config['activated_group'] = self.activated_group
+
     def _check_activated_data_rules_contains_request_data(self):
         self.is_activated_data_rules_contains_request_data = False
         for _data_id in self.activated_data:
@@ -456,6 +470,9 @@ class DataManager:
         self.activated_data = OrderedDict()
         self.activated_group = {}
         self._check_activated_data_rules_contains_request_data()
+
+        if application.config.get('enable_multiprocess', False):
+            application.config['activated_group'] = self.activated_group
 
     def reactive(self):
         for _group_id in self.activated_group:
@@ -1411,6 +1428,9 @@ class DataManagerV2(DataManager):
         self._check_activated_data_rules_contains_request_data()
         self._adapter._after_activate(activated_group = group_info, activated_data = self.activated_data, **kwargs)
 
+        if application.config.get('enable_multiprocess', False):
+            application.config['activated_group'] = self.activated_group
+
     def deactivate(self):
         """
         Clear activated data
@@ -1421,6 +1441,9 @@ class DataManagerV2(DataManager):
         self.activated_data = OrderedDict()
         self.activated_group = {}
         self._check_activated_data_rules_contains_request_data()
+
+        if application.config.get('enable_multiprocess', False):
+            application.config['activated_group'] = self.activated_group
 
     """
     cut/copy/paste
@@ -1480,6 +1503,18 @@ class DataManagerV2(DataManager):
         super().save_data(data)
         self.reload()
 
+
+# -----------------
+# decorator
+# -----------------
+
+def dm_asyncio_activate_decorator(self, func):
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        self.async_activate_group.clear()
+        self.async_activate_group.update(self.activated_group)
+        return result
+    return wrapper
 
 # -----------------
 # Exceptions
