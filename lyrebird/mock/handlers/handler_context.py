@@ -337,6 +337,9 @@ class HandlerContext:
         decode_flow = {}
         application.encoders_decoders.decoder_handler(self.flow, output=decode_flow)
 
+        if self.request_origin_data:
+            decode_flow['request']['data'] = self.request_origin_data
+
         context.application.event_bus.publish(
             'flow',
             dict(
