@@ -1208,8 +1208,8 @@ class DataManager:
 
     # batch action
     def delete_by_query(self, query):
-        node_delete_group_ids = query.get('data', [])
-        node_delete_data_ids = query.get('groups', [])
+        node_delete_group_ids = query.get('groups', [])
+        node_delete_data_ids = query.get('data', [])
         all_id_list = list(set(node_delete_group_ids + node_delete_data_ids))
 
         times = math.ceil(len(all_id_list) / self.DELETE_STEP)
