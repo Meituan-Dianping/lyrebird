@@ -45,6 +45,7 @@ FUNC_MAP_HANDLERS = {
 class ExtensionCategory:
     MODIFIER = "Modifier"
     CHECKER = "Checker"
+    PATCHER = "Patcher"
     OTHER = "Other"
 
     # TODO: For old version compatibility, need to delete
@@ -53,7 +54,7 @@ class ExtensionCategory:
 
     @classmethod
     def get_order(cls, category):
-        orders = [cls.MODIFIER, cls.EDITOR, cls.CHECKER, cls.OTHER, cls.DEFAULT]
+        orders = [cls.MODIFIER, cls.EDITOR, cls.CHECKER, cls.OTHER, cls.DEFAULT, cls.PATCHER]
         if category not in orders:
             return len(orders) + 1
         return orders.index(category)
@@ -63,6 +64,7 @@ class ExtensionCategory:
         descriptions = {
             cls.MODIFIER: 'Modify flow', 
             cls.CHECKER: 'Check event and make notification', 
+            cls.PATCHER: 'Dynamically add supplementary logic to Lyrebird',
             cls.DEFAULT: 'Testability support, Advanced usage, etc.',
             
             # TODO: For old version compatibility, need to delete
