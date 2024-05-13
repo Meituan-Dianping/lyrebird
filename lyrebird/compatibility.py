@@ -15,7 +15,8 @@ application_white_map = {
 
 context_white_map = {
     'application.data_manager.activated_data',
-    'application.data_manager.activated_group'
+    'application.data_manager.activated_group',
+    'application.data_manager.async_activate_group'
 }
 
 
@@ -83,7 +84,7 @@ def prepare_application_for_monkey_patch() -> Namespace:
     return namespace
 
 
-def monkey_patch_application(async_obj, async_funcs=None):
+def monkey_patch_application(async_obj, async_funcs=None, async_values=None):
     import lyrebird
     from lyrebird.event import EventServer
     from lyrebird import event
@@ -95,6 +96,8 @@ def monkey_patch_application(async_obj, async_funcs=None):
     lyrebird.application.config = process_namespace.application._cm.config
     lyrebird.context = process_namespace.context
 
+    monkey_patch_datamanager()
+
     if async_funcs:
         checker_event_server = EventServer(True)
         checker_event_server.event_queue = msg_queue
@@ -103,6 +106,11 @@ def monkey_patch_application(async_obj, async_funcs=None):
         checker_event_server.__class__.publish = async_funcs['publish']
         event.__class__.publish = async_funcs['publish']
         event.__class__.issue = async_funcs['issue']
+
+
+def monkey_patch_datamanager():
+    import lyrebird
+    lyrebird.context.data_manager.activate_group = lyrebird.context.data_manager.async_activate_group
 
 
 def monkey_patch_publish(channel, message, publish_queue, *args, **kwargs):
