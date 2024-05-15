@@ -18,6 +18,8 @@ from lyrebird.log import get_logger
 
 
 logger = get_logger()
+# only report the checker which duration more the 5s
+LYREBIRD_METRICS_REPORT_DURSTION = 5000
 
 
 class InvalidMessage(Exception):
@@ -87,11 +89,11 @@ class EventServer(ThreadServer):
                 return
             event_end_time = time.time()
             event_duration = (event_end_time - event_start_time) * 1000
-            if event_duration > 1:
+            if event_duration > LYREBIRD_METRICS_REPORT_DURSTION:
                 trace_info = {
                     'channel': event.channel,
+                    'event_id': str(event.id),
                     'callback_fn': callback_fn.__name__,
-                    'callback_args': str(callback_args),
                     'callback_kwargs': str(callback_kwargs)
                 }
                 self.publish('lyrebird_metrics', {
