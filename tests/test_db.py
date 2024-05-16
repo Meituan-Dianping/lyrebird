@@ -17,7 +17,8 @@ MockConfigManager = NamedTuple('MockConfigManager', [('config', dict), ('persona
 def event_server(tmpdir):
     _conf = {
         'ip': '127.0.0.1',
-        'mock.port': 9090
+        'mock.port': 9090,
+        'event.lyrebird_metrics_report': False
     }
     _personal_conf = personal_config_template
     application._cm = MockConfigManager(config=_conf, personal_config=_personal_conf, ROOT=Path(tmpdir), root=Path(tmpdir))

@@ -9,7 +9,8 @@ _conf = {
     'mock.port': 9090,
     'custom_key': 'custom_value',
     'config.value.tojsonKey': ['custom.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
-    'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"custom_key": "custom_value"}
+    'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"custom_key": "custom_value"},
+    'event.lyrebird_metrics_report': False
 }
 
 origin_data = '"keyA":"valueA","keyB":"{{config.get(\'custom.8df051be-4381-41b6-9252-120d9b558bf6\')}}","keyC":"valueC","keyD":"{{today}}"'

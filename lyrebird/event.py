@@ -252,6 +252,30 @@ class EventServer(ThreadServer):
                 callback_func_run_statistic(callback_fn, callback_args, callback_kwargs, info)
         except Exception:
             logger.error(f'Event callback function [{callback_fn.__name__}] error. {traceback.format_exc()}')
+        finally:
+            event_end_time = time.time()
+            event_duration = (event_end_time - event_start_time) * 1000
+            # Report the operation of Event
+            # Prevent loop reporting, and only time-consuming event(more than 1ms) are reported
+            if event.channel == 'lyrebird_metrics':
+                return
+            if not self.lyrebird_metrics_report:
+                return
+            event_end_time = time.time()
+            event_duration = (event_end_time - event_start_time) * 1000
+            if event_duration > 1:
+                trace_info = {
+                    'channel': event.channel,
+                    'callback_fn': callback_fn.__name__,
+                    'callback_args': str(callback_args),
+                    'callback_kwargs': str(callback_kwargs)
+                }
+                self.publish('lyrebird_metrics', {
+                    'sender': 'EventServer',
+                    'action': 'broadcast_handler',
+                    'duration': event_duration,
+                    'trace_info': str(trace_info)
+                })
 
     def run(self):
         while self.running:
@@ -351,7 +375,7 @@ class EventServer(ThreadServer):
         """
         event_id, channel, message = EventServer.get_publish_message(channel, message, event_id)
 
-        if not (channel not in self.pubsub_channels and channel in self.only_report_channel):
+        if channel in self.pubsub_channels or channel not in self.only_report_channel:
             self.event_queue.put(Event(event_id, channel, message))
 
         # TODO Remove state and raw data

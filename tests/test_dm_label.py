@@ -79,7 +79,8 @@ def root(tmpdir):
 def data_manager(root):
     _conf = {
         'ip': '127.0.0.1',
-        'mock.port': 9090
+        'mock.port': 9090,
+        'event.lyrebird_metrics_report': False
     }
     application._cm = MockConfigManager(config=_conf)
     _dm = dm.DataManager()

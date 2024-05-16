@@ -83,6 +83,7 @@ def data_manager(root, tmpdir):
     _conf = {
         'ip': '127.0.0.1',
         'mock.port': 9090,
+        'event.lyrebird_metrics_report': False
     }
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
