@@ -130,8 +130,7 @@ def init_app(config):
 
 async def _run_app(config):
     global semaphore
-    loop = asyncio.get_running_loop()
-    semaphore = asyncio.Semaphore(5, loop=loop) 
+    semaphore = asyncio.Semaphore(10) 
     app = init_app(config)
 
     port = config.get('extra.mock.port')

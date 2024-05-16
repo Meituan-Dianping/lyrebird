@@ -112,7 +112,6 @@ class LyrebirdMockServer(ThreadServer):
         停止服务
 
         """
-        # pass
         super().stop()
     
     def terminate(self):

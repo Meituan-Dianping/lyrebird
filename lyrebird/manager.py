@@ -26,8 +26,8 @@ from lyrebird.mitm.proxy_server import LyrebirdProxyServer
 from lyrebird.task import BackgroundTaskServer
 from lyrebird.base_server import MultiProcessServerMessageDispatcher
 from lyrebird.log import LogServer
-from lyrebird.utils import RedisDict
-from lyrebird.compatibility import compat_redis_check, compat_python_version_check
+from lyrebird.utils import RedisDict, RedisManager
+from lyrebird.compatibility import compat_redis_check
 from lyrebird import utils
 import builtins
 
@@ -99,10 +99,6 @@ def main():
     if args.version:
         print(version.LYREBIRD)
         return
-
-    compat_python_version_check()
-    import sys
-    print(sys.executable)
 
     Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
@@ -270,12 +266,13 @@ def run(args: argparse.Namespace):
 
     # main process is ready, publish system event
     application.status_ready()
-    
+
     # stop event handler
     def signal_handler(signum, frame):
         application.stop_server()
         application.terminate_server()
         application.sync_manager.destory()
+        RedisManager.destory()
         threading.Event().set()
         print('!!!Ctrl-C pressed. Lyrebird stop!!!')
         os._exit(0)

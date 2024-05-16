@@ -14,7 +14,6 @@ COPY --from=nodebuilder /usr/src/lyrebird/client/ /usr/src/lyrebird/client/
 RUN if [[ -n "$USE_MIRROR" ]] ; then sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories ; fi \
   && apk update \
   && apk add --no-cache build-base jpeg-dev zlib-dev libffi-dev openssl-dev redis \
-  && redis-server --daemonize yes \
   && if [[ -n "$USE_MIRROR" ]] ; then pip install --upgrade pip && pip install --no-cache-dir . facebook-wda==0.8.1 jsonschema redis -i https://pypi.douban.com/simple ; else pip install --upgrade pip && pip install --no-cache-dir . facebook-wda==0.8.1 jsonschema redis ; fi \
   && pip install werkzeug==2.2.2 mitmproxy -t /usr/local/mitmenv \
   && rm -rf /usr/src \

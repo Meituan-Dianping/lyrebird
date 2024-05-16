@@ -1,7 +1,10 @@
-from lyrebird import log
-import importlib.util
-import platform
 import sys
+import platform
+import importlib.util
+from lyrebird import log
+from functools import wraps
+from inspect import signature
+from multiprocessing import managers
 from multiprocessing.managers import Namespace
 
 logger = log.get_logger()
@@ -30,6 +33,48 @@ def jit(*args, **kwargs):
 
 PYTHON_MIN_VERSION = (3, 8, 0)
 PYTHON_MAX_VERSION = (3, 11, float('inf'))
+
+
+'''
+Python3.8 and earlier do not support managing SyncManger managed objects
+github original issue: https://github.com/python/cpython/pull/4819
+'''
+orig_AutoProxy = managers.AutoProxy
+
+@wraps(managers.AutoProxy)
+def AutoProxy(*args, incref=True, manager_owned=False, **kwargs):
+    # Create the autoproxy without the manager_owned flag, then
+    # update the flag on the generated instance. If the manager_owned flag
+    # is set, `incref` is disabled, so set it to False here for the same
+    # result.
+    autoproxy_incref = False if manager_owned else incref
+    proxy = orig_AutoProxy(*args, incref=autoproxy_incref, **kwargs)
+    proxy._owned_by_manager = manager_owned
+    return proxy
+
+
+def compat_async_manager_to_python_3_8():
+    if "manager_owned" in signature(managers.AutoProxy).parameters:
+        return
+
+    logger.debug("Patching multiprocessing.managers.AutoProxy to add manager_owned")
+    managers.AutoProxy = AutoProxy
+
+    # re-register any types already registered to SyncManager without a custom
+    # proxy type, as otherwise these would all be using the old unpatched AutoProxy
+    SyncManager = managers.SyncManager
+    registry = managers.SyncManager._registry
+    for typeid, (callable, exposed, method_to_typeid, proxytype) in registry.items():
+        if proxytype is not orig_AutoProxy:
+            continue
+        create_method = hasattr(managers.SyncManager, typeid)
+        SyncManager.register(
+            typeid,
+            callable=callable,
+            exposed=exposed,
+            method_to_typeid=method_to_typeid,
+            create_method=create_method,
+        )
 
 
 def import_compat_util(module_name:str, module_content:list):
@@ -78,8 +123,8 @@ def compat_python_version_check():
 def prepare_application_for_monkey_patch() -> Namespace:
     from lyrebird import application, context
     namespace = application.sync_manager.get_namespace()
-    namespace.application = CheckerApplicationInfo(application, application_white_map)
-    namespace.context = CheckerApplicationInfo(context, context_white_map)
+    namespace.application = ProcessApplicationInfo(application, application_white_map)
+    namespace.context = ProcessApplicationInfo(context, context_white_map)
     namespace.queue = application.server['event'].event_queue
     return namespace
 
@@ -101,7 +146,7 @@ def monkey_patch_application(async_obj, async_funcs=None, async_values=None):
     if async_funcs:
         checker_event_server = EventServer(True)
         checker_event_server.event_queue = msg_queue
-        lyrebird.application['server'] = CheckerApplicationInfo()
+        lyrebird.application['server'] = ProcessApplicationInfo()
         lyrebird.application.server['event'] = checker_event_server
         checker_event_server.__class__.publish = async_funcs['publish']
         event.__class__.publish = async_funcs['publish']
@@ -136,7 +181,7 @@ def monkey_patch_issue(title, message, publish_queue, *args, **kwargs):
     publish_queue.put((event_id, channel, message, args, kwargs))
 
 
-class CheckerApplicationInfo(dict):
+class ProcessApplicationInfo(dict):
 
     def __init__(self, data=None, white_map={}):
         super().__init__()
@@ -159,7 +204,7 @@ class CheckerApplicationInfo(dict):
         current_dict = self
         for key in keys[:-1]:
             if key not in current_dict:
-                current_dict[key] = CheckerApplicationInfo()
+                current_dict[key] = ProcessApplicationInfo()
             current_dict = current_dict[key]
         current_dict[keys[-1]] = value
 
@@ -183,3 +228,7 @@ class CheckerApplicationInfo(dict):
 
     def __delattr__(self, item):
         del self[item]
+
+
+compat_python_version_check()
+compat_async_manager_to_python_3_8()

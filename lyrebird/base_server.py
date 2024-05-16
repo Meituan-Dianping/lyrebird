@@ -21,7 +21,6 @@ service_msg_queue = None
 
 class ProcessServer:
     def __init__(self):
-        ProcessManager.add(self)
         self.server_process = None
         self.running = False
         self.name = None
@@ -32,29 +31,32 @@ class ProcessServer:
 
     def run(self, async_obj, config, *args, **kwargs):
         '''
-        msg_queue
-        message queue for process server and main process
+        async_obj is a dict 
+        used to pass in all objects used for synchronization/communication between multiple processes
+        Usually msg_queue, config and log_queue is included
+            msg_queue:
+                message queue for process server and main process
 
-        #1. Send event to main process,
-        {
-            "type": "event",
-            "channel": "",
-            "content": {}
-        }
+                #1. Send event to main process,
+                {
+                    "type": "event",
+                    "channel": "",
+                    "content": {}
+                }
 
-        #2. Send message to frontend
-        support channel: msgSuccess msgInfo msgError
-        {
-            "type": "ws",
-            "channel": "",
-            "content": ""
-        }
+                #2. Send message to frontend
+                support channel: msgSuccess msgInfo msgError
+                {
+                    "type": "ws",
+                    "channel": "",
+                    "content": ""
+                }
 
-        config
-        lyrebird config dict
+            config:
+                lyrebird config dict
 
-        log_queue
-        send log msg to logger process
+            log_queue:
+                send log msg to logger process
         '''
         pass
 
@@ -98,26 +100,6 @@ class ProcessServer:
             self.server_process.terminate()
             self.server_process.join()
             self.server_process = None
-
-
-class ProcessManager:
-
-    processes = []
-
-    @staticmethod
-    def add(process:ProcessServer, name:str=None):
-        name = name if name else type(process).__name__
-        ProcessManager.processes.append((name, process))
-    
-    @staticmethod
-    def pre_stop():
-        for _,process in ProcessManager.processes:
-            process.pre_stop()
-
-    @staticmethod
-    def destory():
-        for name, process in ProcessManager.processes:
-            process.stop()
 
 
 class ThreadServer:
