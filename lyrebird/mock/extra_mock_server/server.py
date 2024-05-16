@@ -15,6 +15,7 @@ from lyrebird import log
 logger = None
 logger_queue = None
 lb_config = {}
+semaphore = None
 
 
 def is_filtered(context: LyrebirdProxyContext):
@@ -103,7 +104,8 @@ async def req_handler(request: web.Request):
         proxy_ctx = LyrebirdProxyContext.parse(request, lb_config)
         if is_filtered(proxy_ctx):
             # forward to lyrebird
-            return await forward(proxy_ctx)
+            async with semaphore:
+                return await forward(proxy_ctx)
         else:
             # proxy
             return await proxy(proxy_ctx)
@@ -127,6 +129,9 @@ def init_app(config):
 
 
 async def _run_app(config):
+    global semaphore
+    loop = asyncio.get_running_loop()
+    semaphore = asyncio.Semaphore(5, loop=loop) 
     app = init_app(config)
 
     port = config.get('extra.mock.port')

@@ -13,6 +13,7 @@ import datetime
 import netifaces
 import traceback
 from pathlib import Path
+from copy import deepcopy
 from jinja2 import Template, StrictUndefined
 from jinja2.exceptions import UndefinedError, TemplateSyntaxError
 from contextlib import closing
@@ -581,10 +582,12 @@ class RedisDict(RedisData):
         value = self.redis.hget(self.uuid, key)
         if value is None:
             raise KeyError(key)
-        return json.loads(value.decode())
+        value = json.loads(value.decode())
+        return _hook_value(self, key, value)
 
     def __setitem__(self, key, value):
-        self.redis.hset(self.uuid, key, json.dumps(value, ensure_ascii=False))
+        value = json.dumps(value, ensure_ascii=False)
+        self.redis.hset(self.uuid, key, value)
         self.redis.expire(self.uuid, REDIS_EXPIRE_TIME)
 
     def __delitem__(self, key):
@@ -609,7 +612,7 @@ class RedisDict(RedisData):
         value = self.redis.hget(self.uuid, key)
         if value is None:
             return default
-        return json.loads(value.decode())
+        return _hook_value(self, key, json.loads(value.decode()))
 
     def update(self, data):
         for key, value in data.items():
@@ -627,3 +630,90 @@ class RedisDict(RedisData):
 
     def __repr__(self):
         return repr(dict(self.items()))
+
+    def __deepcopy__(self, memo):
+        return self.raw()
+
+
+def _hook_value(parent, key, value):
+    if isinstance(value, dict):
+        return RedisHookedDict(parent, key, value)
+    elif isinstance(value, list):
+        return RedisHookedList(parent, key, value)
+    elif isinstance(value, set):
+        return RedisHookedSet(parent, key, value)
+    else:
+        return value
+
+
+class RedisHook:
+    def __init__(self, parent, key):
+        self.parent = parent
+        self.key = key
+
+
+class RedisHookedDict(RedisHook, dict):
+    def __init__(self, parent, key, value):
+        RedisHook.__init__(self, parent, key)
+        dict.__init__(self, value)
+
+    def get(self, key, default=None):
+        res = dict.get(self, key, default)
+        return _hook_value(self, key, res)
+
+    def __getitem__(self, key):
+        return _hook_value(self, key, dict.__getitem__(self, key))
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        self.parent[self.key] = self
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
+        self.parent[self.key] = self
+
+    def update(self, *args, **kwargs):
+        dict.update(self, *args, **kwargs)
+        self.parent[self.key] = self
+
+    def __deepcopy__(self, memo):
+        return deepcopy(dict(self), memo)
+
+class RedisHookedList(RedisHook, list):
+    def __init__(self, parent, key, value):
+        list.__init__(self, value)
+        RedisHook.__init__(self, parent, key)
+
+    def __getitem__(self, index):
+        return _hook_value(self, index, list.__getitem__(self, index))
+
+    def __setitem__(self, index, value):
+        list.__setitem__(self, index, _hook_value(value))
+        self.parent[self.key] = self
+
+    def __delitem__(self, index):
+        list.__delitem__(self, index)
+        self.parent[self.key] = self
+
+    def append(self, value):
+        list.append(self, value)
+        self.parent[self.key] = self
+
+    def __deepcopy__(self, memo):
+        return deepcopy(list(self), memo)
+
+class RedisHookedSet(RedisHook, set):
+    def __init__(self, parent, key, value):
+        set.__init__(self, value)
+        RedisHook.__init__(self, parent, key)
+
+    def add(self, value):
+        set.add(self, _hook_value(value))
+        self.parent[self.key] = self
+
+    def remove(self, value):
+        set.remove(self, value)
+        self.parent[self.key] = self
+
+    def __deepcopy__(self, memo):
+        return deepcopy(set(self), memo)

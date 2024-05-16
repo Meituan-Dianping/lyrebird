@@ -109,8 +109,8 @@ def monkey_patch_application(async_obj, async_funcs=None, async_values=None):
 
 
 def monkey_patch_datamanager():
-    import lyrebird
-    lyrebird.context.data_manager.activate_group = lyrebird.context.data_manager.async_activate_group
+    from lyrebird import context
+    context.application.data_manager.activate_group = context.application.data_manager.async_activate_group
 
 
 def monkey_patch_publish(channel, message, publish_queue, *args, **kwargs):

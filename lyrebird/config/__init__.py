@@ -72,7 +72,7 @@ class ConfigManager():
                                         db=self.config.get('redis_db', 0))
             except Exception as e:
                 self.config['enable_multiprocess'] = False
-                logger.error(f'Start enable multiprocess failed, Redis connection error')
+                logger.error(f'Start enable multiprocess failed, Redis connection error:\n{e}')
 
         self.initialize_personal_config()
 

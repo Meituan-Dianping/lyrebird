@@ -274,10 +274,10 @@ def run(args: argparse.Namespace):
     # stop event handler
     def signal_handler(signum, frame):
         application.stop_server()
-        threading.Event().set()
         application.terminate_server()
-        print('!!!Ctrl-C pressed. Lyrebird stop!!!')
         application.sync_manager.destory()
+        threading.Event().set()
+        print('!!!Ctrl-C pressed. Lyrebird stop!!!')
         os._exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)

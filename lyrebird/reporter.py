@@ -5,6 +5,7 @@ from copy import deepcopy
 from importlib import machinery
 import traceback
 import datetime
+import signal
 from lyrebird.base_server import ProcessServer
 from concurrent.futures import ThreadPoolExecutor
 from lyrebird import application
@@ -66,6 +67,8 @@ class Reporter(ProcessServer):
         super().start()
 
     def run(self, async_obj, config, *args, **kwargs):
+
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         workspace = async_obj['workspace']
         reportor_queue = async_obj['report_queue']

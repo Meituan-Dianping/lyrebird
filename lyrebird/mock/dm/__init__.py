@@ -58,15 +58,14 @@ class DataManager:
         self.tree = []
         self.open_nodes = []
 
-        if self.config.get('enable_multiprocess', False):
+        if config.get('enable_multiprocess', False):
             try:
-                self.async_activate_group = RedisDict(data=self.config,
-                                                        host=self.config.get('redis_host', '127.0.0.1'),
-                                                        port=self.config.get('redis_port', 6379),
-                                                        db=self.config.get('redis_db', 0))
+                self.async_activate_group = RedisDict(host=config.get('redis_host', '127.0.0.1'),
+                                                    port=config.get('redis_port', 6379),
+                                                    db=config.get('redis_db', 0))
             except Exception as e:
-                self.config['enable_multiprocess'] = False
-                logger.error(f'Start enable multiprocess failed, Redis connection error')
+                config['enable_multiprocess'] = False
+                logger.error(f'Start enable multiprocess failed, Redis connection error: {e}')
 
     @property
     def snapshot_workspace(self):

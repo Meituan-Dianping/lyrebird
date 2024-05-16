@@ -5,6 +5,7 @@ from logging.handlers import TimedRotatingFileHandler
 from colorama import Fore, Style, Back
 from collections import namedtuple
 from pathlib import Path
+import signal
 import os
 DEFAULT_LOG_PATH = '~/.lyrebird/lyrebird.log'
 LOGGER_INITED = False
@@ -126,6 +127,8 @@ class LogServer(ProcessServer):
 
     def run(self, async_obj, config, *args, **kwargs):
         log_queue = async_obj['logger_queue']
+
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         logging.addLevelName(60, 'NOTICE')
 
