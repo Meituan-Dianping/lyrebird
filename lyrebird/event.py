@@ -274,7 +274,7 @@ class EventServer(ThreadServer):
                 callback_fn_list = self.pubsub_channels.get(e.channel)
                 if callback_fn_list:
                     for callback_fn, args, kwargs in callback_fn_list:
-                        self.broadcast_executor.submit(self.broadcast_handler, callback_fn, e, args, kwargs, self.process_executor_queue)
+                        self.broadcast_executor.submit(self.broadcast_handler, callback_fn, copy.deepcopy(e), args, kwargs, self.process_executor_queue)
                 for callback_fn, args, kwargs in self.any_channel:
                     self.broadcast_executor.submit(self.broadcast_handler, callback_fn, e, args, kwargs)
             except Exception:
