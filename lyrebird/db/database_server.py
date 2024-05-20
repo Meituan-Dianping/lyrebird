@@ -3,6 +3,7 @@ import math
 import datetime
 import traceback
 import time
+import copy
 from queue import Queue
 from pathlib import Path
 from lyrebird import application
@@ -131,9 +132,9 @@ class LyrebirdDatabaseServer(ThreadServer):
 
     def event_receiver(self, event, channel=None, event_id=None):
         # event is decoded , which should be encoded when save
-        # event is deepcopy when created, no needs to copy again
+        # deepcopy to avoid affecting checker running
         if channel == 'flow':
-            application.encoders_decoders.encoder_handler(event['flow'])
+            application.encoders_decoders.encoder_handler(copy.deepcopy(event['flow']))
 
         content = json.dumps(event, ensure_ascii=False)
         if isinstance(event, dict):
