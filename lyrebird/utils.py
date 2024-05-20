@@ -3,6 +3,9 @@ import os
 import json
 import math
 import time
+import uuid
+import redis
+import pickle
 import socket
 import tarfile
 import requests
@@ -10,6 +13,7 @@ import datetime
 import netifaces
 import traceback
 from pathlib import Path
+from copy import deepcopy
 from jinja2 import Template, StrictUndefined
 from jinja2.exceptions import UndefinedError, TemplateSyntaxError
 from contextlib import closing
@@ -19,6 +23,7 @@ from lyrebird.application import config
 
 logger = get_logger()
 
+REDIS_EXPIRE_TIME = 60*60*24
 
 def convert_size(size_bytes):
     if size_bytes == 0:
@@ -340,10 +345,21 @@ class CaseInsensitiveDict(dict):
     <key: 'abc'> & <key: 'ABC'> will be treated as the same key, only one exists in this dict.
     '''
 
-    def __init__(self, raw_dict):
+    def __init__(self, raw_dict=None):
         self.__key_map = {}
-        for k, v in raw_dict.items():
-            self.__setitem__(k, v)
+        if raw_dict:
+            for k, v in raw_dict.items():
+                self.__setitem__(k, v)
+    
+    def __getstate__(self):
+        return {
+            'key_map': self.__key_map,
+            'data': dict(self)
+        }
+
+    def __setstate__(self, state):
+        self.__key_map = state['key_map']
+        self.update(state['data'])
 
     def __get_real_key(self, key):
         return self.__key_map.get(key.lower(), key)
@@ -401,6 +417,9 @@ class CaseInsensitiveDict(dict):
             for k, v in kwargs.items():
                 self.__setitem__(k, v)
 
+    def __reduce__(self):
+        return (self.__class__, (dict(self),))
+
 
 class HookedDict(dict):
     '''
@@ -424,6 +443,9 @@ class HookedDict(dict):
             else:
                 __v = HookedDict(__v)
         return super(HookedDict, self).__setitem__(__k, __v)
+
+    def __reduce__(self):
+        return (self.__class__, (dict(self),))
 
 
 class TargetMatch:
@@ -479,3 +501,219 @@ class JSONFormat:
             elif isinstance(prop_obj, datetime.datetime):
                 prop_collection[prop] = prop_obj.timestamp()
         return prop_collection
+
+
+class RedisManager:
+
+    redis_dicts = set()
+
+    @staticmethod
+    def put(obj):
+        RedisManager.redis_dicts.add(obj)
+
+    @staticmethod
+    def destory():
+        for i in RedisManager.redis_dicts:
+            i.destory()
+        RedisManager.redis_dicts.clear()
+
+    @staticmethod
+    def serialize():
+        return pickle.dumps(RedisManager.redis_dicts)
+
+    @staticmethod
+    def deserialize(data):
+        RedisManager.redis_dicts = pickle.loads(data)
+
+
+class RedisData:
+
+    host = 'localhost'
+    port = 6379
+    db = 0
+
+    def __init__(self, host=None, port=None, db=None, param_uuid=None):
+        if not host:
+            host = RedisData.host
+        if not port:
+            port = RedisData.port
+        if not db:
+            db = RedisData.db
+        self.port = port
+        self.host = host
+        self.db = db
+        if not param_uuid:
+            self.uuid = str(uuid.uuid4())
+        else:
+            self.uuid = param_uuid
+        self.redis = redis.Redis(host=self.host, port=self.port, db=self.db)
+        RedisManager.put(self)
+
+    def destory(self):
+        self.redis.delete(self.uuid)
+        self.redis.close()
+
+
+    def __getstate__(self):
+        return pickle.dumps({
+            'uuid':self.uuid,
+            'port':self.port,
+            'host':self.host,
+            'db':self.db
+            })
+
+    def __setstate__(self, state):
+        data = pickle.loads(state)
+        self.port = data['port']
+        self.host = data['host']
+        self.db = data['db']
+        self.uuid = data['uuid']
+        self.redis = redis.Redis(host=self.host, port=self.port, db=self.db)
+
+
+class RedisDict(RedisData):
+
+    def __init__(self, host=None, port=None, db=None, param_uuid=None, data={}):
+        super().__init__(host, port, db, param_uuid)
+        for k in data.keys():
+            self[k] = data[k]
+
+    def __getitem__(self, key):
+        value = self.redis.hget(self.uuid, key)
+        if value is None:
+            raise KeyError(key)
+        value = json.loads(value.decode())
+        return _hook_value(self, key, value)
+
+    def __setitem__(self, key, value):
+        value = json.dumps(value, ensure_ascii=False)
+        self.redis.hset(self.uuid, key, value)
+        self.redis.expire(self.uuid, REDIS_EXPIRE_TIME)
+
+    def __delitem__(self, key):
+        if not self.redis.hexists(self.uuid, key):
+            raise KeyError(key)
+        self.redis.hdel(self.uuid, key)
+        self.redis.expire(self.uuid, REDIS_EXPIRE_TIME)
+
+    def __contains__(self, key):
+        return self.redis.hexists(self.uuid, key)
+
+    def keys(self):
+        return [key.decode() for key in self.redis.hkeys(self.uuid)]
+
+    def values(self):
+        return [json.loads(value.decode()) for value in self.redis.hgetall(self.uuid).values()]
+
+    def items(self):
+        return [(key.decode(), json.loads(value.decode())) for key, value in self.redis.hgetall(self.uuid).items()]
+
+    def get(self, key, default=None):
+        value = self.redis.hget(self.uuid, key)
+        if value is None:
+            return default
+        return _hook_value(self, key, json.loads(value.decode()))
+
+    def update(self, data):
+        for key, value in data.items():
+            self[key] = value
+        self.redis.expire(self.uuid, REDIS_EXPIRE_TIME)
+    
+    def clear(self):
+        self.redis.delete(self.uuid)
+
+    def raw(self):
+        return {key.decode(): json.loads(value.decode()) for key, value in self.redis.hgetall(self.uuid).items()}
+
+    def __len__(self):
+        return len(self.redis.hkeys(self.uuid))
+
+    def __repr__(self):
+        return repr(dict(self.items()))
+
+    def __deepcopy__(self, memo):
+        return self.raw()
+
+
+def _hook_value(parent, key, value):
+    if isinstance(value, dict):
+        return RedisHookedDict(parent, key, value)
+    elif isinstance(value, list):
+        return RedisHookedList(parent, key, value)
+    elif isinstance(value, set):
+        return RedisHookedSet(parent, key, value)
+    else:
+        return value
+
+
+class RedisHook:
+    def __init__(self, parent, key):
+        self.parent = parent
+        self.key = key
+
+
+class RedisHookedDict(RedisHook, dict):
+    def __init__(self, parent, key, value):
+        RedisHook.__init__(self, parent, key)
+        dict.__init__(self, value)
+
+    def get(self, key, default=None):
+        res = dict.get(self, key, default)
+        return _hook_value(self, key, res)
+
+    def __getitem__(self, key):
+        return _hook_value(self, key, dict.__getitem__(self, key))
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        self.parent[self.key] = self
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
+        self.parent[self.key] = self
+
+    def update(self, *args, **kwargs):
+        dict.update(self, *args, **kwargs)
+        self.parent[self.key] = self
+
+    def __deepcopy__(self, memo):
+        return deepcopy(dict(self), memo)
+
+class RedisHookedList(RedisHook, list):
+    def __init__(self, parent, key, value):
+        list.__init__(self, value)
+        RedisHook.__init__(self, parent, key)
+
+    def __getitem__(self, index):
+        return _hook_value(self, index, list.__getitem__(self, index))
+
+    def __setitem__(self, index, value):
+        list.__setitem__(self, index, _hook_value(value))
+        self.parent[self.key] = self
+
+    def __delitem__(self, index):
+        list.__delitem__(self, index)
+        self.parent[self.key] = self
+
+    def append(self, value):
+        list.append(self, value)
+        self.parent[self.key] = self
+
+    def __deepcopy__(self, memo):
+        return deepcopy(list(self), memo)
+
+class RedisHookedSet(RedisHook, set):
+    def __init__(self, parent, key, value):
+        set.__init__(self, value)
+        RedisHook.__init__(self, parent, key)
+
+    def add(self, value):
+        set.add(self, _hook_value(value))
+        self.parent[self.key] = self
+
+    def remove(self, value):
+        set.remove(self, value)
+        self.parent[self.key] = self
+
+    def __deepcopy__(self, memo):
+        return deepcopy(set(self), memo)

@@ -16,7 +16,11 @@ class NoticeCenter():
         self.notice_hashmap = {}
         self.notice_list = []
         self.not_remind_list = []
-        application.server['event'].subscribe('notice', self.new_notice)
+        application.server['event'].subscribe({
+            'name': 'new_notice',
+            'channel': 'notice',
+            'func': self.new_notice
+        })
         self.load_history_notice()
 
     def storage_notice(self, storage_date):

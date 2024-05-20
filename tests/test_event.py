@@ -39,6 +39,8 @@ def event_server():
     lyrebird.application.server['event'] = server
     yield server
     server.stop()
+    application.sync_manager.broadcast_to_queues(None)
+    server.terminate()
 
 
 @pytest.fixture
@@ -52,7 +54,7 @@ def test_event(callback_tester, event_server, task_server):
 
     cb_tester = CallbackTester()
 
-    event_server.subscribe('Test', cb_tester.callback)
+    event_server.subscribe({'channel':'Test', 'func':cb_tester.callback})
 
     assert event_server.pubsub_channels.get('Test')
 
@@ -72,7 +74,7 @@ def test_event_default_information(callback_tester, event_server, task_server):
 
     cb_tester = CallbackTester()
 
-    event_server.subscribe('Test', cb_tester.callback)
+    event_server.subscribe({'channel':'Test', 'func':cb_tester.callback})
 
     assert event_server.pubsub_channels.get('Test')
 
@@ -91,7 +93,7 @@ def test_event_default_information_with_sender(callback_tester, event_server, ta
 
     cb_tester = CallbackTester()
 
-    event_server.subscribe('Test', cb_tester.callback)
+    event_server.subscribe({'channel':'Test', 'func':cb_tester.callback})
 
     assert event_server.pubsub_channels.get('Test')
 

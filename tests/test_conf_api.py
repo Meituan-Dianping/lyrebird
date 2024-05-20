@@ -28,6 +28,7 @@ def client():
     server = LyrebirdMockServer()
     with server.app.test_client() as client:
         yield client
+    server.terminate()
 
 
 def test_patch_conf_api_with_no_param(client):

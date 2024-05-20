@@ -1,10 +1,11 @@
 import logging
+from lyrebird import application
 from .base_server import ProcessServer
-from multiprocessing import Queue, Lock
 from logging.handlers import TimedRotatingFileHandler
 from colorama import Fore, Style, Back
 from collections import namedtuple
 from pathlib import Path
+import signal
 import os
 DEFAULT_LOG_PATH = '~/.lyrebird/lyrebird.log'
 LOGGER_INITED = False
@@ -21,6 +22,7 @@ COLORS = dict(
 )
 
 process = None
+queue_handler = None
 
 
 def colorit(message, levelname):
@@ -79,6 +81,7 @@ def check_path(path):
 
 def init(config, log_queue = None):
     global LOGGER_INITED
+    global queue_handler
     if LOGGER_INITED:
         return
     
@@ -115,18 +118,18 @@ class LogServer(ProcessServer):
 
     def __init__(self):
         super().__init__()
-        self.queue = Queue()
-        self.log_process_lock = Lock()
+        self.queue = application.sync_manager.get_multiprocessing_queue()
     
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def run(self, msg_queue, config, log_queue, *args, **kwargs):
-        if not self.log_process_lock.acquire(timeout=10):
-            return
-        
+    def run(self, async_obj, config, *args, **kwargs):
+        log_queue = async_obj['logger_queue']
+
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
         logging.addLevelName(60, 'NOTICE')
 
         stream_handler = make_stream_handler()
@@ -154,15 +157,32 @@ class LogServer(ProcessServer):
         
         if log_path and not check_path(log_path):
             lyrebird_logger.warning(f'Illegal log path: {log_path}, log file path have changed to the default path: {DEFAULT_LOG_PATH}')
+        
+        self.running = True
 
-        while True:
+        while self.running:
             try:
                 log = log_queue.get()
+                if log is None:
+                    break
                 logger = logging.getLogger(log.name)
                 logger.handle(log)
             except KeyboardInterrupt:
-                self.log_process_lock.release()
-                break        
+                break
+    
+    def stop(self):
+        super().stop()
+        self.queue = None
+        logging.shutdown()
+        for _logger_name in ['lyrebird', 'socketio', 'engineio', 'mock', 'werkzeug', 'flask']:
+            logger = logging.getLogger(_logger_name)
+            for handler in logger.handlers[:]:
+                logger.removeHandler(handler)
+            logger.setLevel(logging.CRITICAL)
+    
+    def terminate(self):
+        super().terminate()
+        logging.shutdown()
 
 
 def get_logger():

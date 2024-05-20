@@ -122,6 +122,7 @@ def mock_server():
     application.server['task'] = FakeBackgroundTaskServer()
     application.server['mock'] = server
     yield server
+    server.terminate()
     del server
 
 

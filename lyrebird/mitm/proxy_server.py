@@ -5,6 +5,7 @@ import os
 import json
 import requests
 import time
+import signal
 from lyrebird.base_server import ProcessServer
 from lyrebird.mitm.mitm_installer import init_mitm
 """
@@ -103,7 +104,10 @@ class LyrebirdProxyServer(ProcessServer):
             }
         })
 
-    def run(self, msg_queue, config, log_queue, *args, **kwargs):
+    def run(self, async_obj, config, *args, **kwargs):
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        log_queue = async_obj['logger_queue']
+        msg_queue = async_obj['msg_queue']
         # Init logger
         log.init(config, log_queue)
         logger = log.get_logger()

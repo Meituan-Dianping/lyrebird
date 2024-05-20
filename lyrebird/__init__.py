@@ -33,7 +33,7 @@ def emit(event, *args, **kwargs):
     context.application.socket_io.emit(event, *args, **kwargs)
 
 
-def subscribe(channel, func, *args, **kwargs):
+def subscribe(channel, func, name='', *args, **kwargs):
     """
     订阅信号
 
@@ -42,7 +42,12 @@ def subscribe(channel, func, *args, **kwargs):
     :param sender: 信号发送者标识
     """
     # context.application.event_bus.subscribe(channel, func)
-    application.server['event'].subscribe(channel, func, *args, **kwargs)
+    func_info = {
+        'name': name,
+        'channel': channel,
+        'func': func
+    }
+    application.server['event'].subscribe(func_info, *args, **kwargs)
 
 
 def publish(channel, event, *args, **kwargs):

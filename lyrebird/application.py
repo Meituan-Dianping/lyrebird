@@ -1,5 +1,7 @@
 import webbrowser
 
+import multiprocessing
+from queue import Queue
 from flask import jsonify
 from functools import reduce
 
@@ -75,6 +77,74 @@ def start_server():
 def stop_server():
     for name in server:
         server[name].stop()
+    sync_manager.broadcast_to_queues(None)
+
+def terminate_server():
+    for name in server:
+        server[name].terminate()
+
+
+class SyncManager():
+    def __init__(self) -> None:
+        global sync_namespace
+        self.manager = multiprocessing.Manager()
+        self.async_objs = {
+            'manager_queues': [],
+            'multiprocessing_queues': [],
+            'namespace': [],
+            'locks': []
+        }
+        sync_namespace = self.get_namespace()
+    
+    def get_namespace(self):
+        namespace = self.manager.Namespace()
+        self.async_objs['namespace'].append(namespace)
+        return namespace
+
+    def get_queue(self):
+        queue = self.manager.Queue()
+        self.async_objs['manager_queues'].append(queue)
+        return queue
+
+    def get_thread_queue(self):
+        queue = Queue()
+        return queue
+
+    def get_multiprocessing_queue(self):
+        queue = multiprocessing.Queue()
+        self.async_objs['multiprocessing_queues'].append(queue)
+        return queue
+
+    def get_lock(self):
+        lock = multiprocessing.Lock()
+        self.async_objs['locks'].append(lock)
+        return lock
+    
+    def broadcast_to_queues(self, msg):
+        for q in self.async_objs['multiprocessing_queues']:
+            q.put(msg)
+        for q in self.async_objs['manager_queues']:
+            q.put(msg)
+
+    def destory(self):
+        for q in self.async_objs['multiprocessing_queues']:
+            q.close()
+            del q
+        for q in self.async_objs['manager_queues']:
+            q._close()
+            del q
+        for ns in self.async_objs['namespace']:
+            del ns
+        for lock in self.async_objs['locks']:
+            del lock
+        self.manager.shutdown()
+        self.manager.join()
+        self.manager = None
+        self.async_objs = None
+
+
+sync_manager = {}
+sync_namespace = {}
 
 
 class ConfigProxy:
@@ -89,7 +159,10 @@ class ConfigProxy:
         return _cm.config[k]
 
     def raw(self):
-        return _cm.config
+        if hasattr(_cm.config, 'raw'):
+            return _cm.config.raw()
+        else:
+            return _cm.config
 
 
 config = ConfigProxy()
@@ -151,6 +224,8 @@ def status_listener(event):
     module_status = system.get('status')
     if module_status == 'READY':
         status_checkpoints[module] = True
+    else:
+        status_checkpoints[module] = False
 
     is_all_status_checkpoints_ok = reduce(lambda x, y: x and y, status_checkpoints.values())
     if is_all_status_checkpoints_ok:
@@ -165,7 +240,11 @@ def status_listener(event):
             webbrowser.open(f'http://localhost:{config["mock.port"]}')
 
 def process_status_listener():
-    server['event'].subscribe('system', status_listener)
+    server['event'].subscribe({
+        'name': 'status_listener',
+        'channel': 'system',
+        'func': status_listener
+    })
 
 
 def status_ready():
