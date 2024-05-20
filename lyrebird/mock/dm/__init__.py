@@ -63,6 +63,8 @@ class DataManager:
                 self.async_activate_group = RedisDict(host=config.get('redis_host', '127.0.0.1'),
                                                     port=config.get('redis_port', 6379),
                                                     db=config.get('redis_db', 0))
+                self.activate = dm_asyncio_activate_decorator(self, self.activate)
+                self.deactivate = dm_asyncio_activate_decorator(self, self.deactivate)
             except Exception as e:
                 config['enable_multiprocess'] = False
                 logger.error(f'Start enable multiprocess failed, Redis connection error: {e}')
@@ -398,9 +400,6 @@ class DataManager:
         self._check_activated_data_rules_contains_request_data()
         self._adapter._after_activate(**kwargs)
 
-        if application.config.get('enable_multiprocess', False):
-            application.config['activated_group'] = self.activated_group
-
     def _check_activated_data_rules_contains_request_data(self):
         self.is_activated_data_rules_contains_request_data = False
         for _data_id in self.activated_data:
@@ -469,9 +468,6 @@ class DataManager:
         self.activated_data = OrderedDict()
         self.activated_group = {}
         self._check_activated_data_rules_contains_request_data()
-
-        if application.config.get('enable_multiprocess', False):
-            application.config['activated_group'] = self.activated_group
 
     def reactive(self):
         for _group_id in self.activated_group:
@@ -1427,9 +1423,6 @@ class DataManagerV2(DataManager):
         self._check_activated_data_rules_contains_request_data()
         self._adapter._after_activate(activated_group = group_info, activated_data = self.activated_data, **kwargs)
 
-        if application.config.get('enable_multiprocess', False):
-            application.config['activated_group'] = self.activated_group
-
     def deactivate(self):
         """
         Clear activated data
@@ -1440,9 +1433,6 @@ class DataManagerV2(DataManager):
         self.activated_data = OrderedDict()
         self.activated_group = {}
         self._check_activated_data_rules_contains_request_data()
-
-        if application.config.get('enable_multiprocess', False):
-            application.config['activated_group'] = self.activated_group
 
     """
     cut/copy/paste

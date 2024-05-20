@@ -29,13 +29,8 @@ from lyrebird.log import LogServer
 from lyrebird.utils import RedisDict, RedisManager
 from lyrebird.compatibility import compat_redis_check
 from lyrebird import utils
-import builtins
 
 logger = log.get_logger()
-ori_print = builtins.print
-def new_print(*args, **kwargs):
-    logger.info(' '.join(map(str, args)))
-    
 
 def main():
     """
