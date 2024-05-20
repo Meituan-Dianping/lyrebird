@@ -133,8 +133,9 @@ class LyrebirdDatabaseServer(ThreadServer):
     def event_receiver(self, event, channel=None, event_id=None):
         # event is decoded , which should be encoded when save
         # deepcopy to avoid affecting checker running
+        event = copy.deepcopy(event)
         if channel == 'flow':
-            application.encoders_decoders.encoder_handler(copy.deepcopy(event['flow']))
+            application.encoders_decoders.encoder_handler(event['flow'])
 
         content = json.dumps(event, ensure_ascii=False)
         if isinstance(event, dict):
