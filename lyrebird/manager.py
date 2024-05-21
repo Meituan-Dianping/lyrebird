@@ -108,8 +108,6 @@ def main():
         custom_conf['redis_db'] = args.redis_db
     if args.enable_multiprocess and compat_redis_check():
         custom_conf['enable_multiprocess'] = True
-    else:
-        custom_conf['enable_multiprocess'] = False
 
     application._cm = ConfigManager(conf_path_list=args.config, custom_conf=custom_conf)
 
