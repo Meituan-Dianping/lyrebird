@@ -1,6 +1,7 @@
 import pytest
 from lyrebird import application
 from lyrebird.mock import context
+from lyrebird.application import SyncManager
 
 SERVER_NAMES = ['event', 'log', 'mock', 'task', 'checker', 'db', 'plugin']
 
@@ -37,3 +38,12 @@ def setup_and_teardown_environment():
     application.on_response_upstream = bak_on_response_upstream
     context.application.socket_io = bak_socketio
     context.application.data_manager = bak_dm
+
+
+@pytest.fixture(scope='function', autouse=True)
+def init_sync_manager():
+    application.sync_manager = SyncManager()
+    yield
+    application.sync_manager.broadcast_to_queues(None)
+    application.sync_manager.destory()
+    application.sync_manager = None

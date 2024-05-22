@@ -77,6 +77,7 @@ def client(root, tmpdir):
     _dm.set_root(root)
     with server.app.test_client() as client:
         yield client
+    server.terminate()
     del server
 
 

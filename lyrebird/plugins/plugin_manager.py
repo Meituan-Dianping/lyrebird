@@ -84,9 +84,14 @@ class PluginManager(StaticServer):
             # Subscribe event linstener
             event_service = application.server['event']
             for event_option in plugin.manifest.event:
-                channel = event_option[0]
-                callback_func = event_option[1]
-                event_service.subscribe(channel, callback_func)
+                func_info = {
+                    'channel': event_option[0],
+                    'func': event_option[1],
+                    'name': event_option[1].__name__,
+                    'origin': event_option[1].__code__.co_filename,
+                    'process': event_option[2] if len(event_option)>2 and isinstance(event_option[2], bool) else False
+                }
+                event_service.subscribe(func_info)
 
             # Subscribe handler on request
             for handler in plugin.manifest.on_request:

@@ -1,4 +1,5 @@
 import os
+import sys
 import signal
 import pytest
 import time
@@ -89,7 +90,7 @@ class Lyrebird:
 
     def start(self, checker_path=[]):
 
-        cmdline = f'python3 -m lyrebird -b -v --no-mitm --mock {self.port} --extra-mock {self.extra_mock_port}'
+        cmdline = f'{sys.executable} -m lyrebird -b -v --no-mitm --mock {self.port} --extra-mock {self.extra_mock_port}'
         for path in checker_path:
             cmdline = cmdline + f' --script {path}'
         self.lyrebird_process = subprocess.Popen(cmdline, shell=True, start_new_session=True)
@@ -103,9 +104,9 @@ class Lyrebird:
     def stop(self):
         if self.lyrebird_process:
             try:
-                os.killpg(self.lyrebird_process.pid, signal.SIGTERM)
+                os.killpg(self.lyrebird_process.pid, signal.SIGINT)
             except PermissionError:
-                os.kill(self.lyrebird_process.pid, signal.SIGTERM)
+                os.kill(self.lyrebird_process.pid, signal.SIGINT)
             _wait_exception(requests.get, args=[self.api_status])
             self.lyrebird_process = None
 

@@ -39,6 +39,7 @@ def client():
     server.app.testing = True
     with server.app.test_client() as client:
         yield client
+    server.terminate()
 
 
 @pytest.fixture

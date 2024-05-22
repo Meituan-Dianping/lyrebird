@@ -28,6 +28,8 @@ def event_server(tmpdir):
     application.server['event'] = server
     yield server
     server.stop()
+    application.sync_manager.broadcast_to_queues(None)
+    server.terminate()
 
 
 @pytest.fixture

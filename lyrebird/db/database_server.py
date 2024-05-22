@@ -3,7 +3,7 @@ import math
 import datetime
 import traceback
 import time
-from queue import Queue
+import copy
 from pathlib import Path
 from lyrebird import application
 from lyrebird import log
@@ -58,10 +58,15 @@ class LyrebirdDatabaseServer(ThreadServer):
             logger.warning("Restarting will delete the broken database by default, historical events in inspector-pro will be lost, please be careful.")
 
         # init queue
-        self.storage_queue = Queue()
+        self.storage_queue = application.sync_manager.get_queue()
 
         # subscribe all channel
-        application.server['event'].subscribe('any', self.event_receiver)
+        application.server['event'].subscribe({
+            'name': 'event_receiver',
+            'origin': self,
+            'channel': 'any',
+            'func': self.event_receiver
+        })
     
     def auto_alter_tables(self, engine):
         metadata = MetaData()
@@ -131,8 +136,9 @@ class LyrebirdDatabaseServer(ThreadServer):
 
     def event_receiver(self, event, channel=None, event_id=None):
         # event is decoded , which should be encoded when save
-        # event is deepcopy when created, no needs to copy again
+        # deepcopy to avoid affecting checker running
         if channel == 'flow':
+            event = copy.deepcopy(event)
             application.encoders_decoders.encoder_handler(event['flow'])
 
         content = json.dumps(event, ensure_ascii=False)
@@ -151,6 +157,8 @@ class LyrebirdDatabaseServer(ThreadServer):
         while self.running:
             try:
                 event = self.storage_queue.get()
+                if event is None:
+                    break
                 session.add(event)
                 session.commit()
                 context.emit('db_action', 'add event log')

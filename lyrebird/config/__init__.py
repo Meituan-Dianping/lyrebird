@@ -8,6 +8,7 @@ from packaging import version
 from lyrebird import log as nlog
 from lyrebird import application
 
+from lyrebird.utils import RedisDict
 from lyrebird.config.diff_mode import SettingDiffMode
 from lyrebird.config.checker_switch import SettingCheckerSwitch
 
@@ -62,6 +63,16 @@ class ConfigManager():
                 self.update_conf_source(conf_path)
         if custom_conf:
             self.update_conf_custom(custom_conf)
+
+        if self.config.get('enable_multiprocess', False):
+            try:
+                self.config = RedisDict(data=self.config,
+                                        host=self.config.get('redis_host', '127.0.0.1'),
+                                        port=self.config.get('redis_port', 6379),
+                                        db=self.config.get('redis_db', 0))
+            except Exception as e:
+                self.config['enable_multiprocess'] = False
+                logger.error(f'Start enable multiprocess failed, Redis connection error:\n{e}')
 
         self.initialize_personal_config()
 

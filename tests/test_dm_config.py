@@ -6,7 +6,6 @@ from copy import deepcopy
 import lyrebird
 from .utils import FakeSocketio, FakeEvnetServer
 from lyrebird.mock import dm
-from lyrebird.event import EventServer
 from lyrebird.config import ConfigManager
 from lyrebird.checker import LyrebirdCheckerServer
 from lyrebird.config import CONFIG_TREE_SHOW_CONFIG

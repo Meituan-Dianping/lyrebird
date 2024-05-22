@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from collections import OrderedDict
 from lyrebird import utils, application
 from lyrebird.log import get_logger
+from lyrebird.utils import RedisDict
 from lyrebird.application import config
 from lyrebird.mock import context
 from lyrebird.mock.dm.match import MatchRules
@@ -56,6 +57,17 @@ class DataManager:
 
         self.tree = []
         self.open_nodes = []
+
+        if config.get('enable_multiprocess', False):
+            try:
+                self.async_activate_group = RedisDict(host=config.get('redis_host', '127.0.0.1'),
+                                                    port=config.get('redis_port', 6379),
+                                                    db=config.get('redis_db', 0))
+                self.activate = dm_asyncio_activate_decorator(self, self.activate)
+                self.deactivate = dm_asyncio_activate_decorator(self, self.deactivate)
+            except Exception as e:
+                config['enable_multiprocess'] = False
+                logger.error(f'Start enable multiprocess failed, Redis connection error: {e}')
 
     @property
     def snapshot_workspace(self):
@@ -1480,6 +1492,18 @@ class DataManagerV2(DataManager):
         super().save_data(data)
         self.reload()
 
+
+# -----------------
+# decorator
+# -----------------
+
+def dm_asyncio_activate_decorator(self, func):
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        self.async_activate_group.clear()
+        self.async_activate_group.update(self.activated_group)
+        return result
+    return wrapper
 
 # -----------------
 # Exceptions
