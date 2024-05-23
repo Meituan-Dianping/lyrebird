@@ -209,7 +209,6 @@ class EventServer(ThreadServer):
             self.broadcast_executor = ThreadPoolExecutor(thread_name_prefix='event-broadcast-')
             self.process_executor = CustomExecuteServer()
             self.publish_server = PublishServer()
-            application.server['event_process_executor'] = self.process_executor
 
     def broadcast_handler(self, func_info, event, args, kwargs, process_queue=None):
         """
@@ -291,6 +290,7 @@ class EventServer(ThreadServer):
         self.process_executor.async_obj['publish_queue'] = self.publish_server.publish_msg_queue
         self.process_executor.async_obj['eventserver'] = EventServer
         self.process_executor.start()
+        application.server['event_process_executor'] = self.process_executor
         EventServer.async_starting = True
 
     def stop(self):
