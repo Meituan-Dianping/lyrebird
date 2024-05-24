@@ -79,7 +79,7 @@ def main():
     parser.add_argument('--database', dest='database', help='Set a database path. Default is "~/.lyrebird/lyrebird.db"')
     parser.add_argument('--es', dest='extra_string', action='append', nargs=2, help='Set a custom config')
     parser.add_argument('--no-mitm', dest='no_mitm', action='store_true', help='Start without mitmproxy on 4272')
-    parser.add_argument('--enable-multiprocess', dest='enable_multiprocess', action='store_true', help='change event based on multithread to multiprocess(reply on redis)')
+    parser.add_argument('--enable-multiprocess', dest='enable_multiprocess', help='change event based on multithread to multiprocess(reply on redis)')
     parser.add_argument('--redis-port', dest='redis_port', type=int, help='specifies the redis service port currently in use, defalut is 6379')
     parser.add_argument('--redis-ip', dest='redis_ip', help='specifies the redis service ip currently in use, defalut is localhost')
     parser.add_argument('--redis-db', dest='redis_db', help='specifies the redis service db currently in use, defalut is 0')
@@ -106,9 +106,12 @@ def main():
         custom_conf['redis_port'] = args.redis_port
     if args.redis_db:
         custom_conf['redis_db'] = args.redis_db
-    if args.enable_multiprocess and compat_redis_check():
+    # --enable-multiprocess has the highest priority, 
+    # When args.enable_multiprocess is None, it is controlled by config or defaults to False
+    enable_multiprocess = args.enable_multiprocess.lower() if isinstance(args.enable_multiprocess, str) else None
+    if enable_multiprocess == 'true' and compat_redis_check():
         custom_conf['enable_multiprocess'] = True
-    else:
+    elif enable_multiprocess == 'false':
         custom_conf['enable_multiprocess'] = False
 
     application._cm = ConfigManager(conf_path_list=args.config, custom_conf=custom_conf)

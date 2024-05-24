@@ -290,7 +290,9 @@ class EventServer(ThreadServer):
         self.process_executor.async_obj['publish_queue'] = self.publish_server.publish_msg_queue
         self.process_executor.async_obj['eventserver'] = EventServer
         self.process_executor.start()
+        application.server['event_process_executor'] = self.process_executor
         EventServer.async_starting = True
+        self.publish('system', {'system': {'action': 'event.multiprocess', 'module': 'event_server', 'status': 'READY'}})
 
     def stop(self):
         self.publish('system', {'name': 'event.stop'})
