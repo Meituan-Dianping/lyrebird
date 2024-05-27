@@ -270,7 +270,8 @@ def run(args: argparse.Namespace):
         application.stop_server()
         application.terminate_server()
         application.sync_manager.destory()
-        RedisManager.destory()
+        if application.config.get('enable_multiprocess', False):
+            RedisManager.destory()
         threading.Event().set()
         print('!!!Ctrl-C pressed. Lyrebird stop!!!')
         os._exit(0)
