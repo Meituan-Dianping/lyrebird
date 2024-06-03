@@ -75,6 +75,7 @@ class MockHandler:
                 'group_id': activated_group['id'],
                 'mock_id': hit_data['id']
             })
+            handler_context.flow['apiDiffConfig'] = hit_data.get('apiDiffConfig')
             return
 
         logger.info(
