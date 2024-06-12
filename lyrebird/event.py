@@ -189,6 +189,7 @@ class PublishServer(ThreadServer):
 class EventServer(ThreadServer):
 
     async_starting = False
+    publish_trace_deep = 3
 
     def __init__(self, no_start = False):
         super().__init__()  
@@ -333,9 +334,9 @@ class EventServer(ThreadServer):
 
             # Add event sender
             stack = inspect.stack()
-            script_path = stack[2].filename
+            script_path = stack[EventServer.publish_trace_deep].filename
             script_name = script_path[script_path.rfind('/') + 1:]
-            function_name = stack[2].function
+            function_name = stack[EventServer.publish_trace_deep].function
             sender_dict = {
                 "file": script_name,
                 "function": function_name
