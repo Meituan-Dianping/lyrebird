@@ -553,6 +553,25 @@ class RedisData:
         self.redis.delete(self.uuid)
         self.redis.close()
 
+    def copy(self):
+        # Use the copy method with caution, especially during the create and release phases.
+        return type(self)(host=self.host, port=self.port, db=self.db, param_uuid=self.uuid)
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        if self.uuid != other.uuid:
+            return False
+        if self.host != other.host:
+            return False
+        if self.port != other.port:
+            return False
+        if self.db != other.db:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __getstate__(self):
         return pickle.dumps({
@@ -599,6 +618,9 @@ class RedisDict(RedisData):
     def __contains__(self, key):
         return self.redis.hexists(self.uuid, key)
 
+    def __iter__(self):
+        return self.raw()
+
     def keys(self):
         return [key.decode() for key in self.redis.hkeys(self.uuid)]
 
@@ -618,7 +640,22 @@ class RedisDict(RedisData):
         for key, value in data.items():
             self[key] = value
         self.redis.expire(self.uuid, REDIS_EXPIRE_TIME)
-    
+
+    def pop(self, key, default=None):
+        if key not in self:
+            return default
+        else:
+            value = self.get(key, default)
+            del self[key]
+            return value
+
+    def setdefault(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            self[key] = default
+            return default
+
     def clear(self):
         self.redis.delete(self.uuid)
 
@@ -665,7 +702,7 @@ class RedisHookedDict(RedisHook, dict):
         return _hook_value(self, key, dict.__getitem__(self, key))
 
     def __setitem__(self, key, value):
-        dict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, _hook_value(self, key, value))
         self.parent[self.key] = self
 
     def __delitem__(self, key):
@@ -679,6 +716,7 @@ class RedisHookedDict(RedisHook, dict):
     def __deepcopy__(self, memo):
         return deepcopy(dict(self), memo)
 
+
 class RedisHookedList(RedisHook, list):
     def __init__(self, parent, key, value):
         list.__init__(self, value)
@@ -688,7 +726,7 @@ class RedisHookedList(RedisHook, list):
         return _hook_value(self, index, list.__getitem__(self, index))
 
     def __setitem__(self, index, value):
-        list.__setitem__(self, index, _hook_value(value))
+        list.__setitem__(self, index, _hook_value(self, index, value))
         self.parent[self.key] = self
 
     def __delitem__(self, index):
@@ -708,7 +746,7 @@ class RedisHookedSet(RedisHook, set):
         RedisHook.__init__(self, parent, key)
 
     def add(self, value):
-        set.add(self, _hook_value(value))
+        set.add(self, _hook_value(self, None, value))
         self.parent[self.key] = self
 
     def remove(self, value):
