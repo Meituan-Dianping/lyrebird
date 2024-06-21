@@ -662,6 +662,9 @@ class RedisDict(RedisData):
     def raw(self):
         return {key.decode(): json.loads(value.decode()) for key, value in self.redis.hgetall(self.uuid).items()}
 
+    def __hash__(self):
+        return hash((self.uuid, self.host, self.port, self.db))
+
     def __len__(self):
         return len(self.redis.hkeys(self.uuid))
 
@@ -677,8 +680,6 @@ def _hook_value(parent, key, value):
         return RedisHookedDict(parent, key, value)
     elif isinstance(value, list):
         return RedisHookedList(parent, key, value)
-    elif isinstance(value, set):
-        return RedisHookedSet(parent, key, value)
     else:
         return value
 
@@ -739,19 +740,3 @@ class RedisHookedList(RedisHook, list):
 
     def __deepcopy__(self, memo):
         return deepcopy(list(self), memo)
-
-class RedisHookedSet(RedisHook, set):
-    def __init__(self, parent, key, value):
-        set.__init__(self, value)
-        RedisHook.__init__(self, parent, key)
-
-    def add(self, value):
-        set.add(self, _hook_value(self, None, value))
-        self.parent[self.key] = self
-
-    def remove(self, value):
-        set.remove(self, value)
-        self.parent[self.key] = self
-
-    def __deepcopy__(self, memo):
-        return deepcopy(set(self), memo)
