@@ -43,7 +43,7 @@ def make_raw_headers_line(request: web.Request):
     return json.dumps(raw_headers, ensure_ascii=False)
 
 
-async def make_response_header(proxy_resp_headers: dict, context: LyrebirdProxyContext, data=None):
+def make_response_header(proxy_resp_headers: dict, context: LyrebirdProxyContext, data=None):
     response_headers = {}
     for k, v in proxy_resp_headers.items():
         if k.lower() == 'content-length':
