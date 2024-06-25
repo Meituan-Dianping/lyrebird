@@ -43,7 +43,7 @@ def make_raw_headers_line(request: web.Request):
     return json.dumps(raw_headers, ensure_ascii=False)
 
 
-def make_response_header(proxy_resp_headers: dict, context: LyrebirdProxyContext, data=None):
+async def make_response_header(proxy_resp_headers: dict, context: LyrebirdProxyContext, data=None):
     response_headers = {}
     for k, v in proxy_resp_headers.items():
         if k.lower() == 'content-length':
@@ -81,7 +81,7 @@ async def send_request(context: LyrebirdProxyContext, target_url):
             proxy_resp_status = _resp.status
             proxy_resp_headers = _resp.headers
             if 'Transfer-Encoding' in proxy_resp_headers and proxy_resp_headers.get('Transfer-Encoding') == 'chunked':
-                response_headers = make_response_header(proxy_resp_headers, context)
+                response_headers = await make_response_header(proxy_resp_headers, context)
                 resp = web.StreamResponse(status=proxy_resp_status, headers=response_headers)
                 await resp.prepare(request)
                 async for data in _resp.content.iter_any():
@@ -89,7 +89,7 @@ async def send_request(context: LyrebirdProxyContext, target_url):
                 await resp.write_eof()
             else:
                 proxy_resp_data = await _resp.read()
-                response_headers = make_response_header(proxy_resp_headers, context, proxy_resp_data)
+                response_headers = await make_response_header(proxy_resp_headers, context, proxy_resp_data)
                 resp = web.Response(status=proxy_resp_status, body=proxy_resp_data, headers=response_headers)
     return resp
 
