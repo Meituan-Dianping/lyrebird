@@ -114,12 +114,12 @@ def callback_func_run_statistic(callback_fn, args, kwargs, report_info):
         return
     if not application.config.get('event.lyrebird_metrics_report', True):
         return
-    application.server['event'].publish('lyrebird_metrics', {
+    application.server['event'].publish('lyrebird_metrics', {'lyrebird_metrics': {
         'sender': 'EventServer',
         'action': 'broadcast_handler',
         'duration': event_duration,
         'trace_info': str(report_info['trace_info'])
-    })
+    }})
 
 
 class CustomExecuteServer(ProcessServer):
