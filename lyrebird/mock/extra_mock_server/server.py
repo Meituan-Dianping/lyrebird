@@ -87,10 +87,12 @@ async def send_request(context: LyrebirdProxyContext, target_url):
                 async for data in _resp.content.iter_any():
                     await resp.write(data)
                 await resp.write_eof()
+                logger.info(f'Stream Request finished: {proxy_resp_status} {context.origin_url}')
             else:
                 proxy_resp_data = await _resp.read()
                 response_headers = await make_response_header(proxy_resp_headers, context, proxy_resp_data)
                 resp = web.Response(status=proxy_resp_status, body=proxy_resp_data, headers=response_headers)
+                logger.info(f'Bytes Response finished: {proxy_resp_status} {context.origin_url}')
     return resp
 
 
