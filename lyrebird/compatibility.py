@@ -134,6 +134,9 @@ def monkey_patch_application(async_obj, async_funcs=None, async_values=None):
     from lyrebird.event import EventServer
     from lyrebird import event
 
+    # TODO Short-term fix, Optimized to general logic
+    EventServer.publish_trace_deep -= 1
+
     msg_queue = async_obj['msg_queue']
     process_namespace = async_obj['process_namespace']
     
