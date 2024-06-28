@@ -3,8 +3,8 @@ import traceback
 from datetime import datetime
 from urllib.parse import urlparse
 from collections import OrderedDict
+from copy import deepcopy
 
-from lyrebird import application
 from lyrebird.log import get_logger
 from lyrebird.mock.dm.match import MatchRules
 from lyrebird.utils import flow_data_2_str, render
@@ -31,7 +31,7 @@ class TempMock:
         _matched_data = []
         for data in self.activated_data.values():
             if MatchRules.match(flow, data.get('rule')):
-                _matched_data.append(data)
+                _matched_data.append(deepcopy(data))
                 break
 
         for response_data in _matched_data:
