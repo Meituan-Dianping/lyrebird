@@ -171,10 +171,12 @@ class LyrebirdDatabaseServer(ThreadServer):
                     logger.warning(f'DB would be reset: {self.database_uri}')
                     self.error_log = []
                     self.reset()
+                    session = self._scoped_session()
                 else:
                     session.rollback()
             except Exception:
                 logger.error(f'Save event failed. {traceback.format_exc()}')
+                session.rollback()
 
     def stop(self):
         super().stop()
