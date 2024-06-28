@@ -34,6 +34,8 @@ Base = declarative_base()
 class LyrebirdDatabaseServer(ThreadServer):
     def __init__(self, path=None):
         self.database_uri = None
+        self.error_log = []
+        self.error_log_threshold = application.config.get('event.db_connection_recover_threshold', 0)
         super().__init__()
 
         if not path or path.isspace():
@@ -162,10 +164,15 @@ class LyrebirdDatabaseServer(ThreadServer):
                 session.add(event)
                 session.commit()
                 context.emit('db_action', 'add event log')
-            except OperationalError:
+            except OperationalError as e:
                 logger.error(f'Save event failed. {traceback.format_exc()}')
-                logger.warning(f'DB would be reset: {self.database_uri}')
-                self.reset()
+                self.error_log.append(e)
+                if len(self.error_log) > self.error_log_threshold:
+                    logger.warning(f'DB would be reset: {self.database_uri}')
+                    self.error_log = []
+                    self.reset()
+                else:
+                    session.rollback()
             except Exception:
                 logger.error(f'Save event failed. {traceback.format_exc()}')
 
