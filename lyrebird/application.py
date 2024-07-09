@@ -1,5 +1,6 @@
 import webbrowser
 
+import atexit
 import multiprocessing
 from queue import Queue
 from flask import jsonify
@@ -138,7 +139,6 @@ class SyncManager():
         for lock in self.async_objs['locks']:
             del lock
         self.manager.shutdown()
-        self.manager.join()
         self.manager = None
         self.async_objs = None
 

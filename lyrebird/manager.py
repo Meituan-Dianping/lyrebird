@@ -95,6 +95,21 @@ def main():
         print(version.LYREBIRD)
         return
 
+    # stop event handler
+    def signal_handler(signum, frame):
+        application.stop_server()
+        application.terminate_server()
+        if application.sync_manager:
+            application.sync_manager.destory()
+        if application.config and application.config.get('enable_multiprocess', False):
+            RedisManager.destory()
+        threading.Event().set()
+        print('!!!Ctrl-C pressed. Lyrebird stop!!!')
+        os._exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
     Path('~/.lyrebird').expanduser().mkdir(parents=True, exist_ok=True)
 
     custom_conf = {es[0]: es[1] for es in args.extra_string} if args.extra_string else {}
@@ -264,20 +279,6 @@ def run(args: argparse.Namespace):
 
     # main process is ready, publish system event
     application.status_ready()
-
-    # stop event handler
-    def signal_handler(signum, frame):
-        application.stop_server()
-        application.terminate_server()
-        application.sync_manager.destory()
-        if application.config.get('enable_multiprocess', False):
-            RedisManager.destory()
-        threading.Event().set()
-        print('!!!Ctrl-C pressed. Lyrebird stop!!!')
-        os._exit(0)
-
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
 
     threading.Event().wait()
 
