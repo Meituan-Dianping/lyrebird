@@ -1,6 +1,5 @@
 import webbrowser
 
-import atexit
 import multiprocessing
 from queue import Queue
 from flask import jsonify
