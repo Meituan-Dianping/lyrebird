@@ -3,6 +3,7 @@ import uuid
 import json
 import time
 import codecs
+from copy import deepcopy
 import shutil
 import traceback
 from pathlib import Path
@@ -502,7 +503,7 @@ class DataManager:
         for _data_id in self.activated_data:
             _data = self.activated_data[_data_id]
             if self._is_match_rule(decode_flow, _data.get('rule')):
-                _matched_data.append(_data)
+                _matched_data.append(deepcopy(_data))
                 break
 
         for response_data in _matched_data:
