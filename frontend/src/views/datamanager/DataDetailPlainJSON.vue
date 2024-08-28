@@ -130,7 +130,7 @@ export default {
     save () {
       const newData = {}
       Object.assign(newData, JSON.parse(this.editorCache.info))
-      newData['json'] = this.editorCache.json
+      newData['json'] = JSON.parse(this.editorCache.json)
       this.$store.dispatch('saveDataDetail', newData)
     },
     onJsonPathChange (payload) {
