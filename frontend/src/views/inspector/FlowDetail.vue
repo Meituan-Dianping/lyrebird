@@ -242,6 +242,7 @@ export default {
       newData['response'] = newResp
 
       newData.id = this.editorCache.id
+      newData['lyrebirdInternalFlow'] = 'tempmock'
 
       this.$store.dispatch('createTempMockData', newData)
     },

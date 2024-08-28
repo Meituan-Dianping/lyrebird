@@ -183,6 +183,7 @@ class MockData(Resource):
         data = request.json.get('data')
 
         if parent_id == 'tmp_group':
+            application.encoders_decoders.encoder_handler(data)
             new_data_id = context.application.data_manager.temp_mock_tree.add_data(data)
             return application.make_ok_response(data_id=new_data_id)
 
