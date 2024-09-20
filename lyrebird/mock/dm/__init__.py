@@ -1415,10 +1415,15 @@ class DataManagerV2(DataManager):
         self.activated_group[search_id] = group_info
         # Apply config
         if config:
-            try:
-                self.activate_config = json.loads(config)
-            except Exception as e:
-                logger.error('Failed to parse the config, the config did not take effect!')
+            if isinstance(config, str):
+                try:
+                    self.activate_config = json.loads(config)
+                except json.JSONDecodeError:
+                    logger.error('Failed to parse the config, the config did not take effect!')
+            elif isinstance(config, dict):
+                self.activate_config = config
+            else:
+                logger.error('Config must be a JSON string or a JSON object!')
             application._cm.add_config(self.activate_config, type='dm', level=-1, apply_now=True)
         # TODO:After activate
         self._check_activated_data_rules_contains_request_data()
