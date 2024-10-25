@@ -15,7 +15,7 @@ export const getFlowDetailOrigin = (flowId) => {
 
 export const getFlowList = () => {
   return axios({
-    url: '/api/flow'
+    url: '/api/flow?for_display=true'
   })
 }
 
