@@ -47,7 +47,7 @@ def get_flow_list_by_filter(filter_obj, for_display):
     target_items = Filter.get_items_after_filtration(all_items, filter_obj)
     for item in target_items:
         # If the response is not fully processed, do not return.
-        if not for_display and (not item.get('response') or not item.get('response', {}).get('headers', {}).get('lyrebird')):
+        if not for_display and item['duration'] == 0:
            continue
 
         info = dict(

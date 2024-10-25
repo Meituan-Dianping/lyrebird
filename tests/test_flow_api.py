@@ -142,7 +142,7 @@ def client(checker_server):
 
 
 def test_flow_list_with_get(client):
-    resp = client.get('/api/flow')
+    resp = client.get('/api/flow?for_display=true')
     assert len(resp.json) == 5
 
 
