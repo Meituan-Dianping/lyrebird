@@ -142,7 +142,7 @@ def client(checker_server):
 
 
 def test_flow_list_with_get(client):
-    resp = client.get('/api/flow')
+    resp = client.get('/api/flow?for_display=true')
     assert len(resp.json) == 5
 
 
@@ -174,7 +174,7 @@ def test_flow_with_id(client):
 
 def test_flow_with_id_and_decode_input_encode(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
@@ -185,7 +185,7 @@ def test_flow_with_id_and_decode_input_encode(client):
 
 def test_flow_with_id_and_decode_input_decode(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'i.meituan.com':
             flow_id = flow['id']
@@ -196,7 +196,7 @@ def test_flow_with_id_and_decode_input_decode(client):
 
 def test_flow_with_id_and_not_decode_input_encode(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
@@ -207,7 +207,7 @@ def test_flow_with_id_and_not_decode_input_encode(client):
 
 def test_flow_with_id_and_not_decode_input_decode(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'i.meituan.com':
             flow_id = flow['id']
@@ -218,7 +218,7 @@ def test_flow_with_id_and_not_decode_input_decode(client):
 
 def test_flow_with_id_and_default_input_encode(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
@@ -229,7 +229,7 @@ def test_flow_with_id_and_default_input_encode(client):
 
 def test_flow_with_id_and_default_input_decode(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'i.meituan.com':
             flow_id = flow['id']
@@ -240,7 +240,7 @@ def test_flow_with_id_and_default_input_decode(client):
 
 def test_flow_with_id_and_origin(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
@@ -252,7 +252,7 @@ def test_flow_with_id_and_origin(client):
 
 def test_flow_with_id_and_not_origin(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
@@ -265,7 +265,7 @@ def test_flow_with_id_and_not_origin(client):
 
 def test_flow_with_id_and_origin_capital(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
@@ -277,7 +277,7 @@ def test_flow_with_id_and_origin_capital(client):
 
 def test_flow_with_id_and_not_origin_capital(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
@@ -289,7 +289,7 @@ def test_flow_with_id_and_not_origin_capital(client):
 
 def test_flow_with_id_and_origin_and_decode(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
@@ -302,7 +302,7 @@ def test_flow_with_id_and_origin_and_decode(client):
 
 def test_flow_with_id_and_not_origin_and_decode(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
@@ -315,7 +315,7 @@ def test_flow_with_id_and_not_origin_and_decode(client):
 
 def test_flow_with_id_and_origin_and_not_decode(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
@@ -328,7 +328,7 @@ def test_flow_with_id_and_origin_and_not_decode(client):
 
 def test_flow_with_id_and_not_origin_and_not_decode(client):
     flow_id = None
-    flows = client.get('/api/flow').json
+    flows = client.get('/api/flow?for_display=true').json
     for flow in flows:
         if flow['request']['host'] == 'm.meituan.com':
             flow_id = flow['id']
