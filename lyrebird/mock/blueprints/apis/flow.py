@@ -47,7 +47,7 @@ def get_flow_list_by_filter(filter_obj, for_display):
     target_items = Filter.get_items_after_filtration(all_items, filter_obj)
     for item in target_items:
         # If the response is not fully processed, do not return.
-        if not for_display and item['duration'] == 0:
+        if for_display == False and item['duration'] == 0:
            continue
 
         info = dict(
@@ -95,7 +95,8 @@ class FlowList(Resource):
     当前请求列表
     """
 
-    def get(self, for_display=False):
+    def get(self):
+        for_display = request.args.get('for_display', False)
         default_filter = context.application.selected_filter
         req_list = get_flow_list_by_filter(default_filter, for_display)
         return Response(json.dumps(req_list, ensure_ascii=False), mimetype='application/json', status=200)
