@@ -41,11 +41,15 @@ class Flow(Resource):
         return application.make_fail_response(f'Request {id} not found')
 
 
-def get_flow_list_by_filter(filter_obj):
+def get_flow_list_by_filter(filter_obj, for_display):
     all_items = context.application.cache.items()[::-1]
     req_list = []
     target_items = Filter.get_items_after_filtration(all_items, filter_obj)
     for item in target_items:
+        # If the response is not fully processed, do not return.
+        if for_display == False and item['duration'] == 0:
+           continue
+
         info = dict(
             id=item['id'],
             size=item['size'],
@@ -92,8 +96,9 @@ class FlowList(Resource):
     """
 
     def get(self):
+        for_display = request.args.get('for_display', False)
         default_filter = context.application.selected_filter
-        req_list = get_flow_list_by_filter(default_filter)
+        req_list = get_flow_list_by_filter(default_filter, for_display)
         return Response(json.dumps(req_list, ensure_ascii=False), mimetype='application/json', status=200)
 
     def delete(self):
@@ -122,7 +127,7 @@ class FlowList(Resource):
         elif action == 'search':
             filter_name = request.json.get('selectedFilter')
             filter_obj = context.application.get_and_update_selected_filter_by_name(filter_name)
-            req_list = get_flow_list_by_filter(filter_obj)
+            req_list = get_flow_list_by_filter(filter_obj, True)
             return Response(json.dumps(req_list, ensure_ascii=False), mimetype='application/json', status=200)
         else:
             return application.make_fail_response(f'action: {action} is not supported')
