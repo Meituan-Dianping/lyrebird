@@ -51,6 +51,7 @@ class LyrebirdProxyServer(ProcessServer):
     def start_mitmdump(self, queue, config, logger, mitmdump_path):
         proxy_port = config.get('proxy.port', 4272)
         mock_port = config.get('mock.port', 9090)
+        extra_mock_port = config.get('extra.mock.port', 9999)
         '''
         --ignore_hosts:
         The ignore_hosts option allows you to specify a regex which is matched against a host:port
@@ -79,7 +80,7 @@ class LyrebirdProxyServer(ProcessServer):
         if ignore_hosts:
             mitm_arguments += ['--ignore-hosts', ignore_hosts]
         mitmenv = os.environ
-        mitmenv['PROXY_PORT'] = str(mock_port)
+        mitmenv['PROXY_PORT'] = str(extra_mock_port)
         mitmenv['PROXY_FILTERS'] = json.dumps(config.get('proxy.filters', []))
         logger.info('HTTP proxy server starting...')
         subprocess.Popen([str(mitmdump_path)]+mitm_arguments, env=mitmenv)
