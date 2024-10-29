@@ -5,21 +5,22 @@
                 <v-col cols="10">
                     <v-list-item-content>
                         <v-list-item-title class="setting-name-title">
-                            {{settingsCurrentDetail.title}}
+                            {{ settingsCurrentDetail.title }}
                         </v-list-item-title>
-                        <v-list-item-subtitle style="margin-top: 5px;"
-                            class="setting-name-subtitle">{{settingsCurrentDetail.subtitle}}</v-list-item-subtitle>
+                        <v-list-item-subtitle style="margin-top: 5px;" class="setting-name-subtitle">{{
+                            settingsCurrentDetail.notice }}</v-list-item-subtitle>
                     </v-list-item-content>
                 </v-col>
                 <v-col cols="2">
-                    <v-btn depressed color="primary" style="margin-top: 20px;" width="100" v-if="submitButtonText !== ''" @click="submit">
-                    {{ submitButtonText }}
+                    <v-btn depressed color="primary" style="margin-top: 20px;" width="100" v-if="submitButtonText !== ''"
+                        @click="submit">
+                        {{ submitButtonText }}
                     </v-btn>
                 </v-col>
             </v-row>
 
         </v-list-item>
-        <v-sheet height="88vh" class="overflow-y-auto" style="padding: 10px;">
+        <v-sheet height="80vh" class="overflow-y-auto" style="padding: 10px;">
             <v-list>
                 <v-hover v-for="(config, index) in settingsCurrentDetail.configs" :key="index" v-slot="{ hover }">
                     <v-list-item three-line :class="{ 'bordered-hover': hover }">
@@ -27,35 +28,42 @@
                             <v-list-item-title class="setting-item-title">{{ config.title }}</v-list-item-title>
                             <v-list-item-subtitle class="setting-item-notice">{{ config.subtitle }}</v-list-item-subtitle>
                             <v-list-item-subtitle>
+                                <!-- Bool Template -->
+                                <v-switch v-if="config.category === 'bool'" v-model="submitForm[config.name]" hide-details dense
+                                    class="setting-item-card setting-content-switch" inset></v-switch>
+
                                 <!-- Text Template -->
-                                <v-text-field v-if="config.category === 'text'" v-model="submitForm[config.name]" class="setting-item-card dense-font" hide-details
-                                    single-line outlined dense>
+                                <v-text-field v-if="config.category === 'text'" v-model="submitForm[config.name]"
+                                    class="setting-item-card dense-font" hide-details single-line outlined dense>
                                 </v-text-field>
 
                                 <!-- Selector Template -->
-                                <v-select v-else-if="config.category === 'selector'" v-model="submitForm[config.name]" class="setting-item-card dense-font" hide-details
-                                    :items="config.options" outlined clearable dense>
+                                <v-select v-else-if="config.category === 'selector'" v-model="submitForm[config.name]"
+                                    class="setting-item-card dense-font" hide-details :items="config.options" outlined
+                                    clearable dense>
                                 </v-select>
 
                                 <!-- Dict Template -->
                                 <v-data-table v-else-if="config.category === 'dict'" dense :headers="dictHeaderTemplate"
-                                    :items="submitForm[config.name]" item-key="index => index" hide-default-footer disable-sort
-                                    disable-pagination disable-filtering>
+                                    :items="submitForm[config.name]" item-key="index => index" hide-default-footer
+                                    disable-sort disable-pagination disable-filtering>
                                     <template v-slot:item.k="item">
                                         <span v-if="item.item.isOp === false">{{ item.item.k }}</span>
-                                        <v-text-field v-else class="data-table-dcit-text-field" v-model="item.item.k" hide-details single-line
-                                            dense></v-text-field>
+                                        <v-text-field v-else class="data-table-dcit-text-field" v-model="item.item.k"
+                                            hide-details single-line dense></v-text-field>
                                     </template>
                                     <template v-slot:item.v="item">
                                         <span v-if="item.item.isOp === false">{{ item.item.v }}</span>
-                                        <v-text-field v-else class="data-table-dcit-text-field" v-model="item.item.v" hide-details single-line
-                                            dense></v-text-field>
+                                        <v-text-field v-else class="data-table-dcit-text-field" v-model="item.item.v"
+                                            hide-details single-line dense></v-text-field>
                                     </template>
                                     <template v-slot:item.opt="item">
-                                        <v-btn icon color="#5f5cca" v-if="item.item.isOp === false" @click="removeTableItem(config.name, index)">
+                                        <v-btn icon color="#5f5cca" v-if="item.item.isOp === false"
+                                            @click="removeTableItem(config.name, index)">
                                             <v-icon>mdi-delete</v-icon>
                                         </v-btn>
-                                        <v-btn icon color="#5f5cca" v-else @click="addTableItem(config.name, config.category)">
+                                        <v-btn icon color="#5f5cca" v-else
+                                            @click="addTableItem(config.name, config.category)">
                                             <v-icon>mdi-plus-circle-outline</v-icon>
                                         </v-btn>
                                     </template>
@@ -63,8 +71,8 @@
 
                                 <!-- List Template -->
                                 <v-data-table v-else-if="config.category === 'list'" dense :headers="listHeaderTemplate"
-                                    :items="submitForm[config.name]" item-key="index => index" hide-default-footer disable-sort disable-pagination
-                                    disable-filtering class="dense-font">
+                                    :items="submitForm[config.name]" item-key="index => index" hide-default-footer
+                                    disable-sort disable-pagination disable-filtering class="dense-font">
                                     <template v-slot:item.k="item">
                                         <span v-if="item.item.isOp === false">
                                             <v-icon>mdi-circle-small</v-icon>{{ item.item.k }}
@@ -73,10 +81,12 @@
                                             single-line dense></v-text-field>
                                     </template>
                                     <template v-slot:item.opt="item">
-                                        <v-btn icon color="#5f5cca" v-if="item.item.isOp === false" @click="removeTableItem(config.name, index)">
+                                        <v-btn icon color="#5f5cca" v-if="item.item.isOp === false"
+                                            @click="removeTableItem(config.name, index)">
                                             <v-icon>mdi-delete</v-icon>
                                         </v-btn>
-                                        <v-btn icon color="#5f5cca" v-else @click="addTableItem(config.name, config.category)">
+                                        <v-btn icon color="#5f5cca" v-else
+                                            @click="addTableItem(config.name, config.category)">
                                             <v-icon>mdi-plus-circle-outline</v-icon>
                                         </v-btn>
                                     </template>
@@ -120,37 +130,38 @@ export default {
             handler(newValue, oldValue) {
                 // first load, no data
                 this.$set(this, 'submitForm', {});
-                if (typeof newValue.name === 'undefined'){
+                if (typeof newValue.name === 'undefined') {
                     this.submitButtonText = ''
                     return
                 }
                 // change setting item, data refresh
-                if (typeof newValue.submitText === 'string'  && newValue.submitText.trim().length > 0) {
-                    this.submitButtonText = newValue.submitText
-                }else if(newValue.language === 'cn'){
+                if (newValue.language === 'cn') {
                     this.submitButtonText = '提交'
-                    for( const item of this.dictHeaderTemplate ) {
+                    for (const item of this.dictHeaderTemplate) {
                         item['text'] = item['textCn']
                     }
-                    for( const item of this.listHeaderTemplate ) {
+                    for (const item of this.listHeaderTemplate) {
                         item['text'] = item['textCn']
                     }
-                }else {
+                } else {
                     this.submitButtonText = 'Submit'
-                    for( const item of this.dictHeaderTemplate ) {
+                    for (const item of this.dictHeaderTemplate) {
                         item['text'] = item['textEn']
                     }
-                    for( const item of this.listHeaderTemplate ) {
+                    for (const item of this.listHeaderTemplate) {
                         item['text'] = item['textEn']
                     }
                 }
+                if (typeof newValue.submitText === 'string' && newValue.submitText.trim().length > 0) {
+                    this.submitButtonText = newValue.submitText
+                }
 
-                for( const config of newValue.configs ){
-                    if (config.category == 'text' || config.category == 'selector'){
+                for (const config of newValue.configs) {
+                    if (config.category == 'text' || config.category == 'selector' || config.category == 'bool') {
                         this.submitForm[config.name] = config.data
-                    }else if (config.category == 'dict'){
+                    } else if (config.category == 'dict') {
                         this.submitForm[config.name] = this.$set(this.submitForm, config.name, this.getDictItems(config.data))
-                    }else if (config.category == 'list'){
+                    } else if (config.category == 'list') {
                         this.submitForm[config.name] = this.$set(this.submitForm, config.name, this.getListItems(config.data))
                     }
                 }
@@ -200,25 +211,25 @@ export default {
         },
         addTableItem(name, category) {
             let tableData = this.submitForm[name]
-            if (category == 'dict'){
+            if (category == 'dict') {
                 tableData[tableData.length - 1]['isOp'] = false
                 tableData.push({ k: '', v: '', isOp: true })
-            }else if(category == 'list'){
+            } else if (category == 'list') {
                 tableData[tableData.length - 1]['isOp'] = false
                 tableData.push({ k: '', isOp: true })
             }
         },
-        submit(){
+        submit() {
             let data = {}
-            for(const config of this.settingsCurrentDetail.configs) {
-                if (config.category == 'text' || config.category == 'selector'){
+            for (const config of this.settingsCurrentDetail.configs) {
+                if (config.category == 'text' || config.category == 'selector' || config.category == 'bool') {
                     data[config.name] = this.submitForm[config.name]
-                }else if(config.category == 'dict'){
-                    data[config.name] = convertDictToOri(this.submitForm[config.name])
-                }else if(config.category == 'list'){
-                    data[config.name] = convertListToOri(this.submitForm[config.name])
+                } else if (config.category == 'dict') {
+                    data[config.name] = this.convertDictToOri(this.submitForm[config.name])
+                } else if (config.category == 'list') {
+                    data[config.name] = this.convertListToOri(this.submitForm[config.name])
                 }
-                
+
             }
             this.$store.dispatch('saveSettingsForm', {
                 'formName': this.settingsCurrentDetail.name,
@@ -273,6 +284,10 @@ export default {
     padding-bottom: 15px;
 }
 
+.setting-content-switch {
+    margin-left: 5px;
+}
+
 .data-table-list-text-field {
     max-width: 90%;
     padding-left: 24px;
@@ -281,6 +296,7 @@ export default {
 .data-table-dcit-text-field {
     max-width: 90%;
 }
+
 .v-list-item {
     border: 1px solid transparent;
     box-sizing: border-box;
@@ -288,8 +304,8 @@ export default {
 }
 
 .bordered-hover {
-  border: 1px solid #e0e0e0;
-  transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
 }
 
 .dense-font {
@@ -297,51 +313,31 @@ export default {
 }
 
 ::v-deep .v-text-field__slot input {
-  /* 这里的样式会应用到 v-text-field__slot 内的 input 元素 */
-  padding-top: 4px;
-  padding-bottom: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
+
 ::v-deep .v-select__selections input {
-  /* 这里的样式会应用到 v-text-field__slot 内的 input 元素 */
-  padding-top: 0px;
-  padding-bottom: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
-::v-deep .v-select.v-input--dense .v-select__selection--comma{
-  /* 这里的样式会应用到 v-text-field__slot 内的 input 元素 */
-  margin-top: 0;
-  margin-bottom: 0;
+
+::v-deep .v-select.v-input--dense .v-select__selection--comma {
+    margin-top: 0;
+    margin-bottom: 0;
 }
+
 ::v-deep .v-text-field--enclosed.v-input--dense:not(.v-text-field--solo).v-text-field--outlined .v-input__append-inner {
-  /* 这里的样式会应用到 v-text-field__slot 内的 input 元素 */
-  margin-top: 4px;
+    margin-top: 4px;
 }
 
 ::v-deep .v-select__selections {
-  /* 这里的样式会应用到 v-text-field__slot 内的 input 元素 */
-  padding-top: 4px;
-  padding-bottom: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 ::v-deep .setting-item-card.v-text-field--outlined.v-input--dense>.v-input__control>.v-input__slot {
-  min-height: 30px;
-} 
-
-
-/* ::v-deep {
-    $text-field-padding: 4px 0 4px !default;;
-  
-    .v-text-field {
-        .v-input__slot {
-            padding: $text-field-padding !important;
-        }
-    }
-} */
-
-/* ::v-deep .text-field-padding {
-  padding-top: 4px;
-  padding-bottom: 4px;
-  
-} */
-
+    min-height: 30px;
+}
 </style>
   

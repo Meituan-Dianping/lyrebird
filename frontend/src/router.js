@@ -6,6 +6,7 @@ import DataManager from './views/datamanager/DataManager.vue'
 import Checker from './views/checker/Checker.vue'
 import EventInspector from '@/views/event/EventInspector.vue'
 import PluginView from './views/PluginView.vue'
+import Settings from './views/settings/Settings.vue'
 
 //vue router error handler
 const originalPush = Router.prototype.push
@@ -74,6 +75,17 @@ export default new Router({
           path: '',
           name: 'inspector-pro',
           component: EventInspector,
+        },
+      ],
+    },
+    {
+      path: '/settings',
+      component: Main,
+      children: [
+        {
+          path: '',
+          name: 'settings',
+          component: Settings,
         },
       ],
     },

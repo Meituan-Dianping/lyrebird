@@ -251,7 +251,7 @@ class ConfigManager():
         self.personal_config = self.read_personal_config()
     
     def update_personal_config(self, config_dict: dict):
-        self.personal_config = config_dict
+        self.personal_config.update(config_dict)
         self.write_personal_config()
 
     def read_personal_config(self):

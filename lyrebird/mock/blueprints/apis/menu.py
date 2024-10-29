@@ -55,6 +55,15 @@ class Menu(Resource):
                     'version': plugin.version
                 }
             })
+        # Load settings page at last one
+        menu.append({
+            'name': 'settings',
+            'title': 'Settings',
+            'type': 'router',
+            'path': '/settings',
+            'icon': 'mdi-cog-outline'
+        })
+        
         # When there is no actived menu, the first one is displayed by default
         if not application.active_menu:
             self.set_active_menu(menu[0])
