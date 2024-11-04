@@ -56,3 +56,18 @@ class SettingsApi(Resource):
         if resp:
             return application.make_fail_response(str(resp))
         return application.make_ok_response()
+
+    def delete(self):
+        script_name = request.args.get('name')
+        if not script_name:
+            return application.make_fail_response('Get setting failed, the query \"name\" not found')
+
+        script = application.settings.get(script_name)
+        if not script:
+            return application.make_fail_response(f'Get setting failed, {script_name} does not exist')
+
+        resp = script.restore()        
+
+        if resp:
+            return application.make_fail_response(str(resp))
+        return application.make_ok_response()
