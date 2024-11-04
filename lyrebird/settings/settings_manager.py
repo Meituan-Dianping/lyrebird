@@ -23,7 +23,7 @@ class Settings:
         self.name = f'{self.script.stem}'
         self.inited = False
         self.template = None
-    
+
     def __getattr__(self, name):
         if self.template and hasattr(self.template, name):
             return getattr(self.template, name)
@@ -47,7 +47,7 @@ class Settings:
                     logger.error(f'Setting item init failed, file path:{self.name}\n {traceback.format_exc()} \n {e}')
         if self.template:
             self.inited = True
-    
+
     def getter(self):
         res = {}
         try:
@@ -56,7 +56,7 @@ class Settings:
             logger.error(f'Setting item getter failed, item name:{self.name}\n {traceback.format_exc()} \n {e}')
         finally:
             return res
-    
+
     def setter(self, data):
         res = ''
         try:
@@ -65,7 +65,16 @@ class Settings:
             res = f'Setting item setter failed, item name:{self.name}\n {traceback.format_exc()} \n {e}'
             logger.error(res)
         return res
-    
+
+    def restore(self):
+        res = ''
+        try:
+            res = self.template.restore()
+        except Exception as e:
+            res = f'Setting item restore failed, item name:{self.name}\n {traceback.format_exc()} \n {e}'
+            logger.error(res)
+        return res
+
     def load_finished(self):
         res = ''
         try:
@@ -99,6 +108,7 @@ class SettingsManager(StaticServer):
         self.EXAMPLE_DIR = Path(__file__).parent.parent/'examples'/'settings'
         self.configs = deepcopy(application._cm.personal_config)
         self.settings = application.settings
+        self.workspace = ''
     
     def stop(self):
         for name, setting in self.settings.items():
@@ -134,39 +144,29 @@ class SettingsManager(StaticServer):
         workspace_str = application.config.get('settings.workspace')
 
         if workspace_str:
-            workspace = Path(workspace_str)
-            if not workspace.expanduser().exists():
+            self.workspace = Path(workspace_str)
+            if not self.workspace.expanduser().exists():
                 logger.error(f'Settings scripts dir {workspace_str} not found!')
                 return
-            workspace_iterdir = self.get_iterdir_python(workspace)
+            workspace_iterdir = self.get_iterdir_python(self.workspace)
             if not workspace_iterdir:
                 logger.warning(f'No settings script found in dir {workspace_str}')
                 return
         else:
-            workspace = Path(self.SCRIPTS_DIR_TEMPLATE)
-            workspace.mkdir(parents=True, exist_ok=True)
-            workspace_iterdir = self.get_iterdir_python(workspace)
+            self.workspace = Path(self.SCRIPTS_DIR_TEMPLATE)
+            self.workspace.mkdir(parents=True, exist_ok=True)
+            workspace_iterdir = self.get_iterdir_python(self.workspace)
             if not workspace_iterdir:
                 self.copy_example_scripts()
 
         return workspace_iterdir
-        # return []
-    
+
     @staticmethod
     def get_iterdir_python(path):
         path = Path(path)
         end_str = '.py'
         scripts_list = [Settings(i) for i in path.iterdir() if i.suffix == end_str]
         return scripts_list
-
-    def check_and_create_json(self, path):
-        if os.path.exists(self.PERSONAL_CONFIG_PATH):
-            with open(self.PERSONAL_CONFIG_PATH, 'r') as f:
-                data = json.load(f)
-        else:
-            default_data = {}
-            with open(self.PERSONAL_CONFIG_PATH, 'w') as f:
-                json.dump(default_data, f, indent=4)
 
     def copy_example_scripts(self):
         for example in self.EXAMPLE_DIR.iterdir():

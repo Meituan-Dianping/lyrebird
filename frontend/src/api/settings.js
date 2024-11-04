@@ -35,3 +35,10 @@ export const setSettingsForm = (name, data) => {
     method: 'POST'
   })
 }
+
+export const restoreSettingsForm = (name) => {
+  return axios({
+    url: '/api/settings?name='+name,
+    method: 'DELETE'
+  })
+}

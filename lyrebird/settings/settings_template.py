@@ -21,6 +21,9 @@ class SettingsTemplate:
     def setter(self, data):
         pass
 
+    def restore(self):
+        pass
+
     def destory(self):
         pass
 

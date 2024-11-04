@@ -2,7 +2,7 @@
     <div style="padding: 10px;">
         <v-list-item two-line style="padding-left: 25px;">
             <v-row>
-                <v-col cols="10">
+                <v-col cols="9">
                     <v-list-item-content>
                         <v-list-item-title class="setting-name-title">
                             {{ settingsCurrentDetail.title }}
@@ -11,11 +11,27 @@
                             settingsCurrentDetail.notice }}</v-list-item-subtitle>
                     </v-list-item-content>
                 </v-col>
-                <v-col cols="2">
-                    <v-btn depressed color="primary" style="margin-top: 20px;" width="100" v-if="submitButtonText !== ''"
+                <v-col cols="3">
+                    <v-btn depressed color="primary" class="settings-top-button" style="margin-top: 20px;" width="100" v-if="submitButtonText !== ''"
                         @click="submit">
                         {{ submitButtonText }}
                     </v-btn>
+                    <v-tooltip bottom v-if="submitButtonText !== ''">
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                        icon
+                        large
+                        class="settings-top-button"
+                        @click="restore"
+                        color="primary"
+                        v-bind="attrs"
+                        v-on="on"
+                        >
+                        <v-icon>mdi-cog-counterclockwise</v-icon>
+                        </v-btn>
+                    </template>
+                    <span>{{ recoveryButtonText }}</span>
+                    </v-tooltip>
                 </v-col>
             </v-row>
 
@@ -108,6 +124,7 @@ export default {
         return {
             submitForm: {},
             submitButtonText: '',
+            recoveryButtonText: 'Restore default',
             dictHeaderTemplate: [
                 { textCn: '项', textEn: 'Key', value: 'k' },
                 { textCn: '值', textEn: 'Value', value: 'v' },
@@ -137,6 +154,7 @@ export default {
                 // change setting item, data refresh
                 if (newValue.language === 'cn') {
                     this.submitButtonText = '提交'
+                    this.recoveryButtonText = '恢复默认'
                     for (const item of this.dictHeaderTemplate) {
                         item['text'] = item['textCn']
                     }
@@ -145,6 +163,7 @@ export default {
                     }
                 } else {
                     this.submitButtonText = 'Submit'
+                    this.submitButtonText = 'Restore default'
                     for (const item of this.dictHeaderTemplate) {
                         item['text'] = item['textEn']
                     }
@@ -235,6 +254,9 @@ export default {
                 'formName': this.settingsCurrentDetail.name,
                 'formData': data
             })
+        },
+        restore() {
+            this.$store.dispatch('restoreSettingsForm', this.settingsCurrentDetail.name)
         }
     },
     mounted() {
@@ -312,6 +334,11 @@ export default {
     font-size: 14px;
 }
 
+.settings-top-button {
+    margin-top: 20px;
+    margin-left: 2px;
+}
+
 ::v-deep .v-text-field__slot input {
     padding-top: 4px;
     padding-bottom: 4px;
@@ -339,5 +366,14 @@ export default {
 ::v-deep .setting-item-card.v-text-field--outlined.v-input--dense>.v-input__control>.v-input__slot {
     min-height: 30px;
 }
+
+::v-deep .no-hover-shadow .v-input--selection-controls__ripple {
+  box-shadow: none !important;
+}
+
+::v-deep .no-hover-shadow .v-input--selection-controls__ripple:hover {
+  box-shadow: none !important;
+}
+
 </style>
   

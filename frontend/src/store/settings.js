@@ -131,8 +131,6 @@ export default {
         })
     },
     saveSettingsForm({ state, commit, dispatch }, { formName, formData }) {
-      console.log(444)
-      console.log(formData)
       api.setSettingsForm(formName, formData)
         .then(response => {
           dispatch('loadSettingsForm', formName)
@@ -140,6 +138,16 @@ export default {
         })
         .catch(error => {
           bus.$emit('msg.error', 'Data ' + formName + ' update error: ' + error.data.message)
+        })
+    },
+    restoreSettingsForm({ state, commit, dispatch }, payload) {
+      api.restoreSettingsForm(payload)
+        .then(response => {
+          dispatch('loadSettingsForm', payload)
+          bus.$emit('msg.success', 'Data ' + payload + ' update!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Data ' + payload + ' update error: ' + error.data.message)
         })
     },
   },
