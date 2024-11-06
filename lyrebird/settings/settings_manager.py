@@ -120,7 +120,6 @@ class SettingsManager(StaticServer):
         self.EXAMPLE_DIR = Path(__file__).parent.parent/'examples'/'settings'
         self.configs = deepcopy(application._cm.personal_config)
         self.settings = application.settings
-        self.workspace = ''
     
     def stop(self):
         for name, setting in self.settings.items():
@@ -156,18 +155,18 @@ class SettingsManager(StaticServer):
         workspace_str = application.config.get('settings.workspace')
 
         if workspace_str:
-            self.workspace = Path(workspace_str)
-            if not self.workspace.expanduser().exists():
+            workspace = Path(workspace_str)
+            if not workspace.expanduser().exists():
                 logger.error(f'Settings scripts dir {workspace_str} not found!')
                 return
-            workspace_iterdir = self.get_iterdir_python(self.workspace)
+            workspace_iterdir = self.get_iterdir_python(workspace)
             if not workspace_iterdir:
                 logger.warning(f'No settings script found in dir {workspace_str}')
                 return
         else:
-            self.workspace = Path(self.SCRIPTS_DIR_TEMPLATE)
-            self.workspace.mkdir(parents=True, exist_ok=True)
-            workspace_iterdir = self.get_iterdir_python(self.workspace)
+            workspace = Path(self.SCRIPTS_DIR_TEMPLATE)
+            workspace.mkdir(parents=True, exist_ok=True)
+            workspace_iterdir = self.get_iterdir_python(workspace)
             if not workspace_iterdir:
                 self.copy_example_scripts()
 
