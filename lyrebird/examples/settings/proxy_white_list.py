@@ -1,7 +1,13 @@
 import re
+import json
 from hashlib import md5
-from lyrebird import application
+from lyrebird import application, get_logger
 from lyrebird.settings import SettingsTemplate
+
+logger = get_logger()
+
+DEFAULT_WHITE_LIST = []
+DEFAULT_BLACK_LIST = []
 
 class WhiteListSettings(SettingsTemplate):
 
@@ -9,8 +15,8 @@ class WhiteListSettings(SettingsTemplate):
         super().__init__()
         self.display = True
         self.name = 'proxy_white_list'
-        self.title = 'Request Proxy Blacklist and Whitelist Settings'
-        self.notice = 'Control requests entering Lyrebird proxy logic. Filtered requests cannot use Mock, Checker, Modifier, and other features'
+        self.title = 'Proxy Whitelist and Blacklist Settings'
+        self.notice = 'Controls requests entering Lyrebird proxy logic. Requests filtered out cannot use Mock, Checker, Modifier, etc.'
         self.submit_text = 'Submit'
         self.language = 'en'
         self.category = 'Request Proxy'
@@ -21,8 +27,7 @@ class WhiteListSettings(SettingsTemplate):
         self.is_balck_and_white = re.compile(r'(?=^\(\?=.*\))(?=.*\(\?!.*\)$)')
         self.is_balck = re.compile(r'^\(\?=.*\)$')
         self.is_white = re.compile(r'^\(\?!.*\)$')
-        self.DEFAULT_WHITE_LIST = []
-        self.DEFAULT_BLACK_LIST = []
+
 
     def getter(self):
         filters = self.get_config_by_application()
@@ -30,35 +35,35 @@ class WhiteListSettings(SettingsTemplate):
         proxy_white_list_switch = {
             'name': 'proxy_white_list_switch',
             'title': 'Configuration Switch',
-            'subtitle': 'Enable/Disable this configuration',
+            'subtitle': 'Switch for this configuration to take effect, revert to default settings when turned off',
             'category': 'bool',
             'data': self.switch
         }
         white_list = {
             'name': 'white_list',
             'title': 'Request Whitelist',
-            'subtitle': 'Allow requests with specific text in host and path to use Lyrebird proxy',
+            'subtitle': 'Allows requests with specific text in host and path to use Lyrebird proxy',
             'category': 'list',
             'data': filters['white']
         }
         black_list = {
             'name': 'black_list',
             'title': 'Request Blacklist',
-            'subtitle': 'Prohibit requests with specific text in host and path from using Lyrebird proxy',
+            'subtitle': 'Blocks requests with specific text in host and path from using Lyrebird proxy',
             'category': 'list',
             'data': url_black
         }
         black_suffix = {
             'name': 'black_suffix',
             'title': 'File Type Blacklist',
-            'subtitle': 'Globally filter specific types of resource requests, such as png, zip, etc.',
+            'subtitle': 'Globally filters requests of specified resource types, such as png, zip, etc.',
             'category': 'list',
             'data': suffix_black
         }
         regular_list = {
             'name': 'regular_list',
-            'title': 'Additional Regular Expressions',
-            'subtitle': 'If the above blacklist and whitelist are not sufficient, you can write your own regular expressions. Note: The regular expressions are in OR logic, i.e., if any regex matches, the proxy will be triggered',
+            'title': 'Additional Regex',
+            'subtitle': 'If the above whitelists and blacklists do not meet the needs, you can write regular expressions yourself. Note: The logic between regexes is OR, meaning as long as any regex matches, it will hit the proxy',
             'category': 'list',
             'data': filters['regular']
         }
@@ -66,11 +71,14 @@ class WhiteListSettings(SettingsTemplate):
 
     def setter(self, data):
         self.switch = bool(data['proxy_white_list_switch'])
-        if self.switch:
-            self.apply_config(data)
-            self.save(data)
-        else:
+        self.apply_config(data)
+        self.save(data)
+        if not self.switch:
             application.config['proxy.filters'] = self.ori_filters
+
+    def restore(self):
+        self.save({})
+        application.config['proxy.filters'] = self.ori_filters
 
     def load_prepared(self):
         personal_config = self.manager.get_config(self).get('data')
@@ -101,13 +109,14 @@ class WhiteListSettings(SettingsTemplate):
         if white_reg:
             new_reg = f'(?=.*({white_reg}))'
         else:
-            new_reg = f'(?=.*({"|".join(self.DEFAULT_WHITE_LIST)}))'
+            new_reg = f'(?=.*({"|".join(DEFAULT_WHITE_LIST)}))'
         if black_reg:
-            new_reg += f'(^((?!({"|".join(black_reg)})).)*$)'
+            new_reg += f'(^(?!.*({"|".join(black_reg)})))'
         else:
-            new_reg += f'(^((?!({"|".join(self.DEFAULT_BLACK_LIST)})).)*$)'
+            new_reg += f'(^(?!.*({"|".join(DEFAULT_BLACK_LIST)})))'
         filter_list.append(new_reg)
         application.config['proxy.filters'] = filter_list
+        logger.warning(f'application.config is updated by proxy_white_list_switch, \nkey: \nproxy.filters \nvalue: \n{json.dumps(filter_list, ensure_ascii=False, indent=4)}')
 
     def save(self, data):
         self.manager.write_config(self, {'data': data})
@@ -117,24 +126,16 @@ class WhiteListSettings(SettingsTemplate):
         black = []
 
         if '(?=' in regex or '(?!' in regex:
-            positive_parts = re.findall(r'\(\?=.*?\((.*?)\)\)', regex)
-            negative_parts = re.findall(r'\(\?!.*?\((.*?)\)\)', regex)
-            
+            positive_parts = re.findall(r'\(\?=\.\*\(?(.*?)\)?\)', regex)
+            negative_parts = re.findall(r'\(\?!\.\*\(?(.*?)\)?\)', regex)
+
             if positive_parts:
                 for part in positive_parts:
                     white.extend(part.split('|'))
-            else:
-                single_positive = re.findall(r'\(\?=.*?([\w|]+)\)', regex)
-                if single_positive:
-                    white.extend(single_positive[0].split('|'))
-            
+
             if negative_parts:
                 for part in negative_parts:
                     black.extend(part.split('|'))
-            else:
-                single_negative = re.findall(r'\(\?!.*?([\w|.]+)\)', regex)
-                if single_negative:
-                    black.extend(single_negative[0].split('|'))
 
         white = [p for p in white if p.strip()]
         black = [n for n in black if n.strip()]
