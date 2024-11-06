@@ -49,6 +49,8 @@ class Settings:
             self.inited = True
 
     def getter(self):
+        if not self.inited:
+            return f'Setting item operate is blocked, because it load failed, item name:{self.name}'
         res = {}
         try:
             res = self.template.getter()
@@ -58,6 +60,8 @@ class Settings:
             return res
 
     def setter(self, data):
+        if not self.inited:
+            return f'Setting item operate is blocked, because it load failed, item name:{self.name}'
         res = ''
         try:
             res = self.template.setter(data)
@@ -67,6 +71,8 @@ class Settings:
         return res
 
     def restore(self):
+        if not self.inited:
+            return f'Setting item operate is blocked, because it load failed, item name:{self.name}'
         res = ''
         try:
             res = self.template.restore()
@@ -76,6 +82,8 @@ class Settings:
         return res
 
     def load_finished(self):
+        if not self.inited:
+            return f'Setting item operate is blocked, because it load failed, item name:{self.name}'
         res = ''
         try:
             res = self.template.load_finished()
@@ -85,6 +93,8 @@ class Settings:
         return res
 
     def load_prepared(self):
+        if not self.inited:
+            return f'Setting item operate is blocked, because it load failed, item name:{self.name}'
         res = ''
         try:
             res = self.template.load_prepared()
@@ -94,6 +104,8 @@ class Settings:
         return res
 
     def destory(self):
+        if not self.inited:
+            return f'Setting item operate is blocked, because it load failed, item name:{self.name}'
         try:
             self.template.destory()
         except Exception as e:
@@ -184,6 +196,7 @@ class SettingsManager(StaticServer):
         }
         if data:
             template[template_key].update(data)
+        self.configs.update(template)
         application._cm.update_personal_config(template)
 
     def get_config(self, obj:SettingsTemplate):

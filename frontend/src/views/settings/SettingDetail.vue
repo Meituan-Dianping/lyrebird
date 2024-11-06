@@ -152,8 +152,10 @@ export default {
                     return
                 }
                 // change setting item, data refresh
+                if (typeof newValue.submitText === 'string' && newValue.submitText.trim().length > 0) {
+                    this.submitButtonText = newValue.submitText
+                }
                 if (newValue.language === 'cn') {
-                    this.submitButtonText = '提交'
                     this.recoveryButtonText = '恢复默认'
                     for (const item of this.dictHeaderTemplate) {
                         item['text'] = item['textCn']
@@ -162,17 +164,13 @@ export default {
                         item['text'] = item['textCn']
                     }
                 } else {
-                    this.submitButtonText = 'Submit'
-                    this.submitButtonText = 'Restore default'
+                    this.recoveryButtonText = 'Restore default'
                     for (const item of this.dictHeaderTemplate) {
                         item['text'] = item['textEn']
                     }
                     for (const item of this.listHeaderTemplate) {
                         item['text'] = item['textEn']
                     }
-                }
-                if (typeof newValue.submitText === 'string' && newValue.submitText.trim().length > 0) {
-                    this.submitButtonText = newValue.submitText
                 }
 
                 for (const config of newValue.configs) {

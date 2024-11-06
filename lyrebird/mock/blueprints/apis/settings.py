@@ -8,7 +8,7 @@ class SettingsApi(Resource):
         if action == 'list':
             resp_dict = {}
             for script_name, script in application.settings.items():
-                if not script.inited:
+                if not script.inited or not script.template.display:
                     continue
                 if script.category_md5 not in resp_dict:
                     resp_dict[script.category_md5] = {
