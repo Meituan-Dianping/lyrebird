@@ -98,7 +98,7 @@
                                     </template>
                                     <template v-slot:item.opt="item">
                                         <v-btn icon color="#5f5cca" v-if="item.item.isOp === false"
-                                            @click="removeTableItem(config.name, index)">
+                                            @click="removeTableItem(config.name, item.index)">
                                             <v-icon>mdi-delete</v-icon>
                                         </v-btn>
                                         <v-btn icon color="#5f5cca" v-else
