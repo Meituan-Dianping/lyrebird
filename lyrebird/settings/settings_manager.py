@@ -68,6 +68,12 @@ class Settings:
         except Exception as e:
             res = f'Setting item setter failed, item name:{self.name}\n {traceback.format_exc()} \n {e}'
             logger.error(res)
+
+        application.server['event'].publish('lyrebird_metrics', {'lyrebird_metrics': {
+            'sender': 'SettingsManager',
+            'action': 'setter',
+            'trace_info': json.dumps({'name':self.name, 'param':data, 'res':res})
+        }})
         return res
 
     def restore(self):
@@ -79,6 +85,12 @@ class Settings:
         except Exception as e:
             res = f'Setting item restore failed, item name:{self.name}\n {traceback.format_exc()} \n {e}'
             logger.error(res)
+
+        application.server['event'].publish('lyrebird_metrics', {'lyrebird_metrics': {
+            'sender': 'SettingsManager',
+            'action': 'restore',
+            'trace_info': json.dumps({'name':self.name, 'res':res})
+        }})
         return res
 
     def load_finished(self):
