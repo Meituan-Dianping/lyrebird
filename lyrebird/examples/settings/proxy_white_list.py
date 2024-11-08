@@ -9,6 +9,7 @@ logger = get_logger()
 DEFAULT_WHITE_LIST = []
 DEFAULT_BLACK_LIST = []
 
+
 class WhiteListSettings(SettingsTemplate):
 
     def __init__(self):
@@ -16,26 +17,38 @@ class WhiteListSettings(SettingsTemplate):
         self.display = True
         self.name = 'proxy_white_list'
         self.title = 'Proxy Whitelist and Blacklist Settings'
-        self.notice = 'Controls requests entering Lyrebird proxy logic. Requests filtered out cannot use Mock, Checker, Modifier, etc.'
+        self.notice = 'Controls the requests entering Lyrebird proxy logic. Requests filtered out cannot use Mock, Checker, Modifier, etc.'
         self.submit_text = 'Submit'
         self.language = 'en'
         self.category = 'Request Proxy'
         self.category_md5 = md5(self.category.encode(encoding='UTF-8')).hexdigest()
-        self.switch = True
+        self.switch = False
+        self.configs = {}
         self.ori_filters = application.config.get('proxy.filters', [])
         self.is_simple_url = re.compile(r'^[a-zA-Z0-9./:_-]+$')
         self.is_balck_and_white = re.compile(r'(?=^\(\?=.*\))(?=.*\(\?!.*\)$)')
         self.is_balck = re.compile(r'^\(\?=.*\)$')
         self.is_white = re.compile(r'^\(\?!.*\)$')
 
-
     def getter(self):
-        filters = self.get_config_by_application()
-        url_black, suffix_black = self.get_suffix_black_list(filters['black'])
+        white = None
+        url_black = None
+        suffix_black = None
+        regular = None
+        if self.configs:
+            white = self.configs.get('white_list', [])
+            url_black = self.configs.get('black_list', [])
+            suffix_black = self.configs.get('black_suffix', [])
+            regular = self.configs.get('regular_list', [])
+        else:
+            filters = self.get_config_by_application()
+            white = filters['white']
+            regular = filters['regular']
+            url_black, suffix_black = self.get_suffix_black_list(filters['black'])
         proxy_white_list_switch = {
             'name': 'proxy_white_list_switch',
             'title': 'Configuration Switch',
-            'subtitle': 'Switch for this configuration to take effect, revert to default settings when turned off',
+            'subtitle': 'Switch for this configuration to take effect. When turned off, it reverts to the default configuration.',
             'category': 'bool',
             'data': self.switch
         }
@@ -44,7 +57,7 @@ class WhiteListSettings(SettingsTemplate):
             'title': 'Request Whitelist',
             'subtitle': 'Allows requests with specific text in host and path to use Lyrebird proxy',
             'category': 'list',
-            'data': filters['white']
+            'data': white
         }
         black_list = {
             'name': 'black_list',
@@ -63,34 +76,40 @@ class WhiteListSettings(SettingsTemplate):
         regular_list = {
             'name': 'regular_list',
             'title': 'Additional Regex',
-            'subtitle': 'If the above whitelists and blacklists do not meet the needs, you can write regular expressions yourself. Note: The logic between regexes is OR, meaning as long as any regex matches, it will hit the proxy',
+            'subtitle': 'If the above whitelists and blacklists do not meet the needs, you can write your own regular expressions. Note: The logic between regexes is OR, meaning as long as any regex matches, it will hit the proxy.',
             'category': 'list',
-            'data': filters['regular']
+            'data': regular
         }
         return [proxy_white_list_switch, white_list, black_list, black_suffix, regular_list]
 
     def setter(self, data):
         self.switch = bool(data['proxy_white_list_switch'])
-        self.apply_config(data)
+        self.configs = data
+        if self.switch:
+            self.apply_config(data)
         self.save(data)
         if not self.switch:
             application.config['proxy.filters'] = self.ori_filters
+            logger.warning(f'application.config is updated by proxy_white_list_switch, \nkey: \nproxy.filters \nvalue: \n{json.dumps(self.ori_filters, ensure_ascii=False, indent=4)}')
 
     def restore(self):
         self.save({})
+        self.switch = False
+        self.configs = {}
         application.config['proxy.filters'] = self.ori_filters
+        logger.warning(f'application.config is updated by proxy_white_list_switch, \nkey: \nproxy.filters \nvalue: \n{json.dumps(self.ori_filters, ensure_ascii=False, indent=4)}')
 
     def load_prepared(self):
-        personal_config = self.manager.get_config(self).get('data')
+        self.configs = self.manager.get_config(self).get('data', {})
         self.ori_filters = application.config.get('proxy.filters', [])
         have_config = False
-        for name, item in personal_config.items():
+        for name, item in self.configs.items():
             if name == 'proxy_white_list_switch':
                 self.switch = bool(item)
             else:
                 have_config |= bool(item)
         if have_config and self.switch:
-            self.apply_config(personal_config)
+            self.apply_config(self.configs)
 
     def apply_config(self, data):
         filter_list = []
@@ -108,13 +127,15 @@ class WhiteListSettings(SettingsTemplate):
 
         if white_reg:
             new_reg = f'(?=.*({white_reg}))'
-        else:
-            new_reg = f'(?=.*({"|".join(DEFAULT_WHITE_LIST)}))'
         if black_reg:
             new_reg += f'(^(?!.*({"|".join(black_reg)})))'
-        else:
+
+        if not filter_list and not new_reg:
+            new_reg = f'(?=.*({"|".join(DEFAULT_WHITE_LIST)}))'
             new_reg += f'(^(?!.*({"|".join(DEFAULT_BLACK_LIST)})))'
-        filter_list.append(new_reg)
+
+        if new_reg:
+            filter_list.append(new_reg)
         application.config['proxy.filters'] = filter_list
         logger.warning(f'application.config is updated by proxy_white_list_switch, \nkey: \nproxy.filters \nvalue: \n{json.dumps(filter_list, ensure_ascii=False, indent=4)}')
 
