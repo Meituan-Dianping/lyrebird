@@ -20,7 +20,7 @@ def to_mock_server(flow: http.HTTPFlow):
     if raw_url.port:
         raw_host += f':{raw_url.port}'
     # mock path 为/mock开头加上原始url
-    flow.request.path = '/mock/' + flow.request.url
+    flow.request.path = '/' + flow.request.url
     # mock scheme 统一为http
     flow.request.scheme = 'http'
     # mock server port
@@ -43,15 +43,7 @@ def request(flow: http.HTTPFlow):
     if 'mitm.it' in flow.request.url:
         # Support mitm.it
         return
-
-    if not PROXY_FILTERS:
-        to_mock_server(flow)
-        return
-
-    for _filter in PROXY_FILTERS:
-        if re.search(_filter, flow.request.url):
-            to_mock_server(flow)
-            break
+    to_mock_server(flow)
 
 
 def responseheaders(flow):
