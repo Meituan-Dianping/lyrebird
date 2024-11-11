@@ -15,6 +15,7 @@ from .search import SearchMockData
 from .bandwidth import Bandwidth, BandwidthTemplates
 from .status_bar import StatusBar
 from .snapshot import SnapshotImport, SnapshotExport, Snapshot
+from .settings import SettingsApi
 from lyrebird.log import get_logger
 from lyrebird import application
 
@@ -92,3 +93,4 @@ api_source.add_resource(EventExport, '/event/export', '/event/export/<string:eve
 api_source.add_resource(Channel, '/channel', '/channel/<string:mode>')
 api_source.add_resource(StatusBar, '/statusbar', '/statusbar/<string:item_id>')
 api_source.add_resource(EventFileInfo, '/event/fileinfo')
+api_source.add_resource(SettingsApi, '/settings', '/settings/<string:action>')

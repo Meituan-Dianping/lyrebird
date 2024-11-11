@@ -28,6 +28,7 @@ from lyrebird.base_server import MultiProcessServerMessageDispatcher
 from lyrebird.log import LogServer
 from lyrebird.utils import RedisDict, RedisManager
 from lyrebird.compatibility import compat_redis_check
+from lyrebird.settings import SettingsManager
 from lyrebird import utils
 
 logger = log.get_logger()
@@ -209,6 +210,9 @@ def run(args: argparse.Namespace):
     config_str = json.dumps(config_dict, ensure_ascii=False, indent=4)
     logger.warning(f'Lyrebird start with config:\n{config_str}')
 
+    # Settings server
+    application.server['settings'] = SettingsManager()
+    application.server['settings'].load_settings()
     # Main server
     application.server['event'] = EventServer()
     # mutilprocess message dispatcher
@@ -279,6 +283,8 @@ def run(args: argparse.Namespace):
 
     # main process is ready, publish system event
     application.status_ready()
+
+    application.server['settings'].load_finished()
 
     threading.Event().wait()
 

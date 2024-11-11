@@ -28,7 +28,10 @@ export default {
   state: {
     config: {},
     initialized: false,
-    preLoadFuncSet: new Set()
+    preLoadFuncSet: new Set(),
+    focusSettingPanel: '',
+    settingsList: [],
+    settingsCurrentDetail: {},
   },
   mutations: {
     setConfig (state, config) {
@@ -42,7 +45,16 @@ export default {
     },
     deletePreLoadFuncSet (state, preLoadFunc) {
       state.preLoadFuncSet.delete(preLoadFunc)
-    }
+    },
+    setSettingsList(state, data) {
+      state.settingsList = data
+    },
+    setSettingsCurrentDetail(state, data) {
+      state.settingsCurrentDetail = data
+    },
+    setFocusSettingPanel(state, data) {
+      state.focusSettingPanel = data
+    },
   },
   actions: {
     loadConfig({ state, commit, dispatch }) {
@@ -98,6 +110,45 @@ export default {
         .catch(error => {
           bus.$emit('msg.error', `Update config failed ${error.data.message}`)
         })
-    }
-  }
+    },
+    loadSettingsList({ state, commit, dispatch }) {
+      api.getSettingModelList()
+        .then(response => {
+          console.log(response.data.data)
+          commit('setSettingsList', response.data.data)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load config failed ' + error.data.message)
+        })
+    },
+    loadSettingsForm({ state, commit, dispatch }, payload) {
+      api.getSettingsForm(payload)
+        .then(response => {
+          commit('setSettingsCurrentDetail', response.data.data)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load config failed ' + error.data.message)
+        })
+    },
+    saveSettingsForm({ state, commit, dispatch }, { formName, formData }) {
+      api.setSettingsForm(formName, formData)
+        .then(response => {
+          dispatch('loadSettingsForm', formName)
+          bus.$emit('msg.success', 'Data ' + formName + ' update!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Data ' + formName + ' update error: ' + error.data.message)
+        })
+    },
+    restoreSettingsForm({ state, commit, dispatch }, payload) {
+      api.restoreSettingsForm(payload)
+        .then(response => {
+          dispatch('loadSettingsForm', payload)
+          bus.$emit('msg.success', 'Data ' + payload + ' update!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Data ' + payload + ' update error: ' + error.data.message)
+        })
+    },
+  },
 }

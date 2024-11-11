@@ -40,6 +40,7 @@ active_menu = {}
 
 notice = None
 checkers = {}
+settings = {}
 
 on_request = []
 on_response = []
