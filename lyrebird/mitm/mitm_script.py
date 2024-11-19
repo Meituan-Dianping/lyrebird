@@ -36,7 +36,7 @@ def to_mock_server(flow: http.HTTPFlow):
     flow.request.headers['Lyrebird-Client-Address'] = address
     flow.request.headers['Mitmproxy-Proxy'] = address
     flow.request.headers['Proxy-Raw-Headers'] = json.dumps({name: flow.request.headers[name]
-                                                           for name in flow.request.headers}, ensure_ascii=False)
+                                                           for name in flow.request.headers if name.lower() not in ('host', 'proxy-raw-headers')}, ensure_ascii=False)
 
 
 def request(flow: http.HTTPFlow):
