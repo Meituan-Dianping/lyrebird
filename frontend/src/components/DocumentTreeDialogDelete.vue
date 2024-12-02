@@ -9,6 +9,7 @@
         <p class="data-list-dialog-delete-info">
           <b>Delete {{deleteItem.length}} {{deleteItem.length===1 ? 'item' : 'items'}}: </b>
         </p>
+        <p style="color: red">The deleted data cannot be recovered. Please confirm this action.</p>
         <p v-for="(value, index) in deleteItem" class="mb-3">
           <span class="data-list-dialog-delete-item pl-0" style="font-size:12px">{{value.abs_parent_path}}</span>
         </p>
@@ -257,4 +258,4 @@ export default {
   font-size: 12px;
   word-break: break-all;
 }
-</style>
+</styl>
