@@ -63,12 +63,13 @@ async def make_response_header(proxy_resp_headers: dict, context: LyrebirdProxyC
 async def send_request(context: LyrebirdProxyContext, target_url):
     async with client.ClientSession(auto_decompress=False) as session:
         request: web.Request = context.request
-        headers = {k: v for k, v in request.headers.items() if k.lower() not in [
-            'cache-control', 'host', 'transfer-encoding']}
+        headers = {k: v for k, v in request.headers.items() if k.lower() not in ('cache-control', 'host', 'transfer-encoding')}
         if 'Proxy-Raw-Headers' not in request.headers:
             headers['Proxy-Raw-Headers'] = make_raw_headers_line(request)
         if 'Lyrebird-Client-Address' not in request.headers:
             headers['Lyrebird-Client-Address'] = request.remote
+        if context.discarded_data:
+            headers.update(context.discarded_data)
         request_body = None
         if request.body_exists:
             request_body = request.content
