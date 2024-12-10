@@ -10,6 +10,9 @@ class UnknownLyrebirdProxyProtocol(Exception):
 
 
 class LyrebirdProxyContext:
+
+    logger = object()
+
     def __init__(self):
         self.request: web.Request = None
         self.netloc = None
@@ -156,5 +159,6 @@ class LyrebirdProxyContext:
         for parser in ctx.protocol_parsers:
             parser(request, lb_config)
             if ctx.init:
+                cls.logger.info(f'Hit protocol {parser.__name__}: {ctx.origin_url}')
                 return ctx
         raise UnknownLyrebirdProxyProtocol
