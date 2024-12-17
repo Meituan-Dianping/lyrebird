@@ -67,6 +67,12 @@ class HandlerContext:
         # Read raw headers
         if 'Proxy-Raw-Headers' in self.request.headers:
             raw_headers = json.loads(self.request.headers['Proxy-Raw-Headers'])
+            if 'Lyrebird-Protocol' in self.request.headers:
+                raw_headers['Lyrebird-Protocol'] = self.request.headers['Lyrebird-Protocol']
+            if 'Lyrebird-Protocol-Discarded-Path' in self.request.headers:
+                raw_headers['Lyrebird-Protocol-Discarded-Path'] = self.request.headers['Lyrebird-Protocol-Discarded-Path']
+            if 'Lyrebird-Protocol-Discarded-Query' in self.request.headers:
+                raw_headers['Lyrebird-Protocol-Discarded-Query'] = self.request.headers['Lyrebird-Protocol-Discarded-Query']
 
         # parse path
         request_info = self._read_origin_request_info_from_url()
@@ -210,6 +216,8 @@ class HandlerContext:
             if not value or name in ['Cache-Control', 'Host', 'Transfer-Encoding']:
                 continue
             if name in unproxy_headers and unproxy_headers[name] in value:
+                continue
+            if 'lyrebird' in name.lower():
                 continue
             headers[name] = value
         return headers

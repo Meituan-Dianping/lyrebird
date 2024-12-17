@@ -16,6 +16,7 @@ class LyrebirdProxyContext:
         self.origin_url = None
         self.forward_url = None
         self.init = False
+        self.discarded_data = dict()
         self.protocol_parsers = [
             self.protocol_read_from_path,
             self.protocol_read_from_header,
@@ -43,6 +44,9 @@ class LyrebirdProxyContext:
 
         self.netloc = url.netloc
         self.request = request
+        self.discarded_data.update({
+            'Lyrebird_Protocol': 'from_path'
+        })
 
         # Set init success
         self.init = True
@@ -80,6 +84,9 @@ class LyrebirdProxyContext:
         self.forward_url = f'http://127.0.0.1:{port}/mock/{origin_full_url}'
         self.netloc = netloc
         self.request = request
+        self.discarded_data.update({
+            'Lyrebird_Protocol': 'from_header'
+        })
 
         # Set init success
         self.init = True
@@ -98,6 +105,9 @@ class LyrebirdProxyContext:
         query_list = str(request.url).split('proxy=')
         origin_url = query_list[1] if len(query_list) > 1 else ''
 
+        if not origin_url:
+            return
+
         unquote_origin_url = urlparse.unquote(origin_url)
         url_obj = urlparse.urlparse(unquote_origin_url)
 
@@ -107,6 +117,16 @@ class LyrebirdProxyContext:
         self.forward_url = f'http://127.0.0.1:{port}/mock/{origin_url}'
         self.netloc = url_obj.netloc
         self.request = request
+
+        self.discarded_data.update({
+            'Lyrebird_Protocol': 'from_query'
+        })
+        lyrebird_url_split = query_list[0].split('?')
+        lyrebird_url_query = lyrebird_url_split[1] if len(lyrebird_url_split)>1 else ''
+        if len(lyrebird_url_query) > 1:
+            self.discarded_data['Lyrebird-Protocol-Discarded-Query'] = lyrebird_url_query
+        if len(request.path) > 1:
+            self.discarded_data['Lyrebird-Protocol-Discarded-Path'] = request.path
 
         # Set init success
         self.init = True
@@ -146,6 +166,12 @@ class LyrebirdProxyContext:
         self.forward_url = f'http://127.0.0.1:{port}/mock/{origin_url}'
         self.netloc = url.netloc
         self.request = request
+
+        self.discarded_data.update({
+            'Lyrebird_Protocol': 'from_query_2'
+        })
+        if len(request.path) > 1:
+            self.discarded_data['Lyrebird-Protocol-Discarded-Path'] = request.path
 
         # Set init success
         self.init = True
