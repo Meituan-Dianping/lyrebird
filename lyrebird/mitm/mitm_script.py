@@ -3,15 +3,22 @@ Script for mitmdump
 
 Redirect request from proxy server to mock server
 """
-import re
-import json
 import os
+import json
 from mitmproxy import http
 from urllib.parse import urlparse
 
 
 PROXY_PORT = int(os.environ.get('PROXY_PORT'))
 PROXY_FILTERS = json.loads(os.environ.get('PROXY_FILTERS'))
+
+
+def is_websocket_request(flow: http.HTTPFlow) -> bool:
+    headers = flow.request.headers
+    return (
+        headers.get('Upgrade', '').lower() == 'websocket' and
+        headers.get('Connection', '').lower() == 'upgrade'
+    )
 
 
 def to_mock_server(flow: http.HTTPFlow):
@@ -42,6 +49,8 @@ def to_mock_server(flow: http.HTTPFlow):
 def request(flow: http.HTTPFlow):
     if 'mitm.it' in flow.request.url:
         # Support mitm.it
+        return
+    if is_websocket_request(flow):
         return
     to_mock_server(flow)
 
