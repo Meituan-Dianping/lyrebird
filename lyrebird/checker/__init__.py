@@ -264,7 +264,9 @@ class Checker:
 
         self.update = True
         self._checker_detection()
+
         global scripts_tmp_storage
+        self._funcs_map.clear()
         for func_type, func_list in scripts_tmp_storage.items():
             self._funcs_map[func_type] = [f for f in func_list]
         scripts_tmp_storage = {}
