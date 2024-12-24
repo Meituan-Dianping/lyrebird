@@ -52,6 +52,7 @@ class LyrebirdProxyServer(ProcessServer):
         proxy_port = config.get('proxy.port', 4272)
         mock_port = config.get('mock.port', 9090)
         extra_mock_port = config.get('extra.mock.port', 9999)
+        server_ip = config.get('ip', '127.0.0.1')
         '''
         --ignore_hosts:
         The ignore_hosts option allows you to specify a regex which is matched against a host:port
@@ -80,6 +81,8 @@ class LyrebirdProxyServer(ProcessServer):
         if ignore_hosts:
             mitm_arguments += ['--ignore-hosts', ignore_hosts]
         mitmenv = os.environ
+        mitmenv['SERVER_IP'] = str(server_ip)
+        mitmenv['MOCK_PORT'] = str(mock_port)
         mitmenv['PROXY_PORT'] = str(extra_mock_port)
         mitmenv['PROXY_FILTERS'] = json.dumps(config.get('proxy.filters', []))
         logger.info('HTTP proxy server starting...')
