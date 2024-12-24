@@ -309,8 +309,10 @@ class HandlerContext:
         resp_data = self.flow['response'].get('data', '')
         if isinstance(resp_data, str):
             self.flow['size'] = len(resp_data.encode())
-        else:
+        elif resp_data:
             self.flow['size'] = len(resp_data)
+        else:
+            self.flow['size'] = 0
 
         self.flow['duration'] = self.server_resp_time - self.client_req_time
 

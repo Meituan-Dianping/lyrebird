@@ -54,6 +54,22 @@ def upgrade_request_report(context: LyrebirdProxyContext):
     })
 
 
+def make_request_headers(context: LyrebirdProxyContext, is_proxy):
+    headers = {k: v for k, v in context.request.headers.items() if k.lower() not in [
+            'cache-control', 'host', 'transfer-encoding']}
+    if is_proxy:
+        if 'Proxy-Raw-Headers' in context.request.headers:
+            del headers['Proxy-Raw-Headers']
+        if 'Lyrebird-Client-Address' in context.request.headers:
+            del headers['Lyrebird-Client-Address']
+    else:
+        if 'Proxy-Raw-Headers' not in context.request.headers:
+            headers['Proxy-Raw-Headers'] = make_raw_headers_line(context.request)
+        if 'Lyrebird-Client-Address' not in context.request.headers:
+            headers['Lyrebird-Client-Address'] = context.request.remote
+    return headers
+
+
 async def make_response_header(proxy_resp_headers: dict, context: LyrebirdProxyContext, data=None):
     response_headers = CIMultiDict()
     for k, v in proxy_resp_headers.items():
@@ -73,12 +89,7 @@ async def make_response_header(proxy_resp_headers: dict, context: LyrebirdProxyC
 async def send_request(context: LyrebirdProxyContext, target_url):
     async with client.ClientSession(auto_decompress=False) as session:
         request: web.Request = context.request
-        headers = {k: v for k, v in request.headers.items() if k.lower() not in [
-            'cache-control', 'host', 'transfer-encoding']}
-        if 'Proxy-Raw-Headers' not in request.headers:
-            headers['Proxy-Raw-Headers'] = make_raw_headers_line(request)
-        if 'Lyrebird-Client-Address' not in request.headers:
-            headers['Lyrebird-Client-Address'] = request.remote
+        headers = make_request_headers(context, target_url==context.origin_url)
         request_body = None
         if request.body_exists:
             request_body = request.content
@@ -146,6 +157,8 @@ def init_app(config):
     global logger
     log.init(config, logger_queue)
     logger = log.get_logger()
+
+    LyrebirdProxyContext.logger = logger
 
     app = web.Application()
     app.router.add_route('*', r'/{path:(.*)}', req_handler)

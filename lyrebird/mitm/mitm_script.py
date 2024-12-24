@@ -9,6 +9,8 @@ from mitmproxy import http
 from urllib.parse import urlparse
 
 
+SERVER_IP = os.environ.get('SERVER_IP')
+MOCK_PORT = int(os.environ.get('MOCK_PORT'))
 PROXY_PORT = int(os.environ.get('PROXY_PORT'))
 PROXY_FILTERS = json.loads(os.environ.get('PROXY_FILTERS'))
 
@@ -19,6 +21,17 @@ def is_websocket_request(flow: http.HTTPFlow) -> bool:
         headers.get('Upgrade', '').lower() == 'websocket' and
         headers.get('Connection', '').lower() == 'upgrade'
     )
+
+
+def check_lyrebird_request(flow: http.HTTPFlow):
+    parsed_url = urlparse(flow.request.url)
+    host = parsed_url.hostname
+    port = parsed_url.port
+    if host not in ('localhost', '127.0.0.1', SERVER_IP):
+        return False
+    if not port or port not in (MOCK_PORT, PROXY_PORT):
+        return False
+    return True
 
 
 def to_mock_server(flow: http.HTTPFlow):
@@ -50,7 +63,11 @@ def request(flow: http.HTTPFlow):
     if 'mitm.it' in flow.request.url:
         # Support mitm.it
         return
+    if check_lyrebird_request(flow):
+        # Avoid internal requests
+        return
     if is_websocket_request(flow):
+        # Avoid Websocket connect requests
         return
     to_mock_server(flow)
 
