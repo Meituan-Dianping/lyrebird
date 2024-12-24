@@ -15,6 +15,7 @@ from lyrebird import log
 
 logger = None
 logger_queue = None
+message_queue = None
 lb_config = {}
 semaphore = None
 
@@ -42,6 +43,15 @@ def make_raw_headers_line(request: web.Request):
             continue
         raw_headers[raw_header_name] = raw_header_value
     return json.dumps(raw_headers, ensure_ascii=False)
+
+
+def upgrade_request_report(context: LyrebirdProxyContext):
+    if not context.request.headers.get('upgrade'):
+        return
+    publish_metrics_msg('upgrade_request', {
+        'url': context.origin_url,
+        'headers': str(context.request.headers)
+    })
 
 
 def make_request_headers(context: LyrebirdProxyContext, is_proxy):
@@ -127,6 +137,7 @@ async def req_handler(request: web.Request):
     try:
         global lb_config
         proxy_ctx = LyrebirdProxyContext.parse(request, lb_config)
+        upgrade_request_report(proxy_ctx)
         if is_filtered(proxy_ctx):
             # forward to lyrebird
             async with semaphore:
@@ -211,8 +222,8 @@ def _cancel_tasks(
                 }
             )
 
-def publish_init_status(queue, status):
-    queue.put({
+def publish_init_status(status):
+    message_queue.put({
         'type': 'event',
         "channel": "system",
         "content": {
@@ -224,10 +235,26 @@ def publish_init_status(queue, status):
         }
     })
 
+def publish_metrics_msg(action, info):
+    message_queue.put({
+        'type': 'event',
+        "channel": "lyrebird_metrics",
+        "content": {
+            'lyrebird_metrics': {
+                'sender': 'ExtraMockServer',
+                'action': action,
+                'trace_info': str(info)
+                }
+            }
+    })
 
 def serve(msg_queue, config, log_queue, *args, **kwargs):
     global logger_queue
+    global message_queue
     logger_queue = log_queue
+    message_queue = msg_queue
+
+    publish_init_status('READY')
     loop = asyncio.new_event_loop()
     main_task = loop.create_task(_run_app(config))
 
@@ -235,7 +262,7 @@ def serve(msg_queue, config, log_queue, *args, **kwargs):
         asyncio.set_event_loop(loop)
         loop.run_until_complete(main_task)
     except KeyboardInterrupt:
-        publish_init_status(msg_queue, 'ERROR')
+        publish_init_status('ERROR')
     finally:
         _cancel_tasks({main_task}, loop)
         _cancel_tasks(asyncio.all_tasks(loop), loop)

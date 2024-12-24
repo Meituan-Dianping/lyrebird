@@ -12,5 +12,4 @@ class ExtraMockServer(ProcessServer):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         log_queue = async_obj['logger_queue']
         msg_queue = async_obj['msg_queue']
-        publish_init_status(msg_queue, 'READY')
         serve(msg_queue, config, log_queue, *args, **kwargs)

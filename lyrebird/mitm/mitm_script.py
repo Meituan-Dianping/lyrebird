@@ -3,9 +3,8 @@ Script for mitmdump
 
 Redirect request from proxy server to mock server
 """
-import re
-import json
 import os
+import json
 from mitmproxy import http
 from urllib.parse import urlparse
 
@@ -14,6 +13,14 @@ SERVER_IP = os.environ.get('SERVER_IP')
 MOCK_PORT = int(os.environ.get('MOCK_PORT'))
 PROXY_PORT = int(os.environ.get('PROXY_PORT'))
 PROXY_FILTERS = json.loads(os.environ.get('PROXY_FILTERS'))
+
+
+def is_websocket_request(flow: http.HTTPFlow) -> bool:
+    headers = flow.request.headers
+    return (
+        headers.get('Upgrade', '').lower() == 'websocket' and
+        headers.get('Connection', '').lower() == 'upgrade'
+    )
 
 
 def check_lyrebird_request(flow: http.HTTPFlow):
@@ -58,6 +65,9 @@ def request(flow: http.HTTPFlow):
         return
     if check_lyrebird_request(flow):
         # Avoid internal requests
+        return
+    if is_websocket_request(flow):
+        # Avoid Websocket connect requests
         return
     to_mock_server(flow)
 
