@@ -50,7 +50,7 @@ class FlowEditorHandler(FunctionExecutor):
             handler_context.flow['response']['code'] = 200
         if not handler_context.flow['response'].get('headers'):
             handler_context.flow['response']['headers'] = {}
-        if not handler_context.flow['response'].get('data'):
+        if 'data' not in handler_context.flow['response']:
             if handler_context.response:
                 handler_context.update_response_data2flow()
             else:
