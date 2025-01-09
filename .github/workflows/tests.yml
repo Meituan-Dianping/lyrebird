@@ -27,7 +27,7 @@ jobs:
   unittest-arm64:
     strategy:
       matrix:
-        python-version: ["3.8.10", "3.9.13", "3.10.11", "3.11.9"]
+        python-version: ["3.8.10", "3.9.13", "3.10.11", "3.11.9", "3.12.7"]
     runs-on: macos-latest
     name: Python ${{ matrix.python-version }} tests
     steps:
