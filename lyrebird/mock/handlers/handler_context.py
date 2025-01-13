@@ -213,7 +213,15 @@ class HandlerContext:
                 continue
             headers[name] = value
         return headers
-    
+
+    # Before response returns, remove the Lyrebird internal headers
+    def get_response_headers(self):
+        headers = self.flow['response'].get('headers', {})
+        for key in set(headers.keys()):
+            if key.lower().contains('lyrebird'):
+                del headers[key]
+        return headers
+
     def get_request_cookies(self, in_request_handler=True):
         if in_request_handler:
             return self.request.cookies
