@@ -26,7 +26,7 @@ class DataHelper:
             return
 
         # Read raw headers, support the request from extra mock 9999 port
-        if '_raw_header' in origin_obj.environ:
+        if hasattr(origin_obj, 'environ') and '_raw_header' in origin_obj.environ:
             raw_headers = CaseInsensitiveDict(origin_obj.environ['_raw_header'])
             for key in ('cache-control', 'host', 'transfer-encoding', 'lyrebird-client-address'):
                 if key in raw_headers:
@@ -75,7 +75,7 @@ class DataHelper:
             return
 
         # Read raw headers, support the request from extra mock 9999 port
-        if '_raw_header' in origin_obj.environ:
+        if hasattr(origin_obj, 'environ') and '_raw_header' in origin_obj.environ:
             raw_headers = CaseInsensitiveDict(origin_obj.environ['_raw_header'])
             for key in ('cache-control', 'host', 'transfer-encoding', 'lyrebird-client-address'):
                 if key in raw_headers:

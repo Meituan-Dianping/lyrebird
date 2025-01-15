@@ -42,13 +42,3 @@ class HeadersHelper:
             output.headers = _headers
         else:
             return _headers
-
-    @staticmethod
-    def get_raw_headers(origin_request):
-        raw_headers = {}
-        if '_raw_header' in origin_request.environ:
-            raw_headers = CaseInsensitiveDict(origin_request.environ['_raw_header'])
-            for key in ('cache-control', 'host', 'transfer-encoding', 'lyrebird-client-address'):
-                if key in raw_headers:
-                    del raw_headers[key]
-        return raw_headers
