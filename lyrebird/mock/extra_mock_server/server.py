@@ -26,23 +26,11 @@ def is_filtered(context: LyrebirdProxyContext):
 
     allow list like
     '''
-    global lb_config
     filters = lb_config.get('proxy.filters', [])
     for _filter in filters:
         if re.search(_filter, context.origin_url):
             return True
     return False
-
-
-def make_raw_headers_line(request: web.Request):
-    raw_headers = {}
-    for k, v in request.raw_headers:
-        raw_header_name = k.decode()
-        raw_header_value = v.decode()
-        if raw_header_name.lower() in ['cache-control', 'host', 'transfer-encoding', 'proxy-raw-headers']:
-            continue
-        raw_headers[raw_header_name] = raw_header_value
-    return json.dumps(raw_headers, ensure_ascii=False)
 
 
 def upgrade_request_report(context: LyrebirdProxyContext):
@@ -58,13 +46,9 @@ def make_request_headers(context: LyrebirdProxyContext, is_proxy):
     headers = {k: v for k, v in context.request.headers.items() if k.lower() not in [
             'cache-control', 'host', 'transfer-encoding']}
     if is_proxy:
-        if 'Proxy-Raw-Headers' in context.request.headers:
-            del headers['Proxy-Raw-Headers']
         if 'Lyrebird-Client-Address' in context.request.headers:
             del headers['Lyrebird-Client-Address']
     else:
-        if 'Proxy-Raw-Headers' not in context.request.headers:
-            headers['Proxy-Raw-Headers'] = make_raw_headers_line(context.request)
         if 'Lyrebird-Client-Address' not in context.request.headers:
             headers['Lyrebird-Client-Address'] = context.request.remote
     return headers

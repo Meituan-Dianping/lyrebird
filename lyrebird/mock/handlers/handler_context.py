@@ -65,7 +65,10 @@ class HandlerContext:
         
         raw_headers = None
         # Read raw headers
-        if 'Proxy-Raw-Headers' in self.request.headers:
+        if '_raw_header' in self.request.environ:
+            raw_headers = HeadersHelper.get_raw_headers(self.request)
+        # Proxy-Raw-Headers will be removed in future
+        elif 'Proxy-Raw-Headers' in self.request.headers:
             raw_headers = json.loads(self.request.headers['Proxy-Raw-Headers'])
 
         # parse path
