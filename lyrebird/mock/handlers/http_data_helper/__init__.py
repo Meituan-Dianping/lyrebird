@@ -1,6 +1,5 @@
 from collections import OrderedDict
 from . import content_encoding, content_type
-from ..http_header_helper import HeadersHelper
 from lyrebird.utils import CaseInsensitiveDict
 import json
 
@@ -28,7 +27,10 @@ class DataHelper:
 
         # Read raw headers, support the request from extra mock 9999 port
         if '_raw_header' in origin_obj.environ:
-            raw_headers = HeadersHelper.get_raw_headers(origin_obj)
+            raw_headers = CaseInsensitiveDict(origin_obj.environ['_raw_header'])
+            for key in ('cache-control', 'host', 'transfer-encoding', 'lyrebird-client-address'):
+                if key in raw_headers:
+                    del raw_headers[key]
         elif 'Proxy-Raw-Headers' in origin_obj.headers:
             _origin_headers = json.loads(origin_obj.headers['Proxy-Raw-Headers'])
             raw_headers = CaseInsensitiveDict(_origin_headers)
@@ -74,7 +76,10 @@ class DataHelper:
 
         # Read raw headers, support the request from extra mock 9999 port
         if '_raw_header' in origin_obj.environ:
-            raw_headers = HeadersHelper.get_raw_headers(origin_obj)
+            raw_headers = CaseInsensitiveDict(origin_obj.environ['_raw_header'])
+            for key in ('cache-control', 'host', 'transfer-encoding', 'lyrebird-client-address'):
+                if key in raw_headers:
+                    del raw_headers[key]
         elif 'Proxy-Raw-Headers' in origin_obj.headers:
             _origin_headers = json.loads(origin_obj.headers['Proxy-Raw-Headers'])
             raw_headers = CaseInsensitiveDict(_origin_headers)
