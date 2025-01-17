@@ -137,7 +137,13 @@
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <span v-bind="attrs" v-on="on">
-                  <v-btn icon x-small plain>
+                  <v-btn 
+                    icon
+                    x-small
+                    plain
+                    @mousedown.prevent="showPopup($event, item)"
+                    @mouseup="handleButtonMouseUp"
+                  >
                     <v-icon
                       x-small
                       color="accent"
@@ -150,8 +156,12 @@
               </template>
               Copy Url
             </v-tooltip>
-
           </span>
+          <div v-if="isPopupVisible" class="popup" :style="popupStyle">
+            <v-btn small text @mouseup="copyPartialUrl('Host')">Host</v-btn>
+            <v-btn small text @mouseup="copyPartialUrl('Path')">Path</v-btn>
+            <v-btn small text @mouseup="copyPartialUrl('Query')">Query</v-btn>
+          </div>
         </v-row>
       </template>
 
@@ -212,6 +222,13 @@ export default {
       pageSize: 50,
       pageCount: 0,
       currentPage: 1,
+      isPopupVisible: false,
+      popupStyle: {
+        top: '0px',
+        left: '0px'
+      },
+      currentItem: null,
+      isMouseOverButton: false,
       headers: [
         {
           text: 'Source',
@@ -279,9 +296,11 @@ export default {
     // Too high click frequency may cause jumping if the refresh is not timely
     this.debouncedKeyboardSelectFlow = debounce(this.keyboardSelctFlow, 250);
     document.addEventListener('keydown', this.debouncedKeyboardSelectFlow);
+    document.addEventListener('mouseup', this.handleGlobalMouseUp);
   },
   beforeDestroy () {
     document.removeEventListener('keydown', this.debouncedKeyboardSelectFlow);
+    document.removeEventListener('mouseup', this.handleGlobalMouseUp);
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
@@ -531,6 +550,54 @@ export default {
     },
     onUrlCopyError (e) {
       this.$bus.$emit('msg.error', 'Copy url error:' + e)
+    },
+    showPopup(event, item) {
+      event.preventDefault();
+      this.isPopupVisible = true;
+      this.currentItem = item;
+      this.isMouseOverButton = true;
+      this.$nextTick(() => {
+        const button = event.target.closest('button');
+        const popup = this.$el.querySelector('.popup');
+        if (button && popup) {
+          const buttonRect = button.getBoundingClientRect();
+          const popupRect = popup.getBoundingClientRect();
+          this.popupStyle = {
+            bottom: `${window.innerHeight - buttonRect.top}px`,
+            left: `${buttonRect.left + (buttonRect.width / 2) - (popupRect.width / 2)}px`
+          };
+        }
+      });
+    },
+
+    handleButtonMouseUp() {
+      if (this.isMouseOverButton) {
+        this.copyUrl();
+      }
+      this.hidePopup();
+    },
+    handleGlobalMouseUp() {
+      this.hidePopup();
+    },
+    hidePopup() {
+      this.isPopupVisible = false;
+      this.currentItem = null;
+      this.isMouseOverButton = false;
+    },
+    copyPartialUrl(name) {
+      let urlinfo = ''
+      if (name == 'Host') {
+        urlinfo = this.currentItem.request.host
+      } else if (name == 'Path') {
+        urlinfo = this.currentItem.request.path
+      } else if (name == 'Query') {
+        urlinfo = this.currentItem.request.params
+      }
+      if (urlinfo && urlinfo.trim() !== '') {
+        this.$bus.$emit('clipboard', urlinfo)
+      } else {
+        this.$bus.$emit('msg.error', `Skip copy, ${name} is empty`)
+      }
     }
   }
 }
@@ -650,4 +717,16 @@ export default {
   overflow: hidden;
   cursor: pointer;
 }
+.popup {
+  position: fixed;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  padding: 2px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  border-radius: 4px;
+}
+
+
 </style>
