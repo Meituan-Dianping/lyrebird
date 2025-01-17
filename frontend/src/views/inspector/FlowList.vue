@@ -157,7 +157,7 @@
               Copy Url
             </v-tooltip>
           </span>
-          <div v-if="isPopupVisible" class="popup" :style="popupStyle">
+          <div v-if="isCopyPopupVisible" class="copyPopup" :style="copyPopupStyle">
             <v-btn small text @mouseup="copyPartialUrl('Host')">Host</v-btn>
             <v-btn small text @mouseup="copyPartialUrl('Path')">Path</v-btn>
             <v-btn small text @mouseup="copyPartialUrl('Query')">Query</v-btn>
@@ -222,8 +222,8 @@ export default {
       pageSize: 50,
       pageCount: 0,
       currentPage: 1,
-      isPopupVisible: false,
-      popupStyle: {
+      isCopyPopupVisible: false,
+      copyPopupStyle: {
         top: '0px',
         left: '0px'
       },
@@ -553,34 +553,48 @@ export default {
     },
     showPopup(event, item) {
       event.preventDefault();
-      this.isPopupVisible = true;
       this.currentItem = item;
       this.isMouseOverButton = true;
-      this.$nextTick(() => {
-        const button = event.target.closest('button');
-        const popup = this.$el.querySelector('.popup');
-        if (button && popup) {
-          const buttonRect = button.getBoundingClientRect();
-          const popupRect = popup.getBoundingClientRect();
-          this.popupStyle = {
-            bottom: `${window.innerHeight - buttonRect.top}px`,
-            left: `${buttonRect.left + (buttonRect.width / 2) - (popupRect.width / 2)}px`
-          };
-        }
-      });
-    },
 
+      // Clear any existing timer
+      if (this.popupTimer) {
+        clearTimeout(this.popupTimer);
+      }
+
+      // Set a new timer
+      this.popupTimer = setTimeout(() => {
+        this.isCopyPopupVisible = true;
+        this.$nextTick(() => {
+          const button = event.target.closest('button');
+          const popup = this.$el.querySelector('.copyPopup');
+          if (button && popup) {
+            const buttonRect = button.getBoundingClientRect();
+            const popupRect = popup.getBoundingClientRect();
+            this.copyPopupStyle = {
+              bottom: `${window.innerHeight - buttonRect.top}px`,
+              left: `${buttonRect.left + (buttonRect.width / 2) - (popupRect.width / 2)}px`
+            };
+          }
+        });
+      }, 200);
+    },
     handleButtonMouseUp() {
-      if (this.isMouseOverButton) {
+      if (this.popupTimer) {
+        clearTimeout(this.popupTimer);
+      }
+      if (this.isMouseOverButton && !this.isCopyPopupVisible) {
         this.copyUrl();
       }
       this.hidePopup();
     },
     handleGlobalMouseUp() {
+      if (this.popupTimer) {
+        clearTimeout(this.popupTimer);
+      }
       this.hidePopup();
     },
     hidePopup() {
-      this.isPopupVisible = false;
+      this.isCopyPopupVisible = false;
       this.currentItem = null;
       this.isMouseOverButton = false;
     },
@@ -717,7 +731,7 @@ export default {
   overflow: hidden;
   cursor: pointer;
 }
-.popup {
+.copyPopup {
   position: fixed;
   background-color: white;
   border: 1px solid #e0e0e0;
