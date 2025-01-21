@@ -5,7 +5,6 @@ Worked as a backgrund thread
 Run events handler and background task worker
 """
 import os
-import imp
 import sys
 import copy
 import uuid
@@ -71,7 +70,10 @@ def import_func_module(path):
         if pkg in sys.modules:
             continue
         sys.path.append(str(Path(path)/pkg))
-        imp.load_package(pkg, Path(path)/pkg)
+        spec = importlib.util.spec_from_file_location(pkg, str(Path(path)/pkg/'__init__.py'))
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[pkg] = module
+        spec.loader.exec_module(module)
 
 
 def import_func_from_file(filepath, func_name):
