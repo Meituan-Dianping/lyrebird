@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from .content_length import ContentLengthHandler
 from ..duplicate_header_key_handler import DuplicateHeaderKeyHandler
+from lyrebird.utils import CaseInsensitiveDict
 
 origin2flow_handlers = OrderedDict({
 })
@@ -41,4 +42,3 @@ class HeadersHelper:
             output.headers = _headers
         else:
             return _headers
-

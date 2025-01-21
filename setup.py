@@ -1,5 +1,7 @@
 import runpy
 import os
+import sys
+from packaging import version
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -9,10 +11,30 @@ VERSION = runpy.run_path(
 )["VERSION"]
 
 
-def read_requirements(name):
-    with open(os.path.join(here, name), encoding='utf-8') as f:
-        require_str = f.read()
-        return require_str.split()
+def read_requirements(file_path):
+    with open(file_path, encoding='utf-8') as f:
+        return [
+            line.strip().split(';')[0].strip()
+            for line in f
+            if line.strip() and not line.startswith('#') and (
+                '; python_version' not in line or
+                check_version_condition(line.split(';')[1].strip())
+            )
+        ]
+
+def check_version_condition(condition):
+    if not condition.startswith('python_version'):
+        return True
+    op, ver = condition.split(' ', 1)[1].split(' ')
+    current_ver = version.parse('.'.join(map(str, sys.version_info[:2])))
+    ver = version.parse(ver.strip('"'))
+    return {
+        '>': current_ver > ver,
+        '>=': current_ver >= ver,
+        '<': current_ver < ver,
+        '<=': current_ver <= ver,
+        '==': current_ver == ver
+    }.get(op, False)
 
 
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
