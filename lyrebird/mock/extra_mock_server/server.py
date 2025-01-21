@@ -11,6 +11,7 @@ from typing import Set
 from multidict import CIMultiDict
 
 from lyrebird.mock.extra_mock_server.lyrebird_proxy_protocol import LyrebirdProxyContext
+from lyrebird.mock.context import SINGLE_FORWARD_IDENTIFY_HEADERS
 from lyrebird import log
 
 logger = None
@@ -43,8 +44,8 @@ def upgrade_request_report(context: LyrebirdProxyContext):
 
 
 def make_request_headers(context: LyrebirdProxyContext, is_proxy):
-    headers = {k: v for k, v in context.request.headers.items() if k.lower() not in [
-            'cache-control', 'host', 'transfer-encoding']}
+    headers = {k: v for k, v in context.request.headers.items() 
+               if k.lower() not in SINGLE_FORWARD_IDENTIFY_HEADERS}
     if is_proxy:
         if 'Lyrebird-Client-Address' in context.request.headers:
             del headers['Lyrebird-Client-Address']

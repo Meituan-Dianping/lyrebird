@@ -158,15 +158,19 @@ last_emit_time = {}
 
 """
 request header may casuse exception:
-- Lyrebird internal header. eg. Lyrebird-Raw-Header
+- Lyrebird internal header. eg. proxy-raw-headers
 - The header should change each forwarding. eg. Host
 """
-LYREBIRD_UNPROXY_HEADERS = (
+INTERNAL_PROXY_HEADERS = (
+    'lyrebird-client-address',
+    'proxy-raw-headers'
+)
+SINGLE_FORWARD_IDENTIFY_HEADERS = (
     'cache-control',
     'host',
-    'transfer-encoding',
-    'lyrebird-client-address'
+    'transfer-encoding'
 )
+LYREBIRD_UNPROXY_HEADERS = tuple(*INTERNAL_PROXY_HEADERS, *SINGLE_FORWARD_IDENTIFY_HEADERS)
 
 
 application = Application()
