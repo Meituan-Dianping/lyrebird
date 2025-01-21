@@ -10,6 +10,7 @@ from lyrebird import application
 from lyrebird.log import get_logger
 from lyrebird.utils import CaseInsensitiveDict
 from lyrebird.mock.blueprints.apis.bandwidth import config
+from lyrebird.mock.context import LYREBIRD_UNPROXY_HEADERS
 from urllib.parse import urlparse, unquote
 from .http_data_helper import DataHelper
 from .http_header_helper import HeadersHelper
@@ -66,14 +67,14 @@ class HandlerContext:
         
         raw_headers = None
         # Read raw headers
-        if '_raw_header' in self.request.environ:
+        # Proxy-Raw-Headers will be removed in future
+        if 'Proxy-Raw-Headers' in self.request.headers:
+            raw_headers = json.loads(self.request.headers['Proxy-Raw-Headers'])
+        elif '_raw_header' in self.request.environ:
             raw_headers = CaseInsensitiveDict(self.request.environ['_raw_header'])
-            for key in ('cache-control', 'host', 'transfer-encoding', 'lyrebird-client-address'):
+            for key in LYREBIRD_UNPROXY_HEADERS:
                 if key in raw_headers:
                     del raw_headers[key]
-        # Proxy-Raw-Headers will be removed in future
-        elif 'Proxy-Raw-Headers' in self.request.headers:
-            raw_headers = json.loads(self.request.headers['Proxy-Raw-Headers'])
 
         # parse path
         request_info = self._read_origin_request_info_from_url()
@@ -214,7 +215,7 @@ class HandlerContext:
         headers = {}
         unproxy_headers = application.config.get('proxy.ignored_headers', {})
         for name, value in self.flow['request']['headers'].items():
-            if not value or name in ['Cache-Control', 'Host', 'Transfer-Encoding']:
+            if not value or name.lower() in LYREBIRD_UNPROXY_HEADERS:
                 continue
             if name in unproxy_headers and unproxy_headers[name] in value:
                 continue

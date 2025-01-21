@@ -155,6 +155,20 @@ We need to limit render time
 EMIT_INTERVAL = 1
 last_emit_time = {}
 
+
+"""
+request header may casuse exception:
+- Lyrebird internal header. eg. Lyrebird-Raw-Header
+- The header should change each forwarding. eg. Host
+"""
+LYREBIRD_UNPROXY_HEADERS = (
+    'cache-control',
+    'host',
+    'transfer-encoding',
+    'lyrebird-client-address'
+)
+
+
 application = Application()
 
 def make_ok_response(**kwargs):

@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from . import content_encoding, content_type
 from lyrebird.utils import CaseInsensitiveDict
+from lyrebird.mock.context import LYREBIRD_UNPROXY_HEADERS
 import json
 
 origin2flow_handlers = OrderedDict({
@@ -25,15 +26,15 @@ class DataHelper:
         if not _data:
             return
 
-        # Read raw headers, support the request from extra mock 9999 port
-        if hasattr(origin_obj, 'environ') and '_raw_header' in origin_obj.environ:
-            raw_headers = CaseInsensitiveDict(origin_obj.environ['_raw_header'])
-            for key in ('cache-control', 'host', 'transfer-encoding', 'lyrebird-client-address'):
-                if key in raw_headers:
-                    del raw_headers[key]
-        elif 'Proxy-Raw-Headers' in origin_obj.headers:
+        if 'Proxy-Raw-Headers' in origin_obj.headers:
             _origin_headers = json.loads(origin_obj.headers['Proxy-Raw-Headers'])
             raw_headers = CaseInsensitiveDict(_origin_headers)
+        # Read raw headers, support the request from extra mock 9999 port
+        elif hasattr(origin_obj, 'environ') and '_raw_header' in origin_obj.environ:
+            raw_headers = CaseInsensitiveDict(origin_obj.environ['_raw_header'])
+            for key in LYREBIRD_UNPROXY_HEADERS:
+                if key in raw_headers:
+                    del raw_headers[key]
         else:
             raw_headers = origin_obj.headers
 
@@ -74,15 +75,15 @@ class DataHelper:
         if not _data:
             return
 
-        # Read raw headers, support the request from extra mock 9999 port
-        if hasattr(origin_obj, 'environ') and '_raw_header' in origin_obj.environ:
-            raw_headers = CaseInsensitiveDict(origin_obj.environ['_raw_header'])
-            for key in ('cache-control', 'host', 'transfer-encoding', 'lyrebird-client-address'):
-                if key in raw_headers:
-                    del raw_headers[key]
-        elif 'Proxy-Raw-Headers' in origin_obj.headers:
+        if 'Proxy-Raw-Headers' in origin_obj.headers:
             _origin_headers = json.loads(origin_obj.headers['Proxy-Raw-Headers'])
             raw_headers = CaseInsensitiveDict(_origin_headers)
+        # Read raw headers, support the request from extra mock 9999 port
+        elif hasattr(origin_obj, 'environ') and '_raw_header' in origin_obj.environ:
+            raw_headers = CaseInsensitiveDict(origin_obj.environ['_raw_header'])
+            for key in LYREBIRD_UNPROXY_HEADERS:
+                if key in raw_headers:
+                    del raw_headers[key]
         else:
             raw_headers = origin_obj.headers
 
