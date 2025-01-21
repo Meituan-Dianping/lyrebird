@@ -17,6 +17,7 @@ from .proxy_handler import ProxyHandler
 
 logger = get_logger()
 proxy_handler = ProxyHandler()
+lyrebird_response_headers = None
 
 
 class HandlerContext:
@@ -213,7 +214,20 @@ class HandlerContext:
                 continue
             headers[name] = value
         return headers
-    
+
+    # Before response returns, remove the Lyrebird internal headers
+    def get_response_headers(self):
+        global lyrebird_response_headers
+        if not lyrebird_response_headers:
+            lyrebird_response_headers = application.config.get('proxy.response.delete_headers', [])
+
+        headers = self.flow['response'].get('headers', {})
+        lyrebird_response_headers = []
+        for key in lyrebird_response_headers:
+            if key in headers:
+                del headers[key]
+        return headers
+
     def get_request_cookies(self, in_request_handler=True):
         if in_request_handler:
             return self.request.cookies
