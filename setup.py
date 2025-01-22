@@ -10,6 +10,7 @@ VERSION = runpy.run_path(
 )["VERSION"]
 
 
+# Formatting (Spaces, etc.) in requirement must be consistent based on string parsing
 def read_requirements(file_path):
     with open(file_path, encoding='utf-8') as f:
         return [
@@ -20,6 +21,7 @@ def read_requirements(file_path):
                 check_version_condition(line.split(';')[1].strip())
             )
         ]
+
 
 def check_version_condition(condition):
     if not condition.startswith('python_version'):
@@ -33,7 +35,7 @@ def check_version_condition(condition):
         '<': current_ver < ver,
         '<=': current_ver <= ver,
         '==': current_ver == ver
-    }.get(op, False)
+    }.get(op)
 
 
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
