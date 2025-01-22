@@ -1,8 +1,7 @@
 import runpy
 import os
 import sys
-from packaging import version
-from setuptools import setup, find_packages
+from setuptools import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -11,6 +10,7 @@ VERSION = runpy.run_path(
 )["VERSION"]
 
 
+# Formatting (Spaces, etc.) in requirement must be consistent based on string parsing
 def read_requirements(file_path):
     with open(file_path, encoding='utf-8') as f:
         return [
@@ -22,19 +22,20 @@ def read_requirements(file_path):
             )
         ]
 
+
 def check_version_condition(condition):
     if not condition.startswith('python_version'):
         return True
     op, ver = condition.split(' ', 1)[1].split(' ')
-    current_ver = version.parse('.'.join(map(str, sys.version_info[:2])))
-    ver = version.parse(ver.strip('"'))
+    current_ver = sys.version_info[:2]
+    ver = tuple(map(int, ver.strip('"').split('.')))
     return {
         '>': current_ver > ver,
         '>=': current_ver >= ver,
         '<': current_ver < ver,
         '<=': current_ver <= ver,
         '==': current_ver == ver
-    }.get(op, False)
+    }.get(op)
 
 
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -68,6 +69,7 @@ setup(
             'lyrebird = lyrebird.manager:main'
         ]
     },
+    setup_requires=['packaging'],
     install_requires=read_requirements('requirements.txt.lock'),
     extras_require={
         'dev': read_requirements('requirements.dev.txt')
