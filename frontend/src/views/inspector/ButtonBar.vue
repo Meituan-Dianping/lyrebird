@@ -104,7 +104,7 @@
           :menu-props="{ contentClass: 'custom-combobox-menu' }"
           @click:clear="clearInspectorSearch"
           @update:search-input="updateSearchStr"
-          @input="saveSearchHistory"
+          @blur="saveSearchHistory"
         />
       </div>
 
