@@ -52,13 +52,13 @@ def index(path=''):
         resp = Response(
             gen(),
             status=req_context.flow['response']['code'],
-            headers=req_context.flow['response']['headers']
+            headers=req_context.get_response_headers()
         )
     elif req_context.flow['response']:
         resp = Response(
             req_context.flow['response'].get('data', ''),
             status=req_context.flow['response'].get('code', 200),
-            headers=req_context.flow['response'].get('headers', {})
+            headers=req_context.get_response_headers()
         )
     else:
         path_not_found_handler.handle(req_context)

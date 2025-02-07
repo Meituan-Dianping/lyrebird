@@ -1,5 +1,4 @@
 import os
-import imp
 import inspect
 import traceback
 from pathlib import Path
@@ -7,6 +6,8 @@ from collections import namedtuple
 
 import pkg_resources
 import setuptools
+import importlib
+
 
 from ..log import get_logger
 from .plugin import Plugin
@@ -141,7 +142,12 @@ def load_from_path(plugin_path):
             sys.modules.pop(pkg)
         if pkg+'.manifest' in sys.modules:
             sys.modules.pop(pkg+'.manifest')
-        imp.load_package(pkg, Path(plugin_path)/pkg)
+
+        spec = importlib.util.spec_from_file_location(pkg, str(Path(plugin_path)/pkg/'__init__.py'))
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[pkg] = module
+        spec.loader.exec_module(module)
+
         __import__(pkg+'.manifest')
 
     # There can only one manifest in each plugin
