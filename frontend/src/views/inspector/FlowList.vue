@@ -556,12 +556,10 @@ export default {
       this.currentItem = item;
       this.isMouseOverButton = true;
 
-      // Clear any existing timer
       if (this.popupTimer) {
         clearTimeout(this.popupTimer);
       }
-
-      // Set a new timer
+      // Avoid flashing pop-ups when copying full urls
       this.popupTimer = setTimeout(() => {
         this.isCopyPopupVisible = true;
         this.$nextTick(() => {
@@ -587,6 +585,7 @@ export default {
       }
       this.hidePopup();
     },
+    // Make sure popup can be close when the cursor is moved out
     handleGlobalMouseUp() {
       if (this.popupTimer) {
         clearTimeout(this.popupTimer);
