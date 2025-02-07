@@ -347,10 +347,17 @@ class CaseInsensitiveDict(dict):
 
     def __init__(self, raw_dict=None):
         self.__key_map = {}
-        if raw_dict:
+        if not raw_dict:
+            return
+        if raw_dict and isinstance(raw_dict, dict):
             for k, v in raw_dict.items():
                 self.__setitem__(k, v)
-    
+        elif raw_dict and isinstance(raw_dict, list):
+            for k, v in raw_dict:
+                self.__setitem__(k, v)
+        else:
+            raise TypeError("Unexpected type for CaseInsensitiveDict")
+
     def __getstate__(self):
         return {
             'key_map': self.__key_map,
