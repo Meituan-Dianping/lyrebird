@@ -5,12 +5,14 @@ from .blueprints.apis import api
 from .blueprints.ui import ui
 from .blueprints.core import core
 from flask_socketio import SocketIO
+from werkzeug.serving import WSGIRequestHandler
 from ..version import VERSION
 from lyrebird.base_server import ThreadServer
 from lyrebird import application
 from lyrebird import log
 import sys
 import traceback
+import functools
 
 """
 Mock server
@@ -121,3 +123,22 @@ class LyrebirdMockServer(ThreadServer):
         except Exception as e:
             pass
         print('CoreServer shutdown')
+
+
+def monkey_patch_wsgi_request_handler():
+    """
+    environ of Werkzeug lost some Header capitalization information when processing request headers. 
+    Although this is in compliance with RFC-7230, it may cause exceptions in some non-standard scenarios, 
+    so it is recorded here to achieve compatibility.
+    """
+    original_make_environ = WSGIRequestHandler.make_environ
+
+    @functools.wraps(original_make_environ)
+    def patched_make_environ(self):
+        environ = original_make_environ(self)
+        environ['_raw_header'] = self.headers._headers
+        return environ
+
+    WSGIRequestHandler.make_environ = patched_make_environ
+
+monkey_patch_wsgi_request_handler()

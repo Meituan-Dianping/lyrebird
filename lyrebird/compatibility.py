@@ -32,7 +32,7 @@ def jit(*args, **kwargs):
 '''
 
 PYTHON_MIN_VERSION = (3, 8, 0)
-PYTHON_MAX_VERSION = (3, 11, float('inf'))
+PYTHON_MAX_VERSION = (3, 13, float('inf'))
 
 
 '''
