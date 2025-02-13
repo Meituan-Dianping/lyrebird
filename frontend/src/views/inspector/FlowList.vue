@@ -316,8 +316,13 @@ export default {
     searchStr () {
       return this.$store.state.inspector.searchStr
     },
-    focusedFlowDetail () {
-      return this.$store.state.inspector.focusedFlowDetail
+    focusedFlowDetail: {
+      get() {
+        return this.$store.state.inspector.focusedFlowDetail;
+      },
+      set(value) {
+        this.$store.commit('setFocusedFlowDetail', value);
+      }
     },
     selectedFlows: {
       get () {
