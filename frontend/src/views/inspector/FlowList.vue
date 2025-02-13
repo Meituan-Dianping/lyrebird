@@ -137,7 +137,13 @@
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <span v-bind="attrs" v-on="on">
-                  <v-btn icon x-small plain>
+                  <v-btn 
+                    icon
+                    x-small
+                    plain
+                    @mousedown.prevent="showPopup($event, item)"
+                    @mouseup="handleButtonMouseUp"
+                  >
                     <v-icon
                       x-small
                       color="accent"
@@ -150,8 +156,12 @@
               </template>
               Copy Url
             </v-tooltip>
-
           </span>
+          <div v-if="isCopyPopupVisible" class="copyPopup" :style="copyPopupStyle">
+            <v-btn small text @mouseup="copyPartialUrl('Host')">Host</v-btn>
+            <v-btn small text @mouseup="copyPartialUrl('Path')">Path</v-btn>
+            <v-btn small text @mouseup="copyPartialUrl('Query')">Query</v-btn>
+          </div>
         </v-row>
       </template>
 
@@ -212,6 +222,13 @@ export default {
       pageSize: 50,
       pageCount: 0,
       currentPage: 1,
+      isCopyPopupVisible: false,
+      copyPopupStyle: {
+        top: '0px',
+        left: '0px'
+      },
+      currentItem: null,
+      isMouseOverButton: false,
       headers: [
         {
           text: 'Source',
@@ -279,9 +296,11 @@ export default {
     // Too high click frequency may cause jumping if the refresh is not timely
     this.debouncedKeyboardSelectFlow = debounce(this.keyboardSelctFlow, 250);
     document.addEventListener('keydown', this.debouncedKeyboardSelectFlow);
+    document.addEventListener('mouseup', this.handleGlobalMouseUp);
   },
   beforeDestroy () {
     document.removeEventListener('keydown', this.debouncedKeyboardSelectFlow);
+    document.removeEventListener('mouseup', this.handleGlobalMouseUp);
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
@@ -531,6 +550,67 @@ export default {
     },
     onUrlCopyError (e) {
       this.$bus.$emit('msg.error', 'Copy url error:' + e)
+    },
+    showPopup(event, item) {
+      event.preventDefault();
+      this.currentItem = item;
+      this.isMouseOverButton = true;
+
+      if (this.popupTimer) {
+        clearTimeout(this.popupTimer);
+      }
+      // Avoid flashing pop-ups when copying full urls
+      this.popupTimer = setTimeout(() => {
+        this.isCopyPopupVisible = true;
+        this.$nextTick(() => {
+          const button = event.target.closest('button');
+          const popup = this.$el.querySelector('.copyPopup');
+          if (button && popup) {
+            const buttonRect = button.getBoundingClientRect();
+            const popupRect = popup.getBoundingClientRect();
+            this.copyPopupStyle = {
+              bottom: `${window.innerHeight - buttonRect.top}px`,
+              left: `${buttonRect.left + (buttonRect.width / 2) - (popupRect.width / 2)}px`
+            };
+          }
+        });
+      }, 200);
+    },
+    handleButtonMouseUp() {
+      if (this.popupTimer) {
+        clearTimeout(this.popupTimer);
+      }
+      if (this.isMouseOverButton && !this.isCopyPopupVisible) {
+        this.copyUrl();
+      }
+      this.hidePopup();
+    },
+    // Make sure popup can be close when the cursor is moved out
+    handleGlobalMouseUp() {
+      if (this.popupTimer) {
+        clearTimeout(this.popupTimer);
+      }
+      this.hidePopup();
+    },
+    hidePopup() {
+      this.isCopyPopupVisible = false;
+      this.currentItem = null;
+      this.isMouseOverButton = false;
+    },
+    copyPartialUrl(name) {
+      let urlinfo = ''
+      if (name == 'Host') {
+        urlinfo = this.currentItem.request.host
+      } else if (name == 'Path') {
+        urlinfo = this.currentItem.request.path
+      } else if (name == 'Query') {
+        urlinfo = this.currentItem.request.params
+      }
+      if (urlinfo && urlinfo.trim() !== '') {
+        this.$bus.$emit('clipboard', urlinfo)
+      } else {
+        this.$bus.$emit('msg.error', `Skip copy, ${name} is empty`)
+      }
     }
   }
 }
@@ -650,4 +730,16 @@ export default {
   overflow: hidden;
   cursor: pointer;
 }
+.copyPopup {
+  position: fixed;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  padding: 2px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  border-radius: 4px;
+}
+
+
 </style>
