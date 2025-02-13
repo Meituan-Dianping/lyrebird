@@ -28,12 +28,19 @@
             color="#fff1f0"
             text-color="#f5222d"
           >kill</v-chip>
-          <v-chip label small
-            v-else-if="item.response.mock === 'mock'"
-            class="flow-list-item-tag"
-            color="primaryBrightest"
-            text-color="primary"
-          >mock</v-chip>
+          <v-tooltip top v-else-if="item.response.mock === 'mock'">
+            <template v-slot:activator="{ on, attrs }">
+              <v-chip label small
+                class="flow-list-item-tag"
+                color="primaryBrightest"
+                text-color="primary"
+                @click = "copyMockId(item)"
+                v-bind="attrs"
+                v-on="on"
+              >mock</v-chip>
+            </template>
+            <span> {{ getMockId(item) ? 'Mock by: '+getMockId(item)+' (Click copy)' : 'MockId Not Found' }} </span>
+          </v-tooltip>
           <v-chip label small
             v-else-if="item.response.mock === 'proxy'"
             color="border"
@@ -555,6 +562,20 @@ export default {
     },
     onUrlCopyError (e) {
       this.$bus.$emit('msg.error', 'Copy url error:' + e)
+    },
+    getMockId (item) {
+      for (const action of item.action) {
+        if (action.hasOwnProperty('mock_id')) {
+          return action.mock_id;
+        }
+      }
+      return '';
+    },
+    copyMockId (item) {
+      let mock_id = this.getMockId(item)
+      if (mock_id) {
+        this.$bus.$emit('clipboard', mock_id)
+      }
     },
     showPopup(event, item) {
       event.preventDefault();
