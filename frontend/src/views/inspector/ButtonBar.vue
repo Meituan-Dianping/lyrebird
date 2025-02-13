@@ -90,15 +90,21 @@
         />
       </div>
       <div class="inspector-search">
-        <v-text-field
+        <v-combobox
           outlined
           dense
           height=26
           v-model="searchStr"
-          class="inspector-search-text"
+          :items="searchHistory"
+          class="inspector-search-text custom-combobox"
           label="Separate multiple keywords by spaces or |"
           clearable
+          hide-no-data
+          hide-selected
+          :menu-props="{ contentClass: 'custom-combobox-menu' }"
           @click:clear="clearInspectorSearch"
+          @update:search-input="updateSearchStr"
+          @blur="saveSearchHistory"
         />
       </div>
 
@@ -168,11 +174,17 @@
 
 <script>
 import TempMockDrawer from '@/views/inspector/TempMockDrawer.vue'
+import { debounce } from 'lodash'
 
 export default {
   name: 'buttonBar',
   components: {
     TempMockDrawer
+  },
+  data() {
+    return {
+      searchHistory: [],
+    }
   },
   computed: {
     diffMode: {
@@ -252,7 +264,7 @@ export default {
       set (val) {
         this.$store.commit('setSearchStr', val)
       }
-    }
+    },
   },
   methods: {
     showMockDataSelector () {
@@ -271,6 +283,14 @@ export default {
     clearInspectorSearch () {
       this.$store.commit('setSearchStr', '')
     },
+    saveSearchHistory() {
+      if (this.searchStr && !this.searchHistory.includes(this.searchStr)) {
+        this.searchHistory.unshift(this.searchStr);
+        if (this.searchHistory.length > 10) {
+          this.searchHistory.pop();
+        }
+      }
+    },
     saveSelectedFlow () {
       if (Object.keys(this.activatedGroups).length <= 0) {
         this.$bus.$emit('msg.info', 'Select a mock group')
@@ -284,7 +304,13 @@ export default {
     },
     onActivateClick (group) {
       this.$store.dispatch('activateGroup', group)
-    }
+    },
+    updateSearchStr(val) {
+      this.$store.commit('setSearchStr', val);
+    },
+    debouncedUpdateSearchStr: debounce(function(val) {
+      this.$store.commit('setSearchStr', val);
+    }, 500),
   }
 }
 </script>
@@ -432,5 +458,19 @@ export default {
 .inspector-search-text .v-label{
   font-size: 14px !important;
   top: 5px !important;
+}
+.custom-combobox .v-input__icon--append:not(.v-input__icon--clear) {
+  display: none !important;
+}
+.custom-combobox .v-input__icon--clear {
+  display: flex !important;
+}
+.custom-combobox-menu .v-list-item {
+  min-height: 24px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.custom-combobox-menu .v-list-item__content {
+  padding: 4px 0 !important;
 }
 </style>
