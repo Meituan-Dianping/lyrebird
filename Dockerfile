@@ -8,6 +8,7 @@ RUN if [[ -n "$USE_MIRROR" ]] ; then npm --registry https://registry.npmmirror.c
 FROM python:3.9-slim
 ARG USE_MIRROR 
 ENV PYTHONUNBUFFERED 1
+ENV IS_DOCKER_CONTAINER 1
 
 COPY . /usr/src
 WORKDIR /usr/src
