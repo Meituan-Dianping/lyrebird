@@ -1,11 +1,15 @@
 from .gzip import GzipHandler
 from .default import DefaultHandler
+from .br import BrotliHandler
+from .zstd import ZstdHandler
 from lyrebird.log import get_logger
 
 logger = get_logger()
 
 content_encoding_handlers = {
     'gzip': GzipHandler,
+    'br': BrotliHandler,
+    'zstd': ZstdHandler,
 }
 
 def _get_matched_action(content_encoding_name):
