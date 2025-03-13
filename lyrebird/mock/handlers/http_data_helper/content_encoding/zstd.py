@@ -19,4 +19,4 @@ class ZstdHandler:
     def origin2string(request_data):
         dctx = zstd.ZstdDecompressor()
         _data = dctx.decompress(request_data)
-        return _data 
+        return _data

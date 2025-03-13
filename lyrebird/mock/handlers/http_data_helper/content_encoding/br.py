@@ -16,4 +16,4 @@ class BrotliHandler:
     @staticmethod
     def origin2string(request_data):
         _data = brotli.decompress(request_data)
-        return _data 
+        return _data
