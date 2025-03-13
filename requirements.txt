@@ -14,5 +14,7 @@ netifaces==0.11.0
 jsonschema==4.17.0
 Flask-Cors==4.0.0
 redis==4.6.0
+zstandard
+brotli
 setuptools
 sortedcontainers
