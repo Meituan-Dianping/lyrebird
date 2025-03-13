@@ -4,6 +4,8 @@ import hashlib
 import json
 import gzip
 import requests
+import brotli
+import zstandard as zstd
 from urllib.parse import quote
 
 
@@ -59,6 +61,25 @@ def test_json_gzip(lyrebird, mock_server):
     headers = {"Content-Type": "application/json", "Content-Encoding": "gzip"}
     r = requests.post(url=lyrebird.uri_mock + mock_server.api_post, data=ziped_data, headers=headers)
     assert r.text == hashlib.md5(mock_server.api_post.encode() + ziped_data).hexdigest()
+
+
+def test_json_br(lyrebird, mock_server):
+    data = {"a": 1}
+    br_data = brotli.compress(json.dumps(data, ensure_ascii=False).encode())
+    headers = {"Content-Type": "application/json", "Content-Encoding": "br"}
+    r = requests.post(url=lyrebird.uri_mock + mock_server.api_post, data=br_data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + br_data).hexdigest()
+
+
+def test_json_zstd(lyrebird, mock_server):
+    data = {"a": 1}
+    cctx = zstd.ZstdCompressor()
+    zstd_data = cctx.compress(json.dumps(data, ensure_ascii=False).encode())
+    headers = {"Content-Type": "application/json", "Content-Encoding": "zstd"}
+    url = lyrebird.uri_mock + mock_server.api_post
+    print(url)
+    r = requests.post(url=lyrebird.uri_mock + mock_server.api_post, data=zstd_data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + zstd_data).hexdigest()
 
 
 def test_lb_proxy_protocol_target_in_path(lyrebird, mock_server):
