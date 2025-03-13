@@ -3,6 +3,8 @@ import hashlib
 import json
 import gzip
 import requests
+import zstandard
+import brotli
 
 
 current_path = os.path.abspath(os.path.dirname(__file__))
@@ -70,3 +72,22 @@ def test_flow_editor_json_gzip(lyrebird_with_args, mock_server):
     headers = {"Content-Type": "application/json", "Content-Encoding": "gzip"}
     r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, data=ziped_data, headers=headers)
     assert r.text == hashlib.md5(mock_server.api_post.encode() + ziped_data).hexdigest()
+
+
+def test_flow_editor_json_zstd(lyrebird_with_args, mock_server):
+    lyrebird_with_args.start(checker_path=script_path)
+    data = {"a": 1}
+    compressor = zstandard.ZstdCompressor()
+    zstd_data = compressor.compress(json.dumps(data, ensure_ascii=False).encode())
+    headers = {"Content-Type": "application/json", "Content-Encoding": "zstd"}
+    r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, data=zstd_data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + zstd_data).hexdigest()
+
+
+def test_flow_editor_json_br(lyrebird_with_args, mock_server):
+    lyrebird_with_args.start(checker_path=script_path)
+    data = {"a": 1}
+    br_data = brotli.compress(json.dumps(data, ensure_ascii=False).encode())
+    headers = {"Content-Type": "application/json", "Content-Encoding": "br"}
+    r = requests.post(url=lyrebird_with_args.uri_mock + mock_server.api_post, data=br_data, headers=headers)
+    assert r.text == hashlib.md5(mock_server.api_post.encode() + br_data).hexdigest()

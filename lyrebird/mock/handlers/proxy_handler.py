@@ -15,6 +15,7 @@ urllib3.disable_warnings()
 
 logger = get_logger()
 
+REQUESTS_AUTO_DECOMPRESS_HEADERS = ('gzip', 'deflate', 'br')
 
 class ProxyHandler:
     """
@@ -76,11 +77,16 @@ class ProxyHandler:
         resp_headers = [('lyrebird', 'proxy')]
         for name, value in r.raw.headers.items():
             # rm 'content-length' from ignore list
-            if name.lower() in ('content-encoding',
-                                'transfer-encoding'):
+            if name.lower() == 'transfer-encoding':
                 continue
-            if name.lower() == 'content-length' and 'content-encoding' in r.headers and r.headers['content-encoding'] == 'gzip':
-                # 如果是gzip请求，由于requests自动解压gzip，所以此处抹去content-length,以匹配解压后的数据长度
+            if name.lower() == 'content-encoding' and \
+                r.headers['content-encoding'] in REQUESTS_AUTO_DECOMPRESS_HEADERS:
+                # 非 requests 自动解码的压缩类型，需要保留 content-encoding 用于 DataHelper 处理
+                continue
+            if name.lower() == 'content-length' and \
+                'content-encoding' in r.headers and \
+                r.headers['content-encoding'] in REQUESTS_AUTO_DECOMPRESS_HEADERS:
+                # 如果是gzip/deflate/br请求，由于requests自动解压gzip/deflate/br，所以此处抹去content-length,以匹配解压后的数据长度
                 continue
             resp_headers.append((name, value))
         
