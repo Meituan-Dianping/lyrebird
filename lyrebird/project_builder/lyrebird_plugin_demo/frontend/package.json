@@ -17,7 +17,7 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.0.0",
     "@vue/cli-plugin-vuex": "^4.0.0",
-    "@vue/cli-service": "^4.0.0",
+    "@vue/cli-service": "^5.0.8",
     "vue-template-compiler": "^2.6.10"
   },
   "postcss": {
