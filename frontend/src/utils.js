@@ -1,4 +1,5 @@
 import { bus } from '@/eventbus'
+import { stringify } from 'lossless-json'
 
 export const readablizeBytes = (bytes) => {
   if(bytes===0){
@@ -87,7 +88,7 @@ function generateJsonString (data) {
     return data.trim()
   }else{
     try{
-      res = JSON.stringify(data)
+      res = stringify(data)
     }catch(e){
       bus.$emit('msg.error', `Generate curl param -d failed: Data type conversion failed`)
     }

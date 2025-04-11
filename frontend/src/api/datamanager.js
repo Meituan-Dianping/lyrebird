@@ -95,7 +95,10 @@ export const updateData = (data) => {
   return axios({
     url: '/api/data',
     method: 'PUT',
-    data
+    data,
+    headers: {
+      'Content-Type': 'text/plain'
+    }
   })
 }
 

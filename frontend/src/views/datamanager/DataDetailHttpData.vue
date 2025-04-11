@@ -93,6 +93,7 @@
 </template>
 
 <script>
+import { parse, stringify } from 'lossless-json'
 import DataDetailInfo from '@/views/datamanager/DataDetailInfo.vue'
 import CodeEditor from '@/components/CodeEditor.vue'
 import CodeDiffEditor from '@/components/CodeDiffEditor.vue'
@@ -201,15 +202,15 @@ export default {
   methods: {
     save () {
       const newData = {}
-      Object.assign(newData, JSON.parse(this.editorCache.info))
+      Object.assign(newData, parse(this.editorCache.info))
       // Add request
       const newReq = {}
-      Object.assign(newReq, JSON.parse(this.editorCache.req))
+      Object.assign(newReq, parse(this.editorCache.req))
       newReq['data'] = this.editorCache.reqData
       newData['request'] = newReq
       // Add response
       const newResp = {}
-      Object.assign(newResp, JSON.parse(this.editorCache.resp))
+      Object.assign(newResp, parse(this.editorCache.resp))
       newResp['data'] = this.editorCache.respData
       newData['response'] = newResp
       // Add Flag
@@ -232,23 +233,23 @@ export default {
       if (val === null || Object.keys(val).length === 0) {
         return
       }
-      this.editorCache.info = JSON.stringify({
+      this.editorCache.info = stringify({
         id: val.id,
         name: val.name,
         rule: val.rule,
         apiDiffConfig: val.apiDiffConfig
       })
-      this.editorCache.req = JSON.stringify({
+      this.editorCache.req = stringify({
         url: val.request.url,
         headers: val.request.headers,
         method: val.request.method
       })
-      this.editorCache.reqData = typeof (val.request.data) == 'object' ? JSON.stringify(val.request.data) : val.request.data
-      this.editorCache.resp = JSON.stringify({
+      this.editorCache.reqData = typeof (val.request.data) == 'object' ? stringify(val.request.data) : val.request.data
+      this.editorCache.resp = stringify({
         code: val.response.code,
         headers: val.response.headers
       })
-      this.editorCache.respData = typeof (val.response.data) == 'object' ? JSON.stringify(val.response.data) : val.response.data
+      this.editorCache.respData = typeof (val.response.data) == 'object' ? stringify(val.response.data) : val.response.data
     },
     loadEditorDiffContent () {
       const data = this.editorCache['respData']

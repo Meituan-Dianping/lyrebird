@@ -76,6 +76,7 @@
 import CodeEditor from '@/components/CodeEditor.vue'
 import CodeDiffEditor from '@/components/CodeDiffEditor.vue'
 import JsonpathInfo from '@/views/inspector/JsonpathInfo.vue'
+import { parse, stringify } from 'lossless-json'
 
 export default {
   name: 'flowDetail',
@@ -160,14 +161,14 @@ export default {
         return
       }
       this.editorCache.id = val.id
-      this.editorCache.req = JSON.stringify({
+      this.editorCache.req = stringify({
         ...val.request
       })
       let reqContentInfo = this.getParsedContentAndType(val.request)
       this.editorCache.reqData = reqContentInfo.content
       this.editorCacheLanguage.reqData = reqContentInfo.language
 
-      this.editorCache.resp = JSON.stringify({
+      this.editorCache.resp = stringify({
         code: val.response.code,
         headers: val.response.headers
       })
@@ -180,7 +181,7 @@ export default {
     },
     parseJsonData (data) {
       if (typeof data === 'object') {
-        return JSON.stringify(data, null, 4)
+        return stringify(data, null, 4)
       } else {
         return data
       }
@@ -232,12 +233,12 @@ export default {
       const newData = {}
       // Add request
       const newReq = {}
-      Object.assign(newReq, JSON.parse(this.editorCache.req))
+      Object.assign(newReq, parse(this.editorCache.req))
       newReq['data'] = this.editorCache.reqData
       newData['request'] = newReq
       // Add response
       const newResp = {}
-      Object.assign(newResp, JSON.parse(this.editorCache.resp))
+      Object.assign(newResp, parse(this.editorCache.resp))
       newResp['data'] = this.editorCache.respData
       newData['response'] = newResp
 

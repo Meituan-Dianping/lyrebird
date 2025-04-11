@@ -56,6 +56,7 @@ import FlowTableItem from '@/views/event/FlowTableItem.vue'
 import CustomTableItem from '@/views/event/CustomTableItem.vue'
 import ChannelColumn from '@/views/event/ChannelColumn.vue'
 import ContextMenuItem from '@/views/event/ContextMenuItem.vue'
+import { parse, stringify } from 'lossless-json'
 
 export default {
   components: {
@@ -164,10 +165,10 @@ export default {
       this.$store.dispatch('loadEvents', { page: this.$store.state.event.paginationIndex })
     },
     content2Obj (content) {
-      return JSON.parse(content)
+      return parse(content)
     },
     contentComponentName (content) {
-      const eventObj = JSON.parse(content)
+      const eventObj = parse(content)
       if (eventObj.channel === 'flow') {
         return 'FlowTableItem'
       } else {
@@ -180,7 +181,7 @@ export default {
     onRowClick (row) {
       this.$store.commit('setSelectedEventId', row.event_id)
       this.$store.commit('setSelectedEvent', row)
-      const prettyJson = JSON.stringify(JSON.parse(row.content), null, 2)
+      const prettyJson = stringify(parse(row.content), null, 2)
       this.$store.commit('setEventDetail', prettyJson)
       this.isContextMenuShown = false
     },
@@ -198,7 +199,7 @@ export default {
       this.$store.commit('setPaginationIndex', page - 1)
     },
     onAddEvent (row) {
-      const eventObj = JSON.parse(row.content)
+      const eventObj = parse(row.content)
       if (eventObj.summary) {
         this.$bus.$emit('addSummary', eventObj.summary)
       }

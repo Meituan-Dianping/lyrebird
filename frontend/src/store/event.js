@@ -1,5 +1,7 @@
 import * as api from '@/api'
 import { bus } from '@/eventbus'
+import { parse, stringify } from 'lossless-json'
+
 
 
 export default {
@@ -88,7 +90,7 @@ export default {
           if (eventIndex >= 0) {
             let event = events[eventIndex]
             event._highlight = true
-            const prettyJson = JSON.stringify(JSON.parse(event.content), null, 2)
+            const prettyJson = stringify(parse(event.content), null, 2)
             commit('setEventDetail', prettyJson)
             commit('setSelectedEventId', event.event_id)
             bus.$emit('eventListScroll', eventIndex / events.length)
@@ -123,7 +125,7 @@ export default {
         bus.$emit('msg.destroy')
         bus.$emit('msg.error', 'Please select a snapshot!')
       }
-      const eventObj = JSON.parse(state.selectedEvent.content)
+      const eventObj = parse(state.selectedEvent.content)
       console.log(eventObj);
       api.exportSnapshotFromEvent(eventObj)
         .then(response => {

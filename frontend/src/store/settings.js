@@ -114,7 +114,6 @@ export default {
     loadSettingsList({ state, commit, dispatch }) {
       api.getSettingModelList()
         .then(response => {
-          console.log(response.data.data)
           commit('setSettingsList', response.data.data)
         })
         .catch(error => {

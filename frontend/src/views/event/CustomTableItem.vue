@@ -6,6 +6,7 @@
 
 <script>
 import ContextMenuItem from '@/views/event/ContextMenuItem.vue'
+import { stringify } from 'lossless-json'
 
 export default {
   props: ['event'],
@@ -17,7 +18,7 @@ export default {
       if (this.event.hasOwnProperty('message')) {
         return this.event.message
       } else {
-        return JSON.stringify(this.event)
+        return stringify(this.event)
       }
     }
   }
