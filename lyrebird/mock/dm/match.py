@@ -204,10 +204,10 @@ class MatchRules:
 
     @staticmethod
     def _is_targets_pattern_matched(pattern, targets, expected=True):
+        res = False
         for target in targets:
-            if utils.TargetMatch.is_match(target, pattern) != expected:
-                return False
-        return True
+             res |= utils.TargetMatch.is_match(target, pattern)
+        return res if expected else not res
 
 
     BOOL_FUNC_MAP = {
