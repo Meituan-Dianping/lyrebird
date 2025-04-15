@@ -312,7 +312,6 @@ export default {
         })
     },
     saveDataDetail ({ state, commit, dispatch }, payload) {
-      console.log(stringify(payload))
       api.updateData(stringify(payload))
         .then(response => {
           state.focusedLeaf.name = payload.name
@@ -410,8 +409,6 @@ export default {
     loadDataDetail ({ commit, dispatch }, payload) {
       api.getDataDetail(payload.id)
         .then(response => {
-          console.log("response.data.data")
-          console.log(response.data.data)
           commit('setDataDetail', response.data.data)
           dispatch('getParentAbsPath', response.data.data)
         })
