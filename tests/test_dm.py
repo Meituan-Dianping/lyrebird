@@ -360,7 +360,7 @@ def data_manager(root, tmpdir):
         'config.value.tojsonKey': ['custom.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
         'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"},
         'event.lyrebird_metrics_report': False,
-        'dm.match.logic': 'and'
+        'mock.match.logic': 'and'
     }
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
@@ -380,7 +380,7 @@ def data_manager_with_or_logic(root, tmpdir):
         'config.value.tojsonKey': ['custom.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
         'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"},
         'event.lyrebird_metrics_report': False,
-        'dm.match.logic': 'or'
+        'mock.match.logic': 'or'
     }
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
