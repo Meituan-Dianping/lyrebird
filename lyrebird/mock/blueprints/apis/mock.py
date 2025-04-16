@@ -4,6 +4,7 @@ from flask import request
 import traceback
 from lyrebird import application, log
 from lyrebird.config import CONFIG_TREE_LOAD_CHILDREN_ASYNC
+import json
 
 logger = log.get_logger()
 
@@ -168,8 +169,9 @@ class MockData(Resource):
         return application.make_ok_response(data=display_item)
 
     def put(self):
-        data_id = request.json.get('id')
-        data = request.json
+        data = json.loads(request.data.decode('utf-8'))
+        data_id = data.get('id')
+
         # Import encoder for encoding the requested content
         application.encoders_decoders.encoder_handler(data)
         if 'lyrebirdInternalFlow' in data:

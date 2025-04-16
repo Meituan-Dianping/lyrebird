@@ -359,7 +359,28 @@ def data_manager(root, tmpdir):
         'mock.port': 9090,
         'config.value.tojsonKey': ['custom.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
         'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"},
-        'event.lyrebird_metrics_report': False
+        'event.lyrebird_metrics_report': False,
+        'mock.match.logic': 'and'
+    }
+    application._cm = MockConfigManager(config=_conf)
+    lyrebird.mock.context.application.socket_io = FakeSocketio()
+    application.encoders_decoders = EncoderDecoder()
+    _dm = dm.DataManagerV2()
+    _dm.snapshot_workspace = tmpdir
+    _dm.set_adapter(data_adapter)
+    _dm.set_root(root)
+    yield _dm
+
+
+@pytest.fixture
+def data_manager_with_or_logic(root, tmpdir):
+    _conf = {
+        'ip': '127.0.0.1',
+        'mock.port': 9090,
+        'config.value.tojsonKey': ['custom.[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}'],
+        'custom.8df051be-4381-41b6-9252-120d9b558bf6': {"key": "value"},
+        'event.lyrebird_metrics_report': False,
+        'mock.match.logic': 'or'
     }
     application._cm = MockConfigManager(config=_conf)
     lyrebird.mock.context.application.socket_io = FakeSocketio()
@@ -463,6 +484,40 @@ def test_mock_rule(data_manager):
     data_manager.activate('groupB-UUID')
     mock_data_list = data_manager.get_matched_data(flow)
     assert len(mock_data_list) == 0
+
+
+def test_mock_rule_in_or_logic(data_manager_with_or_logic):
+    flowA = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                "poi":[
+                    {"name":"app"},
+                    {"name":"apple"}
+                ]
+            }
+        }
+    }
+    mock_data_list = data_manager_with_or_logic.get_matched_data(flowA)
+    assert len(mock_data_list) == 0
+
+    data_manager_with_or_logic.activate('groupJ-UUID')
+    mock_data_list = data_manager_with_or_logic.get_matched_data(flowA)
+    assert len(mock_data_list) == 1
+
+    flowB = {
+        'request': {
+            'url': 'http://somehost/api/search',
+            'data': {
+                "poi":[
+                    {"name":"app"},
+                    {"name":"banana"}
+                ]
+            }
+        }
+    }
+    mock_data_list = data_manager_with_or_logic.get_matched_data(flowB)
+    assert len(mock_data_list) == 1
 
 
 def test_mock_rule_with_jsonpath(data_manager):

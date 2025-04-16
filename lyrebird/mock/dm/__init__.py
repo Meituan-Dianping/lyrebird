@@ -1280,6 +1280,10 @@ class DataManagerV2(DataManager):
     def __init__(self):
         super().__init__()
         self.activate_config = {}
+        if application.config.get('mock.match.logic', 'and') == 'or':
+            MatchRules.AND_LOGIC = False
+        else:
+            MatchRules.AND_LOGIC = True
 
     def reload(self, reset=False, open_nodes=[]):
         if reset:

@@ -13,7 +13,7 @@
     </Row>
     <div v-if="eventDetail">
       <div v-if="currentTab==='msg'">
-        <pre class="event-message">{{JSON.parse(eventDetail).message}}</pre>
+        <pre class="event-message">{{parse(eventDetail).message}}</pre>
       </div>
       <code-editor
         v-if="currentTab==='raw'"
@@ -27,6 +27,7 @@
 
 <script>
 import CodeEditor from '@/components/CodeEditor.vue'
+import { parse } from 'lossless-json'
 
 export default {
   components: {

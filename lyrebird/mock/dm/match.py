@@ -3,6 +3,11 @@ from lyrebird.mock.dm.jsonpath import jsonpath
 
 
 class MatchRules:
+
+    # When True, the match uses the AND logic
+    # when False, it uses the OR logic
+    AND_LOGIC = True
+
     def validate_match(rules):
         '''
         { 'request.url': 'pathA/pathB' }
@@ -204,11 +209,24 @@ class MatchRules:
 
     @staticmethod
     def _is_targets_pattern_matched(pattern, targets, expected=True):
+        if MatchRules.AND_LOGIC:
+            return MatchRules._is_targets_pattern_matched_and_version(pattern, targets, expected)
+        else:
+            return MatchRules._is_targets_pattern_matched_or_version(pattern, targets, expected)
+
+    @staticmethod
+    def _is_targets_pattern_matched_or_version(pattern, targets, expected=True):
+        res = False
+        for target in targets:
+             res |= utils.TargetMatch.is_match(target, pattern)
+        return res if expected else not res
+
+    @staticmethod
+    def _is_targets_pattern_matched_and_version(pattern, targets, expected=True):
         for target in targets:
             if utils.TargetMatch.is_match(target, pattern) != expected:
                 return False
         return True
-
 
     BOOL_FUNC_MAP = {
         'must': _bool_must.__func__,

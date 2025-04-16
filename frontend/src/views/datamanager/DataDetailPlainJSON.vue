@@ -61,6 +61,7 @@
 import DataDetailInfo from '@/views/datamanager/DataDetailInfo.vue'
 import CodeEditor from '@/components/CodeEditor.vue'
 import JsonpathInfo from '@/views/inspector/JsonpathInfo.vue'
+import { parse, stringify } from 'lossless-json'
 
 export default {
   components: {
@@ -129,8 +130,8 @@ export default {
   methods: {
     save () {
       const newData = {}
-      Object.assign(newData, JSON.parse(this.editorCache.info))
-      newData['json'] = JSON.parse(this.editorCache.json)
+      Object.assign(newData, parse(this.editorCache.info))
+      newData['json'] = parse(this.editorCache.json)
       this.$store.dispatch('saveDataDetail', newData)
     },
     onJsonPathChange (payload) {
@@ -148,11 +149,11 @@ export default {
       if (val === null || Object.keys(val).length === 0) {
         return
       }
-      this.editorCache.info = JSON.stringify({
+      this.editorCache.info = stringify({
         id: val.id,
         name: val.name
       })
-      this.editorCache.json = typeof (val.json) == 'object' ? JSON.stringify(val.json) : val.json
+      this.editorCache.json = typeof (val.json) == 'object' ? stringify(val.json) : val.json
     }
   }
 }

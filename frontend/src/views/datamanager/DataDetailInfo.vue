@@ -174,6 +174,7 @@ import svgIcon from 'vue-svg-icon/Icon.vue'
 import { render } from '@/api'
 import LabelDropdown from '@/components/LabelDropdown.vue'
 import VueQr from 'vue-qr'
+import { parse, stringify } from 'lossless-json'
 
 export default {
   props: ['infoKey', 'editable', 'deletable'],
@@ -201,7 +202,7 @@ export default {
         } else if (this.inputValueType === 'stringObject') {
           return infoValue.value
         } else if (typeof infoValue === 'object') {
-          return JSON.stringify(infoValue)
+          return stringify(infoValue)
         } else {
           return infoValue
         }
