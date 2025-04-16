@@ -337,39 +337,39 @@ export default {
     margin-left: 2px;
 }
 
-::v-deep .v-text-field__slot input {
+:deep(.v-text-field__slot input) {
     padding-top: 4px;
     padding-bottom: 4px;
 }
 
-::v-deep .v-select__selections input {
+:deep(.v-select__selections input) {
     padding-top: 0px;
     padding-bottom: 0px;
 }
 
-::v-deep .v-select.v-input--dense .v-select__selection--comma {
+:deep(.v-select.v-input--dense .v-select__selection--comma) {
     margin-top: 0;
     margin-bottom: 0;
 }
 
-::v-deep .v-text-field--enclosed.v-input--dense:not(.v-text-field--solo).v-text-field--outlined .v-input__append-inner {
+:deep(.v-text-field--enclosed.v-input--dense:not(.v-text-field--solo).v-text-field--outlined .v-input__append-inner) {
     margin-top: 4px;
 }
 
-::v-deep .v-select__selections {
+:deep(.v-select__selections) {
     padding-top: 4px;
     padding-bottom: 4px;
 }
 
-::v-deep .setting-item-card.v-text-field--outlined.v-input--dense>.v-input__control>.v-input__slot {
+:deep(.setting-item-card.v-text-field--outlined.v-input--dense>.v-input__control>.v-input__slot) {
     min-height: 30px;
 }
 
-::v-deep .no-hover-shadow .v-input--selection-controls__ripple {
+:deep(.no-hover-shadow .v-input--selection-controls__ripple) {
   box-shadow: none !important;
 }
 
-::v-deep .no-hover-shadow .v-input--selection-controls__ripple:hover {
+:deep(.no-hover-shadow .v-input--selection-controls__ripple:hover) {
   box-shadow: none !important;
 }
 
