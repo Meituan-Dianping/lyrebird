@@ -2,7 +2,6 @@ import Vue from 'vue'
 import * as api from '../api'
 import { bus } from '@/eventbus'
 import jsonpath from 'jsonpath'
-import { stringify } from 'lossless-json'
 
 export default {
   state: {
@@ -312,7 +311,7 @@ export default {
         })
     },
     saveDataDetail ({ state, commit, dispatch }, payload) {
-      api.updateData(stringify(payload))
+      api.updateData(payload)
         .then(response => {
           state.focusedLeaf.name = payload.name
           dispatch('loadDataDetail', payload)
