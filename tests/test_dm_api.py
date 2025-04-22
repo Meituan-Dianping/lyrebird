@@ -107,30 +107,31 @@ def test_group_get_without_group_id(client):
 
 
 def test_group_post(client):
-    resp = client.post('/api/group', json={
+    data = {
         'data': {
             'name': 'groupA-UUID',
             'parent_id': 'root'
         },
         'id': 'groupJ-UUID'
-    })
+    }
+    resp = client.post('/api/group', data=json.dumps(data), headers={'Content-Type': 'text/plain'})
     assert resp.json['code'] == 1000
 
 
 def test_group_put(client):
-    resp = client.put('/api/group', json={
+    data = {
         'data': {
             'name': 'groupA-UUID-new',
             'parent_id': 'root'
         },
         'id': 'groupA-UUID'
-    })
+    }
+    resp = client.put('/api/group', data=json.dumps(data), headers={'Content-Type': 'text/plain'})
     assert resp.json['code'] == 1000
 
 
-
 def test_group_put_with_query(client):
-    resp = client.put('/api/group', json={
+    data = {
         'query': {
             'tab': 'PIPELINE'
         },
@@ -138,9 +139,9 @@ def test_group_put_with_query(client):
             'id': 'groupA-UUID',
             'name': 'groupA-UUID-new',
             'parent_id': 'root'
-        },
-        
-    })
+        }
+    }
+    resp = client.put('/api/group', data=json.dumps(data), headers={'Content-Type': 'text/plain'})
     assert resp.json['code'] == 1000
 
 
