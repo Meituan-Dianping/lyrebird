@@ -103,7 +103,7 @@ CONTENT = u"from lyrebird import event\n@event('flow')\ndef test_func():\n\tpass
 @pytest.fixture
 def checker_init(tmp_path, tmpdir):
     config = {
-        'checker.workspace': tmp_path,
+        'checker.workspace': str(tmp_path),
         'checker.switch': {
             CHECKER_A_FILENAME: CHECKER_A_SWITCH,
             CHECKER_B_FILENAME: CHECKER_B_SWITCH

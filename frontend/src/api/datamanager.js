@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { stringify } from 'lossless-json'
 
 export const getGroupMap = (options) => {
   let url = '/api/group'
@@ -39,7 +40,10 @@ export const createGroup = (name, parentId) => {
   return axios({
     url: '/api/group',
     method: 'POST',
-    data: { name, 'parent_id': parentId }
+    headers: {
+      'Content-Type': 'text/plain'
+    },
+    data: stringify({ name, 'parent_id': parentId })
   })
 }
 
@@ -54,7 +58,10 @@ export const updateGroup = (id, data) => {
   return axios({
     url: '/api/group',
     method: 'PUT',
-    data: { id, data }
+    headers: {
+      'Content-Type': 'text/plain'
+    },
+    data: stringify({ id, data })
   })
 }
 
@@ -80,7 +87,10 @@ export const createData = (parentId, data) => {
   return axios({
     url: '/api/data',
     method: 'POST',
-    data: { data, 'parent_id': parentId }
+    headers: {
+      'Content-Type': 'text/plain'
+    },
+    data: stringify({ data, 'parent_id': parentId })
   })
 }
 
@@ -95,10 +105,10 @@ export const updateData = (data) => {
   return axios({
     url: '/api/data',
     method: 'PUT',
-    data,
     headers: {
       'Content-Type': 'text/plain'
-    }
+    },
+    data: stringify(data)
   })
 }
 

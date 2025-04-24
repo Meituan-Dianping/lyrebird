@@ -100,7 +100,7 @@ class MockGroup(Resource):
         return application.make_ok_response(data=root)
 
     def post(self):
-        data = request.json.get('data')
+        data = json.loads(request.data.decode('utf-8')).get('data')
         if not data:
             data = {
                 'name': request.json.get('name'),
@@ -110,17 +110,18 @@ class MockGroup(Resource):
         return context.make_ok_response(data={'group_id': group_id})
 
     def put(self):
-        if 'query' in request.json:
-            query = request.json['query']
+        group_info = json.loads(request.data.decode('utf-8'))
+        if 'query' in group_info:
+            query = group_info['query']
             if query is None:
                 return application.make_fail_response(f'Update query is None!')
 
-            data = request.json.get('data')
+            data = group_info.get('data')
             message = context.application.data_manager.update_by_query(query, data)
 
         else:
-            group_id = request.json.get('id')
-            data = request.json.get('data')
+            group_id = group_info.get('id')
+            data = group_info.get('data')
             message = context.application.data_manager.update_group(group_id, data)
 
         if message:
@@ -181,8 +182,9 @@ class MockData(Resource):
         return context.make_ok_response()
 
     def post(self):
-        parent_id = request.json.get('parent_id')
-        data = request.json.get('data')
+        data_info = json.loads(request.data.decode('utf-8'))
+        parent_id = data_info.get('parent_id')
+        data = data_info.get('data')
 
         if parent_id == 'tmp_group':
             application.encoders_decoders.encoder_handler(data)
