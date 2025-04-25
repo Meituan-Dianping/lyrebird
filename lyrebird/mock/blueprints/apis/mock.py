@@ -100,11 +100,11 @@ class MockGroup(Resource):
         return application.make_ok_response(data=root)
 
     def post(self):
-        data = json.loads(request.data.decode('utf-8')).get('data')
+        data = json.loads(request.data.decode('utf-8'))
         if not data:
             data = {
-                'name': request.json.get('name'),
-                'parent_id': request.json.get('parent_id')
+                'name': data.get('name'),
+                'parent_id': data.get('parent_id')
             }
         group_id = context.application.data_manager.add_group(data)
         return context.make_ok_response(data={'group_id': group_id})

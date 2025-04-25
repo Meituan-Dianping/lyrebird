@@ -112,6 +112,7 @@ def test_group_post(client):
             'name': 'groupA-UUID',
             'parent_id': 'root'
         },
+        'name': 'groupA-UUID',
         'id': 'groupJ-UUID'
     }
     resp = client.post('/api/group', data=json.dumps(data), headers={'Content-Type': 'text/plain'})
@@ -124,6 +125,7 @@ def test_group_put(client):
             'name': 'groupA-UUID-new',
             'parent_id': 'root'
         },
+        'name': 'groupA-UUID',
         'id': 'groupA-UUID'
     }
     resp = client.put('/api/group', data=json.dumps(data), headers={'Content-Type': 'text/plain'})
