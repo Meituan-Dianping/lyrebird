@@ -91,6 +91,7 @@ export default {
       contextMenuLeft: 0,
       contextMenuTop: 0,
       refreshEventListTimer: null,
+      showPoptip: false,
     }
   },
   computed: {
@@ -125,10 +126,77 @@ export default {
           key: 'channel',
           slot: 'channel',
           width: 80,
-          filters: filters,
-          filteredValue: this.$store.state.event.channelFilters,
-          filterRemote (value) {
-            this.$store.dispatch('updateChannelFilters', value)
+          renderHeader: (h) => {
+            return h('div', [
+              'Channel',
+              h('Poptip', {
+                props: {
+                  placement: 'bottom',
+                  value: this.showPoptip
+                },
+                on: {
+                  input: (value) => { this.showPoptip = value }
+                }
+              }, [
+                h('Button', {
+                  props: {
+                    shape: 'circle',
+                    type: 'text',
+                    size: 'small',
+                    icon: 'ios-funnel',
+                  },
+                  class: 'no-shadow',
+                  style: {
+                    width: '13px',
+                    height: '13px',
+                    'font-size': '11px',
+                    margin: '0px 0px 5px 3px'
+                  }
+                }),
+                h('template', { slot: 'content' }, [
+                  h('div', [
+                    h('CheckboxGroup', {
+                      props: { value: this.$store.state.event.channelFilters },
+                      on: {
+                        'on-change': (value) => {
+                          this.$store.commit('setChannelFilters', value)
+                        }
+                      }
+                    }, this.channelNames.map(channelName => {
+                      return h('div', [
+                        h('Checkbox', {
+                          props: { label: channelName }
+                        }, channelName)
+                      ])
+                    })),
+                    h('div', { style: { borderTop: '1px solid #ccc', margin: '5px 0' } }),
+                    h('Button', {
+                      props: {
+                        type: 'text',
+                        size: 'small'
+                      },
+                      on: {
+                        click: () => {
+                          this.showPoptip = false;
+                          this.$store.dispatch('updateChannelFilters', this.$store.state.event.channelFilters)
+                        }
+                      },
+                      style: { margin: '0px 9px 2px 2px' }
+                    }, 'Confirm'),
+                    h('Button', {
+                      props: {
+                        type: 'text',
+                        size: 'small'
+                      },
+                      on: {
+                        click: () => { this.$store.dispatch('updateChannelFilters', []) }
+                      },
+                      style: { marginBottom: '2px' }
+                    }, 'Reset')
+                  ])
+                ])
+              ])
+            ])
           }
         },
         {
@@ -293,5 +361,11 @@ export default {
 }
 .row-contextmenu {
   position: absolute;
+}
+.no-shadow:focus {
+  box-shadow: none !important;
+}
+.ivu-poptip-body {
+  padding: 5px 16px;
 }
 </style>
